@@ -1,0 +1,3 @@
+variables
+instanceVariableNames
+	^ self allInstVarNames

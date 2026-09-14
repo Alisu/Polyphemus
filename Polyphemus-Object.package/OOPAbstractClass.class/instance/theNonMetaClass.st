@@ -1,0 +1,3 @@
+variables
+theNonMetaClass
+	^ self
