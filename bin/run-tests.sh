@@ -103,6 +103,27 @@ run_set() {
   echo "== $label done in $(( $(date +%s) - start ))s =="
 }
 
+# One suite at a time. Two runs on this box fight each other for memory -- three test
+# classes load a 59 MB image apiece -- and the loser looks like a flaky test rather than
+# an overloaded machine. So a new run stops the one still going.
+#
+# Only when a previous *runner* is alive: `pkill -x pharo` would otherwise take out an
+# interactive Pharo someone is sitting in front of. -x matches the name exactly, never
+# the ssh command line that asked for it.
+LOCK="$WORK/.test-runner.pid"
+if [ -f "$LOCK" ]; then
+  PREV=$(cat "$LOCK" 2>/dev/null || true)
+  if [ -n "${PREV:-}" ] && [ "$PREV" != "$$" ] && kill -0 "$PREV" 2>/dev/null; then
+    echo "== stopping the run already going (pid $PREV) =="
+    kill -TERM "$PREV" 2>/dev/null || true
+    pkill -x pharo 2>/dev/null || true
+    sleep 2
+    pkill -9 -x pharo 2>/dev/null || true
+  fi
+fi
+echo $$ > "$LOCK"
+trap 'rm -f "$LOCK"' EXIT
+
 : > "$RESULTS"; : > "$TIMINGS.new"
 
 if [ ${#SELECTED[@]} -gt 0 ]; then
