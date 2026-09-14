@@ -67,8 +67,13 @@ StDebugger openOn: session withFullView: true
 ## What works, and what a snapshot cannot answer
 
 Works: the stack, each frame's class and method, the source read from the image's own
-`.sources`, the receiver and its instance variables in the inspector, and instance variables
-resolving in the source pane.
+`.sources`, the receiver and its instance variables in the inspector, and variables resolving
+in the source pane.
+
+Everything resolves **in the image being read**, never in ours: instance variables come from
+the receiver's class there, and globals from that image's own `SystemDictionary`, reachable at
+special objects slot 9 — `memory globalNamed: 'Process'`. Falling back to our globals would
+bind a name to a class of this image that merely shares a name with the one in the file.
 
 Does not, and does not pretend to:
 
@@ -88,7 +93,7 @@ patches make the rest work, all fork-only:
 - `DebugSession>>isContextPostMortem:` and `>>isLatestContext:` ask the interrupted process,
   which a snapshot session does not have.
 - `StDebuggerContextInteractionModel>>behavior` asks the receiver for its class, which for us
-  is `OOPRegularObject` in this image. It has to be the method's class in the snapshot, or
-  nothing in the source resolves and every variable shows as unknown.
+  is `OOPRegularObject` in this image. It has to be the receiver's class **in the image being
+  read**, or nothing in the source resolves and every variable shows as unknown.
 
 These patch Pharo classes, so they stay in the fork.
