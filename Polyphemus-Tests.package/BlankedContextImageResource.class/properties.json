@@ -1,0 +1,11 @@
+{
+	"commentStamp" : "",
+	"super" : "AbstractPharoImageResource",
+	"category" : "Polyphemus-Tests-resources",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [ ],
+	"name" : "BlankedContextImageResource",
+	"type" : "normal"
+}
