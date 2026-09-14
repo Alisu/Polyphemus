@@ -1,0 +1,16 @@
+{
+	"commentStamp" : "",
+	"super" : "SpPresenter",
+	"category" : "Polyphemus-Memory-snapshot",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [
+		"reifiedMemory",
+		"processList",
+		"frameList",
+		"sourceText"
+	],
+	"name" : "SnapshotProcessBrowser",
+	"type" : "normal"
+}
