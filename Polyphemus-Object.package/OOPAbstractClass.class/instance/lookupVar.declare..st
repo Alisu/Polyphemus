@@ -7,14 +7,20 @@ lookupVar: aName declare: aBoolean
 
 	What comes back is a variable object of THIS image describing a variable of THAT
 	one, because the tooling asking, the syntax highlighter and the compiler, only
-	understands its own. The layout walk is from the hackDebugger branch."
+	understands its own. The layout walk is from the hackDebugger branch.
 
-	| layout |
+	The index matters: it is the one the variable has over there, and code generated
+	here from that source has to read the same slot to mean the same thing."
+
+	| layout index |
 	layout := self reifiedSlotAt: 4.
 	(self acceptableLayout includes: layout oopClassName) ifTrue: [
-		^ self bindingOf: aName ].
+		^ self lookupReservedOrGlobal: aName ].
 
-	(self allInstVarNames includes: aName asString) ifTrue: [
-		^ InstanceVariableSlot named: aName asString asSymbol ].
+	index := self allInstVarNames indexOf: aName asString.
+	index isZero ifFalse: [
+		^ (InstanceVariableSlot named: aName asString asSymbol)
+			  index: index;
+			  yourself ].
 
-	^ self bindingOf: aName
+	^ self lookupReservedOrGlobal: aName

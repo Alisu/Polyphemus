@@ -1,9 +1,18 @@
 context protocol
 astScope
 
-	"The debugger asks a scope for its temporaries. Naming them needs the method's
-	syntax tree analysed against the classes of the image it came from, which stage
-	one does not do yet, so answer an empty scope: the debugger then shows the
-	receiver and the stack, which is what a snapshot can honestly offer."
+	"The scope this frame runs in: the debugger asks it for the temporaries to show, and
+	each of those reads its own value back out of this context.
 
-	^ OOPSnapshotScope new
+	A method frame runs the method's own scope. A block frame runs one of the block
+	scopes inside it, which has to be found first."
+
+	| node |
+	node := self analysedMethodNode.
+	node ifNil: [ ^ OOPSnapshotScope new ].
+
+	self isBlockContext ifFalse: [ ^ node scope ].
+
+	^ (self blockNodeIn: node)
+		  ifNil: [ OOPSnapshotScope new ]
+		  ifNotNil: [ :blockNode | blockNode scope ]
