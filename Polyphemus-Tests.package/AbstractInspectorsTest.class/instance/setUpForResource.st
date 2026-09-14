@@ -1,4 +1,3 @@
 running
 setUpForResource
-	self setUpUsingImage.
-	self postImageLoad.
+	^ self setUpForResourceMarrying: true

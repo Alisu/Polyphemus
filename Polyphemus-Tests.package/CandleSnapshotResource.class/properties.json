@@ -1,0 +1,11 @@
+{
+	"commentStamp" : "",
+	"super" : "PharoCandleImageResource",
+	"category" : "Polyphemus-Tests-resource",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [ ],
+	"name" : "CandleSnapshotResource",
+	"type" : "normal"
+}

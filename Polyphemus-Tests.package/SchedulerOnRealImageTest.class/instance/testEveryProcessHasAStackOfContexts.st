@@ -1,12 +1,10 @@
 tests
 testEveryProcessHasAStackOfContexts
 
-	"Every process of a real snapshot carries its whole stack as contexts, and some
-	of them are many frames deep. The exception is the running process, whose context
-	the loader married back to a frame."
+	"A snapshot carries every stack as contexts, the running process included: read
+	as a snapshot rather than started, nothing is married and no stack is cut short."
 
-	| deepest married |
-	married := reifiedMemory marriedContexts.
+	| deepest |
 	deepest := 0.
 	reifiedMemory allReifiedProcesses do: [ :process |
 		| stack |
@@ -16,6 +14,5 @@ testEveryProcessHasAStackOfContexts
 		deepest := deepest max: stack size ].
 
 	self assert: deepest > 5.
-	self assert: married size equals: 1.
-	self assert: (reifiedMemory contextsOfProcess: reifiedMemory reifiedActiveProcess) first
-		equals: married first
+	self assert: reifiedMemory marriedContexts isEmpty.
+	self assert: (reifiedMemory contextsOfProcess: reifiedMemory reifiedActiveProcess) size > 1

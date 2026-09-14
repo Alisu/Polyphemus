@@ -1,3 +1,3 @@
 configuring
 resourceClass
-	^ Pharo10ImageResource
+	^ Pharo10SnapshotResource
