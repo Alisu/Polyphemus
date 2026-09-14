@@ -187,6 +187,21 @@ never reaches the widget: the list renders `printString`.
 `text: x ifNil: [y]` parses as `text:ifNil:`. `first:thenDo:` does not exist on `Array` in
 Pharo 10.
 
+**Reading a block's bytecodes with `at:`.** On a method `at:` answers the bytecode at a pc; on
+a compiled block it answers the nth raw byte, so a block's code read that way comes back as its
+header and literals. It matched nothing, so every block frame — twenty of forty-seven — lost
+its highlight. It never showed a *wrong* one, which is why it looked like "blocks are not
+supported" rather than a bug.
+→ **`bytecodeAt:`** for code of either kind. And when a whole category of thing silently
+answers "no", count the reasons before believing the category is unsupported.
+
+**Believing a test that only shows a symptom is gone.** Turning off the compiler's semantic
+warnings was done with a setter that does not exist. The check afterwards was "are the warnings
+gone, and is `Undeclared` still empty" — both true, because the analysis was now failing
+outright and producing nothing at all. The feature had been switched off, not fixed.
+→ Check the **feature**, not the absence of the symptom. The fixture tests caught it a minute
+later; the probe never would have.
+
 ## Leaving things behind in the image
 
 **A fixture class per reset.** `ImageInterpretedSetup>>currentImage` builds its resource with
@@ -220,6 +235,21 @@ timeout, so the image silently kept the old code and the next run "made no sense
 **Warming only one fixture.** Every test process reloaded the 60 MB Pharo 10 image: 39s per
 test instead of 17s.
 → Warm **every** fixture into `warm.image`.
+
+**Optimising what was measured instead of what was slow.** `SchedulerOnRealImageTest` took
+seven minutes, and the measurements said a full heap scan ran on every call. Caching it saved
+66 seconds of 422 and left the puzzle standing: 16 seconds a test, which is suspiciously
+exactly one image load.
+
+It was neither loading nor scanning. `AbstractInspectorsTest>>mutatesResource` defaults to
+**true**, and a class that does not override it gets `stackBuilder veryDeepCopy` — the whole
+interpreter and a 59 MB heap — **per test**. The class only ever reads. One line:
+
+    mutatesResource ^ false
+
+**476 seconds to 6.** The whole suite went from about twenty-five minutes to eighty seconds.
+→ When a number does not add up, chase the part that does not add up. "16 seconds a test" was
+visible for hours and was the answer.
 
 **Reading a smaller test total as a regression.** The fast tier is whatever ran in under
 eight seconds *last time*, so the total moves on its own: 280, then 247, then 194, with

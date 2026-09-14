@@ -115,15 +115,32 @@ image, still there the next run.
 
 Does not, and does not pretend to:
 
-- **The highlighted line**, not yet. Mapping a pc to a source range needs the method's pc map,
-  which a snapshot does not carry. Recompiling the source here to get one was written off
-  because the bytecodes came out different; they did, because of bugs of ours in how globals
-  were wrapped and in `endPC`. Fixed, **all 27 method frames of the pinned image recompile byte
-  for byte**, so the route is open — compile against the reified class, check the result
-  against the file, and use the pc map only where they agree. Nothing is highlighted until
-  that is built.
 - **Stepping, restarting, evaluating.** The toolbar buttons are there because it is the real
   debugger, but there is no process behind them.
+
+## The line a frame is on
+
+```smalltalk
+context pcRangeContextIsActive: false.   "(262 to: 281) -- an interval into the source"
+context sourceNodeExecuted.              "the same place, as a syntax tree node"
+```
+
+A snapshot carries no map from a pc to a place in the source. This one is built by **compiling
+the method's own source here** — against the class it came from, with sources embedded so the
+tree belongs to the real text — and then **comparing the bytecodes with the ones in the file**.
+The map is used only where they are the same code. Where they are not, the interval is empty
+and nothing is highlighted: a highlight over the wrong line is not a near miss, because the
+reader has no way of telling.
+
+45 of the 47 frames of the pinned image highlight, blocks included. The frame on top of the
+stack has its pc on the instruction about to run; every frame below it has already moved past
+the send it is waiting on, so theirs is read one bytecode back — Pharo's own rule.
+
+Two things had to be right for blocks. A block's code lives in a compiled block of its own, so
+the block running has to be matched to the block compiled here, by order and then by its
+bytecodes. And those bytecodes have to be read with `bytecodeAt:`: `at:` answers the nth raw
+byte for a block, which matches nothing and costs every block frame its highlight without ever
+showing a wrong one.
 
 ## When the image is actually damaged
 

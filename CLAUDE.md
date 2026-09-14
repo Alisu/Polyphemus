@@ -58,9 +58,14 @@ the runner starts one Pharo process per test class and fans them out across the 
 |---|---|---|
 | `bin/run-tests.sh -c Foo -t testBar` | one test | **0.5 s** |
 | `bin/run-tests.sh -c Foo` | one class | 1–20 s |
-| `bin/run-tests.sh --fast` | everything under 8 s/class (32 classes, 248 tests) | **7 s** |
-| `bin/run-tests.sh` | fast tier, then the slow tier only if fast is green | ~27 s |
-| `bin/run-tests.sh --all -j 8` | everything (35 classes, 347 tests) | **27 s** |
+| `bin/run-tests.sh --fast` | everything under 8 s/class | **~10 s** |
+| `bin/run-tests.sh` | fast tier, then the slow tier only if fast is green | ~80 s |
+| `bin/run-tests.sh --all -j 4` | everything (40 classes, 402 tests) | **80 s** |
+
+- **A test class that only reads must say so.** `mutatesResource` defaults to true, and a class
+  that does not override it is handed `veryDeepCopy` of the interpreter and a 59 MB heap for
+  **every test**: 16 s apiece. `SchedulerOnRealImageTest` went from 476 s to 6 s by answering
+  false, and the whole suite from ~25 minutes to 80 s.
 
 - **Warm image.** `bin/build-warm.st` snapshots `warm.image` with the interpreted fixture
   already in place, so each test process skips loading a 60 MB image into the simulator.
@@ -99,15 +104,14 @@ Everything resolves **in the image being read** — instance variables through t
 there, globals through that image's own `SystemDictionary`, temporaries by analysing that method's
 source against that class. Never through ours.
 
+The line a frame is on is highlighted too, in 45 of the 47 frames of the pinned image. A
+snapshot has no pc map, so it is built by compiling the method's own source here and **keeping
+it only when the bytecodes come out identical to the file's**. Where they do not, nothing is
+highlighted. This was written off once, on the grounds that recompiling produced different
+bytecodes — it did, because of two bugs in how globals were wrapped and one in `endPC`.
+
 What stage 1 does not do, and why:
 
-- **No highlighted line — yet, and not for the reason first written down.** Mapping a pc to a
-  source range needs the method's pc map, which a snapshot does not carry. Recompiling the
-  source here was rejected on the grounds that it produced different bytecodes; it did, because
-  of two bugs of ours in how globals were wrapped and one in `endPC`. With those fixed **all 27
-  method frames of the pinned image recompile byte for byte**, so the route is open: compile
-  against the reified class, check the bytecodes against the file, and use the pc map only when
-  they agree. Not built yet.
 - **No stepping, restarting or evaluating.** The buttons are there because it is the real
   debugger; there is no process behind them.
 - **The receiver's instance variables in the debugger are the reifier's** (`address`, `memory`),

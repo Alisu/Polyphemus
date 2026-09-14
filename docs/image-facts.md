@@ -102,12 +102,17 @@ nothing in particular.
 | | |
 |---|---|
 | one candle test | 0.8s |
-| one real-image test | 17s warm, 39s cold |
+| one real-image test | ~0.2s warm |
+| `SchedulerOnRealImageTest`, 29 tests | 6s |
 | `tdd.sh` overhead (compile working copy + rebuild warm image) | ~6s |
-| fast tier, 278 tests | 8s |
-| whole suite | ~40s |
+| whole suite, 402 tests, `-j 4` | **80s** |
 
-Work on candle, verify on the real image before committing.
+A real-image test used to cost 16s, because `mutatesResource` defaults to true and a test
+class that does not override it is handed `veryDeepCopy` of the interpreter and a 59 MB heap
+**per test**. Classes that only read say so, and the class went from 476s to 6s.
+
+Work on candle, verify on the real image before committing — which now costs seconds, so the
+real image is in the fast tier.
 
 ## Traps that cost us time
 
