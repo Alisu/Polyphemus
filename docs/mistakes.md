@@ -264,6 +264,13 @@ class joined the suite. Each was green on its own immediately after.
 → Re-run before believing a failure. Three classes now load a 59 MB image, so a full run wants
 `-j 4`.
 
+`ReifiedMemoryTest>>testFreezeMemory` joined the list on 2026-09-15: twice during or right
+after a full `-j 4` run, then clean through 25 suite runs in one process, 6 fresh processes and
+6 runs through the runner. **Unexplained**, not just unreproduced.
+
+**Committing on a green-looking pipe.** The commit after it was chained on the test command
+*running*, not on it being green, so a red suite went in anyway. Gate on the result.
+
 **A loader that removed methods a trait provides.** It walked every selector of a class and
 removed those without a matching file, printing alarming `REMOVED OOPString>>asString` lines.
 Nothing was lost, because the trait re-provides them, but it was luck.
