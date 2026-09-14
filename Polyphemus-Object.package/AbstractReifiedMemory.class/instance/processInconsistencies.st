@@ -8,10 +8,15 @@ processInconsistencies
 	queue may loop, a process may disagree with the queue holding it, and a process
 	may point at something that is not a context at all."
 
-	| problems lists nilObject |
+	| problems lists nilObject active |
 	problems := OrderedCollection new.
 	nilObject := self reifiedNilObject.
 	lists := self reifiedProcessLists asArray.
+	active := self reifiedActiveProcess.
+
+	"the running process is taken out of its queue while it runs"
+	(active reifiedSlotAt: self processMyListSlot) = nilObject ifFalse: [
+		problems add: active -> #activeProcessIsQueued ].
 
 	lists doWithIndex: [ :list :priority |
 		| chain |
