@@ -122,6 +122,25 @@ pointer in the **bytes of a copy of the image**, and never repairs it. That is w
 `readSlot:of:ifUnreadable:` — every check handled the corruption the tests injected, and three
 of them raised `KeyNotFound` on the first genuinely damaged file.
 
+## Open question, raised 2026-09-15
+
+**What if the damage is in the thing we read with?** Everything here is reached through
+structures that could themselves be the corrupted ones: the special objects array, the class
+table, the class identity of the running process (which is how every other process is found),
+the method headers, the source pointers and the sources file. A stage-one tool is for images
+that are damaged, so the case where it cannot read is exactly the case it exists for.
+
+Worth thinking about, not answered:
+
+- Find objects by **shape** rather than by class identity, so a broken class table costs less.
+- Cross-check the paths that overlap — the scheduler's queues against a heap scan, a method's
+  trailer against its bytecodes — and **say which one disagreed** rather than picking one.
+- Report *why* something is unreadable, naming the structure that failed, instead of answering
+  nothing. The reports already do this for slots (`#suspendedContextIsUnreadable`); the
+  structures we navigate by do not.
+- The free-list recovery work on the `recoveryFreeListV2` branch (issue #20) is the same
+  problem from the other end.
+
 ## Working agreement
 
 - **TDD**: red test first, then the fix. No implementation before a failing test.
