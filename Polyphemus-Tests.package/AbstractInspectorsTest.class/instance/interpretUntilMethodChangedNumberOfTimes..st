@@ -1,4 +1,4 @@
-helper
+running
 interpretUntilMethodChangedNumberOfTimes: anInteger
 
 	| interpretedMethod previousMethod currentMethod |

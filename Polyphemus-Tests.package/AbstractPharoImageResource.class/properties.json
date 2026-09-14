@@ -2,7 +2,9 @@
 	"commentStamp" : "",
 	"super" : "TestResource",
 	"category" : "Polyphemus-Tests-resource",
-	"classinstvars" : [ ],
+	"classinstvars" : [
+		"numberOfSteps"
+	],
 	"pools" : [ ],
 	"classvars" : [ ],
 	"instvars" : [
