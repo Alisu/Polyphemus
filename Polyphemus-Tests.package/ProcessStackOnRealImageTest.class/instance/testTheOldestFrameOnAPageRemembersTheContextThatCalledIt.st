@@ -17,7 +17,7 @@ testTheOldestFrameOnAPageRemembersTheContextThatCalledIt
 	self assert: frame isBaseFrame.
 	self assert: frame savedFramePointer equals: 0.
 
-	caller := frame oopContextThatCalledIntoThisPage.
+	caller := frame oopPageCaller.
 	self
 		assert: (reifiedMemory descriptionOfContext: caller)
 		equals: 'SessionManager>>snapshot:andQuit: [block]'

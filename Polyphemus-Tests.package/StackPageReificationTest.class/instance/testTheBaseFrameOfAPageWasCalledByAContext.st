@@ -24,5 +24,5 @@ testTheBaseFrameOfAPageWasCalledByAContext
 			 each savedFramePointer = 0 ]).
 
 	self
-		assert: (reifiedMemory descriptionOfContext: base oopContextThatCalledIntoThisPage)
+		assert: (reifiedMemory descriptionOfContext: base oopPageCaller)
 		equals: 'SessionManager>>snapshot:andQuit: [block]'

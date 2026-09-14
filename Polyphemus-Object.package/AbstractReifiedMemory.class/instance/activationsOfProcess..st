@@ -22,7 +22,7 @@ activationsOfProcess: aProcessOop
 	frames := self framesFromContext: context.
 	activations addAll: frames.
 	frames ifNotEmpty: [
-		context := [ frames last oopContextThatCalledIntoThisPage ]
+		context := [ frames last oopPageCaller ]
 			           on: Error
 			           do: [ :e | nil ] ].
 
