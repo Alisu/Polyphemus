@@ -1,0 +1,3 @@
+context protocol
+isHaltContext
+	^ false
