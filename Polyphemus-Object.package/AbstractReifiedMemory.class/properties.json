@@ -1,13 +1,13 @@
 {
-	"commentStamp" : "",
-	"super" : "VMSimulatorAccess",
-	"category" : "Polyphemus-Object-image",
-	"classinstvars" : [ ],
-	"pools" : [ ],
-	"classvars" : [
+	"commentStamp": "",
+	"super": "VMSimulatorAccess",
+	"category": "Polyphemus-Object-image",
+	"classinstvars": [],
+	"pools": [],
+	"classvars": [
 		"MemoryCache"
 	],
-	"instvars" : [
+	"instvars": [
 		"baseAddress",
 		"flagErrorObjects",
 		"lastKnownObject",
@@ -21,8 +21,9 @@
 		"metaclassIndex",
 		"objectHandlers",
 		"traitedMetaclassIndex",
-		"metaclassForTraitIndex"
+		"metaclassForTraitIndex",
+		"globalsByName"
 	],
-	"name" : "AbstractReifiedMemory",
-	"type" : "normal"
+	"name": "AbstractReifiedMemory",
+	"type": "normal"
 }
