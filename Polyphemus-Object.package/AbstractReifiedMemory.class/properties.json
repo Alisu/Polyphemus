@@ -22,7 +22,9 @@
 		"objectHandlers",
 		"traitedMetaclassIndex",
 		"metaclassForTraitIndex",
-		"globalsByName"
+		"globalsByName",
+		"instancesByClassTag",
+		"wrappedVariables"
 	],
 	"name": "AbstractReifiedMemory",
 	"type": "normal"

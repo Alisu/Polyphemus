@@ -1,3 +1,3 @@
 query
 instancesOop
-	^ memory select: [ :anOop | anOop oopClassTag = self oopHash ]
+	^ memory instancesOfClassTag: self oopHash
