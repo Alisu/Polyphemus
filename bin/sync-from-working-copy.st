@@ -15,7 +15,17 @@ ensureClass := [ :props :packageName |
 	| name |
 	name := (props at: 'name') asSymbol.
 	(Smalltalk includesKey: name)
-		ifTrue: [ Smalltalk at: name ]
+		ifTrue: [
+			"An instance variable added to the working copy has to reach the class, or the
+			 methods using it will not compile and the loop reports errors that are not
+			 in the code."
+			| cls |
+			cls := Smalltalk at: name.
+			((props at: 'instvars') collect: [ :each | each asString ]) do: [ :ivar |
+				(cls instVarNames includes: ivar) ifFalse: [
+					cls addInstVarNamed: ivar.
+					('IVAR ', name, '>>', ivar) traceCr ] ].
+			cls ]
 		ifFalse: [
 			| superName cls |
 			superName := (props at: 'super') asSymbol.
