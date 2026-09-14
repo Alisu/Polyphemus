@@ -1,3 +1,3 @@
 api
 getImage: aNumber
-	self getImageVersion: aNumber withName: 'latest-64'
+	self getImageVersion: aNumber withName: (self class downloadNameForPharo: aNumber)
