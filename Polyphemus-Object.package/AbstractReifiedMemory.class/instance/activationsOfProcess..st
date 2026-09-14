@@ -5,8 +5,8 @@ activationsOfProcess: aProcessOop
 
 	A running VM keeps the newest activations as frames on a stack page and the older ones
 	as contexts in the heap, and one stack runs through both. The frames come first, oldest
-	last on their page, and where they run out the oldest of them says which context called
-	it. From there it is contexts to the bottom, which is what stage one already walks.
+	last on their page, and that oldest one says which context called into the page. From
+	there it is contexts to the bottom, which is what stage one already walks.
 
 	A process whose context was never married has no frames at all, and this answers the
 	same thing #contextsOfProcess: does."
@@ -22,7 +22,9 @@ activationsOfProcess: aProcessOop
 	frames := self framesFromContext: context.
 	activations addAll: frames.
 	frames ifNotEmpty: [
-		context := [ frames last oopCallerContext ] on: Error do: [ :e | nil ] ].
+		context := [ frames last oopContextThatCalledIntoThisPage ]
+			           on: Error
+			           do: [ :e | nil ] ].
 
 	context ifNil: [ ^ activations ].
 	(frames isEmpty and: [ (self isMarriedContext: context) not ]) ifTrue: [
