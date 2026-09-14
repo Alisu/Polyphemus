@@ -110,6 +110,21 @@ declaring frame belongs to another process. The name showed in the list and read
 temporary that means looking for the vector under the compiler's own name for it in this
 frame's scope.
 
+**Comparing a reified object with an object of this image.** `=` sent `#address` to whatever
+it was given, so comparing an oop with anything of ours raised. Reified objects go straight
+into this image's tooling, which compares them with whatever it likes — the compiler asks
+whether a message node's receiver is `Halt`, an inspector compares against nil. The
+doesNotUnderstand surfaced two layers away as semantic analysis failing, which read on screen
+as *this method has no temporaries*.
+→ `=` answers false for anything that is not an oop, and never raises.
+
+**Being right and looking wrong.** `bindingOf:` answered a `LiteralVariable`, which is the
+right binding with the right value. The source pane asks a variable `isGlobalVariable`, which
+that class answers false to, so `Semaphore` and `Processor` were painted red — the colour for
+a name that resolves to nothing. Nobody reading the screen could tell the difference.
+→ Hand the tooling the **class it expects** (`GlobalVariable`), and check what it *shows*, not
+only what it answers. The bug was found by a user looking at a screenshot, not by a test.
+
 **A rescue that hid a typo.** `numArgs` sent `oopNumberOfArgs`, which does not exist — the
 accessor is `oopNumberOfArguments`. Inside a guard, that turned into "this block does not
 match its source", and block frames quietly showed no names at all.
@@ -161,6 +176,23 @@ never reaches the widget: the list renders `printString`.
 **Smalltalk syntax slips that cost a round trip each.** `"text"` is a comment, not a string.
 `text: x ifNil: [y]` parses as `text:ifNil:`. `first:thenDo:` does not exist on `Array` in
 Pharo 10.
+
+## Leaving things behind in the image
+
+**A fixture class per reset.** `ImageInterpretedSetup>>currentImage` builds its resource with
+`#newSubclass`, so each reset made `Pharo10ImageResource1`, then `2`, then `3`. `resetResource`
+forgot the class instead of removing it, and `TestResource` keeps a class-side `current`, so
+every one of them held a **loaded 82 MB image** for the life of the image. Ten had piled up:
+`dev.image` was **896 MB** where a stock Pharo 10 is 115, and `warm.image` 1.09 GB.
+→ Remove what you created, not just the reference to it. Both halves are a test now
+(`StackPageFixtureLifecycleTest>>testResettingTheFixtureDoesNotLeaveItsClassBehind`). After the
+clean-up: `dev.image` 80 MB, `warm.image` 524 MB — and those numbers are worth watching, since
+this kind of growth is silent.
+
+**Resetting a holder while something still points at what it held.** Removing those classes
+without first calling `resetResource` left `currentImage` naming a class that no longer
+existed, and eight stack-page tests went red for reasons that had nothing to do with them.
+→ Let the holder go first, then remove what it was holding.
 
 ## The remote loop
 

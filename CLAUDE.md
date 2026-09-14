@@ -71,6 +71,14 @@ the runner starts one Pharo process per test class and fans them out across the 
 - **Expensive tests deserve their own class**, since tiering is per class.
   `StackPageReificationTest` costs ~18 s only because
   `testInterpretedStateIsRebuiltAfterResourceReset` forces a full fixture rebuild.
+- **One run at a time**: starting a run stops the one still going (a pid file, then
+  `pkill -x pharo`). Two suites on this box fight for memory — three classes load a 59 MB image
+  apiece — and the loser looks like a flaky test rather than an overloaded machine. A full run
+  wants `-j 4`; classes that load an image want `TMO=900`.
+- **Watch the image sizes**: `dev.image` ~80 MB, `warm.image` ~524 MB (fixtures preloaded, on
+  purpose). They once grew to 896 MB and 1.09 GB because each fixture reset left its resource
+  class, and each class held a loaded image. Growth like that is silent; the size is the
+  symptom.
 - **TDD loop**: `bin/sync-from-working-copy.st` compiles the classes you edited straight
   from the FileTree working copy (Metacello refuses to reload a package whose version is
   unchanged), then run the one test you are working on.
