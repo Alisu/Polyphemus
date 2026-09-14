@@ -3,6 +3,7 @@ binding
 
 	"The last literal of a compiled method is the binding of the class that owns it. Code
 	generated from a snapshot's source is owned by the class in the snapshot, so that is
-	what the binding names, wrapped the way this image's compiler expects."
+	what the binding names, wrapped the way this image's compiler expects: a class name is
+	a global like any other."
 
-	^ LiteralVariable key: self name asSymbol value: self
+	^ GlobalVariable key: self name asSymbol value: self
