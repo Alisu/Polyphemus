@@ -1,8 +1,10 @@
-context protocol
+highlighting
 sourceNodeExecuted
 
-	"Which node a frame stopped at needs the method's syntax tree and its pc map,
-	which stage one does not build. Answer the method node parsed from the source, so
-	the debugger has something structural without pretending to know the exact node."
+	"The piece of source this frame is in, as a syntax tree node, or nil when the code
+	could not be reproduced faithfully enough to say."
 
-	^ [ RBParser parseMethod: self sourceCode ] on: Error do: [ :e | nil ]
+	| code |
+	code := self faithfulCompiledCode.
+	code ifNil: [ ^ nil ].
+	^ [ code sourceNodeForPC: self executedPC ] on: Error do: [ :e | nil ]

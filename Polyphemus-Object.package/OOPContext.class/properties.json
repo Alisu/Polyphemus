@@ -6,7 +6,8 @@
 	"pools" : [ ],
 	"classvars" : [ ],
 	"instvars" : [
-		"analysedNode"
+		"analysedNode",
+		"faithfulCode"
 	],
 	"name" : "OOPContext",
 	"type" : "normal"
