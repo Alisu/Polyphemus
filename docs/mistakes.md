@@ -50,13 +50,23 @@ literals hangs: the **last literal of a compiled block is the code it is install
 the walk goes block → method → block forever.
 → Drop that last literal, and keep a visited set anyway: a corrupted file owes us nothing.
 
-**Trusting recompiled code.** Mapping a pc to a line needs the method's pc map, which the
-file does not carry, so the source was recompiled here against the reified class. It
-compiles — and the bytecodes are not the same code: 42 bytes against the 44 in the file,
-differing from the eleventh onwards.
-→ **Compare the bytecodes before believing any correspondence.** A pc map taken from
-recompiled code points at the wrong line. Stage one names temporaries, which needs only
-parsing and semantic analysis, and highlights nothing.
+**Blaming the other side of a comparison.** Mapping a pc to a line needs the method's pc map,
+which the file does not carry, so the source was recompiled here against the reified class.
+The bytecodes came out different — 42 against 44, differing from the eleventh — and that was
+written down as a fact about Pharo: *recompiling does not reproduce the code, so a pc map from
+it would point at the wrong line, so stage one cannot highlight anything*. It went into three
+documents as settled.
+
+Both halves were **our own bugs**. Globals were wrapped as `LiteralVariable`, so the compiler
+pushed them as constants where the image pushes bindings. Each lookup wrapped a *new* binding
+object, so a method naming `Smalltalk` twice got two literals where the image has one, and
+every literal index after it shifted. And `endPC` counted the method's trailer as code, which
+is where the spare bytes came from.
+
+With those fixed, **all 27 method frames of the pinned image recompile byte for byte**.
+→ When two things that should agree do not, suspect your own side first, and say what was
+checked rather than what it means. "The bytecodes differ" was true; "Pharo's compiler does not
+reproduce them" was not, and only the second one got written down.
 
 **Guarding only the corruption you expected.** The process report checked whether a
 suspended context *was a context*, inside a rescue — but read the slot **outside** it. Against

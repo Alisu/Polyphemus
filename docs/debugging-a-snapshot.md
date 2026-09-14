@@ -102,18 +102,26 @@ Three things follow, and they are the parts worth knowing:
 Reading a value that cannot be read raises instead of answering nil, because nil is a value a
 temporary genuinely holds; the inspector shows `cannot read <name>`.
 
-Everything resolves **in the image being read**, never in ours: instance variables come from
-the receiver's class there, and globals from that image's own `SystemDictionary`, reachable at
-special objects slot 9 — `memory globalNamed: 'Process'`. Falling back to our globals would
-bind a name to a class of this image that merely shares a name with the one in the file.
+Everything resolves **in the image being read**, never in ours: instance variables from the
+receiver's class there, class variables from the class that declares them there, and globals
+from that image's own `SystemDictionary`, reachable at special objects slot 9 —
+`memory globalNamed: 'Process'`. Falling back to our globals would bind a name to a class of
+this image that merely shares a name with the one in the file.
+
+A name that image does not have comes back as an *undeclared* variable rather than as nil.
+Both show as unknown, but nil makes the compiler write the name into **our** `Undeclared`
+dictionary: reading somebody else's image left eleven names behind in ours, saved with the
+image, still there the next run.
 
 Does not, and does not pretend to:
 
-- **Temporaries.** Naming them needs the method's syntax tree analysed against the classes
-  of the image it came from. `astScope` answers an empty scope, so the inspector shows the
-  receiver and the stack instead of wrong names.
-- **The highlighted line.** Mapping a pc to a source range needs the method's pc map, so
-  nothing is highlighted rather than the wrong thing.
+- **The highlighted line**, not yet. Mapping a pc to a source range needs the method's pc map,
+  which a snapshot does not carry. Recompiling the source here to get one was written off
+  because the bytecodes came out different; they did, because of bugs of ours in how globals
+  were wrapped and in `endPC`. Fixed, **all 27 method frames of the pinned image recompile byte
+  for byte**, so the route is open — compile against the reified class, check the result
+  against the file, and use the pc map only where they agree. Nothing is highlighted until
+  that is built.
 - **Stepping, restarting, evaluating.** The toolbar buttons are there because it is the real
   debugger, but there is no process behind them.
 

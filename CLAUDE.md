@@ -101,10 +101,13 @@ source against that class. Never through ours.
 
 What stage 1 does not do, and why:
 
-- **No highlighted line.** Mapping a pc to a source range needs the method's pc map, which a
-  snapshot does not carry. Recompiling the source here to obtain one produces *different
-  bytecodes* than the file holds (42 against 44, differing from the eleventh), so the map would
-  point at the wrong place. Checked, not assumed — see `docs/mistakes.md`.
+- **No highlighted line — yet, and not for the reason first written down.** Mapping a pc to a
+  source range needs the method's pc map, which a snapshot does not carry. Recompiling the
+  source here was rejected on the grounds that it produced different bytecodes; it did, because
+  of two bugs of ours in how globals were wrapped and one in `endPC`. With those fixed **all 27
+  method frames of the pinned image recompile byte for byte**, so the route is open: compile
+  against the reified class, check the bytecodes against the file, and use the pc map only when
+  they agree. Not built yet.
 - **No stepping, restarting or evaluating.** The buttons are there because it is the real
   debugger; there is no process behind them.
 - **The receiver's instance variables in the debugger are the reifier's** (`address`, `memory`),
