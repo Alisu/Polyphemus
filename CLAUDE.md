@@ -49,6 +49,32 @@ Miranda's `VMMaker.oscog`.
 4. Never `pkill -f <pattern>` over ssh when the pattern also appears in your own command line: it
    matches the remote shell and kills the session. Use `pkill -x pharo` or `[p]attern`.
 
+## Running tests (`bin/`, fork-only tooling)
+
+Pharo is single threaded *inside* an image, but nothing stops us running many images:
+the runner starts one Pharo process per test class and fans them out across the box.
+
+| Command | What it does | Measured |
+|---|---|---|
+| `bin/run-tests.sh -c Foo -t testBar` | one test | **0.5 s** |
+| `bin/run-tests.sh -c Foo` | one class | 1–20 s |
+| `bin/run-tests.sh --fast` | everything under 8 s/class (32 classes, 248 tests) | **7 s** |
+| `bin/run-tests.sh` | fast tier, then the slow tier only if fast is green | ~27 s |
+| `bin/run-tests.sh --all -j 8` | everything (35 classes, 347 tests) | **27 s** |
+
+- **Warm image.** `bin/build-warm.st` snapshots `warm.image` with the interpreted fixture
+  already in place, so each test process skips loading a 60 MB image into the simulator.
+  The runner defaults to it; `IMAGE=dev.image bin/run-tests.sh` overrides.
+  Rebuild it after changing fixture code.
+- **Tiers are measured, not guessed**: every run writes per-class seconds to
+  `.test-timings`, and anything at or above `SLOW_THRESHOLD` (8 s) moves to the slow tier.
+- **Expensive tests deserve their own class**, since tiering is per class.
+  `StackPageReificationTest` costs ~18 s only because
+  `testInterpretedStateIsRebuiltAfterResourceReset` forces a full fixture rebuild.
+- **TDD loop**: `bin/sync-from-working-copy.st` compiles the classes you edited straight
+  from the FileTree working copy (Metacello refuses to reload a package whose version is
+  unchanged), then run the one test you are working on.
+
 ## Current state
 
 Baseline: **273 tests run, 0 failures, 9 errors**, all in `StackPageReificationTest`.
