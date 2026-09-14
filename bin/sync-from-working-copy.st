@@ -1,58 +1,90 @@
-"Sync the touched classes, drop the moved selector, reset the cached fixtures,
- then run the stack page suite twice: a second run proves the resource rebuilds."
-| root syncSide syncClass runSuite |
-root := '/home/observant/polyphemus/Polyphemus/'.
+"Compile the FileTree working copy into this image, then save it.
 
-syncSide := [ :target :path |
-	| dir n |
-	dir := path asFileReference.
-	n := 0.
+ Metacello refuses to reload a package whose version looks unchanged, so during the
+ TDD loop we compile straight from the files: every *.class and *.extension directory
+ of every Polyphemus package, creating classes that do not exist yet and removing
+ methods whose files are gone."
+| root joined ensureClass syncSide created compiled removed |
+root := '/home/observant/polyphemus/Polyphemus/' asFileReference.
+created := compiled := removed := 0.
+
+joined := [ :coll | String streamContents: [ :s |
+	coll do: [ :each | s nextPutAll: each asString ] separatedBy: [ s space ] ] ].
+
+ensureClass := [ :props :packageName |
+	| name |
+	name := (props at: 'name') asSymbol.
+	(Smalltalk includesKey: name)
+		ifTrue: [ Smalltalk at: name ]
+		ifFalse: [
+			| superName cls |
+			superName := (props at: 'super') asSymbol.
+			(Smalltalk includesKey: superName)
+				ifFalse: [ ('SKIP ', name, ': superclass ', superName, ' missing') traceCr. nil ]
+				ifTrue: [
+					cls := (Smalltalk at: superName)
+						subclass: name
+						instanceVariableNames: (joined value: (props at: 'instvars'))
+						classVariableNames: (joined value: (props at: 'classvars'))
+						package: packageName.
+					(props at: 'classinstvars') ifNotEmpty: [ :civ |
+						cls class instanceVariableNames: (joined value: civ) ].
+					created := created + 1.
+					('CREATED ', name) traceCr.
+					cls ] ] ].
+
+syncSide := [ :target :dir :packageName |
+	| fileSelectors |
+	fileSelectors := Set new.
 	dir exists ifTrue: [
 		dir files do: [ :f |
 			(f basename endsWith: '.st') ifTrue: [
-				[ | lines category source |
+				[ | lines source sel |
 				  lines := f contents lines.
-				  category := lines first.
 				  source := String streamContents: [ :s |
 					  lines allButFirst do: [ :l | s nextPutAll: l; cr ] ].
-				  target compile: source classified: category.
-				  n := n + 1 ]
+				  sel := target compile: source classified: lines first.
+				  sel ifNotNil: [ fileSelectors add: sel ].
+				  compiled := compiled + 1 ]
 					on: Error
 					do: [ :e | ('COMPILE ERR ', f basename, ' :: ', e messageText asString) traceCr ] ] ] ].
-	n ].
+	"Drop methods this package used to define and no longer does. #localSelectors
+	excludes methods a trait provides: removing those would silently strip the class."
+	fileSelectors ifNotEmpty: [
+	[ target localSelectors asArray do: [ :sel |
+		| m |
+		m := target >> sel.
+		((fileSelectors includes: sel) not
+			and: [ [ m package notNil and: [ m package name = packageName ] ]
+				on: Error do: [ :e | false ] ])
+			ifTrue: [ target removeSelector: sel.
+				removed := removed + 1.
+				('REMOVED ', target name, '>>', sel) traceCr ] ] ]
+		on: Error do: [ :e | ] ] ].
 
-syncClass := [ :cls :packagePath |
-	| i c |
-	i := syncSide value: cls value: root , packagePath , '/instance'.
-	c := syncSide value: cls class value: root , packagePath , '/class'.
-	(cls name, ': ', i printString, '+', c printString) traceCr ].
+(root directories select: [ :d | d basename endsWith: '.package' ]) do: [ :pkgDir |
+	| packageName |
+	packageName := pkgDir basename copyReplaceAll: '.package' with: ''.
+	(RPackageOrganizer default includesPackageNamed: packageName) ifFalse: [
+		('SKIP package ', packageName, ': not loaded in this image') traceCr ].
+	(RPackageOrganizer default includesPackageNamed: packageName) ifTrue: [
+	pkgDir directories do: [ :clsDir |
+		((clsDir basename endsWith: '.class')
+			or: [ (clsDir basename endsWith: '.extension')
+			or: [ clsDir basename endsWith: '.trait' ] ]) ifTrue: [
+			| cls |
+			cls := (clsDir basename endsWith: '.class')
+				ifTrue: [ ensureClass
+						value: (STONJSON fromString: (clsDir / 'properties.json') contents)
+						value: packageName ]
+				ifFalse: [ | n |
+					n := ((clsDir basename copyReplaceAll: '.extension' with: '')
+						copyReplaceAll: '.trait' with: '') asSymbol.
+					Smalltalk at: n ifAbsent: [ nil ] ].
+			cls ifNotNil: [
+				syncSide value: cls value: clsDir / 'instance' value: packageName.
+				syncSide value: cls class value: clsDir / 'class' value: packageName ] ] ] ] ].
 
-AbstractPharoImageResource class instanceVariableNames: 'numberOfSteps'.
-(ImageInterpretedSetup includesSelector: #defaultTimeLimit) ifTrue: [ ImageInterpretedSetup removeSelector: #defaultTimeLimit ].
-syncClass value: FullyReifiedMemory value: 'Polyphemus-Object.package/FullyReifiedMemory.class'.
-syncClass value: AbstractPharoImageResource value: 'Polyphemus-Tests.package/AbstractPharoImageResource.class'.
-syncClass value: AbstractInspectorsTest value: 'Polyphemus-Tests.package/AbstractInspectorsTest.class'.
-syncClass value: ImageInterpretedSetup value: 'Polyphemus-Tests.package/ImageInterpretedSetup.class'.
-syncClass value: StackPageReificationTest value: 'Polyphemus-Tests.package/StackPageReificationTest.class'.
-
-(StackPageReificationTest includesSelector: #testEveryLivePageIsReifiedFromItsHeadFramePointer)
-	ifTrue: [ StackPageReificationTest removeSelector: #testEveryLivePageIsReifiedFromItsHeadFramePointer ].
-(ImageInterpretedSetup includesSelector: #interpretUntilMethodChangedNumberOfTimes:)
-	ifTrue: [ ImageInterpretedSetup removeSelector: #interpretUntilMethodChangedNumberOfTimes:.
-		'moved interpretUntilMethodChangedNumberOfTimes: up to AbstractInspectorsTest' traceCr ].
-
-ImageInterpretedSetup withAllSubclasses do: [ :c | c instVarNamed: 'currentImage' put: nil ].
-
-runSuite := [ :label |
-	[ | r |
-	  r := StackPageReificationTest buildSuite run.
-	  ('RES ', label, ' ', r runCount printString, ' run ', r failureCount printString,
-		' failures ', r errorCount printString, ' errors') traceCr.
-	  r failures do: [ :t | ('  FAIL  ', t selector) traceCr ].
-	  r errors   do: [ :t | ('  ERROR ', t selector) traceCr ] ]
-	  on: Error do: [ :e | ('RUN ERR ', e class name, ' ', e messageText asString) traceCr ] ].
-
-runSuite value: 'first'.
-runSuite value: 'second'.
-
+('SYNC ', created printString, ' classes created, ', compiled printString,
+	' methods compiled, ', removed printString, ' removed') traceCr.
 Smalltalk snapshot: true andQuit: true

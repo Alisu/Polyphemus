@@ -1,0 +1,11 @@
+{
+	"commentStamp" : "",
+	"super" : "ImageInterpretedSetup",
+	"category" : "Polyphemus-Tests-objectInspector",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [ ],
+	"name" : "StackPageFixtureLifecycleTest",
+	"type" : "normal"
+}
