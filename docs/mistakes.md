@@ -45,6 +45,39 @@ instead. Both are in the snapshot, but they differ for inherited methods.
 passed to `reifyOop:`, which then did arithmetic on an object.
 → It answers **already reified** objects.
 
+**Following a compiled block's literals.** Collecting the blocks of a method by walking
+literals hangs: the **last literal of a compiled block is the code it is installed in**, so
+the walk goes block → method → block forever.
+→ Drop that last literal, and keep a visited set anyway: a corrupted file owes us nothing.
+
+**Trusting recompiled code.** Mapping a pc to a line needs the method's pc map, which the
+file does not carry, so the source was recompiled here against the reified class. It
+compiles — and the bytecodes are not the same code: 42 bytes against the 44 in the file,
+differing from the eleventh onwards.
+→ **Compare the bytecodes before believing any correspondence.** A pc map taken from
+recompiled code points at the wrong line. Stage one names temporaries, which needs only
+parsing and semantic analysis, and highlights nothing.
+
+**Guarding only the corruption you expected.** The process report checked whether a
+suspended context *was a context*, inside a rescue — but read the slot **outside** it. Against
+an image whose slot was blanked for real, the read raised `KeyNotFound: key 5404`, naming a
+class index, from under a walk that was supposed to be reporting damage. Every check that
+handled injected corruption passed; the first genuinely damaged file broke three of them.
+→ Read every slot of an image you did not write through `readSlot:of:ifUnreadable:`, and make
+the unreadable case **a line in the report**. Corruption injected through our own API and put
+back in an `ensure:` only ever proves we can read what we just wrote.
+
+**Reading a Spur image header as words.** The first two fields are **32 bit** — version and
+header size — and the rest are words. Read as words they come back as one number, `549755881909`,
+and every offset derived from it pointed past the end of the file.
+→ Version and header size are 4 bytes each, then `dataSize`, `oldBaseAddress` and
+`specialObjectsOop` at 8, 16 and 24. See `docs/image-facts.md`.
+
+**Analysing decompiled text.** `sourceCode` falls back to a decompilation when the source is
+gone, and the decompiler calls the temporaries `arg1` and `tmp1`. Analysing that names
+variables nobody ever wrote.
+→ Analyse **real source only** (`getSourceFromFile`), and answer nothing when there is none.
+
 ## Reusing what already exists
 
 **Re-deriving the method trailer.** Several probes went into working out how to decode a
@@ -57,6 +90,35 @@ does not fit rather than quietly rewriting it.
 **Porting code without checking what it assumed.** The ported context getters read instance
 variables that are only filled when a frame is married, so they answered nil for snapshots.
 → Porting means **reading what the code assumes**, not only what it does.
+
+## Borrowing Pharo's own tools
+
+**Scopes are compared by identity.** `LocalVariable>>readInContext:` asks the context for its
+scope and compares it with the one the variable came from. Analysing the same source twice
+gives two scopes that look identical and are not the same object, so every read walked out
+of the scope and answered nil: the names were right and every value was nil.
+→ **Analyse once per frame and keep the result**, and read a variable only in the frame whose
+own scope declares it. It also has to be kept for speed: an analysis costs about a second,
+and a debugger asks once per variable shown.
+
+**Deciding which frame owns a variable by its scope alone.** "Read it in the frame whose scope
+declares it" is right for arguments and temporaries and wrong for a captured one: the method's
+scope declares it, but a block that reads it is handed a *copy of the vector* it lives in, so
+the block's frame is the one holding it — especially when the block was forked and the
+declaring frame belongs to another process. The name showed in the list and reading it raised.
+→ Ask whether the frame **holds** the variable, not whether it declares it: for a vector
+temporary that means looking for the vector under the compiler's own name for it in this
+frame's scope.
+
+**A rescue that hid a typo.** `numArgs` sent `oopNumberOfArgs`, which does not exist — the
+accessor is `oopNumberOfArguments`. Inside a guard, that turned into "this block does not
+match its source", and block frames quietly showed no names at all.
+→ When a guarded path answers *no* for everything, **count the reasons** before believing it.
+One run that tallied why each of the 20 block frames failed found it immediately.
+
+**Answering nil for "I could not read it".** nil is a value a temporary genuinely holds, so a
+debugger cannot tell the two apart.
+→ **Raise.** The inspector already catches it and shows `cannot read <name>`.
 
 ## Pharo, headless
 
@@ -117,9 +179,18 @@ timeout, so the image silently kept the old code and the next run "made no sense
 test instead of 17s.
 → Warm **every** fixture into `warm.image`.
 
-**Treating parallel flakes as failures.** Two single-test errors at `-j 8`, neither
-reproducible alone or at `-j 6`.
-→ Re-run before believing a failure, and keep `-j 6`.
+**Reading a smaller test total as a regression.** The fast tier is whatever ran in under
+eight seconds *last time*, so the total moves on its own: 280, then 247, then 194, with
+nothing broken and nothing removed. Ten minutes went into hunting a regression that was a
+class crossing the threshold.
+→ The number only means something against the same tier. Run `--all` before believing it.
+
+**Treating parallel flakes as failures.** Single-test errors under load that do not reproduce
+alone: `VMObjectIndexableLayoutTest` and `QueryWidgetTest` at `-j 8`, and
+`OOPBuilderTest>>testBuildDefaultObjectIsNotImmutable` at `-j 6` once a third image-loading
+class joined the suite. Each was green on its own immediately after.
+→ Re-run before believing a failure. Three classes now load a 59 MB image, so a full run wants
+`-j 4`.
 
 **A loader that removed methods a trait provides.** It walked every selector of a class and
 removed those without a matching file, printing alarming `REMOVED OOPString>>asString` lines.

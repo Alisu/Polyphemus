@@ -68,6 +68,35 @@ because it wants the frames.
   until a `CompiledMethod` appears.
 - All 8 processes of the Pharo 10 image have source for every frame.
 
+## Finding an object in the file it came from
+
+Needed to damage an image on purpose, and checked before anything was written.
+
+The Spur header starts with two **32 bit** fields, then words:
+
+| Offset | Size | Field | Pinned Pharo 10 fixture |
+|---|---|---|---|
+| 0 | 4 | image version | 68021 (Spur, 64 bit) |
+| 4 | 4 | header size | 128 |
+| 8 | 8 | data size | 59112800 (+128 = the file size) |
+| 16 | 8 | old base address | 377916416 |
+| 24 | 8 | special objects oop | 392438448 |
+
+The simulator loads the heap wherever it likes, so an address it reports is the address in the
+file shifted by a constant. The shift is worked out from the one object whose place in the file
+the header states:
+
+```
+delta      := memory reifiedSpecialObjectArray address - specialObjectsOop.
+fileOffset := headerSize + address - delta - oldBaseAddress.
+```
+
+For the pinned fixture `delta` is 22138144, and nil, the first object of a Spur image, sits at
+`oldBaseAddress`. Every slot of the special objects array was read both ways and compared
+before the mapping was used (`BlankedContextImageResource class>>verifyMapping:of:in:`);
+arithmetic nobody checked would damage some unrelated object and the test would be testing
+nothing in particular.
+
 ## Timings that shape the loop
 
 | | |

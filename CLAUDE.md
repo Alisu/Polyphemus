@@ -77,21 +77,40 @@ the runner starts one Pharo process per test class and fans them out across the 
 
 ## Current state
 
-Baseline: **273 tests run, 0 failures, 9 errors**, all in `StackPageReificationTest`.
+Green. The two defects this fork started with — the load-time simulator crash and
+`computeOperandStack:` — are fixed, and stage 1 is done.
 
-Two open defects, same subsystem:
+**Stage 1 reads a snapshot and debugs it.** Processes (including the five a heap scan finds that
+the scheduler cannot see), how they are queued and where that disagrees with itself, stacks as
+contexts, the source of each frame from the image's own `.sources`, and the arguments and
+temporaries of each frame by name and by value. The real `StDebugger` opens on any of it,
+post-mortem; `SnapshotProcessBrowser on: memory` is the read-only view. See
+`docs/debugging-a-snapshot.md`.
 
-- **Loading.** `StackPageReificationTest class>>initialize` calls `self currentImage`, so *loading
-  the package* downloads an image and runs the simulator, which dies with `AssertionFailure` in
-  `StackInterpreter>>contextInstructionPointer:frame:`. The load aborts before
-  `Polyphemus-Builder`, leaving `OOPBuilder` undefined.
-- **Stack frames.** `OOPAbstractStackFrame>>computeOperandStack:` sends `last` to an empty
-  `operandStack` (`SubscriptOutOfBounds: 0`) when a frame has no operands, and uses
-  `remove: operandStack last` where it means `removeLast` — with duplicate oops on the stack that
-  removes the wrong element.
+Everything resolves **in the image being read** — instance variables through the receiver's class
+there, globals through that image's own `SystemDictionary`, temporaries by analysing that method's
+source against that class. Never through ours.
+
+What stage 1 does not do, and why:
+
+- **No highlighted line.** Mapping a pc to a source range needs the method's pc map, which a
+  snapshot does not carry. Recompiling the source here to obtain one produces *different
+  bytecodes* than the file holds (42 against 44, differing from the eleventh), so the map would
+  point at the wrong place. Checked, not assumed — see `docs/mistakes.md`.
+- **No stepping, restarting or evaluating.** The buttons are there because it is the real
+  debugger; there is no process behind them.
+- **The receiver's instance variables in the debugger are the reifier's** (`address`, `memory`),
+  not the receiver's in the image being read. Everything else resolves over there.
+
+Damage is read, not only injected: `BlankedContextImageTest` blanks the running process' stack
+pointer in the **bytes of a copy of the image**, and never repairs it. That is what found
+`readSlot:of:ifUnreadable:` — every check handled the corruption the tests injected, and three
+of them raised `KeyNotFound` on the first genuinely damaged file.
 
 ## Working agreement
 
 - **TDD**: red test first, then the fix. No implementation before a failing test.
-- Fix the loading, the stack pages and their tests before adding stage 1 code.
+- **Prefer a check to a claim.** Where two images have to agree — bytecodes, block order, a
+  name — compare them and answer nothing when they disagree, rather than answering something
+  plausible. Wrong information in a debugger costs more than missing information.
 - Keep changes that upstream would want separable from fork-only files (this file, `docs/`).

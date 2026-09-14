@@ -67,8 +67,40 @@ StDebugger openOn: session withFullView: true
 ## What works, and what a snapshot cannot answer
 
 Works: the stack, each frame's class and method, the source read from the image's own
-`.sources`, the receiver and its instance variables in the inspector, and variables resolving
-in the source pane.
+`.sources`, the receiver and its instance variables in the inspector, variables resolving in
+the source pane, and the arguments and temporaries of each frame, by name and by value.
+
+```smalltalk
+context tempNames.              "#(#isImageStarting #save #quit #wait)"
+context tempNamed: 'wait'.      "the Semaphore of that image"
+```
+
+Names are not in the file. A context holds values in order and nothing else, so the names
+come from parsing the method's source and analysing it against the class it came from — the
+front half of this image's compiler, used on the other image's code. Only the front half:
+code generated here is **not** the code in the file, so nothing is generated.
+
+Three things follow, and they are the parts worth knowing:
+
+- **A frame without source names nothing.** No source, no names. It never falls back to a
+  decompilation, whose `arg1` and `tmp1` are inventions of this image.
+- **A captured temporary lives in a vector**, not in the frame, and its index counts inside
+  that vector. Reading it as an ordinary temporary answers whatever else sits at that position.
+- **A name is read in the frame that *holds* it, which is not always the one that declares
+  it.** A block sees its method's temporaries, and there are three ways it can get at one: it
+  carries a copy, it holds a copy of the vector the variable lives in, or it has to read it
+  where it lives. Which one is the compiler's decision and nothing in the file records it, so
+  each frame resolves the name itself and the first that actually holds what it resolved
+  answers. Seeing is not enough: an index means something only in the frame whose scope
+  declared it.
+
+  Getting this wrong is quiet. `SessionManager>>snapshot:andQuit: [block]` lists
+  `isImageStarting` among its names — the method declares it, the block reads it — and the
+  frame that holds its vector is the block, because the block was forked into another process
+  and given a copy.
+
+Reading a value that cannot be read raises instead of answering nil, because nil is a value a
+temporary genuinely holds; the inspector shows `cannot read <name>`.
 
 Everything resolves **in the image being read**, never in ours: instance variables come from
 the receiver's class there, and globals from that image's own `SystemDictionary`, reachable at
@@ -84,6 +116,30 @@ Does not, and does not pretend to:
   nothing is highlighted rather than the wrong thing.
 - **Stepping, restarting, evaluating.** The toolbar buttons are there because it is the real
   debugger, but there is no process behind them.
+
+## When the image is actually damaged
+
+```smalltalk
+memory processInconsistencies.   "process -> #suspendedContextIsUnreadable, ..."
+memory processStates.            "the damaged one is #unknown, the rest still say where they are"
+memory contextsOfProcess: p.     "empty for a process whose pointer is gone, never invented"
+```
+
+A slot of a damaged image can hold something that is not an object at all. Reifying it does not
+answer a broken object, it raises, from a long way down: the word is taken for an address, its
+header for a class index, and it surfaces as a key missing from a dictionary. Every walk over an
+image we did not write reads slots through `readSlot:of:ifUnreadable:` so that the unreadable
+case is a **line in the report** instead — the report is the answer, and it has to cover the
+whole image rather than stop at the first bad word.
+
+`BlankedContextImageTest` reads a copy of the pinned image with the running process' stack
+pointer blanked in the **file**, by something that is not the reader, and never repaired.
+
+## Known wart
+
+The variables pane lists `address` and `memory` as instance variables of the receiver. Those
+are the reifier's own, not the receiver's in the image being read. The names, the source and
+the temporaries all resolve over there; this one list still comes from here.
 
 ## Why the debugger needs help at all
 
