@@ -9,10 +9,11 @@ memory from *outside*, reifying OOPs as Smalltalk objects in a healthy host imag
 
 Three stages, in order:
 
-1. **Stage 1 (current)** — debug a corrupted *image file*. A snapshot has no stack frames: the VM
+1. **Stage 1 (done)** — debug a corrupted *image file*. A snapshot has no stack frames: the VM
    turns every frame into a Context before writing (`divorceAllFrames` +
    `bereaveAllMarriedContextsForSnapshot…`), so stage 1 walks reified contexts, never frames.
-2. **Stage 2** — debug a crashed/hung *process* (core dump first, live attach later).
+2. **Stage 2 (current)** — debug a crashed/hung *process* (core dump first, live attach later).
+   A dump *has* frames, which is the whole reason for it: they are what a snapshot throws away.
 3. **Stage 3** — observe a *live* image: stop/read/resume at the VM's interrupt-check safepoint.
 
 ## Environment (on the Ubuntu box, `~/polyphemus`)
@@ -23,7 +24,8 @@ Three stages, in order:
 | VMMaker | pinned to tag **`v10.0.0`** of `pharo-project/pharo-vm`, `smalltalksrc/` |
 | Repo clone | `~/polyphemus/Polyphemus`, registered in Iceberg |
 | Rebuild image | `~/build-image.sh` (`VMMAKER_REF=v10.0.0`) |
-| Run tests | `~/run-tests.sh [timeout]` → one Pharo process per test class |
+| Run tests | `Polyphemus/bin/tdd.sh` (compile, then run) or `bin/run-tests.sh` |
+| A dump to try things on | `/tmp/pharo.core`, 204 MB, a real VM caught at a safepoint |
 
 `VMMaker` here is the **Pharo team's** fork (`pharo-project/pharo-vm`, `smalltalksrc/`), not Eliot
 Miranda's `VMMaker.oscog`.
@@ -88,21 +90,37 @@ the runner starts one Pharo process per test class and fans them out across the 
   from the FileTree working copy (Metacello refuses to reload a package whose version is
   unchanged), then run the one test you are working on.
 
+## The notes in `docs/`
+
+Fork-only, and the canonical record. `mistakes.md` first if a hunt is going long.
+
+| File | What it settles |
+|---|---|
+| `mistakes.md` | every wrong turn taken here and what the right way was |
+| `image-facts.md` | the Spur image file: header, segments, addresses against file offsets |
+| `spur-heap-shape.md` | object headers, recognising a heap by shape, what is at its start, finding the special objects array |
+| `frames-and-contexts.md` | frame layout, base frames, marrying and what it costs, what Cog changes |
+| `debugging-a-snapshot.md` | the stage 1 guide: processes, stacks, source, temporaries, the debugger |
+| `dump-formats.md` | what a dump is and is not, across ELF cores and minidumps |
+| `reading-a-dump.md` | reading an ELF core: program headers, notes, segments |
+| `reading-a-live-process.md` | `/proc/pid/mem`, Mach, Windows, and why one protocol covers all three |
+
 ## Current state
 
-Green. The two defects this fork started with — the load-time simulator crash and
-`computeOperandStack:` — are fixed, and stage 1 is done.
+Green: **431 tests, 0 failures** (`bin/run-tests.sh --all -j 6`, ~43 s). The two defects this
+fork started with — the load-time simulator crash and `computeOperandStack:` — are fixed.
 
-**Stage 1 reads a snapshot and debugs it.** Processes (including the five a heap scan finds that
-the scheduler cannot see), how they are queued and where that disagrees with itself, stacks as
+### Stage 1 — a corrupted image file. Done.
+
+It reads a snapshot and debugs it. Processes (including the five a heap scan finds that the
+scheduler cannot see), how they are queued and where that disagrees with itself, stacks as
 contexts, the source of each frame from the image's own `.sources`, and the arguments and
 temporaries of each frame by name and by value. The real `StDebugger` opens on any of it,
-post-mortem; `SnapshotProcessBrowser on: memory` is the read-only view. See
-`docs/debugging-a-snapshot.md`.
+post-mortem; `SnapshotProcessBrowser on: memory` is the read-only view.
 
-Everything resolves **in the image being read** — instance variables through the receiver's class
-there, globals through that image's own `SystemDictionary`, temporaries by analysing that method's
-source against that class. Never through ours.
+Everything resolves **in the image being read** — instance variables through the receiver's
+class there, globals through that image's own `SystemDictionary`, temporaries by analysing that
+method's source against that class. Never through ours.
 
 The line a frame is on is highlighted too, in 45 of the 47 frames of the pinned image. A
 snapshot has no pc map, so it is built by compiling the method's own source here and **keeping
@@ -110,17 +128,53 @@ it only when the bytecodes come out identical to the file's**. Where they do not
 highlighted. This was written off once, on the grounds that recompiling produced different
 bytecodes — it did, because of two bugs in how globals were wrapped and one in `endPC`.
 
-What stage 1 does not do, and why:
+Damage is read, not only injected: `BlankedContextImageTest` blanks the running process' stack
+pointer in the **bytes of a copy of the image**, and never repairs it. That is what found
+`readSlot:of:ifUnreadable:` — every check handled the corruption the tests injected, and three
+of them raised `KeyNotFound` on the first genuinely damaged file.
+
+What it does not do, and why:
 
 - **No stepping, restarting or evaluating.** The buttons are there because it is the real
   debugger; there is no process behind them.
 - **The receiver's instance variables in the debugger are the reifier's** (`address`, `memory`),
   not the receiver's in the image being read. Everything else resolves over there.
 
-Damage is read, not only injected: `BlankedContextImageTest` blanks the running process' stack
-pointer in the **bytes of a copy of the image**, and never repairs it. That is what found
-`readSlot:of:ifUnreadable:` — every check handled the corruption the tests injected, and three
-of them raised `KeyNotFound` on the first genuinely damaged file.
+### Stage 2 — a crashed or stale process. In progress.
+
+A dump is memory that was already running, so it is put back at its original addresses and the
+`bytesToShift` an image needs is zero. Reading one is *simpler* than reading an image file — the
+hard part is that nothing in a dump says where anything is.
+
+What exists:
+
+- **Reading the bytes.** `ElfCoreDump` answers three messages — `hasAddress:`,
+  `bytesAt:count:`, `unsignedAt:size:` — from a file, through one open stream and a 64 KB block
+  cache. `ByteArrayAddressSpace` answers the same three from bytes in hand. Nothing above them
+  learns which it is holding, which is where `/proc/pid/mem` and the Mach and Windows calls will
+  plug in.
+- **Finding the heap.** `SpurHeapScanner` finds old space by its shape: the nil/false/true
+  triple, then believed only if the walk from it runs. On a real 204 MB core it found the heap
+  and walked **1,106,303 objects across 92 MB**. `SpurHeapWalk` counts live objects and free
+  chunks apart, so the walk also measures the image: **76.9 MB live**, which is exactly the size
+  of that image's file on disk.
+- **The registers.** Heap start, the end, and now `specialObjectsOop` —
+  `#specialObjectsArrayFrom:upTo:` finds it by contents, since the VM keeps it in a variable and
+  a dump has no image header. All three are obtainable from the dump alone.
+- **Frames as activations.** `OOPAbstractStackFrame` answers the Context protocol — `receiver`,
+  `method`, `pc`, `stackp`, `tempAt:`, `sender` — so the debugger opens on a stack of frames the
+  same way it opens on a stack of contexts, and a base frame's caller context is reached with
+  `#oopPageCaller`.
+
+The order of what remains, decided rather than assumed:
+
+1. **The dump's heap into a `FullyReifiedMemory`** — fill a `MachineSimulatorMemoryManager` from
+   the segments, set the registers. **This is the next step.** After it, everything stage 1 does
+   applies to a dead process.
+2. **Live reading** through `/proc/pid/mem` — no FFI needed on Linux, same three messages.
+3. **JIT frames properly.** Detect and refuse first (`isMachineCodeFrame:` is one comparison),
+   then read them through `CogVMSimulator`, which is VMMaker's own simulation of Cog.
+4. **Editing and writing back** — modify the bytes, write the image out.
 
 ## Open question, raised 2026-09-15
 
@@ -147,4 +201,11 @@ Worth thinking about, not answered:
 - **Prefer a check to a claim.** Where two images have to agree — bytecodes, block order, a
   name — compare them and answer nothing when they disagree, rather than answering something
   plausible. Wrong information in a debugger costs more than missing information.
-- Keep changes that upstream would want separable from fork-only files (this file, `docs/`).
+- **Measure before adding a guard.** A filter that looks prudent may carry no weight: the
+  special objects array is found with no size check because measuring showed one was not
+  needed, and the numbers in `docs/` are there so the next person need not take our word.
+- **When two things that should agree don't, suspect your own side first.** Highlighting was
+  written off on the grounds that recompiling gives different bytecodes; it was three of our
+  own bugs, and every method frame of the pinned image now recompiles byte for byte.
+- Keep changes that upstream would want separable from fork-only files (this file, `docs/`,
+  `bin/`).

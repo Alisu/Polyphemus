@@ -277,6 +277,34 @@ Nothing was lost, because the trait re-provides them, but it was luck.
 → Iterate `localSelectors`, handle `.trait` directories, and skip packages the image has not
 loaded.
 
+## Searching
+
+**A negative result is only as good as the scope of the search.** Hunting the special objects
+array, a walk was capped at the first 4000 objects and came back empty, which read as "it is
+not there". The heap has 1,106,303 objects: the search had covered 0.4% of it, and the array
+was found immediately once the cap was lifted.
+→ When a search answers nothing, check the search before believing the answer. Say what was
+covered when reporting an absence — "not in the first 4000 objects" is a fact; "not in the
+heap" was not.
+
+**Guessing the API of our own class, then reading the silence as evidence.** The same empty
+result was first blamed on wrong method names invented from memory. They happened to be right,
+but the wrongness was never checked, so a real explanation (the cap) was almost skipped for an
+imaginary one.
+→ One `ls` on the class directory settles it in a second.
+
+**A guard added for prudence, never measured.** The search first required the array to have
+between 20 and 200 slots, on the grounds that a fixed VM structure is never tiny. Measuring
+afterwards showed the shape alone matched in exactly one place among 1.1 million objects: the
+guard did nothing except encode a version-specific number that would have been believed later.
+→ Add a check when something *needs* it, and put the measurement in the comment.
+
+**Documentation drifting away from the code it describes.** `spur-heap-shape.md` said the first
+three objects were "nil, true and false … 8 bytes apart", while the code below it had used
+nil, false, true at 16 for weeks, and the same file said so correctly two sections further
+down. Nobody was misled, this time.
+→ When a fact is confirmed against the image, grep the docs for the old version of it.
+
 ## Listening
 
 **Building the wrong thing.** Asked for a screenshot of the debugger on a process; a read-only
