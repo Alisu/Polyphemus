@@ -1,0 +1,3 @@
+{ "commentStamp" : "", "super" : "TestCase", "category" : "Polyphemus-Tests-dump",
+  "classinstvars" : [ ], "pools" : [ ], "classvars" : [ ],
+  "instvars" : [ ], "name" : "SpurHeapScannerTest", "type" : "normal" }

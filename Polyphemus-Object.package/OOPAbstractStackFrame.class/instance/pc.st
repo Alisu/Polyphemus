@@ -5,12 +5,15 @@ pc
 
 	The VM's own arithmetic, not ours: #contextInstructionPointer:frame: is what it uses to
 	write a pc into a context when it divorces a frame, and it answers a tagged integer.
-	Deriving it here instead -- the instruction pointer less the method's address -- gives
-	206 where the VM says 200, and 206 lands on a different instruction of the same method.
+	Deriving it here instead -- the instruction pointer less the method's address -- gives 206
+	where the VM says 200, and 206 lands on a different instruction of the same method.
 
-	nil when this frame's instruction pointer is not available."
+	nil when this frame's instruction pointer is not available, and nil for a machine code
+	frame, whose pointer is an address in the code zone: turning that back into a place in the
+	source needs the map the JIT keeps for its own use, and we do not read it yet."
 
 	| ip |
+	self isReadable ifFalse: [ ^ nil ].
 	ip := self instructionPointer.
 	ip ifNil: [ ^ nil ].
 	^ [

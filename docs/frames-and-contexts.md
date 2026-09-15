@@ -72,3 +72,44 @@ which is exactly what a corrupted image cannot promise — and it cannot work at
 that is genuinely read only.
 
 So it stays available and explicit, for stage three, and nothing reads through it by default.
+
+## Frames the JIT compiled
+
+Everything above was read from a `StackInterpreterSimulator`, which has no JIT, so every frame in
+it is an interpreted one. A dump from a real VM is another matter: Pharo ships Cog, and its stack
+pages hold machine code frames as well.
+
+The heap does not change -- Spur is Spur, so everything stage one does is unaffected. The frames
+do.
+
+**Telling them apart is one comparison.** A frame's method field holds a CompiledMethod when it
+is interpreted and a CogMethod when it is jitted, and CogMethods live in the code zone, below the
+object heap. So:
+
+```smalltalk
+(stackPages longAt: theFP + FoxMethod) < objectMemory startOfMemory
+```
+
+is the whole test, and it is the VM's own (`CoInterpreter>>isMachineCodeFrame:`). The same rule
+tells a machine code instruction pointer from a bytecode one.
+
+**What else differs, and would have been read wrongly:**
+
+- `FoxCallerContext` is **undefined** in Cog. Its comment says the caller context of a base frame
+  is kept *on the first word of the stack page* instead. Our `#oopPageCaller` reads one word above
+  the frame pointer, which is the stack interpreter's layout: on a Cog dump it would read some
+  other word and answer it confidently.
+- The receiver sits at a different offset in the two kinds of frame, `FoxIFReceiver` against
+  `FoxMFReceiver`, and only interpreted frames have `FoxIFrameFlags` and `FoxIFSavedIP`.
+- A jitted frame's instruction pointer is an address in the code zone. Turning it back into a
+  place in the source needs the map Cog keeps for exactly that purpose, which is how it divorces
+  a frame into a context.
+
+**So: recognise and refuse, before anything else.** A machine code frame answers that it is not
+readable, and the readers say so rather than applying interpreted offsets to it. A wrong line in
+a stack is worse than a missing one, and this is the cheapest possible way to avoid producing
+several.
+
+**And when we do read them**, it is by calling VMMaker's own code rather than reimplementing it:
+`CogVMSimulator` is a subclass of `CoInterpreter`, so the JIT is simulated in VMMaker the same
+way the interpreter is -- the same reason we call `primitiveSnapshot` instead of writing one.

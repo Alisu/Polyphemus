@@ -1,0 +1,3 @@
+{ "commentStamp" : "", "super" : "Object", "category" : "Polyphemus-Object-dump",
+  "classinstvars" : [ ], "pools" : [ ], "classvars" : [ ],
+  "instvars" : [ "bytes", "baseAddress" ], "name" : "ByteArrayAddressSpace", "type" : "normal" }
