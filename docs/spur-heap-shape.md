@@ -219,3 +219,20 @@ Seventeen agreements, from a search that only ever looked at three.
 `#specialObjectsArrayFrom:upTo:` does this, and it is the last of the registers a reified
 memory needs: with the heap start, the end, and this, a dump can be read the way stage one
 reads an image file.
+
+## What references it, which is one object and one line of VM
+
+Two ways of asking, and they give the same answer.
+
+**In the dump.** Searching all 114 MB of the mapping for the array's address found it written in
+**exactly one word**: slot 2 of an object of class 3135, three fixed fields. That object is
+`Smalltalk` -- the sole `SmalltalkImage`, whose instance variables are `globals`,
+`specialObjectsArray` and `vm`. And slot 9 of the special objects array is that same object.
+The two point at each other and at nothing else, which is a second signature, harder to forge
+than the first: the array's ninth slot holds an object whose second slot is the array.
+
+**In VMMaker.** `#specialObjectsOop:` has one sender that matters,
+`SpurImageReader>>readImageFromFile:StartingAt:`. The VM does not find this array by walking
+anything -- it reads the oop out of the image header as the file is loaded, and keeps it in a
+variable from then on. That is why a core dump does not hand it over, and why the hidden roots
+do not have it: nothing in the object graph is responsible for holding it.
