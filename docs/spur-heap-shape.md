@@ -151,3 +151,25 @@ place, and the walk from there ran **1,106,303 objects across 92 MB** before rea
 the region. That is the heap of a dead process, read out of its core dump.
 
 `#heapStartFrom:upTo:` does this: find the triple, then believe it only if the walk from it runs.
+
+## What the dump says about the image that died
+
+Once the heap is found, the walk measures it -- every object it steps over has a size, and free
+chunks are counted apart from live ones:
+
+| | |
+|---|---|
+| mapping the VM asked the operating system for | 114.0 MB |
+| reserved, before the heap begins | 22.0 MB |
+| heap | 92.0 MB |
+| **live objects** | **1,106,303 in 76.9 MB** |
+| free space | 15.1 MB, in a single chunk at the end |
+| average object | 73 bytes |
+
+So the image was using 76.9 MB of the 114 MB its VM had taken, and the allocator was holding
+15 MB spare against the next allocation.
+
+**And the number checks itself.** The image file on disk is 76.9 MB -- the same figure the walk
+arrives at by adding up objects it found in a core dump, with no knowledge of that file. An
+image is its heap; counting the heap in memory and measuring the file on disk are two ways of
+asking the same question, and they agree.

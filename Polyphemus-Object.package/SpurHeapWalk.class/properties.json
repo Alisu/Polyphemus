@@ -8,6 +8,8 @@
  "instvars": [
   "objectCount",
   "freeChunkCount",
+  "liveBytes",
+  "freeBytes",
   "stoppedAt",
   "reason"
  ],
