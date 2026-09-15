@@ -5,7 +5,9 @@ heapBytesFor: aCollectionOfSpecs
 	gets an overflow word in front of it, whose own slot count byte is saturated -- which is
 	what a walk looks for to tell the two apart.
 
-	Every object is at least one slot wide: a forwarding pointer has to fit."
+	The header states the slot count it was given, including zero, while the object still
+	takes one slot of room: nil says nought slots and occupies sixteen bytes, because a
+	forwarding pointer has to fit somewhere."
 
 	^ ByteArray streamContents: [ :stream |
 		  aCollectionOfSpecs do: [ :spec |
@@ -22,6 +24,6 @@ heapBytesFor: aCollectionOfSpecs
 						  on: stream ]
 				  ifFalse: [
 					  self
-						  putWord: (self headerForClass: classIndex format: format slots: stored)
+						  putWord: (self headerForClass: classIndex format: format slots: slots)
 						  on: stream ].
 			  stored * 8 timesRepeat: [ stream nextPut: 16r55 ] ] ]

@@ -130,12 +130,24 @@ format 0, no slots.
 The walk stops on a word reading `61 68 20 46 …`, which is ASCII: it left the objects and went
 into text.
 
-**The likely reason, and the next thing to try.** A snapshot has been collected before it was
-written, so it is a clean run of live objects -- which is why the image file walks perfectly. A
-*running* heap is not: it holds **free chunks**, and it is divided into **segments with bridge
-objects between them**. Spur marks a free chunk with a class index of zero, which this scanner
-treats as a reason to stop rather than as an object with a size.
+**It was the anchor that was wrong, not the walk.** Two things came of chasing it.
 
-So the walk needs to learn what the VM's own walk already knows: free chunks are objects too,
-and a segment ends at a bridge. Until it does, a run through a live heap stops at the first piece
-of free space.
+Free chunks were a real bug and not this one. Spur marks free space with a class index of zero
+(`isFreeObjectClassIndexPun`), and this scanner treated that as a reason to stop -- so a walk
+through a living heap would have halted at the first hole. Fixed: free chunks are stepped over
+and counted apart, since memory nobody has written reads as one free chunk after another and
+would otherwise look like the finest heap in the dump. The runs that were failing had no free
+chunks in them at all, so it fixed a fault we had not yet hit.
+
+The anchor was the fault. **One header that looks like nil proves nothing.** The three
+candidates found that way were a table of small numbers whose low bytes happen to read as a
+class index and a format; walking it produced 358 well formed "objects" in a row before
+wandering into text. Held against the image file, the difference was plain: a real heap begins
+nil, false, true -- classes 3075, 3077, 3079, no slots, sixteen bytes apart -- while the table
+began 3075, 3843, 16391, 4867.
+
+**The triple is the signature.** Searched over the whole 204 MB dump it matched in exactly one
+place, and the walk from there ran **1,106,303 objects across 92 MB** before reaching the end of
+the region. That is the heap of a dead process, read out of its core dump.
+
+`#heapStartFrom:upTo:` does this: find the triple, then believe it only if the walk from it runs.

@@ -1,3 +1,16 @@
-{ "commentStamp" : "", "super" : "Object", "category" : "Polyphemus-Object-dump",
-  "classinstvars" : [ ], "pools" : [ ], "classvars" : [ ],
-  "instvars" : [ "objectCount", "stoppedAt", "reason" ], "name" : "SpurHeapWalk", "type" : "normal" }
+{
+ "commentStamp": "",
+ "super": "Object",
+ "category": "Polyphemus-Object-dump",
+ "classinstvars": [],
+ "pools": [],
+ "classvars": [],
+ "instvars": [
+  "objectCount",
+  "freeChunkCount",
+  "stoppedAt",
+  "reason"
+ ],
+ "name": "SpurHeapWalk",
+ "type": "normal"
+}
