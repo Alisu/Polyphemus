@@ -104,3 +104,38 @@ which is the case this tool exists for. It is the same principle as the open que
 Both are worth having. The symbol route is a fast path; the shape scan is the one that always
 works, and the one that can *disagree* with the symbols and so catch a dump that is not what it
 claims.
+
+## What a real dump taught us
+
+Tried against a 204 MB core of a running VM (42 segments, 41 of them memory, none with holes --
+`gcore` writes everything).
+
+**The scanner is right.** Pointed at a heap we know is one -- the pinned image file, read from
+its `oldBaseAddress` -- it walked **70,029 objects** through four megabytes and stopped only
+because it reached the end of the window we gave it. The first object is nil: class index 3075,
+format 0, no slots.
+
+**Finding that heap inside the dump is the part that is not solved.** What was tried:
+
+- Walking from the start of each large region: nothing. The heap does not begin at a region
+  boundary.
+- Walking from the image's own `oldBaseAddress`: the word there is zero. The VM did not load the
+  image at the address the file names, even though the largest region begins 3072 bytes below it,
+  which is too close to be a coincidence and worth understanding.
+- Sampling two thousand offsets at ten depths through the largest region: best run 60 objects.
+- Searching the whole dump for nil's header -- format 0, class index 3075, so the low four bytes
+  are `03 0C 00 00` -- found three candidates, two of which walk **358 objects** before stopping.
+
+358 is far above what noise produces, so those are real objects; but 5792 bytes is not a heap.
+The walk stops on a word reading `61 68 20 46 …`, which is ASCII: it left the objects and went
+into text.
+
+**The likely reason, and the next thing to try.** A snapshot has been collected before it was
+written, so it is a clean run of live objects -- which is why the image file walks perfectly. A
+*running* heap is not: it holds **free chunks**, and it is divided into **segments with bridge
+objects between them**. Spur marks a free chunk with a class index of zero, which this scanner
+treats as a reason to stop rather than as an object with a size.
+
+So the walk needs to learn what the VM's own walk already knows: free chunks are objects too,
+and a segment ends at a bridge. Until it does, a run through a live heap stops at the first piece
+of free space.
