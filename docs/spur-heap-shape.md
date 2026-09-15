@@ -82,11 +82,12 @@ Only the first four are needed to find the heap. The fifth is what tells you the
 
 ## Anchors, once a region looks like a heap
 
-- **nil, true and false are the first three objects of old space**, in that order. So the first
+- **nil, false and true are the first three objects of old space**, in that order. So the first
   object of the region should have format 0 and a slot count of zero, and the three should be
-  8 bytes apart. That is a strong confirmation and costs nothing.
+  16 bytes apart -- an object of no slots is still one slot wide. That is a strong confirmation
+  and costs nothing.
 - **The special objects array** is an ordinary object whose slots are the VM's well-known
-  objects; nil, true and false appear in it at known indices, which cross-checks the region.
+  objects; nil, false and true are its first three, which finds it and cross-checks the region.
 - **The class table** is reachable from there, and every object's class index should resolve in
   it. A region where most class indices resolve is a heap; one where few do is a coincidence.
 
@@ -173,3 +174,48 @@ So the image was using 76.9 MB of the 114 MB its VM had taken, and the allocator
 arrives at by adding up objects it found in a core dump, with no knowledge of that file. An
 image is its heap; counting the heap in memory and measuring the file on disk are two ways of
 asking the same question, and they agree.
+
+## What is at the start of a heap, and what is not
+
+The first three objects are nil, false and true. What follows them was worth reading rather
+than assuming, because it is easy to expect the special objects array there and it is not.
+Read out of the core dump, the first ten objects of old space are:
+
+| # | Class index | Format | Slots | What it is |
+|---|---:|---:|---:|---|
+| 1–3 | 3075, 3077, 3079 | 0 | 0 | nil, false, true |
+| 4 | 19 | 9 | 64 | the **free lists** |
+| 5 | 16 | 2 | 4104 | the **hidden roots** |
+| 6–9 | 16 | 2 | 1024 each | **class table pages**, pointed at by the hidden roots |
+| 10 | 3165 | 1 | 3 | an ordinary object; the heap proper has begun |
+
+So the hidden roots hold 4096 slots of class table and eight more. Those eight are the obj
+stacks the garbage collector uses -- the mark stack and the weakling stack, whose pages are
+`ObjStackPageSlots` (4092) slots of format 9, which is why they read as large word arrays
+rather than as anything recognisable.
+
+**The special objects array is not among them.** It is not reachable from the hidden roots at
+all: the VM keeps it in a variable of its own, and a snapshot writes it into the *image
+header* -- which is a structure of the file, not of the memory, so a core dump has no copy of
+it. Anything reading a dump has to find it another way.
+
+## Finding the special objects array by its contents
+
+The same trick as the heap itself, one level down. Its first three slots are nil, false and
+true, and by the time it is wanted those three addresses are already known.
+
+Measured over the whole dump -- all 1,106,303 objects -- asking only for a pointer object of
+at least three slots whose first three are those oops matched in **exactly one place**, and
+that object has 60 slots, which is the size of the array this Pharo really uses. The size
+guard that seemed prudent turned out to carry no weight, so the code does not have one.
+
+**And it checks itself.** The array found in the core dump of a dead process has nil in slots
+
+    1, 12, 23, 25, 32, 33, 34, 36, 38, 40, 47, 48, 53, 54, 55, 56, 57
+
+and the same array in the living image that did the reading has nil in exactly those slots.
+Seventeen agreements, from a search that only ever looked at three.
+
+`#specialObjectsArrayFrom:upTo:` does this, and it is the last of the registers a reified
+memory needs: with the heap start, the end, and this, a dump can be read the way stage one
+reads an image file.
