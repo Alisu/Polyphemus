@@ -176,7 +176,15 @@ The order of what remains, decided rather than assumed:
    enumerations. `docs/reading-a-dump.md` has the whole of it.
    **Next, and small:** walk eden by shape, the same trick that found the heap, so young objects
    stop being missing.
-2. **Live reading** through `/proc/pid/mem` — no FFI needed on Linux, same three messages.
+2. ~~Live reading through `/proc/pid/mem`.~~ **Done, and it needs no FFI.** `LinuxProcessMemory`
+   answers the same three messages plus `loadableSegments`, so `SpurDumpedMemory` takes one where
+   it takes a core file. `#writeDumpTo:` writes an ELF core our own reader reads back, so a dump
+   can be taken from Pharo with no debugger.
+   Being *allowed* to read turned out to be the real work: `bin/pharo-debuggable` and
+   `LinuxObservationPermission` let an image consent, so one image reads another with
+   `ptrace_scope` left at 1. `docs/reading-a-live-process.md` has it.
+   **Still missing:** stopping the target first. A running heap gives a torn read -- the free
+   space rung fails on one, correctly -- and nothing yet holds a process still.
 3. **JIT frames properly.** Detect and refuse first (`isMachineCodeFrame:` is one comparison),
    then read them through `CogVMSimulator`, which is VMMaker's own simulation of Cog.
 4. **Editing and writing back** — modify the bytes, write the image out.
