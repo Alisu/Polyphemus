@@ -3,7 +3,10 @@ testSomethingThatIsNotAClassInTheTableIsNamed
 
 	"The quietest damage there is. Nothing crashes; every object of that class simply gets
 	the wrong name, and no other check would notice -- the heap walks, the free lists add
-	up, the object is perfectly well formed. It just is not a class."
+	up, the object is perfectly well formed. It just is not a class.
+
+	It is reported by the class index it answers to, because that is what says which objects
+	are left without a name."
 
 	| space problems |
 	space := self spaceFor: (self heapWithAClassTableHolding: #( 18 2 5 )).
@@ -15,4 +18,4 @@ testSomethingThatIsNotAClassInTheTableIsNamed
 	self
 		assert: (problems collect: [ :each | each key ]) asArray
 		equals: #( #classTableHoldsSomethingThatIsNotAClass ).
-	self assert: problems first value equals: self entryAddress
+	self assert: problems first value equals: 3

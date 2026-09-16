@@ -241,7 +241,7 @@ they just have no names.
 | `heap` | nil, false, true, and a walk that runs | `#heapStartFrom:upTo:` | *there is no Spur heap here* |
 | `objects` | the walk reaching the end | `SpurHeapWalk>>reason` | objects up to where it stopped -- **and it says where, and why** |
 | `freeSpace` | the lists agreeing with the walk | `SpurFreeListWalk>>agreesWith:` | nothing to read, everything to write: the allocator is not to be trusted |
-| `classes` | every class table entry being a class | `#classTableProblemsFrom:upTo:` | objects, but **no names** |
+| `classes` | a class table that can be *navigated* -- hidden roots present, pages in the heap and the right size | `#classTableStructureProblems` | no object anywhere can be given a class |
 | `specialObjects` | the array, found by its contents | `#specialObjectsArrayFrom:upTo:` | no processes, no scheduler |
 
 Source is a rung above, and is not checked here: a method's trailer and the `.sources` file are
@@ -256,7 +256,31 @@ This is `readSlot:of:ifUnreadable:` lifted from single slots to the structures w
 and it is the answer to the question this fork left open: *what if the damage is in the thing we
 read with?* You find out first, and you say so.
 
-### Why the class table is the one worth auditing
+### A bad class costs a name, not the memory
+
+The rung is about the table being *navigable*, not about every entry being perfect, and the
+difference matters more than it first looks.
+
+A page that is missing, in the wrong place or the wrong size is fatal: resolving a class index is
+arithmetic -- page number and offset, ten bits each -- and if the pages are not there it has
+nowhere to land, so *no* object anywhere can be given a class. That is worth refusing over.
+
+One entry holding something that is not a class is not that. It costs exactly the classes at that
+one index: those objects are still readable -- their slots, their sizes, their contents, their
+place in the heap -- they simply have no name to give. Every other object still gets its own.
+Refusing to read a million objects because one class went bad is the wrong trade, and damage of
+that kind is far likelier than a table that has gone entirely.
+
+So entry damage is reported rather than refused: `#unreadableClassIndexes` says which indexes
+answer nothing, and those classes are the anonymous ones. Reporting them by *index* rather than
+by address is deliberate -- the index is what identifies the objects left without a name.
+
+What is not built yet is the other half of that: reifying such an object with an explicit
+anonymous class, the way `OOPAbnormalEntity` stands in for a chunk that is not an object, so the
+reader sees *this object's class is damaged* instead of an object that quietly refuses to say
+what it is.
+
+### Why the class table is worth auditing at all
 
 Damage anywhere else eventually announces itself. A broken free list hands out memory that is in
 use and something crashes; a broken object header stops the walk. A broken class table does

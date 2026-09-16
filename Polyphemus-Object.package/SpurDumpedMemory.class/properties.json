@@ -17,7 +17,8 @@
   "interpreter",
   "walk",
   "readability",
-  "classTableProblems"
+  "classTableProblems",
+  "bytes"
  ],
  "name": "SpurDumpedMemory",
  "type": "normal"

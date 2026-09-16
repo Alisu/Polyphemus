@@ -4,4 +4,4 @@ freeListWalk
 	"What the allocator's own lists account for. Compare it with `#heapWalk`: two routes to
 	the same free space, and a damaged allocator is where they part company."
 
-	^ scanner freeListWalkFrom: self heapStart upTo: mappingLimit
+	^ self scanner freeListWalkFrom: self heapStart upTo: mappingLimit

@@ -5,6 +5,6 @@ classTableProblems
 	auditing every entry of every page is half a minute, and a dump does not change."
 
 	^ classTableProblems ifNil: [
-		  classTableProblems := scanner
+		  classTableProblems := self scanner
 			                        classTableProblemsFrom: self heapStart
 			                        upTo: mappingLimit ]

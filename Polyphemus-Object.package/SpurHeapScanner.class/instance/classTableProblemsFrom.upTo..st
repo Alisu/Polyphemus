@@ -1,15 +1,17 @@
 reading the class table
 classTableProblemsFrom: anAddress upTo: aLimit
 
-	"Everything wrong with the table that turns a class index into a class.
+	"Everything wrong with the table that turns a class index into a class, as
+	reason -> where. Structural problems carry the address that is wrong; a bad entry
+	carries the *class index* it sits at, because that is what identifies the classes you
+	will not be able to name.
 
-	This is the structure whose damage is quietest. A broken free list eventually crashes
-	something; a broken class table just answers the wrong name, for every object of that
-	class, and nothing anywhere says so. So it is worth checking even though it is rarely
-	the thing that failed.
+	This is the structure whose damage is quietest. A broken free list eventually hands out
+	memory that is in use and something falls over; a broken class table just answers the
+	wrong name, and nothing anywhere says so.
 
-	Only the pages in use are looked at -- an unused one holds nil, which is the first
-	object of the heap."
+	Only pages in use are looked at -- an unused one holds nil, the first object of the
+	heap."
 
 	| problems hiddenRoots pages |
 	problems := OrderedCollection new.
@@ -34,6 +36,7 @@ classTableProblemsFrom: anAddress upTo: aLimit
 							ifTrue: [
 								self
 									classesOfPage: page
+									numbered: index - 1
 									from: anAddress
 									upTo: aLimit
 									into: problems ] ] ] ] ].

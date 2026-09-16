@@ -12,8 +12,8 @@ findHeap
 	to read a heap whose objects are perfectly sound."
 
 	heapStart ifNotNil: [ ^ self ].
-	heapStart := scanner heapStartFrom: mappingStart upTo: mappingLimit.
+	heapStart := self scanner heapStartFrom: mappingStart upTo: mappingLimit.
 	heapStart ifNil: [ ^ self error: 'no Spur heap in this memory' ].
-	walk := scanner walkFrom: heapStart upTo: mappingLimit.
+	walk := self scanner walkFrom: heapStart upTo: mappingLimit.
 	liveEnd := heapStart + walk liveBytes.
 	specialObjectsOop := walk specialObjectsArray

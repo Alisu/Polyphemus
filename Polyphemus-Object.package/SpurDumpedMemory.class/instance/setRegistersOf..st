@@ -23,10 +23,10 @@ setRegistersOf: aMemory
 	aMemory instVarNamed: 'lastHash' put: 1.
 	aMemory specialObjectsOop: specialObjectsOop.
 
-	freeListsObject := scanner objectAfter: heapStart + 32.
+	freeListsObject := self scanner objectAfter: heapStart + 32.
 	"#setHiddenRootsObj: checks the class table it finds: that the first page is the right
 	 size and that the root pages are valid. It is the VM auditing our reconstruction."
-	aMemory setHiddenRootsObj: (scanner objectAfter: freeListsObject).
+	aMemory setHiddenRootsObj: (self scanner objectAfter: freeListsObject).
 	aMemory
 		instVarNamed: 'freeLists'
 		put: (aMemory firstIndexableField: freeListsObject).

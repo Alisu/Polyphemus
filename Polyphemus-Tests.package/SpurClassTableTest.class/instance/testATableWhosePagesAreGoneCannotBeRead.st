@@ -1,12 +1,12 @@
 tests
-testAMemoryWithABrokenTableRefusesToBeReified
+testATableWhosePagesAreGoneCannotBeRead
 
-	"The whole point of the ladder. Everything below classes is sound here -- the bytes are
-	there, the heap walks, the free lists are empty and consistent -- so the memory is
-	readable up to a point, and that point is named rather than guessed past."
+	"This is the damage that really does stop everything: a page of the wrong size means the
+	arithmetic turning a class index into an entry has nowhere to land, so no object
+	anywhere can be given a class. That is worth refusing over, and it is refused by name."
 
 	| space dumped raised |
-	space := self spaceFor: (self heapWithAClassTableHolding: #( 18 2 5 )).
+	space := self spaceFor: (self heapWithAPageOfTheWrongSize).
 	dumped := SpurDumpedMemory
 		          on: space
 		          from: self baseAddress
@@ -16,8 +16,7 @@ testAMemoryWithABrokenTableRefusesToBeReified
 	self deny: (dumped readability canRead: #classes).
 	self
 		assert: (dumped readability whyNot: #classes)
-		equals: #classTableHoldsSomethingThatIsNotAClass.
-	self assert: dumped readability highestReadableLevel equals: #freeSpace.
+		equals: #classTablePageIsTheWrongSize.
 
 	raised := [ dumped reifiedMemory. nil ]
 		          on: SpurCannotRead
