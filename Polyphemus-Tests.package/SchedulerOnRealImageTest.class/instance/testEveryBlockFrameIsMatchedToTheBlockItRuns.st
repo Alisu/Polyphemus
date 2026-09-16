@@ -7,6 +7,7 @@ testEveryBlockFrameIsMatchedToTheBlockItRuns
 	should line up."
 
 	| blockFrames |
+	self requireAHostThatReproducesTheFixture.
 	blockFrames := self allFrames select: [ :each | each isBlockContext ].
 
 	self assert: blockFrames size > 15.

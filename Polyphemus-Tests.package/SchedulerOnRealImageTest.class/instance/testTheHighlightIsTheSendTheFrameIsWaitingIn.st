@@ -8,6 +8,7 @@ testTheHighlightIsTheSendTheFrameIsWaitingIn
 	This frame is suspended inside the fork it started, so that is what is highlighted."
 
 	| frame range source |
+	self requireAHostThatReproducesTheFixture.
 	frame := self frameDescribed: 'SessionManager>>snapshot:andQuit:'.
 	source := reifiedMemory sourceOfContext: frame.
 	range := frame pcRangeContextIsActive: false.

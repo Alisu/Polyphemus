@@ -15,7 +15,7 @@ testItReadsAnotherImageLaunchedAsObservable
 	is the other half: held still, every rung of the ladder passes, the free lists and a walk
 	over the objects agreeing about the free space."
 
-	| shim bang work pidFile pid reader dumped |
+	| shim bang work pidFile pid reader dumped waited |
 	shim := FileLocator home / 'polyphemus' / 'Polyphemus' / 'bin' / 'pharo-debuggable'.
 	work := FileLocator home / 'polyphemus'.
 	(shim exists and: [ (work / 'idle.st') exists ]) ifFalse: [
@@ -28,9 +28,30 @@ testItReadsAnotherImageLaunchedAsObservable
 		, ' ' , work fullName
 		, '/pharo-vm/lib/pharo --headless dev.image st idle.st > /dev/null 2>&1 & echo $'
 		, bang , ' > ' , pidFile fullName.
-	(Delay forSeconds: 12) wait.
+	"Wait for it to be there and readable, rather than for a fixed number of seconds. A
+	 sixty megabyte image takes as long as the machine is busy, and a suite running six
+	 test images at once is a busy machine -- guessing twelve seconds passed here and
+	 failed under load, which is the sort of test that wastes an afternoon later."
+	waited := 0.
+	[ pidFile exists and: [ pidFile contents trimBoth notEmpty ] ] whileFalse: [
+		(waited := waited + 1) > 200 ifTrue: [ ^ self fail: 'nothing was started' ].
+		(Delay forMilliseconds: 100) wait ].
 	pid := pidFile contents trimBoth asNumber.
 	pidFile ensureDelete.
+	"Readable is not the same as ready. The permission is granted before the virtual machine
+	 even starts, so the process reads as readable while its image is still being loaded and
+	 there is no heap in it yet. What says the image is there is that the memory it was given
+	 has appeared -- sixty megabytes of it."
+	waited := 0.
+	[
+	(LinuxProcessMemory unchecked: pid) canBeRead and: [
+		((LinuxProcessMemory unchecked: pid) loadableSegments
+			 inject: 0
+			 into: [ :most :each | most max: each sizeInFile ]) > 40000000 ] ] whileFalse: [
+		(waited := waited + 1) > 900 ifTrue: [
+			LibC system: 'kill ' , pid printString.
+			^ self fail: 'the target never finished loading its image' ].
+		(Delay forMilliseconds: 100) wait ].
 
 	[
 	self assert: LinuxProcessMemory ptraceScope equals: 1.

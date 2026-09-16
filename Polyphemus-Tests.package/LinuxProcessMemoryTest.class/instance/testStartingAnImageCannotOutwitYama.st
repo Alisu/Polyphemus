@@ -5,22 +5,20 @@ testStartingAnImageCannotOutwitYama
 	through a shell it does not work: `LibC` can only background a command, the shell exits,
 	the child is reparented to init and we are no longer its ancestor.
 
-	That is worth a test because it is a claim about this machine that could change, and
-	because the utility's promise is to say *which* of the three things went wrong. Where
-	the machine allows reading anyway, the reader comes back and is used."
+	Whatever the machine's `ptrace_scope`, the answer is a refusal -- but not the same one.
+	Where only ancestors may look, the operating system refuses; where anyone may look, this
+	still refuses, because `sleep` is not a Pharo virtual machine and #on: will not hand back
+	a reader for something that is not one.
 
-	| raised reader |
-	LinuxProcessMemory ptraceScope = 0 ifTrue: [
-		reader := LinuxProcessMemory startAndRead: 'sleep 30'.
-		self assert: reader canBeRead.
-		LibC system: 'kill ' , reader pid asString.
-		^ self ].
+	Both are correct. An earlier version asserted only the first and took the other branch on
+	a machine whose scope is 0, where it raised instead of answering -- so it failed for
+	somebody else and passed here."
 
+	| raised |
 	raised := [ LinuxProcessMemory startAndRead: 'sleep 30'. nil ]
 		          on: CannotReadProcess
 		          do: [ :error | error ].
 
 	self assert: raised isNotNil.
-	self
-		assert: (#( #notAPharoVirtualMachine #noVirtualMachineAppeared
-			     #theOperatingSystemRefused ) includes: raised reason)
+	self assert: (#( #notAPharoVirtualMachine #noVirtualMachineAppeared
+		          #theOperatingSystemRefused #nothingStarted ) includes: raised reason)

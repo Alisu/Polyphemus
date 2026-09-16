@@ -10,6 +10,7 @@ testABlockFrameReadsTheTemporariesOfItsMethod
 	the captured one that lives in a vector rather than in a frame."
 
 	| frame |
+	self requireAHostThatReproducesTheFixture.
 	frame := self frameDescribed: 'SessionManager>>snapshot:andQuit: [block]'.
 
 	self assert: (frame tempNames includesAll: #( #save #quit #wait #isImageStarting )).

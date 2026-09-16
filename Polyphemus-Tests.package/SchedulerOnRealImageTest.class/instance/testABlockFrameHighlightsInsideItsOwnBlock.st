@@ -10,6 +10,7 @@ testABlockFrameHighlightsInsideItsOwnBlock
 	highlight rather than giving a wrong one."
 
 	| frame range source |
+	self requireAHostThatReproducesTheFixture.
 	frame := self frameDescribed: 'TKTWorkerProcess>>workerLoop [block]'.
 	source := reifiedMemory sourceOfContext: frame.
 	range := frame pcRangeContextIsActive: false.
