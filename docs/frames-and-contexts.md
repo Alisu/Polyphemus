@@ -105,7 +105,18 @@ tells a machine code instruction pointer from a bytecode one.
   place in the source needs the map Cog keeps for exactly that purpose, which is how it divorces
   a frame into a context.
 
-**So: recognise and refuse, before anything else.** A machine code frame answers that it is not
+**Recognise and refuse -- built.** `#isMachineCodeFrame` was the recognising half and nothing
+called it, which is the half that does not help: a frame that knows it is jitted and answers
+anyway is exactly as wrong as one that does not know. Every reading that takes an offset from the
+frame pointer -- `#oopReceiver`, `#oopMethod`, `#oopContext`, `#oopPageCaller`,
+`#instructionPointer`, `#stackp` -- now raises `SpurCannotRead` with `#frame` and
+`#itIsAMachineCodeFrameAndWeHaveNoJITMapYet`, rather than answering.
+
+Reading a real one still needs a Cog stack page out of a dump, which stage two cannot do yet --
+stack pages live in the VM's own C memory, not in the object heap -- so the test uses a frame that
+declares itself jitted. That tests the thing worth testing: the refusal, not the recognition.
+
+**The original reasoning, which still holds:** A machine code frame answers that it is not
 readable, and the readers say so rather than applying interpreted offsets to it. A wrong line in
 a stack is worse than a missing one, and this is the cheapest possible way to avoid producing
 several.
