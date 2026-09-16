@@ -178,3 +178,54 @@ patches make the rest work, all fork-only:
   read**, or nothing in the source resolves and every variable shows as unknown.
 
 These patch Pharo classes, so they stay in the fork.
+
+## Opening the tools on a dump or a live process
+
+Stage one's presenters take what they always took -- a reified memory, or the interpreter it was
+built into -- so nothing about them had to change. A dump is handed to them the same way an image
+file is.
+
+```smalltalk
+"from a core file"
+dumped := SpurDumpedMemory on: (ElfCoreDump on: '/home/you/pharo.core' asFileReference).
+
+"or from a process that is still running, held still while it is read"
+reader := LinuxProcessMemory on: 4321.
+reader stop.
+dumped := SpurDumpedMemory on: reader.
+
+reified := dumped reifyEverything: dumped reifiedMemory.
+```
+
+Then any of the three:
+
+```smalltalk
+"the read only browser: every process, and its stack"
+(SnapshotProcessBrowser on: reified) open.
+
+"the memory inspector, which opens on the interpreter rather than the memory"
+(MemoryInspector newOn: dumped interpreter) open.
+
+"the real debugger, post mortem, on one process's stack"
+contexts := reified contextsOfProcess: aProcess.
+StDebugger
+	openOn: (DebugSession named: 'a dumped image' on: nil startedAt: contexts first)
+	withFullView: true.
+```
+
+**Which process, though.** The one that was *running* has no contexts to give you: its stack was
+frames at the moment of the dump, which is the whole reason stage two reads frames at all. The
+suspended and waiting ones have their stacks as contexts, and those are what the debugger opens
+on today. In the core we test against there are ten waiting processes, one of them nine contexts
+deep -- `AtomicSharedQueue>>waitForNewItems`, `>>next`, `TKTWorkerProcess>>privateNextTask`.
+
+**On reading yourself.** `SpurDumpedMemory on: LinuxProcessMemory onSelf` works, and opening a
+browser on it is a strange thing to do: reifying allocates in the very heap being read, and you
+cannot hold yourself still, so the thing under the glass grows and moves as you look. Fine for
+structural curiosity, wrong for anything you intend to believe. Point it at another image and
+stop that one first.
+
+**A gap worth knowing.** Some methods read back as `an unreadable selector` from a dump --
+`DelayMicrosecondTicker>>`, `Delay>>` in the core here -- where the same methods read fine from a
+snapshot. The tool is reporting honestly rather than guessing, but something about reading a
+selector out of a dump is not yet right, and it has not been chased.
