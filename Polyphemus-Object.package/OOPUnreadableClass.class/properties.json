@@ -1,0 +1,11 @@
+{
+	"commentStamp": "",
+	"super": "OOPAbstractEntity",
+	"category": "Polyphemus-Object-image",
+	"classinstvars": [],
+	"pools": [],
+	"classvars": [],
+	"instvars": [ "classIndex" ],
+	"name": "OOPUnreadableClass",
+	"type": "normal"
+}
