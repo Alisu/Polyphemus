@@ -81,3 +81,45 @@ Perm space holds objects that never move. That makes it the natural place to put
 can be made to reach -- a hook to trap it from outside, rather than waiting for it to arrive at a
 safepoint of its own accord. Recorded because it is a good idea and because perm space is the
 reason it would work; not pursued, and not part of stage two.
+
+## Reading a process that is still running, from Pharo, with no foreign call
+
+`LinuxProcessMemory` answers the same three messages `ElfCoreDump` does, and the same
+`loadableSegments`, so `SpurDumpedMemory` takes one exactly where it takes a core file and
+nothing above it learns the difference.
+
+It needs no debugger, no ptrace, and **no FFI**:
+
+- `/proc/<pid>/maps` is a text file listing every mapped region. Pharo reads it with
+  `#contents`.
+- `/proc/<pid>/mem` is a file whose offsets **are** virtual addresses. Seek to the address,
+  read the bytes.
+
+```smalltalk
+SpurDumpedMemory on: (LinuxProcessMemory on: somePid)
+```
+
+**Tried on this very image**, which is the strongest form of the demonstration: the tool found
+the heap of the virtual machine it was itself running on, walked **2,914,229 objects**, found the
+special objects array and named the class of the first object -- while running.
+
+And the ladder reported something true about that: the `freeSpace` rung **failed**. The heap was
+being allocated into while it was read, so the allocator's lists and a walk over the objects do
+not add up to the same free space. That is a torn read, it is exactly what the checks exist to
+notice, and it is why anything serious stops the process first.
+
+Two things the operating system decides, not us. Yama's `ptrace_scope` is 1 on most machines, so
+`/proc/<pid>/mem` may only be opened by an **ancestor** of the process: read your own, or read
+one you started. And `[vvar]` and `[vsyscall]` are mapped and look readable but refuse to be
+read, so they are left out of the map rather than reported later as damage that is not there.
+
+### What this means for taking dumps
+
+`bin/take-dump.sh` exists because a dump had to be produced by gdb from outside. For a process
+we can open, that step is no longer needed at all -- the heap can be read where it lies, and
+`SpurDumpedMemory` does not care which it was given. The script stays for the case it was
+written for: a virtual machine that has already died, whose core the kernel wrote.
+
+Spawning a target from Pharo, so that Yama's ancestor rule is satisfied, needs only `LibC`
+`system:`, which this image already has; getting the child's process id back is the one awkward
+part, since without a subprocess library it has to come through a file.

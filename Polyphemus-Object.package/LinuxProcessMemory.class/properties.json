@@ -1,0 +1,11 @@
+{
+	"commentStamp": "",
+	"super": "Object",
+	"category": "Polyphemus-Object-dump",
+	"classinstvars": [],
+	"pools": [],
+	"classvars": [],
+	"instvars": [ "pid", "segments", "stream" ],
+	"name": "LinuxProcessMemory",
+	"type": "normal"
+}
