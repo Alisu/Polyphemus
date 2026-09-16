@@ -181,6 +181,16 @@ The order of what remains, decided rather than assumed:
    then read them through `CogVMSimulator`, which is VMMaker's own simulation of Cog.
 4. **Editing and writing back** — modify the bytes, write the image out.
 
+## Open question, raised 2026-09-15 - partly answered 2026-09-16
+
+**Answered for stage 2, in `SpurReadability`.** Reading is a ladder - bytes, heap, objects, free
+space, classes, special objects - each rung checked, each question declaring the rung it needs,
+and anything above the highest readable rung raising `SpurCannotRead` with the level and reason
+rather than answering. `docs/reading-a-dump.md` has the table. What remains is to give stage 1's
+image path the same treatment, and to add the rung above: source.
+
+The original note follows, because the reasoning still applies.
+
 ## Open question, raised 2026-09-15
 
 **What if the damage is in the thing we read with?** Everything here is reached through
