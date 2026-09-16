@@ -174,8 +174,9 @@ The order of what remains, decided rather than assumed:
    rebuilds the free lists of the memory it reads. New space is declared empty and that is a
    stated limitation — the running process lives there, readable by address but absent from
    enumerations. `docs/reading-a-dump.md` has the whole of it.
-   **Next, and small:** walk eden by shape, the same trick that found the heap, so young objects
-   stop being missing.
+   ~~Next, and small: walk eden by shape.~~ **Done.** `#youngObjectsWalk` finds new space's
+   objects by shape and stops where the allocation mark would be. The running process lives
+   there: processes found went from 11 to 17, one of them `#active` at last.
 2. ~~Live reading through `/proc/pid/mem`.~~ **Done, and it needs no FFI.** `LinuxProcessMemory`
    answers the same three messages plus `loadableSegments`, so `SpurDumpedMemory` takes one where
    it takes a core file. `#writeDumpTo:` writes an ELF core our own reader reads back, so a dump
@@ -183,8 +184,9 @@ The order of what remains, decided rather than assumed:
    Being *allowed* to read turned out to be the real work: `bin/pharo-debuggable` and
    `LinuxObservationPermission` let an image consent, so one image reads another with
    `ptrace_scope` left at 1. `docs/reading-a-live-process.md` has it.
-   **Still missing:** stopping the target first. A running heap gives a torn read -- the free
-   space rung fails on one, correctly -- and nothing yet holds a process still.
+   ~~Still missing: stopping the target first.~~ **Done.** `#whileStopped:` sends SIGSTOP,
+   reads, and SIGCONT afterwards -- which needs no permission beyond being allowed to signal,
+   unlike reading. Held still, a live image reads with every rung of the ladder passing.
 3. **JIT frames properly.** Detect and refuse first (`isMachineCodeFrame:` is one comparison),
    then read them through `CogVMSimulator`, which is VMMaker's own simulation of Cog.
 4. **Editing and writing back** — modify the bytes, write the image out.

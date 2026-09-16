@@ -206,7 +206,26 @@ cannot supply. `LazyReifiedMemory` reads without writing, in about three seconds
 | special objects array | round-trips against the register |
 | processes, with states | **11**, waiting and suspended |
 
-### New space is declared empty, and that is a real limitation
+### New space: declared empty to the VM, walked by shape by us
+
+Two different things, and the distinction matters.
+
+To the memory manager, new space is still declared empty -- see below -- because how full eden
+was is a variable of the VM's C state and a dump does not carry it. So the VM's own
+`allObjectsDo:` enumerates old space only.
+
+Polyphemus finds those objects anyway, the same way it found the heap: **they walk, and noise
+does not.** `#youngSpaceStart` looks for the first run of objects in new space,
+`#youngObjectsWalk` walks it, and where that walk stops *is* the allocation mark the dump would
+not tell us. On the core we test against: **2,369 objects, 415 KB**, found in seven
+milliseconds, ending on untouched memory.
+
+This was not cosmetic. The **running process lives in new space**, as the newest objects do, and
+was missing from every enumeration until this existed: the processes found went from 11 to 17,
+and exactly one of them is `#active` -- the process that was on the processor when the dump was
+taken.
+
+### Why the memory manager is still told new space is empty
 
 How much of eden was in use is a variable of the VM's C state, not a fact about the heap. A dump
 does not carry it, and reading past the last live object there would turn whatever the allocator

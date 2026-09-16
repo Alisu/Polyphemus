@@ -18,7 +18,8 @@
   "walk",
   "readability",
   "classTableProblems",
-  "bytes"
+  "bytes",
+  "youngStart"
  ],
  "name": "SpurDumpedMemory",
  "type": "normal"
