@@ -8,7 +8,7 @@ reifyAllOops
 			put: (OOPAbstractEntity instantiateObject: anOop on: self) ] ]
 		on: Error
 		do: [ :e |
-			objectHandlers add: OOPAbnormalEntity.
+			self addObjectHandler: OOPAbnormalEntity.
 			lastKnownObject := self findObjectBefore: e oop.
 			flagErrorObjects := true.
 			self reifyMemoryThroughRoots ].

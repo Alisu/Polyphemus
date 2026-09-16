@@ -6,3 +6,4 @@ setUpObjectHandlers
 		].
 	objectHandlers := objectHandlers reject: [ :c | OOPAbstractClass allSubclasses includes: c ].
 	objectHandlers add: OOPForwarder.
+	handlerCache := nil

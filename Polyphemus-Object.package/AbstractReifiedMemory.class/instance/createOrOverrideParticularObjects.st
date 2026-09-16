@@ -15,8 +15,8 @@ createOrOverrideParticularObjects
 		self objectAt: aClassTablePage address put: classTablePage ].
 	
 	self overrideClassOops.
-	objectHandlers add: OOPClassClassSideObject.
-	objectHandlers add: OOPClassInstanceSideObject.
+	self addObjectHandler: OOPClassClassSideObject.
+	self addObjectHandler: OOPClassInstanceSideObject.
 	
 	metaclassForTraitIndex ifNil:[ ^ self ].
 	
