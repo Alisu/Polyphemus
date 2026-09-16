@@ -72,7 +72,7 @@ we do not have, a version we do not know, and the case this whole tool exists fo
 the very structure being used to navigate. It is the same idea as the open question in
 `CLAUDE.md`: prefer what can be checked over what has to be trusted.
 
-Anchors worth using once a candidate region is found: nil, true and false are the first three
+Anchors worth using once a candidate region is found: nil, false and true are the first three
 objects of old space, so the first header should be nil's and `oldBaseAddress` should point at
 it; the special objects array is an ordinary object of known shape; the class table is reachable
 from it.
@@ -143,3 +143,88 @@ So: **a readable image first** -- one our own reader opens, which is what forens
 and is little more than the dump plus a header -- and a **bootable** one through the simulator.
 Byte-only booting is a research project whose failure mode is an image that loads and then
 behaves oddly, which is the worst kind of wrong.
+
+## From a dump to a memory the rest of the tool can read
+
+`SpurImageReader` sits in a seat: `StackInterpreterSimulator>>openOn:` makes a memory manager,
+gives it to the object memory, and hands the filling to a reader. `SpurDumpedMemory` takes that
+seat with a core file. Nothing above it -- the reified memory, and so the whole of stage one --
+ever learns which it was given.
+
+### The mapping goes back where it was
+
+The VM asks the operating system for its heap in **one** mapping, so the largest loadable
+segment is it. In the core we test against that is 114 MB at `0xF63...`, with the object heap
+starting 22 MB into it.
+
+The simulator's memory is not one flat array: `SlangMemoryManager` keeps **sparse regions**
+indexed by the high bits of an address. So a region can be registered at the dump's own address
+and cost its own size, not the four gigabytes beneath it. Which means no oop has to move:
+
+> a dump is memory that was already running, so `bytesToShift` is zero.
+
+That is the one way reading a dump is *easier* than reading an image file, where every segment
+is relocated and every pointer adjusted.
+
+### The registers an image header would have carried
+
+| Register | Where it comes from in a dump |
+|---|---|
+| `oldSpaceStart` | the nil/false/true triple, found by shape |
+| `freeOldSpaceStart` | the end of the live objects, from walking them |
+| `endOfMemory` | the end of the mapping |
+| `specialObjectsOop` | the only object whose first three slots are nil, false, true |
+| `hiddenRootsObj` | two objects past true: nil, false, true, free lists, hidden roots |
+| `freeLists` | the first indexable field of that free lists object |
+
+**The VM's own code confirms this layout.** `SpurMemoryManager>>initializeObjectMemory:` asserts
+that nil is `oldSpaceStart`, that false and true follow it, and that the free lists and hidden
+roots come next -- which is exactly how they are found here, arrived at by reading a dump before
+that assertion was read.
+
+That method is **not** called, though. It writes a segment bridge, rebuilds the free lists,
+swizzles oops and starts the collector's machinery: all reasonable when loading an image to run
+it, all mutations of the thing we are trying to examine. What *is* called is
+`#setHiddenRootsObj:`, because it audits what it is given -- it checks the first class table page
+is the right size and that the root pages are valid, and would refuse a memory we had described
+wrongly.
+
+### Reified lazily, because the full reifier writes
+
+`FullyReifiedMemory>>reifyAllOops` calls `reconstructFreeLists`, which clears the free lists
+object and re-adds every chunk it finds. For an image being repaired that is the point; for
+evidence it is not, and its writes go through the VM's write barrier into a scavenger a dump
+cannot supply. `LazyReifiedMemory` reads without writing, in about three seconds, and
+`#reifyEverything:` walks the rest in about twenty when a question needs to enumerate.
+
+### What it answers, on a real core
+
+| | |
+|---|---|
+| objects reified | 1,106,398 |
+| classes of nil, false, true | `UndefinedObject`, `False`, `True` |
+| special objects array | round-trips against the register |
+| processes, with states | **11**, waiting and suspended |
+
+### New space is declared empty, and that is a real limitation
+
+How much of eden was in use is a variable of the VM's C state, not a fact about the heap. A dump
+does not carry it, and reading past the last live object there would turn whatever the allocator
+had not yet overwritten into objects. So new space is given the geometry the VM would give it
+and then declared empty.
+
+Young objects remain perfectly readable **one at a time** -- in the core we test against, the
+*running process itself* is one of them, at 696 bytes into the mapping. They are missing only
+from the answers that enumerate. Hence the shape of the result above: eleven processes found,
+and the active one not among them.
+
+The way out is the trick that found the heap in the first place: eden can be *walked by shape*
+until the walk stops, which is how you find the last live object without being told where it is.
+Not built yet.
+
+### Taking a dump
+
+`bin/take-dump.sh`. It writes to `~/polyphemus/pharo.core`, deliberately not `/tmp` -- a reboot
+cleared the first one and rebuilding it is minutes. The gdb recipe lives in that script, with the
+two traps that cost an afternoon each: `LD_LIBRARY_PATH` belongs to the inferior, never to gdb,
+and the breakpoint must be `pending` because its symbol is in a library not yet loaded.

@@ -277,6 +277,25 @@ Nothing was lost, because the trait re-provides them, but it was luck.
 → Iterate `localSelectors`, handle `.trait` directories, and skip packages the image has not
 loaded.
 
+## The machine, not the code
+
+**A dump written to `/tmp`.** The 204 MB core everything in stage two was developed against
+lived in `/tmp`, and a reboot cleared it. Nothing was lost that could not be remade, but the
+recipe for remaking it existed only in a doc, as prose.
+-> `bin/take-dump.sh`, and it writes to `~/polyphemus`. A thing you cannot rebuild with one
+command is a thing you will rebuild by hand at the worst moment.
+
+**Two `Host worker-box` blocks in an ssh config.** ssh takes the *first* value it sees for each
+keyword, so a stale pinned IP in the first block silently overrode the `.local` name in the
+second -- for weeks, every network change looked like the box had gone away.
+-> When the same fault recurs on a schedule, stop re-fixing the symptom and read the
+configuration. Deleting four lines ended it.
+
+**macOS `._` files rode into the repository inside a tarball.** `tar` on this Mac carries
+AppleDouble resource forks, and the loader tried to compile them as methods.
+-> They were deleted before committing; `find . -name "._*" -delete` after any transfer from a
+Mac.
+
 ## Searching
 
 **A negative result is only as good as the scope of the search.** Hunting the special objects

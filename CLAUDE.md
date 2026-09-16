@@ -25,7 +25,7 @@ Three stages, in order:
 | Repo clone | `~/polyphemus/Polyphemus`, registered in Iceberg |
 | Rebuild image | `~/build-image.sh` (`VMMAKER_REF=v10.0.0`) |
 | Run tests | `Polyphemus/bin/tdd.sh` (compile, then run) or `bin/run-tests.sh` |
-| A dump to try things on | `/tmp/pharo.core`, 204 MB, a real VM caught at a safepoint |
+| A dump to try things on | `~/polyphemus/pharo.core` — `bin/take-dump.sh` makes one; **not** `/tmp`, a reboot clears it |
 
 `VMMaker` here is the **Pharo team's** fork (`pharo-project/pharo-vm`, `smalltalksrc/`), not Eliot
 Miranda's `VMMaker.oscog`.
@@ -168,9 +168,14 @@ What exists:
 
 The order of what remains, decided rather than assumed:
 
-1. **The dump's heap into a `FullyReifiedMemory`** — fill a `MachineSimulatorMemoryManager` from
-   the segments, set the registers. **This is the next step.** After it, everything stage 1 does
-   applies to a dead process.
+1. ~~The dump's heap into a reified memory.~~ **Done.** `SpurDumpedMemory` takes the seat
+   `SpurImageReader` sits in; on a real 219 MB core it reifies **1,106,398 objects** and finds
+   **11 processes with their states**. Lazily and without writing, because the full reifier
+   rebuilds the free lists of the memory it reads. New space is declared empty and that is a
+   stated limitation — the running process lives there, readable by address but absent from
+   enumerations. `docs/reading-a-dump.md` has the whole of it.
+   **Next, and small:** walk eden by shape, the same trick that found the heap, so young objects
+   stop being missing.
 2. **Live reading** through `/proc/pid/mem` — no FFI needed on Linux, same three messages.
 3. **JIT frames properly.** Detect and refuse first (`isMachineCodeFrame:` is one comparison),
    then read them through `CogVMSimulator`, which is VMMaker's own simulation of Cog.
