@@ -124,3 +124,45 @@ several.
 **And when we do read them**, it is by calling VMMaker's own code rather than reimplementing it:
 `CogVMSimulator` is a subclass of `CoInterpreter`, so the JIT is simulated in VMMaker the same
 way the interpreter is -- the same reason we call `primitiveSnapshot` instead of writing one.
+
+## Finding a dump's frames, through the heap
+
+Stack pages are not in the object heap. They are the virtual machine's own C memory, and nothing
+in a dump says where they are -- which looked like the thing standing between stage two and
+reading stacks at all.
+
+The heap says where they are. A **married** context keeps its frame pointer where a sender would
+be, and married contexts are ordinary objects sitting in a heap we can already read. So the
+frames are reached from the objects, not searched for.
+
+Each one is believed only if the frame **points back**: the word two below the frame pointer is
+the frame's context, and it has to be the context that named it. One side can be a coincidence;
+both cannot. It is the same mutual reference that confirms the special objects array.
+
+On the real core:
+
+| | |
+|---|---|
+| contexts in the heap | 832 |
+| contexts naming a frame | 94 |
+| **frames confirmed by pointing back** | **43** |
+| of those, running machine code | **12** |
+| running bytecodes | 31 |
+
+The 51 that name a frame without being pointed back at are contexts whose frame is long gone --
+which is what a divorced context looks like from this side.
+
+All the frame pointers land in a single 328 KB region far above the heap, which is the memory the
+stack pages live in. We did not have to know that in advance, and did not have to find it: the
+heap gave us the addresses and the addresses gave us the region.
+
+### The jitted frames are real, and now there are examples
+
+The 12 machine code frames have method fields *below the start of the mapping* -- in the code
+zone, where no object could be. That is the VM's own test for a jitted frame
+(`CoInterpreter>>isMachineCodeFrame:`), and this is the first time it has been applied to
+anything but an interpreted frame here.
+
+It also means the refusal in `OOPAbstractStackFrame` was written against no real examples and now
+has twelve. What it does *not* mean is that they can be read: that still wants Cog's frame
+layout and its map from a code address back to a place in the source.
