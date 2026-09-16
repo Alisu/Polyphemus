@@ -1,0 +1,11 @@
+{
+	"commentStamp": "",
+	"super": "Error",
+	"category": "Polyphemus-Object-dump",
+	"classinstvars": [],
+	"pools": [],
+	"classvars": [],
+	"instvars": [ "level", "reason" ],
+	"name": "SpurCannotRead",
+	"type": "normal"
+}

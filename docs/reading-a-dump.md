@@ -228,3 +228,48 @@ Not built yet.
 cleared the first one and rebuilding it is minutes. The gdb recipe lives in that script, with the
 two traps that cost an afternoon each: `LD_LIBRARY_PATH` belongs to the inferior, never to gdb,
 and the breakpoint must be `pending` because its symbol is in a library not yet loaded.
+
+## The minimum required to read, and saying "we cannot read this"
+
+Reading an image is not one thing that works or fails. It is a ladder, and each rung can be
+damaged on its own: a heap whose class table is broken still has perfectly good objects in it,
+they just have no names.
+
+| Level | Needs | How it is checked | What failing costs you |
+|---|---|---|---|
+| `bytes` | a mapping we can read | the segments parse | everything |
+| `heap` | nil, false, true, and a walk that runs | `#heapStartFrom:upTo:` | *there is no Spur heap here* |
+| `objects` | the walk reaching the end | `SpurHeapWalk>>reason` | objects up to where it stopped -- **and it says where, and why** |
+| `freeSpace` | the lists agreeing with the walk | `SpurFreeListWalk>>agreesWith:` | nothing to read, everything to write: the allocator is not to be trusted |
+| `classes` | every class table entry being a class | `#classTableProblemsFrom:upTo:` | objects, but **no names** |
+| `specialObjects` | the array, found by its contents | `#specialObjectsArrayFrom:upTo:` | no processes, no scheduler |
+
+Source is a rung above, and is not checked here: a method's trailer and the `.sources` file are
+per-method questions, answered where they are asked.
+
+**The rule that makes it worth having.** Every question declares the rung it needs, and a
+question asked above the highest readable rung raises `SpurCannotRead` -- carrying the level and
+the reason -- instead of answering. `#reifiedMemory` requires `classes`, because every object
+reified through a broken table gets a name and the name is wrong.
+
+This is `readSlot:of:ifUnreadable:` lifted from single slots to the structures we navigate by,
+and it is the answer to the question this fork left open: *what if the damage is in the thing we
+read with?* You find out first, and you say so.
+
+### Why the class table is the one worth auditing
+
+Damage anywhere else eventually announces itself. A broken free list hands out memory that is in
+use and something crashes; a broken object header stops the walk. A broken class table does
+nothing at all: the heap still walks, the free lists still add up, every object is still well
+formed. It simply answers the wrong name for every object of that class, and no other check
+notices. So every entry of every page in use is audited -- each must be an object of fixed
+fields, inside the heap -- which on the core we test against is 4096 entries and half a minute,
+and comes back empty.
+
+### Checks are not only for refusing
+
+The free list check earned itself the first time it ran, and not by finding corruption. It
+reported a chunk eight bytes outside the heap, which turned out to be a bug in *our* reading: the
+heap ran into a second mapping we were not looking at. Two independent routes to the same number
+disagreeing is how you learn that one of them is wrong -- and it is worth remembering that the
+one that is wrong may be yours.

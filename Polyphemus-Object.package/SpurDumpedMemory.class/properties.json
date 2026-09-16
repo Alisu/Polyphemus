@@ -15,7 +15,9 @@
   "specialObjectsOop",
   "memory",
   "interpreter",
-  "walk"
+  "walk",
+  "readability",
+  "classTableProblems"
  ],
  "name": "SpurDumpedMemory",
  "type": "normal"
