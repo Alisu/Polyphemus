@@ -206,12 +206,24 @@ Then any of the three:
 "the memory inspector, which opens on the interpreter rather than the memory"
 (MemoryInspector newOn: dumped interpreter) open.
 
-"the real debugger, post mortem, on one process's stack"
-contexts := reified contextsOfProcess: aProcess.
+"the real debugger, post mortem, on one process's stack.
+ Choosing the process is not incidental: the one that was *running* has no contexts to
+ give, because at the moment of the dump its stack was frames. So take one that was not
+ running, and prefer a deep one -- most are a single context waiting on a semaphore."
+process := reified allReifiedProcesses
+	           detect: [ :each | (reified contextsOfProcess: each) size > 3 ]
+	           ifNone: [
+		           reified allReifiedProcesses
+			           detect: [ :each | (reified contextsOfProcess: each) notEmpty ]
+			           ifNone: [ nil ] ].
+contexts := reified contextsOfProcess: process.
 StDebugger
 	openOn: (DebugSession named: 'a dumped image' on: nil startedAt: contexts first)
 	withFullView: true.
 ```
+
+Run against the core here, that picks the nine deep one out of seventeen processes, fifteen of
+which are a single context and one of which -- the process that was running -- has none at all.
 
 **Which process, though.** The one that was *running* has no contexts to give you: its stack was
 frames at the moment of the dump, which is the whole reason stage two reads frames at all. The
