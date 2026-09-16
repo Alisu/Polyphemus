@@ -123,3 +123,64 @@ written for: a virtual machine that has already died, whose core the kernel wrot
 Spawning a target from Pharo, so that Yama's ancestor rule is satisfied, needs only `LibC`
 `system:`, which this image already has; getting the child's process id back is the one awkward
 part, since without a subprocess library it has to come through a file.
+
+## Choosing a process, and being told why you cannot have it
+
+`LinuxProcessMemory on: aPid` either answers a reader or refuses, and the refusal says which of
+three different things was wrong:
+
+| Reason | What it means |
+|---|---|
+| `#noSuchProcess` | nothing is running under that number |
+| `#notAPharoVirtualMachine` | something is, but it is not a Pharo virtual machine |
+| `#theOperatingSystemRefused` | it is, and the kernel will not let us look at it |
+
+The last two matter more than they look. Reading some other program's memory as though it held a
+Spur heap finds nothing at best and something at worst, so a process that is not a virtual machine
+is refused before anything is read. And **Pharo reports a refused open of `/proc/<pid>/mem` as the
+file not existing** -- it does exist; we are simply not allowed it -- so told the truth you look
+for a permission, and told Pharo's version you look for a process that is right in front of you.
+
+Whether it is a virtual machine is asked of `/proc/<pid>/cmdline`, which can be read even when the
+memory cannot, so a process we may not touch is still refused for the right reason. A command line
+is a name and names can lie; the honest confirmation is that a Spur heap is found inside, which is
+what `SpurDumpedMemory` does next and what this whole tool is for.
+
+`LinuxProcessMemory pharoProcesses` lists what is available as pid -> command line, because
+someone choosing a number needs something to choose from.
+
+## Yama, and why starting the target does not get round it
+
+`ptrace_scope` is 1 on this box and on most machines: only an **ancestor** may read another
+process. `LinuxProcessMemory ptraceScope` answers it.
+
+The documented way round that is to start the target yourself, which is exactly why
+`bin/take-dump.sh` runs the virtual machine under gdb instead of attaching to one already going.
+From Pharo it does not work, and the reason was measured rather than guessed:
+
+> `LibC` can only run a command through a shell. A command backgrounded with `&` outlives that
+> shell, and the moment the shell exits the child is **reparented to init**. We stop being its
+> ancestor, and the kernel refuses its memory. A `sleep` started this way reads as unreadable a
+> moment later.
+
+Keeping a child a child needs a real fork and exec: OSSubprocess, or a foreign call to
+`posix_spawn`. Neither is in this image, and neither is needed for *reading* -- that is the part
+that needs nothing at all.
+
+So, to read an image that is already running, one of:
+
+- **`sudo sysctl kernel.yama.ptrace_scope=0`** on a machine you own, which is what debuggers ask
+  for anyway, and then any process of the same user can be read;
+- run the reading image as root;
+- load OSSubprocess, and start the target from Pharo so that it really is a child.
+
+## Taking a dump from Pharo
+
+`#writeDumpTo:` writes what it can read as an **ELF core** -- the same thing `gcore` produces, and
+what `ElfCoreDump` already reads. So a dump can be taken without a debugger, of any process we are
+allowed to read, and read back by the reader we already had. There is a round-trip test: bytes out
+and bytes back have to agree.
+
+What it does not write is the notes. A real core carries every thread's registers in a `PT_NOTE`
+segment, and those are not ours to read out of `/proc`. Nothing in stage two needs them yet; the
+frame pointer of the running thread is the obvious thing that will.

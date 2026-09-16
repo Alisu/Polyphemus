@@ -1,0 +1,11 @@
+{
+	"commentStamp": "",
+	"super": "Error",
+	"category": "Polyphemus-Object-dump",
+	"classinstvars": [],
+	"pools": [],
+	"classvars": [],
+	"instvars": [ "pid", "reason" ],
+	"name": "CannotReadProcess",
+	"type": "normal"
+}
