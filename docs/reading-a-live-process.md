@@ -184,3 +184,67 @@ and bytes back have to agree.
 What it does not write is the notes. A real core carries every thread's registers in a `PT_NOTE`
 segment, and those are not ours to read out of `/proc`. Nothing in stage two needs them yet; the
 frame pointer of the running thread is the obvious thing that will.
+
+## Being allowed to look: an image that consents
+
+Everything above is about *whether the operating system will let you*, and there are only four
+answers on Linux. Three of them are bad for a tool:
+
+| | What it costs |
+|---|---|
+| be the target's ancestor | you can only debug images your own launcher started |
+| `ptrace_scope=0` | machine-wide: **any** process of that user may read **any** other -- ssh-agent, browser, keys |
+| run the observer as root | the whole tool runs as root, and a process cannot become root later: privileges are dropped, never acquired |
+| **the target consents** | one image, revocable, machine untouched |
+
+The fourth is `prctl(PR_SET_PTRACER, ...)`, and four things about it were measured on this box
+rather than assumed:
+
+1. **It governs `/proc/<pid>/mem`**, not only `ptrace` proper -- which is the route this reader
+   takes.
+2. **It survives `execve`.** A wrapper can grant it and then *become* the virtual machine, so
+   nothing in Pharo or in the VM has to change. Tested with a control: a sibling reading a
+   process that had not opted in was refused; the same sibling reading one that had, through an
+   exec, was allowed.
+3. **It is revocable.** Granted, a sibling could read the process; after
+   `prctl(PR_SET_PTRACER, 0)`, the same sibling could not.
+4. It can name **one** process instead of anyone.
+
+### The two halves, and why both
+
+`bin/pharo-debuggable` is the wrapper: it reads `POLYPHEMUS_OBSERVER`, grants what that asks
+for, and execs the program it was given. With the variable unset it grants nothing and is a plain
+exec, so a launcher can use it unconditionally.
+
+```bash
+POLYPHEMUS_OBSERVER=any  bin/pharo-debuggable pharo-vm/lib/pharo --headless my.image
+POLYPHEMUS_OBSERVER=4321 bin/pharo-debuggable pharo-vm/lib/pharo --headless my.image
+cc -O2 -o bin/pharo-debuggable bin/pharo-debuggable.c
+```
+
+`LinuxObservationPermission` is the same thing from inside a running image -- and the only
+foreign call in the project, in the image being *observed* rather than the one observing.
+`#allowAnyObserver`, `#allowObserver:`, `#denyObservers`, and `#applyFromEnvironment` for a
+startup action.
+
+They are not alternatives. The wrapper is in place before the image begins loading, which is the
+only way to be readable *during startup*; the in-image call can narrow `any` down to the real
+observer once it is known, and take the permission away afterwards. Default off, granted at
+launch, narrowed and revoked from inside.
+
+**An image that has wedged can do neither** -- it cannot run anything, so it cannot grant what it
+did not grant before. That is the whole argument for launching images this way in the first place,
+and it is the line between a tool for images you prepared and a tool for images you find. For the
+ones you find, what is left is a core dump (the kernel writes it, and reading a file needs nobody's
+permission) or an observer started as root.
+
+### Proven end to end
+
+One Pharo image reading another's heap, with `ptrace_scope` left at 1:
+
+| | |
+|---|---|
+| target's parent | `PPid: 1` -- orphaned, so not a descendant of the observer |
+| ptrace_scope | 1, untouched |
+| objects read from the other image | **1,107,894** |
+| class of its first object | `UndefinedObject` |
