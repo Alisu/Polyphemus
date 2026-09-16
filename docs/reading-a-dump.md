@@ -247,9 +247,21 @@ they just have no names.
 Source is a rung above, and is not checked here: a method's trailer and the `.sources` file are
 per-method questions, answered where they are asked.
 
+**Two kinds of rung.** `bytes`, `heap` and `classes` are *preconditions*: without readable
+memory, a heap, or a navigable class table there is nothing to be done with any object anywhere.
+One of those failing stops the climb, because the rungs above it cannot even be tested.
+
+The others are *local damage*. A walk that stops half way through is damaged where it stops and
+nowhere else; a free chunk that is not one is a fact about that chunk; a class index that answers
+nothing costs the names of that one class. None of them says anything about the rest of the
+heap -- so they are recorded, the climb carries on, and what they cost belongs in the data:
+`OOPAbnormalEntity` for a stretch that cannot be decoded, and an unreadable class for an object
+that cannot be named. Refusing to read a heap because its walk ended early would be answering a
+question about one end of the memory with a fact about the other.
+
 **The rule that makes it worth having.** Every question declares the rung it needs, and a
-question asked above the highest readable rung raises `SpurCannotRead` -- carrying the level and
-the reason -- instead of answering. `#reifiedMemory` requires `classes`, because every object
+question asked above a failed precondition raises `SpurCannotRead` -- carrying the level and the
+reason -- instead of answering. `#reifiedMemory` requires `classes`, because every object
 reified through a broken table gets a name and the name is wrong.
 
 This is `readSlot:of:ifUnreadable:` lifted from single slots to the structures we navigate by,
