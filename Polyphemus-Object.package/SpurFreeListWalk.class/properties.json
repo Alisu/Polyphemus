@@ -1,0 +1,11 @@
+{
+	"commentStamp": "",
+	"super": "Object",
+	"category": "Polyphemus-Object-dump",
+	"classinstvars": [],
+	"pools": [],
+	"classvars": [],
+	"instvars": [ "chunkCount", "bytes", "problems" ],
+	"name": "SpurFreeListWalk",
+	"type": "normal"
+}

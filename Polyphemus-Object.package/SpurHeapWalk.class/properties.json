@@ -11,7 +11,8 @@
   "liveBytes",
   "freeBytes",
   "stoppedAt",
-  "reason"
+  "reason",
+  "specialObjectsArray"
  ],
  "name": "SpurHeapWalk",
  "type": "normal"

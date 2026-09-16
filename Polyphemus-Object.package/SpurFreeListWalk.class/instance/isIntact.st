@@ -1,0 +1,4 @@
+testing
+isIntact
+
+	^ problems isEmpty
