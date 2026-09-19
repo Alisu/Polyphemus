@@ -2,7 +2,8 @@ helpers
 launchObservableTarget
 
 	"Launch the pinned Pharo 10 image through bin/pharo-debuggable, not as our descendant,
-	waiting on a delay, and answer its pid once its image is loaded."
+	waiting on a delay, and answer its pid once its image is loaded and it is idle: stopped
+	while it still starts up, it is in machine code or changing its heap."
 
 	| shim target bang pidFile pid waited |
 	"Nothing here is particular to one machine: the launcher is found in this repository, the
@@ -47,4 +48,10 @@ launchObservableTarget
 			^ self fail: 'the target never finished loading its image' ].
 		(Delay forMilliseconds: 100) wait ].
 
+	waited := 0.
+	[ (LinuxProcessMemory unchecked: pid) isQuiet ] whileFalse: [
+		(waited := waited + 1) > 900 ifTrue: [
+			LibC system: 'kill ' , pid printString.
+			^ self fail: 'the target never went idle' ].
+		(Delay forMilliseconds: 100) wait ].
 	^ pid
