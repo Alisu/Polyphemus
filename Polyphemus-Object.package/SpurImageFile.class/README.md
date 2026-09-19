@@ -1,0 +1,1 @@
+A 64-bit Spur image file as the address space it was saved from: the heap where the header says it was (oldBaseAddress), each further segment where the bridge ending the one before says, as SpurImageReader>>readSegmentsFromImageFile:header: reads them. A file that is not such an image has no segments; one shorter than its header says has only the bytes it holds.

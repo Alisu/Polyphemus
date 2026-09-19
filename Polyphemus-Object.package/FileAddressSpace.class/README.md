@@ -1,0 +1,1 @@
+A file read as the address space it describes: segments, each an address range and where its bytes are in the file, served through one open stream and a cached block. A core dump lists its segments in ELF program headers (ElfCoreDump); an image file in its Spur header and segment bridges (SpurImageFile). What the file does not hold answers nil, never zeros.

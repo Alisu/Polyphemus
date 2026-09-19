@@ -1,11 +1,17 @@
 {
 	"commentStamp": "",
-	"super": "FileAddressSpace",
+	"super": "Object",
 	"category": "Polyphemus-Object-dump",
 	"classinstvars": [],
 	"pools": [],
 	"classvars": [],
-	"instvars": [],
-	"name": "ElfCoreDump",
+	"instvars": [
+	 "file",
+	 "segments",
+	 "stream",
+	 "cacheStart",
+	 "cacheBytes"
+	],
+	"name": "FileAddressSpace",
 	"type": "normal"
 }
