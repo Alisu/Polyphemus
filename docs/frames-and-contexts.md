@@ -132,12 +132,31 @@ whole debugger protocol. On a Cog dump:
 On the real core this takes the 17 processes from **24 contexts to 77 activations**: 58 frames,
 28 of them jitted, each married frame agreeing with its context on method and receiver.
 
-**Still missing:**
-- **The pc of a page's top frame.** It is on top of the page's stack, and we do not know where
-  that is without the page's `headSP`.
-- **The pc of a machine code frame.** It needs Cog's map.
-- **Eden.** Objects there are not enumerated (#8), so frames reify the words they hold by
-  address, as slots do.
+**What the VM's own variables add** (`VMVariables`, see `docs/reading-a-dump.md`):
+
+- **Names for the routines a frame returns through.** Every `ce...` variable whose value lies from
+  `codeBase` to `methodZoneBase` names a trampoline or enilopmart. A saved ip of
+  `ceReturnToInterpreterTrampoline` is recognised by name, as `contextInstructionPointer:frame:`
+  does, and the inspector shows it by name. Every base frame returns through
+  `ceBaseFrameReturnTrampoline`.
+- **The page records**, read through VMMaker's own `CogStackPageSurrogate64`. A suspended
+  process's newest frame is its page's `headFP`, and the word at `headSP` is the ip it resumes
+  at. So that frame has a pc and an operand stack. (A one-frame page used to lose an operand
+  here: #10.)
+- **The running process.** It has no context. Its frames start at `framePointer`, where the VM
+  saved its registers on leaving for C, and its ip is `instructionPointer`. That is believed
+  only if:
+  - no thread's `rip` is in the code zone (then the newest frames would be only in registers:
+    machine code calling machine code saves nothing);
+  - the frame pointer is on the active page and walks down to its base;
+  - the ip lies inside the newest frame's method.
+
+  The active page's own record is stale. On the real core the running process was the idle
+  process, in its relinquish primitive.
+
+**Still missing:** the pc of a machine code frame, which needs Cog's map. A live process cannot
+yet say whether it was stopped in machine code (no registers without ptrace), so its running
+process is refused.
 
 ## Finding a dump's frames, through the heap
 

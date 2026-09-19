@@ -191,9 +191,10 @@ The order of what remains, decided rather than assumed:
    context, in Cog's layout.~~ **Done** through `OOPCogLayout`: 24 contexts became 77 activations
    on the real core, and #3 (jitted method headers) is fixed on the way;
    `docs/frames-and-contexts.md` has it. Eden (#8) is walked
-   from the VM's own variables (`VMVariables`, `docs/reading-a-dump.md`). Left: trampolines
-   by name, the top frame's pc (the page's `headSP`), the running process, and a machine
-   code pc (Cog's map; try VMMaker's Cogit first). Item 4 is parked until these are done.
+   from the VM's own variables (`VMVariables`, `docs/reading-a-dump.md`). Trampolines by name,
+   each page's newest frame and its pc (the page records), and the running process (the VM's
+   saved registers, checked against the threads' `rip`) are done. Left: a machine code pc
+   (Cog's map; try VMMaker's Cogit first). Item 4 is parked until these are done.
 4. **Editing and writing back** — modify the bytes, write the image out.
 
 ## Open question, raised 2026-09-15 - partly answered 2026-09-16

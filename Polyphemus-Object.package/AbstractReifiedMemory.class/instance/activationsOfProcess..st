@@ -2,7 +2,7 @@ contexts
 activationsOfProcess: aProcessOop
 
 	"The stack of a process, top first: frames on a stack page, then contexts in the heap.
-	Without frames, the same as #contextsOfProcess:."
+	The running process has no context; its frames are where the VM saved its registers."
 
 	| activations context frames |
 	activations := OrderedCollection new.
@@ -12,7 +12,9 @@ activationsOfProcess: aProcessOop
 		           ifUnreadable: [ nil ].
 	context ifNil: [ ^ activations ].
 
-	frames := self framesFromContext: context.
+	frames := ([ context isNilOop ] on: Error do: [ :e | false ])
+		          ifTrue: [ self framesOfProcessWithoutContext: aProcessOop ]
+		          ifFalse: [ self framesFromContext: context ].
 	activations addAll: frames.
 	frames ifNotEmpty: [
 		context := [ frames last oopPageCaller ]
