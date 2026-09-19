@@ -5,7 +5,6 @@ testABlockFrameHighlightsInsideItsOwnBlock
 	are read with #bytecodeAt:, not #at:."
 
 	| frame range source |
-	self requireAHostThatReproducesTheFixture.
 	frame := self frameDescribed: 'TKTWorkerProcess>>workerLoop [block]'.
 	source := reifiedMemory sourceOfContext: frame.
 	range := frame pcRangeContextIsActive: false.

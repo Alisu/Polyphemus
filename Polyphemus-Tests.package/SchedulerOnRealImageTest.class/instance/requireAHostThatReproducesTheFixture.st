@@ -1,11 +1,11 @@
 running
 requireAHostThatReproducesTheFixture
 
-	"Skip when this host compiles the fixture's source into different bytecodes, as Pharo 11
-	does: highlighting, block matching and naming then answer nothing."
+	"Skip where this host compiles the method into bytes other than the file's. Temporaries
+	are only named in such code (#6), so there is nothing to check; highlighting does not
+	need this, since it matches sends when the bytes differ (#4)."
 
 	(self frameDescribed: 'SessionManager>>snapshot:andQuit:') faithfulCompiledCode ifNil: [
 		self skip:
-			'this host compiles the fixture''s source into different bytecodes, so nothing is '
-			, 'highlighted, matched or named here. The fixture is pinned to Pharo 10 and the '
-			, 'highlighting is built by recompiling in the host.' ]
+			'this host lays out SessionManager>>snapshot:andQuit: differently from the fixture, '
+			, 'so its temporaries are not named here (#6)' ]
