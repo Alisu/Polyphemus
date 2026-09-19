@@ -34,6 +34,11 @@ ensureClass := [ :props :packageName |
 				(cls instVarNames includes: ivar) ifFalse: [
 					cls addInstVarNamed: ivar.
 					('IVAR ', name, '>>', ivar) traceCr ] ].
+			"The category is the class's tag, which is how the browser groups it."
+			(props at: 'category' ifAbsent: [ nil ]) ifNotNil: [ :wanted |
+				cls category = wanted asSymbol ifFalse: [
+					cls category: wanted.
+					('RETAGGED ', name, ' -> ', wanted) traceCr ] ].
 			cls ]
 		ifFalse: [
 			| superName cls |
@@ -50,6 +55,10 @@ ensureClass := [ :props :packageName |
 						cls class instanceVariableNames: (joined value: civ) ].
 					created := created + 1.
 					('CREATED ', name) traceCr.
+					(props at: 'category' ifAbsent: [ nil ]) ifNotNil: [ :wanted |
+						cls category = wanted asSymbol ifFalse: [
+							cls category: wanted.
+							('RETAGGED ', name, ' -> ', wanted) traceCr ] ].
 					cls ] ] ].
 
 syncSide := [ :target :dir :packageName |

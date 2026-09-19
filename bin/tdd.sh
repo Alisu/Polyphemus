@@ -14,7 +14,7 @@ HERE="$WORK/Polyphemus/bin"
 
 echo "== compiling working copy into dev.image =="
 timeout 600 ./pharo dev.image st "$HERE/sync-from-working-copy.st" 2>/dev/null \
-  | tr -d '\033' | grep -E '^SYNC|^CREATED|^REMOVED|^COMPILE ERR|^SKIP|^NO COMMENT' || true
+  | tr -d '\033' | grep -E '^SYNC|^CREATED|^REMOVED|^COMPILE ERR|^SKIP|^NO COMMENT|^RETAGGED' || true
 
 echo "== rebuilding warm.image =="
 cp -f dev.image warm.image
