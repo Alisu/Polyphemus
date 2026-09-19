@@ -1,0 +1,1 @@
+Stands in for a CoInterpreter simulator so that VMMaker's own CogStackPageSurrogate64 reads the VM's page records out of a core or a live process: it answers the memory manager and stack pages the surrogate asks for, reading words from the space.

@@ -1,0 +1,4 @@
+simulator protocol
+memoryManager
+
+	^ self

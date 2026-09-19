@@ -1,0 +1,4 @@
+simulator protocol
+stackPages
+
+	^ self
