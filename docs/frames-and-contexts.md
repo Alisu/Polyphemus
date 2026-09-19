@@ -154,9 +154,23 @@ On the real core this takes the 17 processes from **24 contexts to 77 activation
   The active page's own record is stale. On the real core the running process was the idle
   process, in its relinquish primitive.
 
-**Still missing:** the pc of a machine code frame, which needs Cog's map. A live process cannot
-yet say whether it was stopped in machine code (no registers without ptrace), so its running
-process is refused.
+**A machine code frame's pc**, through Cog's own map, read by VMMaker's own Cogit
+(`Cogit>>bytecodePCFor:startBcpc:in:`). `OOPCogLayout>>cogit` is a `StackToRegisterMappingCogit`
+set up as the Pharo VM is built (SistaV1, x64) and wired to two stand-ins:
+- `OOPCogCodeMemory`: code zone bytes come from the dump, everything else from the dumped heap.
+- `OOPCogInterpreterStandIn`: a method's start pc is taken from its real header (#3).
+
+Initializing the Cogit's class only fills Cog's own pools; none of the StackInterpreter's
+change, and stage 1's stack tests pass in an image where it ran.
+
+**Checked without Cog:** on the real core all 28 JIT frames have a pc, and a frame below another
+is just after the send that made it. That send is the callee's selector, a `value...` for a
+block, or a send that runs a method under another name (`withArgs:executeMethod:`). The dumped
+VM was built from VMMaker v9.0.22 and is read with v10.0.0; the map agreed on every frame.
+
+**Still missing:** a live process cannot yet say whether it was stopped in machine code (no
+registers without ptrace), so its running process is refused. And a running process caught *in*
+machine code would need its newest frames from `rbp`/`rsp`.
 
 ## Finding a dump's frames, through the heap
 
