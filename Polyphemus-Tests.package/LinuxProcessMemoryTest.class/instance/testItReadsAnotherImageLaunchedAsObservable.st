@@ -2,7 +2,8 @@ tests
 testItReadsAnotherImageLaunchedAsObservable
 
 	"Launch the pinned Pharo 10 image through bin/pharo-debuggable, not as our descendant,
-	stop it, and read its heap with every rung passing."
+	stop it while it is quiet, and read its heap with every rung passing. Stopped at any
+	moment, it could be caught half way through changing its heap (#11)."
 
 	| pid reader dumped |
 	pid := self launchObservableTarget.
@@ -11,7 +12,7 @@ testItReadsAnotherImageLaunchedAsObservable
 	self assert: (LinuxProcessMemory unchecked: pid) canBeRead.
 	reader := LinuxProcessMemory on: pid.
 
-	reader whileStopped: [
+	reader whileStoppedWhenQuiet: [
 		self assert: reader isStopped.
 		dumped := SpurDumpedMemory on: reader.
 		self assert: dumped raw heapWalk objectCount > 100000.

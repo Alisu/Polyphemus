@@ -1,15 +1,15 @@
 tests
 testTheRunningProcessOfAStoppedImageShowsItsStack
 
-	"Stopped, each thread of the target says where it was (/proc/<pid>/task/*/syscall). None
-	was in machine code, so the registers the VM saved on leaving for C are its own, and the
-	running process's stack reads from them."
+	"Stopped while quiet, each thread of the target says where it was
+	(/proc/<pid>/task/*/syscall). None was in machine code, so the registers the VM saved on
+	leaving for C are its own, and the running process's stack reads from them."
 
 	| pid reader stack |
 	pid := self launchObservableTarget.
 	[
 	reader := LinuxProcessMemory on: pid.
-	reader whileStopped: [
+	reader whileStoppedWhenQuiet: [
 		| dumped memory |
 		self assert: reader threadRegisters notEmpty.
 		self assert: (reader threadRegisters allSatisfy: [ :each | each includesKey: #rip ]).
