@@ -1,13 +1,8 @@
 context protocol
 tempAt: anIndex
 
-	"The value of the nth argument or temporary of this frame, counting the way a context
-	counts: arguments first, then temporaries.
-
-	Asked of the VM. Its arguments sit above the frame pointer, pushed by whoever called it,
-	and its temporaries below, past the method, the flags and the receiver; the VM knows
-	that layout and counts from zero. Reading past the temporaries reaches the operand
-	stack, which is not a temporary of anything, so the count bounds it."
+	"The nth argument or temporary, counted as a context counts, arguments first; read
+	through the VM's frame layout and bounded by the temporary count."
 
 	| count |
 	count := [ self compiledCode numTemps ] on: Error do: [ :e | 0 ].

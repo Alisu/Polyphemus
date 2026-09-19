@@ -1,14 +1,8 @@
 building a heap
 heapBytesFor: aCollectionOfSpecs
 
-	"Each spec is class index, format and slot count, and may carry a fourth element: the
-	words to write into its first slots. An object asking for 255 slots or more gets an
-	overflow word in front of it, whose own slot count byte is saturated -- which is what a
-	walk looks for to tell the two apart.
-
-	The header states the slot count it was given, including zero, while the object still
-	takes one slot of room: nil says nought slots and occupies sixteen bytes, because a
-	forwarding pointer has to fit somewhere."
+	"Bytes of a hand-built heap. A spec is class index, format, slot count and optional first
+	slots; 255 slots or more get an overflow word; zero slots still take one."
 
 	^ ByteArray streamContents: [ :stream |
 		  aCollectionOfSpecs do: [ :spec |

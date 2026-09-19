@@ -1,14 +1,8 @@
 accessing
 allCompiledBlocks
 
-	"Every compiled block of this code and of its blocks, outermost first, in the order the
-	compiler laid them down as literals. That order is what lets a running block be matched
-	to the block in the source it came from.
-
-	The last literal of a compiled block is the code it is installed in, so following
-	literals blindly walks back out to the method and then in again forever. Dropping that
-	literal cuts the loop; the visited set is there because a file that has been corrupted
-	does not owe us a tree."
+	"Every compiled block, outermost first in literal order, skipping each block's back-
+	pointer literal and anything already visited."
 
 	| blocks seen walk |
 	blocks := OrderedCollection new.

@@ -1,9 +1,7 @@
 dumping
 writeElfHeaderFor: aCount on: aStream
 
-	"Sixty-four bytes. A 64-bit little endian core for x86-64, whose program header table
-	starts immediately after it and whose section headers do not exist -- a core has no
-	sections."
+	"The 64-byte ELF header of a little-endian x86-64 core with no section headers."
 
 	aStream nextPutAll: #[ 16r7F 69 76 70 ] "\x7fELF".
 	aStream nextPutAll: #[ 2 1 1 0 ] "64 bit, little endian, version 1, System V".

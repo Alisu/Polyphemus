@@ -1,16 +1,9 @@
 variables
 lookupVar: aName declare: aBoolean
 
-	"Resolve a name against this class so that source read out of a snapshot can be
-	understood, in the order the image being read would resolve it: its own instance
-	variables, then its class variables, then its globals.
-
-	What comes back is a variable object of THIS image describing a variable of THAT one,
-	because the tooling asking -- the compiler, the syntax highlighter, the debugger -- only
-	understands its own. The layout walk is from the hackDebugger branch.
-
-	The index matters: it is the one the variable has over there, and code generated here
-	from that source has to read the same slot to mean the same thing."
+	"Resolve aName as the image being read would: instance variables, class variables, then
+	globals. Answers a variable of this image describing that one, with its index over
+	there."
 
 	| layout index classVariable |
 	layout := self reifiedSlotAt: 4.

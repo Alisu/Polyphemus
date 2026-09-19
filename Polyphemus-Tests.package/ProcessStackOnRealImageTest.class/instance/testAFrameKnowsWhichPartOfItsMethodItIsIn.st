@@ -1,15 +1,7 @@
 tests
 testAFrameKnowsWhichPartOfItsMethodItIsIn
 
-	"The last thing stage one learned, now answered by a frame as well: where in the source
-	this activation is.
-
-	The map is built the same way -- compile the method's own source here, keep it only if
-	the bytecodes are the file's -- and the frame supplies the pc, which is the VM's own
-	conversion of its instruction pointer.
-
-	This frame is the active one, so its pc is on the instruction about to run: the
-	primitive the image was written inside."
+	"A frame's source range is built as a context's is, from its pc."
 
 	| frame range source |
 	frame := (OOPStackPageJournal newWith: reifiedMemory) mostRecentlyUsedPage frames first.

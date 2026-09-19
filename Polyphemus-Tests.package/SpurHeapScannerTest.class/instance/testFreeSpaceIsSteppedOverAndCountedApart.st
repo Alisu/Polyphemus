@@ -1,13 +1,7 @@
 tests
 testFreeSpaceIsSteppedOverAndCountedApart
 
-	"Spur marks free space with a class index of zero, and a running heap is full of it: a
-	snapshot is collected before it is written, so an image file holds an uninterrupted run of
-	live objects, and a living one does not.
-
-	So free space cannot be a reason to stop -- a walk that stopped at the first hole would
-	never cross a real heap. It is stepped over and counted apart, because a walk through
-	memory nobody has written is free chunks the whole way and has found nothing."
+	"Free chunks are stepped over and counted apart, never a reason to stop."
 
 	| bytes space walk |
 	bytes := self heapBytesFor: { #( 17 1 1 ). #( 18 1 1 ). #( 19 1 1 ) }.

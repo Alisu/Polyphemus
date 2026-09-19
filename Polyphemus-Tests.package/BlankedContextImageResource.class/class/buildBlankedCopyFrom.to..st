@@ -1,14 +1,8 @@
 building the fixture
 buildBlankedCopyFrom: aCleanImage to: aTarget
 
-	"Blank the slot where the running process keeps its stack: eight bytes of zero,
-	written straight into the file, where a pointer to a context used to be.
-
-	Finding that slot means knowing where in the file an object of the loaded image
-	lives. The simulator loads the heap at an address of its own, so the shift between
-	the two is worked out from the one object whose place in the file is written in the
-	header, the special objects array, and then checked against six more before a byte
-	is written. A fixture built on arithmetic nobody verified is worse than no fixture."
+	"Copy aCleanImage with the running process's suspendedContext zeroed in the file bytes.
+	The file offset comes from the header and is checked on six objects first."
 
 	| reader memory process slotAddress header delta offsetOf |
 	reader := AbstractInspectorsTest new.

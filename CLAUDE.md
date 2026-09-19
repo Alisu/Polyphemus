@@ -222,6 +222,15 @@ Worth thinking about, not answered:
 
 ## Working agreement
 
+- **Bugs go to GitHub issues** on `Alisu/Polyphemus`. A bug gets an issue first -- what fails,
+  how to reproduce it, what was ruled out -- then a regression test that names it (`"#12"` in its
+  comment), then a fix whose commit says `Fixes #12`. The investigation lives in the issue, not
+  in code comments. **Features stay plain TDD**: red test, then code, no issue needed.
+- **Method comments are one to three lines**: what the method does, and any trap a caller must
+  know. History ("an earlier version..."), measurements and the reasoning behind a design go in
+  the issue, the commit message or `docs/`. On 2026-09-19, 98 comments longer than six lines were
+  cut to this; the originals are in git history.
+
 - **TDD**: red test first, then the fix. No implementation before a failing test.
 - **Prefer a check to a claim.** Where two images have to agree — bytecodes, block order, a
   name — compare them and answer nothing when they disagree, rather than answering something

@@ -1,14 +1,7 @@
 tests
 testItFindsWhereAHeapBegins
 
-	"Nothing in a dump says where the heap is. It is found by its first three objects -- nil,
-	false and true, of no slots, sixteen bytes apart -- and then confirmed by walking from
-	them.
-
-	One header is not enough to go on. A table of small numbers in a real dump read as three
-	hundred and fifty eight objects in a row before the walk wandered into text; the triple,
-	searched over two hundred megabytes, matched in exactly one place, and the walk from there
-	ran for a million objects."
+	"The heap is found by the nil, false, true triple, not by one nil-like header."
 
 	| specs space start |
 	specs := OrderedCollection new.

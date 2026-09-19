@@ -1,13 +1,8 @@
 tests
 testOneBrokenClassCostsThatClassAndNothingElse
 
-	"Break a single entry of the class table in a copy of a real core -- point it at an
-	object that is not a class -- and read the result.
-
-	The objects of that class are still entirely there. They keep their slots, their size
-	and their place; what they lose is the ability to say what they are, and they say *that*
-	instead of guessing. Every other object in the heap is unaffected, which is the whole
-	argument for not refusing the memory over it."
+	"Breaking one class table entry in a copy of a real core loses that class's name only;
+	the memory stays readable."
 
 	| soa index page entry copy broken reified |
 	soa := dumped specialObjectsOop.

@@ -1,14 +1,8 @@
 building the memory
 setRegistersOf: aMemory
 
-	"What the image header would have told the VM, worked out from the heap instead.
-
-	`initializeObjectMemory:` is the VM's own version of this, and it is not called: it
-	writes a segment bridge, rebuilds the free lists and starts the collector's machinery,
-	all of which mutate the memory being read. What it does do is confirm the layout this
-	relies on -- it asserts that nil, false and true are the first three objects and that
-	the free lists and the hidden roots follow them, which is exactly how they are found
-	here."
+	"Set the registers an image header would supply, derived from the heap.
+	initializeObjectMemory: is not called because it writes to the memory."
 
 	| freeListsObject |
 	aMemory memory: mappingStart.

@@ -1,13 +1,8 @@
 contexts
 framesFromContext: aContext
 
-	"The frames of the page this context runs on, from its own frame down to the oldest one
-	there. Answers nothing when the context has no frame, which is every context of a
-	snapshot.
-
-	Found in one pass. A page builds its frames afresh each time it is asked, so a frame
-	from one call is not the same object as the one from the next, and looking for it by
-	identity finds nothing. The context is the thing that stays put."
+	"The frames of the page this context runs on, from its own frame to the oldest. Empty
+	when the context has no frame, as in every snapshot."
 
 	([ self isMarriedContext: aContext ] on: Error do: [ :e | false ]) ifFalse: [
 		^ #(  ) ].

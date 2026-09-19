@@ -1,22 +1,10 @@
 naming
 analysedNodeOf: anActivation
 
-	"The method an activation is running, parsed and analysed against the class it came
-	from, so that the names in it mean what they meant over there.
-
-	Only the front half of the compiler is used: parsing and semantic analysis. Code is
-	deliberately not generated here -- #hostMethodFor: does that, and checks it.
-
-	Semantic warnings are off, which is the compiler's own switch for analysing code that is
-	not this image's. Left on, a name the other image has and we cannot find is written into
-	OUR Undeclared dictionary, and every temporary is reported as shadowing the undeclared
-	name just invented for it.
-
-	The source has to be the real source. A method whose source is gone decompiles to text
-	whose temporaries are called tmp1 and arg1, and those are inventions of this image.
-
-	Kept by the method and the class it was analysed against, not by the activation asking:
-	every frame of a method shares the answer, and a page rebuilds its frames each time."
+	"The activation's method parsed and analysed (not compiled) against its class in the
+	image being read. Semantic warnings are off so unknown names stay out of our
+	Undeclared. Needs the real source: decompiled source invents names. Cached per method
+	and class."
 
 	| home receiverClass |
 	home := [ anActivation homeMethod ] on: Error do: [ :e | nil ].

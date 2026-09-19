@@ -1,12 +1,8 @@
 building a heap
 heapWithAClassTableHolding: aSpec
 
-	"A heap with the five objects Spur puts first, a class table of one page, and one entry
-	in that page -- at offset 3, so the class index it answers to is 3 and not 0 -- pointing
-	at whatever the caller wants there.
-
-	Then six hundred ordinary objects, because a heap is recognised by walking a long way
-	through it and seven objects is not a long way."
+	"A heap of nil, false, true, free lists and a one-page class table whose offset 3 holds
+	aSpec, then 600 filler objects: a heap is recognised by a long walk."
 
 	| roots page |
 	roots := Array new: 4096 withAll: self baseAddress "nil: an unused page".

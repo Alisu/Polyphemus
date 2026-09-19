@@ -1,17 +1,8 @@
 highlighting
 highlightRangeOf: anActivation active: contextIsActive
 
-	"Where in the source an activation is, as an interval into the text the debugger is
-	showing -- which is the source read from that image's own sources file, the same text
-	the code was compiled from here.
-
-	The rule is Pharo's own: the activation on top of the stack has its pc on the
-	instruction about to run, while every one below it has already advanced past the send it
-	is waiting on, so theirs is read one back.
-
-	An empty interval means nothing is highlighted, which is what an activation whose code
-	cannot be reproduced answers. Highlighting the wrong line is worse than highlighting
-	none."
+	"Where in the source the activation is, as an interval. Activations below the top are
+	read at pc - 1, Pharo's own rule. Empty when the code cannot be reproduced."
 
 	| code thePC |
 	code := self faithfulCodeOf: anActivation.

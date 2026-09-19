@@ -1,13 +1,8 @@
 tests
 testTheRunningStackStartsAsFramesAndContinuesAsContexts
 
-	"One stack, two representations. The activations that were running are frames on a
-	stack page; the ones below them were divorced into contexts long ago. Asking a process
-	for its stack has to give the whole thing, in order, whichever form each part is in.
-
-	This image was caught on its way out, so it is one frame deep and the rest is contexts.
-	Read as a snapshot -- the same file, without the frames -- stage one sees the same three
-	activations, and that is the check: the two readings have to agree."
+	"A process stack runs from frames into contexts and matches the snapshot reading of the
+	same file."
 
 	| stack descriptions |
 	stack := reifiedMemory activationsOfProcess: reifiedMemory reifiedActiveProcess.

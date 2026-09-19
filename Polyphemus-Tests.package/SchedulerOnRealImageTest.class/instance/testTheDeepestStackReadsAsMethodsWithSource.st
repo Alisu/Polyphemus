@@ -1,9 +1,7 @@
 tests
 testTheDeepestStackReadsAsMethodsWithSource
 
-	"The running process was caught on its way out of the image, so its stack is
-	short. The interesting one is deeper: a command line handler, exception handlers,
-	blocks and class side methods, all of which have to read correctly."
+	"The deepest stack reads as methods with source."
 
 	| deepest stack lines |
 	deepest := reifiedMemory allReifiedProcesses

@@ -1,19 +1,8 @@
 instance creation
 startAndRead: aCommand
 
-	"Start a process from here and answer a reader for it.
-
-	Be warned that this does *not* get round Yama on a machine where `ptrace_scope` is 1.
-	`LibC` can only run a command through a shell, and a command put in the background with
-	`&` outgrows us the moment that shell exits: the child is reparented to init, we stop
-	being its ancestor, and the kernel refuses us its memory. Measured, not assumed -- a
-	`sleep` started this way is unreadable a moment later.
-
-	Keeping a child a child needs a real fork and exec, which means OSSubprocess or a
-	foreign call, and neither is here. So on such a machine this ends in the refusal that
-	says so, which is the honest answer; where `ptrace_scope` is 0 it simply works.
-
-	Reading is the part that needs nothing: see the class comment."
+	"Start aCommand and answer a reader for it. This does not get round ptrace_scope 1: the
+	shell exits, the child is reparented, and we are no longer its ancestor."
 
 	| pidFile pid waited bang |
 	bang := String with: (Character value: 33).

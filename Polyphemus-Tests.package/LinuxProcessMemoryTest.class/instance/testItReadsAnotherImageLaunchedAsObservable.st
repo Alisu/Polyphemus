@@ -1,19 +1,8 @@
 tests
 testItReadsAnotherImageLaunchedAsObservable
 
-	"The whole architecture, end to end: one Pharo reading a different Pharo's heap, held
-	still while it is read.
-
-	The target is launched through `bin/pharo-debuggable`, which grants the permission and
-	then becomes the virtual machine, so it is in place before the image starts loading. It
-	is backgrounded, so the shell that started it exits and the target is reparented to init:
-	it is emphatically *not* a descendant of this process, which is the arrangement that
-	would otherwise make it readable. `ptrace_scope` stays at 1 throughout.
-
-	Whether a *running* image reads torn is not asserted, because this one is asleep in a
-	delay and its heap is not changing -- a torn read needs a busy target. What is asserted
-	is the other half: held still, every rung of the ladder passes, the free lists and a walk
-	over the objects agreeing about the free space."
+	"Launch the pinned Pharo 10 image through bin/pharo-debuggable, not as our descendant,
+	stop it, and read its heap with every rung passing."
 
 	| shim target bang pidFile pid reader dumped waited |
 	"Nothing here is particular to one machine: the launcher is found in this repository, the

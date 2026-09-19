@@ -1,15 +1,8 @@
 scheduler
 processInconsistencies
 
-	"Everything about the process graph that a working VM could not have written,
-	as a collection of associations from the offending object to what is wrong.
-
-	Stage one has to survive a damaged image, so nothing here trusts the graph: a
-	queue may loop, a process may disagree with the queue holding it, a process may
-	point at something that is not a context, and a slot may hold something that is
-	not an object at all. Every one of those is a line in the report and none of them
-	is a raise -- the report is the answer, and it has to cover the whole image, not
-	stop at the first word that is wrong."
+	"Everything in the process graph a working VM could not have written, as object ->
+	problem. Reports and never raises, so it covers the whole image."
 
 	| problems lists nilObject active unreadable myList |
 	problems := OrderedCollection new.

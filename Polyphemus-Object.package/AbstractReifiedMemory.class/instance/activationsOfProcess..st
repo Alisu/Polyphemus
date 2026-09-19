@@ -1,15 +1,8 @@
 contexts
 activationsOfProcess: aProcessOop
 
-	"The stack of a process, top first, whichever form each activation is in.
-
-	A running VM keeps the newest activations as frames on a stack page and the older ones
-	as contexts in the heap, and one stack runs through both. The frames come first, oldest
-	last on their page, and that oldest one says which context called into the page. From
-	there it is contexts to the bottom, which is what stage one already walks.
-
-	A process whose context was never married has no frames at all, and this answers the
-	same thing #contextsOfProcess: does."
+	"The stack of a process, top first: frames on a stack page, then contexts in the heap.
+	Without frames, the same as #contextsOfProcess:."
 
 	| activations context frames |
 	activations := OrderedCollection new.

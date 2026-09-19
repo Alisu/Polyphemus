@@ -1,13 +1,7 @@
 tests
 testSomeOfThoseFramesAreRunningMachineCode
 
-	"This dump comes from Cog, so some of its frames were compiled by the JIT, and their
-	method field is a CogMethod in the code zone rather than an object in the heap.
-
-	It matters that there are some: the refusal to read such a frame with the interpreter's
-	offsets was written against no real examples at all, and here they are. It also matters
-	that they are not all of them -- a test that passed because everything looked jitted
-	would be proving nothing."
+	"Some but not all of the dump's frames are JIT frames, with methods below the mapping."
 
 	| reified frames jitted |
 	reified := dumped reifyEverything: dumped reifiedMemory.

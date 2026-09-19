@@ -1,14 +1,8 @@
 reading the free lists
 followFreeChainAt: anAddress expecting: aSize from: aStart upTo: aLimit into: aWalk
 
-	"One list: chunks of a single size, strung through their first slot.
-
-	`aSize` of nil means any size, which is what the chunks hanging off a tree node are.
-
-	The step count is bounded, because a corrupted list can point back at itself and a
-	checker that hangs on damaged memory is worse than one that lies. The bound is not a
-	number picked out of the air: no heap can hold more chunks than it has room for objects
-	of the smallest size there is, which is sixteen bytes."
+	"Follow one free list and add its chunks to aWalk. aSize nil accepts any size. Bounded by
+	the most chunks the heap could hold, so a loop ends."
 
 	| chunk seen mostThereCouldBe |
 	chunk := anAddress.

@@ -1,18 +1,8 @@
 walking
 walkFrom: anAddress upTo: aLimit
 
-	"Step from object to object and answer how far it got: live objects and free chunks
-	counted apart, and the bytes each takes up.
-
-	It is the live count that says a region is a heap. Untouched memory reads as one
-	enormous free chunk after another -- zeros are a free chunk of no slots -- so a walk
-	that finds nothing but free chunks has found nothing, however far it went. That is also
-	why it gives up after a long run of them.
-
-	The bytes are worth having on their own: between them and the size of the mapping they
-	say how much of its memory the image was using and how much the allocator was holding
-	spare. And the special objects array is recognised on the way past, because finding it
-	is another walk over the same million objects otherwise."
+	"Walk objects from anAddress, counting live objects and free chunks apart and noting the
+	special objects array. Gives up after a long run of free chunks."
 
 	| count free liveBytes freeBytes consecutiveFree current soa answer |
 	count := 0. free := 0. liveBytes := 0. freeBytes := 0. consecutiveFree := 0.

@@ -1,18 +1,7 @@
 tests
 testAFrameAnswersItsWholeStackAcrossTheFormChange
 
-	"Asking an activation for its stack has to give the whole thing, not the part that
-	happens to be in the same form as itself. This one is a frame, and the two below it are
-	contexts.
-
-	It is the debugger that asks: a session hands it the activation it started at and then
-	asks that for #stack. Cut short, the pane lists one line and the source it shows does not
-	match what is highlighted in it -- which is how this was noticed, as a garbled screen
-	rather than as a wrong answer.
-
-	Only the frames that have one answer #oopCaller, and the oldest frame of a page does not
-	implement it at all; asking it has to be guarded, or every stack ends at its first
-	frame."
+	"A frame's #stack continues into the contexts below its page."
 
 	| frame stack |
 	frame := (OOPStackPageJournal newWith: reifiedMemory) mostRecentlyUsedPage frames first.

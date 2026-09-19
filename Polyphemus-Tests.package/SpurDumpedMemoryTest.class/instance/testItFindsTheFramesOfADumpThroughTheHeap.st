@@ -1,13 +1,7 @@
 tests
 testItFindsTheFramesOfADumpThroughTheHeap
 
-	"Stack frames are not in the object heap -- they are the virtual machine's own C memory,
-	and nothing in a dump says where. They are reached from the heap instead: a married
-	context keeps its frame pointer where a sender would be.
-
-	Every frame here is confirmed by the frame pointing back at the context that named it,
-	which is a mutual reference and not a coincidence. That is the whole claim being tested:
-	these addresses hold real frames."
+	"Frames found through married contexts all point back at them."
 
 	| reified frames |
 	reified := dumped reifyEverything: dumped reifiedMemory.

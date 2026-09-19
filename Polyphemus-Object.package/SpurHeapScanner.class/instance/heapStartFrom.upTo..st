@@ -1,14 +1,8 @@
 finding a heap
 heapStartFrom: anAddress upTo: aLimit
 
-	"Where old space begins between these addresses, or nil.
-
-	Nothing in a dump says where the heap is, so it is found by its first three objects and
-	then confirmed by walking from them: a heap walks for a million objects, and whatever else
-	matched does not.
-
-	Read in blocks and stepped through the ones beginning with nil's first byte, because
-	reading eight bytes at a time across a hundred megabytes is a great many reads."
+	"Where old space starts: the nil, false, true triple, confirmed by a long walk. nil when
+	not found."
 
 	| blockSize |
 	blockSize := 4194304.
