@@ -5,6 +5,7 @@ testTemporaryValuesAreReadFromTheFile
 	what its arguments still hold. The values are objects of that image, not of ours."
 
 	| frame |
+	self requireAHostThatReproducesTheFixture.
 	frame := self frameDescribed: 'SessionManager>>snapshot:andQuit:'.
 
 	self assert: (frame tempNamed: 'save') oopClassName equals: 'True'.

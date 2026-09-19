@@ -7,6 +7,7 @@ testATemporaryCapturedByABlockIsReadThroughItsVector
 	position in the frame."
 
 	| frame |
+	self requireAHostThatReproducesTheFixture.
 	frame := self frameDescribed: 'SessionManager>>snapshot:andQuit:'.
 
 	self assert: (frame tempNamed: 'isImageStarting') isNilOop.

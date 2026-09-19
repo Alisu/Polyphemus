@@ -7,6 +7,7 @@ testTemporariesOfAFrameAreNamed
 	compiler gave them."
 
 	| frame |
+	self requireAHostThatReproducesTheFixture.
 	frame := self frameDescribed: 'SessionManager>>snapshot:andQuit:'.
 
 	self
