@@ -6,12 +6,12 @@ testAFrameIsHighlightedWhenOnlyTheBytesDiffer
 	highlight on the same send."
 
 	| exact memory frame source compiler tree differing expected |
-	exact := Polyphemus readImageFile: PharoImageAccessor pathToPharo10.
+	exact := self memory.
 	expected := exact
 		            highlightRangeOf: (self frameOf: exact described: 'DelaySemaphoreScheduler>>suspendAtTimingPriority')
 		            active: false.
 
-	memory := Polyphemus readImageFile: PharoImageAccessor pathToPharo10.
+	memory := self memory forgetWhatWasRead; yourself.
 	frame := self frameOf: memory described: 'DelaySemaphoreScheduler>>suspendAtTimingPriority'.
 	source := frame homeMethod getSourceFromFile.
 	compiler := OpalCompiler new

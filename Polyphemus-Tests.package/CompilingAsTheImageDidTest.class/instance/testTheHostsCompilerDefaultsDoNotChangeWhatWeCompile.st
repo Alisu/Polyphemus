@@ -5,15 +5,13 @@ testTheHostsCompilerDefaultsDoNotChangeWhatWeCompile
 	to the file's bytes."
 
 	| usual withPharo11Defaults saved |
-	usual := self faithfulFramesOf:
-		         (Polyphemus readImageFile: PharoImageAccessor pathToPharo10).
+	usual := self faithfulFramesOf: self memory.
 	saved := self optionsPharo11AddsHere collect: [ :each |
 		         each -> (CompilationContext perform: each) ].
 	[
 	self optionsPharo11AddsHere do: [ :each |
 		CompilationContext perform: (each , ':') asSymbol with: true ].
-	withPharo11Defaults := self faithfulFramesOf:
-		                       (Polyphemus readImageFile: PharoImageAccessor pathToPharo10) ]
+	withPharo11Defaults := self faithfulFramesOf: (self memory forgetWhatWasRead; yourself) ]
 		ensure: [
 			saved do: [ :each |
 				CompilationContext perform: (each key , ':') asSymbol with: each value ] ].

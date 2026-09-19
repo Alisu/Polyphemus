@@ -4,12 +4,12 @@ testABlockFrameIsHighlightedWhenOnlyTheBytesDiffer
 	"#4, for a block: bytes laid out differently, same sends, same highlight."
 
 	| exact memory frame compiler tree expected |
-	exact := Polyphemus readImageFile: PharoImageAccessor pathToPharo10.
+	exact := self memory.
 	expected := exact
 		            highlightRangeOf: (self frameOf: exact described: self blockFrameUsingInstanceVariables)
 		            active: false.
 
-	memory := Polyphemus readImageFile: PharoImageAccessor pathToPharo10.
+	memory := self memory forgetWhatWasRead; yourself.
 	frame := self frameOf: memory described: self blockFrameUsingInstanceVariables.
 	compiler := OpalCompiler new
 		            class: frame receiver oopClass;

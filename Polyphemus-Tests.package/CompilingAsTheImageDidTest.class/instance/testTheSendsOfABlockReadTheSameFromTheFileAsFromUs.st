@@ -5,7 +5,7 @@ testTheSendsOfABlockReadTheSameFromTheFileAsFromUs
 	answer as a reified method does: counting bytecodes, not raw bytes."
 
 	| memory frame host fileSends |
-	memory := Polyphemus readImageFile: PharoImageAccessor pathToPharo10.
+	memory := self memory.
 	frame := self frameOf: memory described: 'TKTWorkerProcess>>workerLoop [block]'.
 	host := memory hostBlockFor: frame in: (memory hostCompilationOf: frame).
 	fileSends := (SendSequence of: frame compiledCode) selectors asArray.

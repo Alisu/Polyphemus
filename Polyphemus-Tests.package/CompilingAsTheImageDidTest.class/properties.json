@@ -2,7 +2,9 @@
 	"commentStamp": "",
 	"super": "TestCase",
 	"category": "Polyphemus-Tests-reifiedMemory",
-	"classinstvars": [],
+	"classinstvars": [
+	 "Memory"
+	],
 	"pools": [],
 	"classvars": [],
 	"instvars": [],

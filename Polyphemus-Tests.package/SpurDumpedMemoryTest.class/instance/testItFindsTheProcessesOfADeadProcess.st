@@ -5,7 +5,7 @@ testItFindsTheProcessesOfADeadProcess
 	space."
 
 	| reified processes states |
-	reified := dumped reifyEverything: dumped reifiedMemory.
+	reified := self reified.
 
 	processes := reified allReifiedProcesses.
 	self assert: processes size > 1.

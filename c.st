@@ -15,7 +15,7 @@ testTheRunningProcessOfAStoppedImageShowsItsStack
 		self assert: (reader threadRegisters allSatisfy: [ :each | each includesKey: #rip ]).
 		self deny: (VMVariables on: reader) wasRunningMachineCode.
 		dumped := SpurDumpedMemory on: reader.
-		memory := dumped reifiedMemory.
+		memory := dumped reifyEverything: dumped reifiedMemory.
 		stack := memory activationsOfProcess: memory reifiedActiveProcess ].
 
 	self assert: stack notEmpty.

@@ -4,7 +4,7 @@ testItFindsTheFramesOfADumpThroughTheHeap
 	"Frames found through married contexts all point back at them."
 
 	| reified frames |
-	reified := dumped reifyEverything: dumped reifiedMemory.
+	reified := self reified.
 	frames := dumped raw framePointersIn: reified.
 
 	self assert: frames size > 5.

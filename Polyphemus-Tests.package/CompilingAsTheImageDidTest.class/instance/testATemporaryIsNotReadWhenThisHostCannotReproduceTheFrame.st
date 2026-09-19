@@ -5,7 +5,7 @@ testATemporaryIsNotReadWhenThisHostCannotReproduceTheFrame
 	marked not reproducible, so a refusal is required instead of a value."
 
 	| memory frame |
-	memory := Polyphemus readImageFile: PharoImageAccessor pathToPharo10.
+	memory := self memory.
 	frame := (memory allReifiedProcesses
 		          inject: OrderedCollection new
 		          into: [ :all :each | all addAll: (memory contextsOfProcess: each); yourself ])

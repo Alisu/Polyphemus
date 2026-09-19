@@ -5,7 +5,7 @@ testTheVMsNewSpaceAgreesWithTheWalkOfIt
 	is below the mark the VM kept for the live end of past space."
 
 	| raw mark |
-	raw := SpurRawHeap on: dump.
+	raw := StackOfADumpTest memory vmLayout raw.
 	mark := variables at: 'pastSpaceStart'.
 
 	self assert: (variables at: 'newSpaceStart') equals: raw youngSpaceStart.

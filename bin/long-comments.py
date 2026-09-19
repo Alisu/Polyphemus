@@ -6,6 +6,14 @@ plus any trap a caller must know. History and measurements go to issues, commits
 """
 import os, sys
 
+# Methods copied from elsewhere keep their authors' comments as they were.
+NOT_OURS = {
+    'Polyphemus-Memory.package/Spur32BitMemoryManager.extension/instance/defaultEdenBytes.st',
+    'Polyphemus-Memory.package/Spur64BitMemoryManager.extension/instance/defaultEdenBytes.st',
+    'Polyphemus-Memory.package/StackInterpreter.extension/instance/interpreterAllocationReserveBytes.st',
+    'Polyphemus-Memory.package/DebugSession.extension/instance/isContextPostMortem..st',
+}
+
 root = sys.argv[1] if len(sys.argv) > 1 else os.path.join(os.path.dirname(__file__), '..')
 for dirpath, _, files in os.walk(root):
     if '.git' in dirpath:
@@ -24,5 +32,5 @@ for dirpath, _, files in os.walk(root):
                 break
             end += 2
         lines = body[:end + 1].count('\n') + 1
-        if lines > 3:
+        if lines > 3 and os.path.relpath(path, root) not in NOT_OURS:
             print(f'LONG COMMENT {os.path.relpath(path, root)} ({lines} lines)')

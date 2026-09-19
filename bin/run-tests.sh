@@ -52,6 +52,11 @@ is_slow() {
   [ -n "$t" ] && [ "$t" -ge "$SLOW_THRESHOLD" ]
 }
 
+longest_first() {
+  awk -v timings="$TIMINGS" 'BEGIN { while ((getline line < timings) > 0) { split(line, f, " "); t[f[1]] = f[2] } }
+    { print ($1 in t ? t[$1] : 999999), $1 }' | sort -k1,1nr | awk '{print $2}'
+}
+
 run_class() {
   local c="$1" script out rc start el
   script="/tmp/polyphemus-run-$c.st"
@@ -103,7 +108,10 @@ run_set() {
   [ ${#classes[@]} -eq 0 ] && { echo "== $label: nothing to run =="; return 0; }
   echo "== $label: ${#classes[@]} classes, $JOBS at a time =="
   local start; start=$(date +%s)
-  printf '%s\n' "${classes[@]}" | xargs -P "$JOBS" -I{} bash -c 'run_class "$@"' _ {} | tee -a "$RESULTS"
+  # Slowest first, by the last recorded time; a class never timed is unknown, so it goes first
+  # too. Run by name, a heavy class could start last and alone set the end of the run.
+  printf '%s\n' "${classes[@]}" | longest_first \
+    | xargs -P "$JOBS" -I{} bash -c 'run_class "$@"' _ {} | tee -a "$RESULTS"
   echo "== $label done in $(( $(date +%s) - start ))s =="
 }
 

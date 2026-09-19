@@ -4,7 +4,7 @@ testSomeOfThoseFramesAreRunningMachineCode
 	"Some but not all of the dump's frames are JIT frames, with methods below the mapping."
 
 	| reified frames jitted |
-	reified := dumped reifyEverything: dumped reifiedMemory.
+	reified := self reified.
 	frames := dumped raw framePointersIn: reified.
 	jitted := frames select: [ :fp | dumped raw isMachineCodeFrameAt: fp ].
 
