@@ -1,12 +1,13 @@
 reading
 contextPCOf: anInstructionPointer frame: aFramePointer
 
-	"CoInterpreter>>contextInstructionPointer:frame:. When the ip is ceReturnToInterpreter,
-	the real one is in the frame's saved ip; any other code address is no bytecode. nil for
-	machine code. Without the VM's variables, any ip below the heap is taken for the former."
+	"CoInterpreter>>contextInstructionPointer:frame:. A machine code frame's ip is mapped
+	through Cog's map. For an interpreted one, ceReturnToInterpreter means the real ip is in
+	the frame's saved ip, and any other code address is no bytecode."
 
 	| ip name |
-	(self isMachineCodeFrame: aFramePointer) ifTrue: [ ^ nil ].
+	(self isMachineCodeFrame: aFramePointer) ifTrue: [
+		^ self machineCodePCOf: anInstructionPointer frame: aFramePointer ].
 	ip := anInstructionPointer.
 	ip < raw mappingStart ifTrue: [
 		name := self nameOfCodeAddress: ip.

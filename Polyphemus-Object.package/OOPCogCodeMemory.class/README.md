@@ -1,0 +1,1 @@
+What VMMaker's Cogit takes for its object memory when it reads a dump: bytes below the heap (the code zone, where CogMethods and their maps are) come from the dump, everything else is the dumped heap's own memory manager, to which unknown messages are forwarded.

@@ -1,0 +1,1 @@
+What VMMaker's Cogit takes for its interpreter when it reads a dump: the dumped heap's interpreter, except that a method's start pc is taken from its real header, which Cog moved into its CogMethod (#3). Unknown messages are forwarded to the interpreter.

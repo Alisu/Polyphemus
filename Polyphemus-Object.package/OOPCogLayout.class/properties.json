@@ -1,11 +1,14 @@
 {
-	"commentStamp" : "",
-	"super" : "OOPVMLayout",
-	"category" : "Polyphemus-Object-dump",
-	"classinstvars" : [ ],
-	"pools" : [ ],
-	"classvars" : [ ],
-	"instvars" : [ "raw" ],
-	"name" : "OOPCogLayout",
-	"type" : "normal"
+	"commentStamp": "",
+	"super": "OOPVMLayout",
+	"category": "Polyphemus-Object-dump",
+	"classinstvars": [],
+	"pools": [],
+	"classvars": [],
+	"instvars": [
+	 "raw",
+	 "cogit"
+	],
+	"name": "OOPCogLayout",
+	"type": "normal"
 }
