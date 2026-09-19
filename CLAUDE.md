@@ -22,7 +22,7 @@ Three stages, in order:
 |---|---|
 | Host image | Pharo 10 (`dev.image`), 64-bit |
 | VMMaker | pinned to tag **`v10.0.0`** of `pharo-project/pharo-vm`, `smalltalksrc/` |
-| Repo clone | `~/polyphemus/Polyphemus`, registered in Iceberg |
+| Repo clone | `~/polyphemus/Polyphemus`, registered in Iceberg, on branch **`stage2`** (stage 1 is the tag `stage1-done`) |
 | Rebuild image | `~/build-image.sh` (`VMMAKER_REF=v10.0.0`) |
 | Run tests | `Polyphemus/bin/tdd.sh` (compile, then run) or `bin/run-tests.sh` |
 | A dump to try things on | `~/polyphemus/pharo.core` — `bin/take-dump.sh` makes one; **not** `/tmp`, a reboot clears it |

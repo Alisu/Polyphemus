@@ -2,6 +2,11 @@
 [![CI Status](https://img.shields.io/github/actions/workflow/status/hogoww/Polyphemus/CI.yml?branch=main)](https://github.com/hogoww/Polyphemus/actions/workflows/CI.yml)
 
 # Polyphemus
+
+> **This fork** (branch `stage2`) extends Polyphemus to core dumps and running processes, and
+> gives it one entry point, `Polyphemus`. New here? Start with
+> [docs/START-HERE.md](docs/START-HERE.md).
+
 Polyphemus is a tool that gives a higher level representation of the object ordinary pointers (OOP) for the Pharo VM.
 It also proposes a visualization of the memory.
 Polyphemus can be used on a memory while developing the VM inside the simulator or to explore real images.  
