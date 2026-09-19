@@ -263,8 +263,26 @@ they just have no names.
 | `classes` | a class table that can be *navigated* -- hidden roots present, pages in the heap and the right size | `#classTableStructureProblems` | no object anywhere can be given a class |
 | `specialObjects` | the array, found by its contents | `#specialObjectsArrayFrom:upTo:` | no processes, no scheduler |
 
-Source is a rung above, and is not checked here: a method's trailer and the `.sources` file are
-per-method questions, answered where they are asked.
+| `source` | methods that read as their own source | `SourceReadability` on the reified memory | no source shown: the `.sources` found is not this image's |
+
+**An image file climbs the same ladder.** `SpurImageFile` reads an image file as the address
+space it was saved from: the header's `oldBaseAddress`, then each segment where the bridge before
+it says, as `SpurImageReader>>readSegmentsFromImageFile:header:` does. Its heap start is stated,
+so it is not searched for. It is believed if nil, false and true are there by their shape
+(whatever the class table numbers them: candle's are 1025, 1027 and 1031) and the walk runs.
+`Polyphemus readImageFile:` climbs it before VMMaker is handed the file (about 2 s for the
+pinned image). It refuses, with the level and the reason, a file that fails `bytes`, `heap`,
+`objects` or `classes`: a file that is no image, or one cut short. Damage inside an object, like
+the blanked-context fixture, still opens.
+
+**`source` is a rung of its own**, above the heap, because it needs reified methods. It fails
+- with `#noSourcesFile`, or
+- with `#itsMethodsDoNotReadAsTheirSource`, when none of the methods on the processes' stacks
+  parses as a method of its own selector. That is what a `.sources` file of another version
+  gives: `retrieveSourceFiles` falls back to any `*.sources` next to the image.
+
+Then `sourceOfContext:` answers nil instead of nonsense. A few methods failing is damage to
+those methods only.
 
 **Two kinds of rung.** `bytes`, `heap` and `classes` are *preconditions*: without readable
 memory, a heap, or a navigable class table there is nothing to be done with any object anywhere.

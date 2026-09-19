@@ -203,8 +203,9 @@ The order of what remains, decided rather than assumed:
 **Answered for stage 2, in `SpurReadability`.** Reading is a ladder - bytes, heap, objects, free
 space, classes, special objects - each rung checked, each question declaring the rung it needs,
 and anything above the highest readable rung raising `SpurCannotRead` with the level and reason
-rather than answering. `docs/reading-a-dump.md` has the table. What remains is to give stage 1's
-image path the same treatment, and to add the rung above: source.
+rather than answering. `docs/reading-a-dump.md` has the table. **Done 2026-09-19:** stage 1's
+image path climbs the same ladder (`SpurImageFile`, checked in `Polyphemus readImageFile:`), and
+the rung above, source, is `SourceReadability`.
 
 The original note follows, because the reasoning still applies.
 

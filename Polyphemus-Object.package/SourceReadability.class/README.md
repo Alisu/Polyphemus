@@ -1,0 +1,1 @@
+The rung above SpurReadability's: whether a reified memory's methods can be shown as their source. It needs a sources file, and the methods on the processes' stacks reading as their own source -- each parses as a method with its own selector. When none does, the file found is not this image's and no source is shown; when some do not, that is damage to those methods only.

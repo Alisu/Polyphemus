@@ -1,0 +1,1 @@
+The rung above the heap: whether an image's methods read as their own source. The pinned image does; the same image beside no .sources file, or beside one that is not its own, says so instead of answering nonsense.

@@ -9,5 +9,5 @@ So every question declares the rung it needs, and a question asked above the hig
 rung raises `SpurCannotRead` instead of answering. That is the whole point: this tool exists for
 images that are damaged, so the case where it cannot read is not an edge case, it is the case.
 
-What is not checked here is the rung above: source. A method's trailer and the `.sources` file
-are per-method questions, answered where they are asked.
+The rung above, source, needs reified methods and is SourceReadability's. An image file climbs
+this ladder through SpurImageFile before it is loaded.
