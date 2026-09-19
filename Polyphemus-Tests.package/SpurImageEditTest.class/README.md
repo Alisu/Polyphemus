@@ -1,0 +1,1 @@
+Editing an image file: slots of its objects changed in a copy of its bytes, addressed as the heap addresses them, and the copy written out as an image file that reads -- and, for the blanked-context fixture, repaired back into the clean image.
