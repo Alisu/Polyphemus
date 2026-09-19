@@ -1,13 +1,14 @@
 {
-	"commentStamp" : "",
-	"super" : "TestCase",
-	"category" : "Polyphemus-Tests",
-	"classinstvars" : [ ],
-	"pools" : [ ],
-	"classvars" : [ ],
-	"instvars" : [
-		"directory"
+	"commentStamp": "",
+	"super": "TestCase",
+	"category": "Polyphemus-Tests",
+	"classinstvars": [
+	 "Directory",
+	 "Memory"
 	],
-	"name" : "SourceReadabilityTest",
-	"type" : "normal"
+	"pools": [],
+	"classvars": [],
+	"instvars": [],
+	"name": "SourceReadabilityTest",
+	"type": "normal"
 }

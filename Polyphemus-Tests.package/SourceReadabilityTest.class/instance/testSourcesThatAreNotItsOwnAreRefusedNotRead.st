@@ -5,9 +5,9 @@ testSourcesThatAreNotItsOwnAreRefusedNotRead
 	this image's source pointers is not this image's methods: refuse it rather than show it."
 
 	| memory stack |
-	(directory / 'other.sources') writeStreamDo: [ :out |
+	(self class directory / 'other.sources') writeStreamDo: [ :out |
 		1 to: 20000 do: [ :each | out nextPutAll: 'not the source of anything '; cr ] ].
-	memory := Polyphemus readImageFile: self pinnedImageAlone.
+	memory := self class memory.
 
 	self deny: (memory sourceReadability canRead: #source).
 	self

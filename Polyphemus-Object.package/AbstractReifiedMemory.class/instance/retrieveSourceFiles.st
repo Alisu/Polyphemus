@@ -23,9 +23,12 @@ retrieveSourceFiles
 		sourceFiles sourcesFileStream:
 			((SourceFile on: sourcePath fullName potentialLocations: { rootPath fullName })
 				 tryOpenReadOnly: true) ].
-	changesPath ifNotNil: [
-		sourceFiles changesFileStream:
-			((SourceFile on: changesPath fullName potentialLocations: { rootPath fullName })
-				 tryOpenReadOnly: true) ].
+	"Pharo reads through both files or neither: with no .changes, an empty one (#16)."
+	changesPath ifNil: [
+		changesPath := FileLocator temp / 'polyphemus-no-changes.changes'.
+		changesPath ensureCreateFile ].
+	sourceFiles changesFileStream:
+		((SourceFile on: changesPath fullName potentialLocations: { changesPath parent fullName })
+			 tryOpenReadOnly: true).
 
 	^ sourceFiles

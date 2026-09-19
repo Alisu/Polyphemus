@@ -1,5 +1,5 @@
 running
 tearDown
 
-	directory ifNotNil: [ directory ensureDeleteAll ].
+	self class memory forgetWhatWasRead.
 	super tearDown

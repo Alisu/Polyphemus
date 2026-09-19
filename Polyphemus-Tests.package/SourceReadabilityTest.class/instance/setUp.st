@@ -1,6 +1,9 @@
 running
 setUp
 
+	"Nothing beside the image but what this test puts there."
+
 	super setUp.
-	directory := FileLocator temp / ('polyphemus-source-' , Random new next printString allButFirst: 2).
-	directory ensureCreateDirectory
+	(self class directory files reject: [ :each | each basename = 'alone.image' ]) do: [ :each |
+		each ensureDelete ].
+	self class memory forgetWhatWasRead
