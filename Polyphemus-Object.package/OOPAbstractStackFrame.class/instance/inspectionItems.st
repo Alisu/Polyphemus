@@ -10,6 +10,6 @@ inspectionItems
 		} asOrderedCollection.
 		
 	items addAll: self inspectionItemsOperandStack.
-	items add: #savedIP -> self savedIP.
+	items add: #savedIP -> self savedIPDescription.
 
 	^ items

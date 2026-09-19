@@ -1,11 +1,17 @@
 {
-	"commentStamp" : "",
-	"super" : "Object",
-	"category" : "Polyphemus-Object-dump",
-	"classinstvars" : [ ],
-	"pools" : [ ],
-	"classvars" : [ ],
-	"instvars" : [ "file", "bytes", "symbols", "buildId" ],
-	"name" : "ElfSharedObject",
-	"type" : "normal"
+	"commentStamp": "",
+	"super": "Object",
+	"category": "Polyphemus-Object-dump",
+	"classinstvars": [],
+	"pools": [],
+	"classvars": [],
+	"instvars": [
+	 "file",
+	 "bytes",
+	 "symbols",
+	 "buildId",
+	 "variableNames"
+	],
+	"name": "ElfSharedObject",
+	"type": "normal"
 }

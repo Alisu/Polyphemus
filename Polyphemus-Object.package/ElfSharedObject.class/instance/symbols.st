@@ -10,6 +10,7 @@ symbols
 		  self sectionsDo: [ :type :offset :size :link |
 			  tables add: { type. offset. size. link } ].
 		  symbols := Dictionary new.
+		  variableNames := Set new.
 		  (tables detect: [ :each | each first = 2 ] ifNone: [
 			   tables detect: [ :each | each first = 11 ] ifNone: [ nil ] ]) ifNotNil: [ :table |
 			  self readSymbols: table strings: (tables at: (table at: 4) + 1) ].

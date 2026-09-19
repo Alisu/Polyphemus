@@ -1,11 +1,17 @@
 {
-	"commentStamp" : "",
-	"super" : "Object",
-	"category" : "Polyphemus-Object-dump",
-	"classinstvars" : [ ],
-	"pools" : [ ],
-	"classvars" : [ ],
-	"instvars" : [ "memory", "library", "mapping", "checked" ],
-	"name" : "VMVariables",
-	"type" : "normal"
+	"commentStamp": "",
+	"super": "Object",
+	"category": "Polyphemus-Object-dump",
+	"classinstvars": [],
+	"pools": [],
+	"classvars": [],
+	"instvars": [
+	 "memory",
+	 "library",
+	 "mapping",
+	 "checked",
+	 "trampolines"
+	],
+	"name": "VMVariables",
+	"type": "normal"
 }
