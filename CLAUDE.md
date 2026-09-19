@@ -187,8 +187,11 @@ The order of what remains, decided rather than assumed:
    ~~Still missing: stopping the target first.~~ **Done.** `#whileStopped:` sends SIGSTOP,
    reads, and SIGCONT afterwards -- which needs no permission beyond being allowed to signal,
    unlike reading. Held still, a live image reads with every rung of the ladder passing.
-3. **JIT frames properly.** Detect and refuse first (`isMachineCodeFrame:` is one comparison),
-   then read them through `CogVMSimulator`, which is VMMaker's own simulation of Cog.
+3. **JIT frames properly.** ~~Detect and refuse.~~ ~~Read a dump's frames past the married
+   context, in Cog's layout.~~ **Done** through `OOPCogLayout`: 24 contexts became 77 activations
+   on the real core, and #3 (jitted method headers) is fixed on the way;
+   `docs/frames-and-contexts.md` has it. Left: the top frame's pc (the page's `headSP`), a
+   machine code pc (Cog's map; try VMMaker's Cogit first), and eden (#8).
 4. **Editing and writing back** — modify the bytes, write the image out.
 
 ## Open question, raised 2026-09-15 - partly answered 2026-09-16

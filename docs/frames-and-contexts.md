@@ -105,25 +105,39 @@ tells a machine code instruction pointer from a bytecode one.
   place in the source needs the map Cog keeps for exactly that purpose, which is how it divorces
   a frame into a context.
 
-**Recognise and refuse -- built.** `#isMachineCodeFrame` was the recognising half and nothing
-called it, which is the half that does not help: a frame that knows it is jitted and answers
-anyway is exactly as wrong as one that does not know. Every reading that takes an offset from the
-frame pointer -- `#oopReceiver`, `#oopMethod`, `#oopContext`, `#oopPageCaller`,
-`#instructionPointer`, `#stackp` -- now raises `SpurCannotRead` with `#frame` and
-`#itIsAMachineCodeFrameAndWeHaveNoJITMapYet`, rather than answering.
+**Read, not only refused, on a dump.** The frame classes no longer read words themselves. They
+ask the memory's `vmLayout`:
+- `OOPStackInterpreterLayout` reads the simulator's pages with the StackInterpreter's offsets.
+- `OOPCogLayout` reads a dump's bytes with Cog's offsets (`CoInterpreter class>>initializeFrameIndices`).
 
-Reading a real one still needs a Cog stack page out of a dump, which stage two cannot do yet --
-stack pages live in the VM's own C memory, not in the object heap -- so the test uses a frame that
-declares itself jitted. That tests the thing worth testing: the refusal, not the recognition.
+The same `OOPTopFrame`/`OOPMiddleFrame`/`OOPBaseFrame` therefore serve both, and a dump gets the
+whole debugger protocol. On a Cog dump:
 
-**The original reasoning, which still holds:** A machine code frame answers that it is not
-readable, and the readers say so rather than applying interpreted offsets to it. A wrong line in
-a stack is worse than a missing one, and this is the cheapest possible way to avoid producing
-several.
+- **A machine code frame** holds a CogMethod in its method field, with hasContext and isBlock in
+  its low bits. The CompiledMethod or CompiledBlock is that CogMethod's `methodObject`, and
+  `numArgs` is its `cmNumArgs`. The receiver is at `FoxMFReceiver`.
+- **Its pc** is a code address. Mapping it back to a bytecode needs Cog's method map, so `pc`
+  answers nil and `instructionPointer` raises `#itIsAMachineCodeFrameAndWeHaveNoJITMapYet`.
+- **An interpreted frame's pc** is the ip its callee saved, or its own `FoxIFSavedIP` when that
+  ip is the return trampoline. It is converted as `CoInterpreter>>contextInstructionPointer:frame:`
+  does, which gives an absolute pc like a context's.
+- **A base frame** is laid out by `CoInterpreter>>makeBaseFrameFor:`. Above the stacked receiver
+  comes the frame's *own* context (for cannotReturn:), then the caller's. `callerContextOf:`
+  reads the caller only if the own context is where it should be.
+- **A compiled method Cog jitted** has its CogMethod's address in its header slot, and the real
+  header is in the CogMethod. Reading that address as a header gave a garbage literal count,
+  which made "an unreadable selector" (#3). `OOPCogLayout>>methodHeaderOf:` follows it, but
+  only if the CogMethod's `methodObject` points back.
 
-**And when we do read them**, it is by calling VMMaker's own code rather than reimplementing it:
-`CogVMSimulator` is a subclass of `CoInterpreter`, so the JIT is simulated in VMMaker the same
-way the interpreter is -- the same reason we call `primitiveSnapshot` instead of writing one.
+On the real core this takes the 17 processes from **24 contexts to 77 activations**: 58 frames,
+28 of them jitted, each married frame agreeing with its context on method and receiver.
+
+**Still missing:**
+- **The pc of a page's top frame.** It is on top of the page's stack, and we do not know where
+  that is without the page's `headSP`.
+- **The pc of a machine code frame.** It needs Cog's map.
+- **Eden.** Objects there are not enumerated (#8), so frames reify the words they hold by
+  address, as slots do.
 
 ## Finding a dump's frames, through the heap
 
@@ -164,5 +178,5 @@ zone, where no object could be. That is the VM's own test for a jitted frame
 anything but an interpreted frame here.
 
 It also means the refusal in `OOPAbstractStackFrame` was written against no real examples and now
-has twelve. What it does *not* mean is that they can be read: that still wants Cog's frame
-layout and its map from a code address back to a place in the source.
+has twelve. They are now read through `OOPCogLayout` (see above); only their pc still waits on
+Cog's map.

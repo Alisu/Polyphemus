@@ -101,6 +101,13 @@ does not fit rather than quietly rewriting it.
 variables that are only filled when a frame is married, so they answered nil for snapshots.
 → Porting means **reading what the code assumes**, not only what it does.
 
+**Trusting a comment over the code it comments.** `CoInterpreter>>frameCallerContext:` says a
+base frame's caller context is "immediately above the stacked receiver". `makeBaseFrameFor:`
+puts the frame's own context there, with the caller one word further up. Reading the word the
+comment named made every page end in a copy of its own base frame.
+→ When VMMaker's comment and VMMaker's code disagree, the code is what wrote the bytes. Also
+check the result against something independent, here that the caller is not the frame itself.
+
 ## Borrowing Pharo's own tools
 
 **Scopes are compared by identity.** `LocalVariable>>readInContext:` asks the context for its
