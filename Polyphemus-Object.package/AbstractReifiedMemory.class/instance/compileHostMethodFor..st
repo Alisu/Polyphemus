@@ -18,7 +18,8 @@ compileHostMethodFor: anActivation
 			  compiler := OpalCompiler new.
 			  compiler class: anActivation receiver oopClass.
 			  compiler source: source.
-			  compiler options: #( + optionSkipSemanticWarnings + optionEmbeddSources ).
+			  compiler options:
+				  (self compilerOptionsWith: #( + optionSkipSemanticWarnings + optionEmbeddSources )).
 			  compiler compilationContext compiledMethodClass: CompiledMethod.
 			  host := compiler compile.
 			  (self host: host matchesOop: home)

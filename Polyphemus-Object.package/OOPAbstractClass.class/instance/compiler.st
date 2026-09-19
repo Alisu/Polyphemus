@@ -10,5 +10,5 @@ compiler
 
 	^ OpalCompiler new
 		  class: self;
-		  options: #( + optionSkipSemanticWarnings );
+		  options: (memory compilerOptionsWith: #( + optionSkipSemanticWarnings ));
 		  yourself

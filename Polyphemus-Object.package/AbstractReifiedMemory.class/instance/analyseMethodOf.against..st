@@ -13,7 +13,7 @@ analyseMethodOf: aCompiledMethod against: aClass
 	  compiler := OpalCompiler new.
 	  compiler class: aClass.
 	  compiler source: source.
-	  compiler options: #( + optionSkipSemanticWarnings ).
+	  compiler options: (self compilerOptionsWith: #( + optionSkipSemanticWarnings )).
 	  compiler parse.
 	  compiler doSemanticAnalysis ]
 		  on: Error
