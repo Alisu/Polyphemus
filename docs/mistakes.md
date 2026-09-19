@@ -268,13 +268,7 @@ class joined the suite. Each was green on its own immediately after.
 after a full `-j 4` run, then clean through 25 suite runs in one process, 6 fresh processes and
 6 runs through the runner. **Unexplained**, not just unreproduced.
 
-`SchedulerOnRealImageTest>>testAskingForANameTheFrameDoesNotHaveIsAnError` joined it on
-2026-09-19: it failed once in a clean Pharo 10 image running the whole package through Pharo's own
-`test` handler, then passed alone, with its class, after every other class of the package, and in
-a second full run of the package. Failing means `tempNamed:` answered instead of raising, so the
-lookup of a name that does not exist found *something* that one time. **Unexplained**, and worth
-knowing that our runner gives each class its own image, so it is structurally blind to anything
-one class leaves behind for another.
+`SchedulerOnRealImageTest>>testAskingForANameTheFrameDoesNotHaveIsAnError` and `VMObjectIndexableLayoutTest` joined it on 2026-09-19. Both are tracked as issues from now on (#1, #2), with what was tried; failures after that date live there, not here.
 
 **Committing on a green-looking pipe.** The commit after it was chained on the test command
 *running*, not on it being green, so a red suite went in anyway. Gate on the result.

@@ -222,7 +222,7 @@ Worth thinking about, not answered:
 
 ## Working agreement
 
-- **Bugs go to GitHub issues** on `Alisu/Polyphemus`. A bug gets an issue first -- what fails,
+- **Bugs go to GitHub issues** on `Alisu/Polyphemus` -- `gh` on the box is logged in as Alisu and the clone's default is the fork, so `gh issue create` never lands on hogoww's. A bug gets an issue first -- what fails,
   how to reproduce it, what was ruled out -- then a regression test that names it (`"#12"` in its
   comment), then a fix whose commit says `Fixes #12`. The investigation lives in the issue, not
   in code comments. **Features stay plain TDD**: red test, then code, no issue needed.
