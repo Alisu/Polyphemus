@@ -1,7 +1,7 @@
 tests
 testTheVMsNewSpaceAgreesWithTheWalkOfIt
 
-	"New space starts where we found it by shape, and every object the walk of it reported
+	"New space starts where we found it by shape, and every object the walk by shape reported
 	is below the mark the VM kept for the live end of past space."
 
 	| raw mark |
@@ -9,4 +9,4 @@ testTheVMsNewSpaceAgreesWithTheWalkOfIt
 	mark := variables at: 'pastSpaceStart'.
 
 	self assert: (variables at: 'newSpaceStart') equals: raw youngSpaceStart.
-	raw youngObjectsDo: [ :each | self assert: each < mark ]
+	raw youngObjectsByShapeDo: [ :each | self assert: each < mark ]

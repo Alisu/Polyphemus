@@ -353,6 +353,12 @@ On the real core they agree with what the shape found:
 A running VM read through `/proc/self` reports its own `numStackPages` and eden size, which
 agree with `Smalltalk vm parameterAt: 42` and `44`.
 
+**New space, whole (#8).** The walk by shape stops where past space's survivors end, so eden
+was never walked. With the variables, `SpurRawHeap>>youngObjectsDo:` walks past space up to
+`pastSpaceStart` and eden up to `freeStart`: on the real core that is 58,012 young objects,
+where the shape walk found 2,369. Without the variables (a dump we wrote, or no library on this
+machine) it falls back to the walk by shape.
+
 **How fresh they are.** The interpreter's `framePointer`, `stackPointer` and
 `instructionPointer` are written when it leaves for C, and by the trampolines when machine code
 does. Machine code calling machine code writes nothing, and its live registers are the

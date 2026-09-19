@@ -1,12 +1,14 @@
 young objects
 youngObjectsDo: aBlock
 
-	"Every object of new space, as far as the walk gets."
+	"Every live object of new space: past space's survivors, then eden up to where the VM
+	allocates next, both read from the VM's variables. By shape when those cannot be read."
 
-	| address stop |
-	self youngSpaceStart ifNil: [ ^ self ].
-	stop := self youngObjectsWalk stoppedAt.
-	address := self youngSpaceStart.
-	[ address notNil and: [ address < stop ] ] whileTrue: [
-		(self scanner isFreeChunkAt: address) ifFalse: [ aBlock value: address ].
-		address := self scanner objectAfter: address ]
+	| ranges |
+	ranges := self liveYoungRanges ifNil: [ ^ self youngObjectsByShapeDo: aBlock ].
+	ranges do: [ :range |
+		| address |
+		address := range key.
+		[ address notNil and: [ address < range value ] ] whileTrue: [
+			(self scanner isFreeChunkAt: address) ifFalse: [ aBlock value: address ].
+			address := self scanner objectAfter: address ] ]
