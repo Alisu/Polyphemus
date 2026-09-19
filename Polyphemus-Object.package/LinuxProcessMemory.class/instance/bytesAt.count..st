@@ -6,7 +6,11 @@ bytesAt: anAddress count: aCount
 	between reading the map and reading the memory, which is what reading something that is
 	still running means."
 
+	| read |
 	(self hasAddress: anAddress) ifFalse: [ ^ nil ].
-	^ [
-	  self stream position: anAddress.
-	  self stream next: aCount ] on: Error do: [ :e | nil ]
+	read := [
+	        self stream position: anAddress.
+	        self stream next: aCount ] on: Error do: [ :e | nil ].
+	"All of them or none, as a dump answers: a short read that looks whole is the dangerous
+	kind (#15)."
+	^ (read notNil and: [ read size = aCount ]) ifTrue: [ read ] ifFalse: [ nil ]
