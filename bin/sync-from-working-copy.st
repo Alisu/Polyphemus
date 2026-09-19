@@ -4,7 +4,7 @@
  TDD loop we compile straight from the files: every *.class and *.extension directory
  of every Polyphemus package, creating classes that do not exist yet and removing
  methods whose files are gone."
-| root joined ensureClass syncSide created compiled removed |
+| root joined ensureClass syncSide created compiled removed packages pending |
 "Wherever this checkout is: Iceberg has it registered, which the test fixtures rely on too."
 root := (IceRepository registeredRepositoryIncludingPackage:
 	(RPackageOrganizer default packageNamed: 'Polyphemus-Object')) location.
@@ -90,28 +90,45 @@ syncSide := [ :target :dir :packageName |
 				('REMOVED ', target name, '>>', sel) traceCr ] ] ]
 		on: Error do: [ :e | ] ] ].
 
-(root directories select: [ :d | d basename endsWith: '.package' ]) do: [ :pkgDir |
+packages := (root directories select: [ :d | d basename endsWith: '.package' ])
+	select: [ :pkgDir |
+		| loaded |
+		loaded := RPackageOrganizer default includesPackageNamed: (pkgDir basename copyReplaceAll: '.package' with: '').
+		loaded ifFalse: [ ('SKIP package ', (pkgDir basename copyReplaceAll: '.package' with: ''), ': not loaded in this image') traceCr ].
+		loaded ].
+
+"Classes first, in passes: a new class whose new superclass comes later in directory order
+ (or in another package) is skipped by one pass and created by the next."
+pending := OrderedCollection new.
+packages do: [ :pkgDir |
+	pkgDir directories do: [ :clsDir |
+		(clsDir basename endsWith: '.class') ifTrue: [
+			pending add: clsDir -> (pkgDir basename copyReplaceAll: '.package' with: '') ] ] ].
+[ | before |
+  before := pending size.
+  pending := pending reject: [ :each |
+	(ensureClass
+		value: (STONJSON fromString: (each key / 'properties.json') contents)
+		value: each value) notNil ].
+  pending notEmpty and: [ pending size < before ] ] whileTrue.
+
+packages do: [ :pkgDir |
 	| packageName |
 	packageName := pkgDir basename copyReplaceAll: '.package' with: ''.
-	(RPackageOrganizer default includesPackageNamed: packageName) ifFalse: [
-		('SKIP package ', packageName, ': not loaded in this image') traceCr ].
-	(RPackageOrganizer default includesPackageNamed: packageName) ifTrue: [
 	pkgDir directories do: [ :clsDir |
 		((clsDir basename endsWith: '.class')
 			or: [ (clsDir basename endsWith: '.extension')
 			or: [ clsDir basename endsWith: '.trait' ] ]) ifTrue: [
 			| cls |
 			cls := (clsDir basename endsWith: '.class')
-				ifTrue: [ ensureClass
-						value: (STONJSON fromString: (clsDir / 'properties.json') contents)
-						value: packageName ]
+				ifTrue: [ Smalltalk at: ((STONJSON fromString: (clsDir / 'properties.json') contents) at: 'name') asSymbol ifAbsent: [ nil ] ]
 				ifFalse: [ | n |
 					n := ((clsDir basename copyReplaceAll: '.extension' with: '')
 						copyReplaceAll: '.trait' with: '') asSymbol.
 					Smalltalk at: n ifAbsent: [ nil ] ].
 			cls ifNotNil: [
 				syncSide value: cls value: clsDir / 'instance' value: packageName.
-				syncSide value: cls class value: clsDir / 'class' value: packageName ] ] ] ] ].
+				syncSide value: cls class value: clsDir / 'class' value: packageName ] ] ] ].
 
 ('SYNC ', created printString, ' classes created, ', compiled printString,
 	' methods compiled, ', removed printString, ' removed') traceCr.
