@@ -1,9 +1,7 @@
 accessing
 largestClassIndex: anInteger
 
-	"How large a class index is still believable. The field is 22 bits, so noise offers values
-	up to four million while a real image has some tens of thousands of classes; refusing the
-	rest is what makes a walk stop in noise almost at once instead of running for dozens of
-	objects."
+	"The largest believable class index. The field allows four million, a real image has tens of
+	thousands; refusing the rest makes a walk stop in noise at once."
 
 	largestClassIndex := anInteger

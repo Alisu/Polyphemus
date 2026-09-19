@@ -1,10 +1,8 @@
 tests
 testATemporaryCapturedByABlockIsReadThroughItsVector
 
-	"A temporary that a block captures is not kept in the frame like the others: the
-	frame holds a vector and the variable is a slot of it. Its index counts inside that
-	vector, so reading it as an ordinary temporary answers whatever else sits at that
-	position in the frame."
+	"A captured temporary lives in a vector the frame holds, indexed inside that vector: read as
+	an ordinary temporary, it answers whatever else sits at that position."
 
 	| frame |
 	self requireAHostThatReproducesTheFixture.

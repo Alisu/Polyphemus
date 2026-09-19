@@ -1,10 +1,8 @@
 naming
 analysedNodeOf: anActivation
 
-	"The activation's method parsed and analysed (not compiled) against its class in the
-	image being read. Semantic warnings are off so unknown names stay out of our
-	Undeclared. Needs the real source: decompiled source invents names. Cached per method
-	and class."
+	"The method parsed and analysed (not compiled) against its class in the image read, with
+	semantic warnings off to keep our Undeclared clean. Needs the real source. Cached."
 
 	| home receiverClass |
 	home := [ anActivation homeMethod ] on: Error do: [ :e | nil ].

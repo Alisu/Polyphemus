@@ -1,10 +1,8 @@
 tests
 testTheRunningProcessStackReadsAsMethodNames
 
-	"A stack is only useful once it reads as methods. The image was written from
-	inside SessionManager>>launchSnapshot:andQuit:, and the two frames above it are
-	blocks, whose selector has to come from their home method: a compiled block
-	carries no selector of its own."
+	"The image was written from inside SessionManager>>launchSnapshot:andQuit:. The two frames
+	above it are blocks, named after their home method: a block has no selector of its own."
 
 	| lines |
 	lines := reifiedMemory stackDescriptionOfProcess: reifiedMemory reifiedActiveProcess.

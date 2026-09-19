@@ -1,10 +1,8 @@
 tests
 testAnObjectTooLargeForItsHeaderIsSteppedOver
 
-	"A slot count of 255 means the real one is in the word before, and that word's own count
-	byte is saturated too. So a walk arriving at it must recognise it as an overflow word and
-	start the object eight bytes later -- treating it as a header instead puts every later step
-	out of place."
+	"A slot count of 255 means the real count is in the word before, whose own count byte is
+	saturated too: a walk must start the object eight bytes later or every step after is off."
 
 	| space scanner big |
 	space := self spaceFor: self aFewObjects.

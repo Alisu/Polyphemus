@@ -1,10 +1,8 @@
 tests
 testItFindsTheSpecialObjectsArray
 
-	"Nothing in a dump points at the special objects array -- the VM holds it in a variable,
-	and the image header a snapshot writes it into is not part of the memory. It is found by
-	its contents instead: the only object whose first three slots are the heap own nil, false
-	and true."
+	"Nothing in a dump points at the special objects array; it is found by its contents, the
+	only object whose first three slots are the heap's own nil, false and true."
 
 	| base space found other |
 	base := self baseAddress.

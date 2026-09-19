@@ -1,12 +1,8 @@
 reading
 readProcess: aPid
 
-	"The memory of a virtual machine that is still running, on Linux.
-
-	It is held still only as long as it takes to copy its memory out, then let go: everything
-	after that reads the copy. Refused, with the reason, if there is no such process, if it is
-	not a Pharo virtual machine, or if the system will not let us look -- for which see
-	`LinuxObservationPermission` and `bin/pharo-debuggable`."
+	"The memory of a running VM on Linux, held still only while it is copied. Refused, with the
+	reason, if missing, not Pharo, or not readable (see LinuxObservationPermission)."
 
 	| reader dumped |
 	reader := LinuxProcessMemory on: aPid.

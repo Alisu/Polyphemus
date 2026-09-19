@@ -1,11 +1,8 @@
 reading the class table
 classesOfPage: aPage numbered: aPageNumber from: anAddress upTo: aLimit into: aCollection
 
-	"Every entry of one page is either nil, or a class: an object of fixed fields, inside
-	the heap. Anything else would be handed back as some object's class.
-
-	A class index is the page number and the offset within it, ten bits each, so a bad entry
-	is reported by the index it answers to rather than by where it sits."
+	"Every entry of a page is nil or a class (fixed fields, inside the heap). A bad one is
+	reported by its class index -- page number and offset, ten bits each."
 
 	1 to: self classTablePageSize do: [ :offset |
 		| entry |

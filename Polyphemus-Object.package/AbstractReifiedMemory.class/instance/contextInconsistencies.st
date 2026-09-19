@@ -1,11 +1,8 @@
 contexts
 contextInconsistencies
 
-	"What the stacks of a snapshot cannot show if the image was written by a working
-	VM, as associations from the offending context to what is wrong.
-
-	Kept apart from #processInconsistencies because the two answer different
-	questions: one is about the queues, this one about the stacks hanging off them."
+	"What a snapshot's stacks cannot show if a working VM wrote it: offending context -> what is
+	wrong. The queues are #processInconsistencies' question."
 
 	| problems nilObject |
 	problems := OrderedCollection new.

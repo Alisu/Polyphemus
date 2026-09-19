@@ -1,11 +1,8 @@
 tests
 testWhatWasNotDumpedIsAbsentAndNotZero
 
-	"A region can be larger than what was written of it -- pages never touched, or left out
-	on purpose. An address in that part was there and the dump does not say what it held.
-
-	Answering zero, or the byte from the next region, would be inventing memory. The whole
-	tool exists to read memory nobody can ask any more."
+	"Past what was written of a region, the dump does not say what was there. Answering zero, or
+	the next region's byte, would be inventing memory."
 
 	| dump |
 	dump := ElfCoreDump on: dumpFile.

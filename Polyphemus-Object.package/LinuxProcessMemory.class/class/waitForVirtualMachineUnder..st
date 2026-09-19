@@ -1,12 +1,8 @@
 instance creation
 waitForVirtualMachineUnder: aPid
 
-	"What the shell started may be the virtual machine or a script that starts one, and an
-	image takes a moment to load before its memory is worth anything.
-
-	The wait is only for it to *appear*. Whether we are then allowed to read it is not
-	something waiting will change, so that is decided once, by `#on:`, which says which of
-	the three things went wrong."
+	"Wait for the virtual machine to appear under what the shell started. Whether it can be read
+	is not waited for: #on: decides that once, saying what went wrong."
 
 	| waited found |
 	waited := 0.

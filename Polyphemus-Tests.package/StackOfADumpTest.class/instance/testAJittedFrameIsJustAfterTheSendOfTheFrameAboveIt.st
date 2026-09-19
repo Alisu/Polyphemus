@@ -1,10 +1,8 @@
 tests
 testAJittedFrameIsJustAfterTheSendOfTheFrameAboveIt
 
-	"Its pc comes from its machine code pc through Cog's own map, read by VMMaker's Cogit.
-	Checked without Cog: a frame below another is just after the send that made it -- of its
-	method's selector, of a value... when it runs a block, or of a send that runs a method
-	under another name (perform..., withArgs:executeMethod:)."
+	"Mapped through Cog's own map by VMMaker's Cogit. Checked without Cog: a frame is just after
+	the send of the frame above -- its selector, a value... for a block, or perform/executeMethod."
 
 	| jitted checked |
 	jitted := 0.

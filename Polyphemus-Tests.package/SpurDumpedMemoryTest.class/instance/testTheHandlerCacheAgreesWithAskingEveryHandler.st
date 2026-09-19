@@ -1,12 +1,8 @@
 tests
 testTheHandlerCacheAgreesWithAskingEveryHandler
 
-	"The cache answers from the object's class index and format alone, where the long way
-	asks all seventeen handlers. That is only sound while no two objects with the same class
-	and format want different handlers -- so this checks it against the long way, on real
-	objects, rather than trusting the reasoning that says it should hold.
-
-	Every hundred-and-first object, which is ten thousand of them across the whole heap."
+	"The handler cache answers from class index and format alone. Checked against asking every
+	handler, on every hundred-and-first object of the real heap, rather than by reasoning."
 
 	| memory reified checked address seen |
 	memory := dumped memory.

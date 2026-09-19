@@ -1,10 +1,8 @@
 tests
 testItReadsAnImageFile
 
-	"The first thing anyone tries, and the one the front door exists for: a path in, a memory
-	with processes in it out, and no test class opened along the way.
-
-	Candle, because it is small and ships with the repository."
+	"A path in, a memory with processes out, with no test class opened on the way. Candle,
+	because it is small and in the repository."
 
 	| memory |
 	memory := Polyphemus readImageFile: PharoImageAccessor pathToCandle64Bit.

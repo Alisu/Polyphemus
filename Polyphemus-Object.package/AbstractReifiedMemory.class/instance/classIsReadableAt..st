@@ -1,11 +1,8 @@
 reifying
 classIsReadableAt: anAddress
 
-	"Whether this address can be read as a class: something there, inside the memory, with
-	the shape of a class -- fixed fields and no indexable part.
-
-	This is the same test `#classTableProblemsFrom:upTo:` makes of every entry of the table,
-	asked one object at a time."
+	"Whether this address reads as a class: inside the memory, fixed fields and no indexable
+	part -- the test #classTableProblemsFrom:upTo: makes of every table entry."
 
 	^ anAddress notNil and: [
 		  anAddress ~= 0 and: [

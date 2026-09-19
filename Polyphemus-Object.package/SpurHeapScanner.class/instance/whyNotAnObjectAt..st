@@ -1,12 +1,8 @@
 walking
 whyNotAnObjectAt: anAddress
 
-	"Why nothing can begin here, or nil when something can.
-
-	A class index of zero is not a reason: that is how Spur marks a free chunk, which has a
-	header and a size like anything else and which the walk steps over. A live heap is full of
-	them -- it is a snapshot, collected before it was written, that holds an uninterrupted run
-	of live objects."
+	"Why no object can begin here, or nil. A class index of zero is a free chunk, which the walk
+	steps over, not a reason."
 
 	| header size |
 	header := self headerAt: anAddress.

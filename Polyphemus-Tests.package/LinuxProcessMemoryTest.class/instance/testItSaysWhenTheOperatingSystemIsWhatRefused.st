@@ -1,11 +1,8 @@
 tests
 testItSaysWhenTheOperatingSystemIsWhatRefused
 
-	"The reason this matters: Pharo reports a refused open of `/proc/<pid>/mem` as the file
-	not existing, and it does exist -- we are simply not allowed it. Told that it does not
-	exist, you would go looking for the wrong thing.
-
-	Skipped where the machine happens to allow it, since then there is nothing to refuse."
+	"Pharo reports a refused open of /proc/<pid>/mem as a missing file; it exists, we are just
+	not allowed it. Skipped where the machine allows it."
 
 	| other reader |
 	other := LinuxProcessMemory pharoProcesses

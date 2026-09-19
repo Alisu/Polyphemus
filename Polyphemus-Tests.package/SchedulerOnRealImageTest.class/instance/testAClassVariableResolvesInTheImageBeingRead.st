@@ -1,12 +1,8 @@
 tests
 testAClassVariableResolvesInTheImageBeingRead
 
-	"A name in a method is not always an instance variable or a global. Class variables are
-	neither, and until they were looked up, every one of them -- LowSpaceProcess here, and
-	the finalization ones elsewhere -- came back unknown, showed red, and was written into
-	this image's Undeclared.
-
-	The value is that image's object: its low space watcher process, not ours."
+	"Class variables are neither instance variables nor globals, and used to come back unknown
+	and land in our Undeclared. The value is that image's object, not ours."
 
 	| frame var |
 	frame := self frameDescribed: 'SmalltalkImage>>lowSpaceWatcher'.

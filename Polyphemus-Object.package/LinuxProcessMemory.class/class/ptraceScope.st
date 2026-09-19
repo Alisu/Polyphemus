@@ -1,10 +1,8 @@
 enumerating
 ptraceScope
 
-	"What Yama is set to, or nil where there is no Yama.
-
-	0 lets any process of the same user read another. 1, which is the usual default and what
-	this box has, lets only an *ancestor*. 2 and 3 are stricter still."
+	"What Yama is set to, or nil without Yama: 0 lets any process of the user read another,
+	1 (the usual default) only an ancestor, 2 and 3 stricter still."
 
 	| file |
 	file := '/proc/sys/kernel/yama/ptrace_scope' asFileReference.

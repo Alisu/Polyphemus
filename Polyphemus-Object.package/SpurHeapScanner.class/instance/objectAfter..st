@@ -1,11 +1,8 @@
 walking
 objectAfter: anAddress
 
-	"Where the next object begins, or nil.
-
-	An object with too many slots is preceded by a word whose slot count byte is saturated. So
-	when the word after this object reads as saturated, it is that overflow word and the next
-	object begins eight bytes further on. VMMaker's own walk says exactly this."
+	"Where the next object begins, or nil. When the word after this object is a saturated
+	overflow word, the next object starts eight bytes further, as VMMaker's walk says."
 
 	| size next after |
 	size := self bytesOfObjectAt: anAddress.

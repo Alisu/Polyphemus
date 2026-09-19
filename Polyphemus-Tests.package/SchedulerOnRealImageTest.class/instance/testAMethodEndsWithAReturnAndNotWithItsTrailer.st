@@ -1,10 +1,8 @@
 tests
 testAMethodEndsWithAReturnAndNotWithItsTrailer
 
-	"Every method ends by returning. If the last byte is not a return bytecode then the end
-	of the method has been put in the wrong place, and everything that walks bytecodes --
-	disassembly, and any attempt to match code against the source it came from -- walks off
-	the end into the trailer, which is a source pointer and not code at all."
+	"Every method ends with a return bytecode. If not, its end is misplaced, and whatever walks
+	bytecodes walks on into the trailer, which is a source pointer, not code."
 
 	| methods |
 	methods := (self allFrames collect: [ :each | each homeMethod ]) asSet.

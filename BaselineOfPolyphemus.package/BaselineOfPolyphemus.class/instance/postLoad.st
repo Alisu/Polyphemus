@@ -1,10 +1,8 @@
 baselines
 postLoad
 
-	"Open a browser and a playground on what was just loaded -- where there is a screen to
-	open them on. A headless load, which is how scripts and continuous integration load
-	things, has no world, and opening a browser there was one more way for the load to
-	fail after everything had actually loaded."
+	"Open a browser and a playground on what was loaded, where there is a screen. A headless
+	load (scripts, CI) has no world, and opening one there made the load fail."
 
 	| browser playground |
 	Smalltalk isHeadless ifTrue: [ ^ self ].

@@ -1,11 +1,8 @@
 reading the free lists
 freeListWalkFrom: anAddress upTo: aLimit
 
-	"Follow the allocator's own lists and answer what they account for.
-
-	This reads the lists as ordinary slots rather than through the VM, on purpose: a checker
-	that needs the memory to be loadable is no use on the memory that would not load. It is
-	also why nothing here asks the memory manager anything."
+	"Follow the allocator's lists and answer what they account for, reading them as plain slots:
+	a checker that needs a loadable memory is useless on one that will not load."
 
 	| walk listsObject |
 	walk := SpurFreeListWalk new.

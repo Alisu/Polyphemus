@@ -1,11 +1,8 @@
 contexts
 stackFrom: anActivation ofSize: anInteger
 
-	"An activation and everything that called it, top first, in whichever form each one is
-	in: frames while there are frames, then contexts.
-
-	Stops on an activation already seen. A working VM does not build a loop; this reads
-	images that may not have been written by one."
+	"An activation and all that called it, top first, frames then contexts. Stops on one already
+	seen: a damaged image may hold a loop a working VM never builds."
 
 	| activations current seen |
 	activations := OrderedCollection new.

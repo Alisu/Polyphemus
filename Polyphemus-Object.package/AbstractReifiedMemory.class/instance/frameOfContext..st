@@ -1,11 +1,8 @@
 contexts
 frameOfContext: aContext
 
-	"The frame a context is married to, or nil.
-
-	Matched by asking each frame which context it is, rather than by decoding the frame
-	pointer the context keeps in its sender slot. Both work; this one does not depend on
-	our arithmetic being right about a number the image wrote."
+	"The frame a context is married to, or nil: found by asking each frame for its context, not
+	by decoding the frame pointer the context holds."
 
 	self livePages do: [ :page |
 		page frames do: [ :frame |

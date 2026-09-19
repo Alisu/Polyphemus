@@ -1,12 +1,8 @@
 tests
 testTheFreeListsOfAVMThatWasRunningAreIntact
 
-	"Two ways of counting the free space -- stepping over every object, and following the
-	allocator's own lists -- arriving at the same number.
-
-	This is what says whether the lists need rebuilding. On a VM that was running normally
-	there is nothing to rebuild, and rebuilding regardless would mean writing to the
-	evidence for no reason at all."
+	"Stepping over every object and following the allocator's lists count the same free space,
+	so a VM that was running normally needs no rebuild -- and no write to the evidence."
 
 	| byTheHeap byTheLists |
 	byTheHeap := dumped raw heapWalk.

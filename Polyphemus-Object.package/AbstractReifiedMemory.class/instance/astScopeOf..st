@@ -1,11 +1,8 @@
 naming
 astScopeOf: anActivation
 
-	"The scope an activation runs in: the debugger asks it for the temporaries to show, and
-	each of those reads its own value back out of the activation.
-
-	A method activation runs the method's own scope. A block activation runs one of the
-	block scopes inside it, which has to be found first."
+	"The scope an activation runs: its method's, or for a block activation the block scope
+	inside it. The debugger asks it for the temporaries to show."
 
 	| node |
 	node := self analysedNodeOf: anActivation.

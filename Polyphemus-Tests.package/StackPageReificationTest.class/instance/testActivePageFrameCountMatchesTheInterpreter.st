@@ -1,10 +1,8 @@
 tests
 testActivePageFrameCountMatchesTheInterpreter
 
-	"Guard against fixture drift: compare our frame walk with the interpreter's own
-	rather than asserting a magic number. The walk starts at the interpreter's frame
-	pointer, not at the page's headFP: while a page is active its headFP is stale,
-	the VM only writes it back when it leaves the page."
+	"Compare our frame walk with the interpreter's own rather than a fixed number. It starts at
+	the interpreter's frame pointer: an active page's headFP is stale until the VM leaves it."
 
 	| interp fp count |
 	interp := reifiedMemory interpreter.

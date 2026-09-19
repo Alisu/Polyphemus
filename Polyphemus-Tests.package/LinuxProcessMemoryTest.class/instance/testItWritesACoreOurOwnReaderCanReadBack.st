@@ -1,11 +1,8 @@
 tests
 testItWritesACoreOurOwnReaderCanReadBack
 
-	"Taking a dump from Pharo, with no debugger involved: a few regions of this process
-	written as an ELF core, and read back by the reader we use on gdb's.
-
-	The bytes have to survive the round trip, which is what says the header arithmetic and
-	the offsets are right rather than merely plausible."
+	"Regions of this process written as an ELF core by Pharo, no debugger, and read back by the
+	reader used on gdb's cores: the bytes surviving says the header and offsets are right."
 
 	| file written read |
 	file := FileLocator temp / 'polyphemus-round-trip.core'.

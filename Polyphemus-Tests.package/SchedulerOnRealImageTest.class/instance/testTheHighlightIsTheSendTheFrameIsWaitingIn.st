@@ -1,11 +1,8 @@
 tests
 testTheHighlightIsTheSendTheFrameIsWaitingIn
 
-	"A snapshot carries no map from a pc to a place in the source. This one is built by
-	compiling the method's own source here and keeping the result only when it comes out as
-	the very code the file holds.
-
-	This frame is suspended inside the fork it started, so that is what is highlighted."
+	"The pc-to-source map comes from compiling the method's source here, kept only when it gives
+	the file's code. This frame is suspended inside the fork it started."
 
 	| frame range source |
 	frame := self frameDescribed: 'SessionManager>>snapshot:andQuit:'.

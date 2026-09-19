@@ -1,12 +1,8 @@
 tests
 testItFindsTheObjectsInNewSpaceByTheirShape
 
-	"Old space is found by its first three objects; new space has no landmark at all, and a
-	dump does not carry the allocation mark saying how much of eden is in use. So the objects
-	are found the only way left: they walk, and noise does not.
-
-	The walk stopping on nothing but free space is not a failure -- it *is* the allocation
-	mark. What lies past the last live object is memory the image has not used yet."
+	"New space has no landmark and a dump no allocation mark, so its objects are found by
+	walking. The walk stopping on free space is not a failure: it is the allocation mark."
 
 	| walk |
 	self assert: dumped raw youngSpaceStart isNotNil.

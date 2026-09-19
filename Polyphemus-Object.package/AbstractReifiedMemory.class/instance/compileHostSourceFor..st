@@ -1,10 +1,8 @@
 highlighting
 compileHostSourceFor: anActivation
 
-	"The activation's method compiled here from its own source as the image's compiler would
-	have, with the syntax tree it was compiled from: {method. tree}. Kept together because
-	a pc means a place in the source only through the tree that produced the method; the one
-	Pharo would rebuild for it uses this host's defaults (#4)."
+	"The method compiled here from its source as the image's compiler would, with its tree:
+	{method. tree}. A pc maps to source only through the tree that made the method (#4)."
 
 	^ [
 	  | source compiler tree method |

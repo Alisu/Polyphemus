@@ -1,12 +1,8 @@
 private
 bytesAtOffset: anOffset count: aCount
 
-	"Bytes out of the file, through one open stream and a single cached block.
-
-	Walking a heap reads a few words per object, millions of objects, and always forwards.
-	Serving those from a block already in hand turns a syscall per header into one read per
-	sixty four kilobytes. A read larger than a block is passed straight through: it is a bulk
-	copy, not a walk."
+	"Bytes out of the file through one stream and one cached 64 KB block: a heap walk reads a few
+	words per object, always forwards. Reads larger than a block go straight through."
 
 	| start |
 	aCount > self blockSize ifTrue: [

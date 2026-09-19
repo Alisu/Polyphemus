@@ -1,12 +1,8 @@
 building the fixture
 corruptedImagePath
 
-	"An image damaged the way a damaged image really is: bytes in the file are wrong.
-
-	Every other test that reads damage injects it through our own API and puts it back in
-	an ensure:, which only ever proves that we can read what we just wrote. This one is
-	written into a copy of the file, by something that is not the reader, and is never
-	repaired."
+	"A copy of the image file with bytes damaged by something other than the reader, never
+	repaired -- unlike damage injected through our own API and undone in an ensure:."
 
 	| clean corrupted |
 	clean := PharoImageAccessor pathToPharo10 asFileReference.

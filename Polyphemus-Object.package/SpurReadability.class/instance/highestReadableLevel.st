@@ -1,10 +1,8 @@
 accessing
 highestReadableLevel
 
-	"The highest rung that can be read -- which is not simply the one below the first
-	failure, now that a rung can fail without stopping the ones above it. A heap read while
-	it is still running fails `freeSpace` almost by definition, and its classes are perfectly
-	readable regardless."
+	"The highest readable rung -- not simply the one below the first failure, since a local rung
+	can fail (a running heap's freeSpace) with the ones above still readable."
 
 	^ (self levels select: [ :level | self canRead: level ])
 		  ifEmpty: [ nil ]

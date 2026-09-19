@@ -1,12 +1,8 @@
 naming
 vectorHolding: aVariable inScope: aScope
 
-	"A variable a block captured does not live in an activation, it lives in a vector, and
-	this answers the vector's own variable when THIS scope is the one holding it.
-
-	Which one that is takes some care. The scope that declares the variable is the method's,
-	but a block that reads it is handed a copy of the vector, so the block holds it too,
-	under the name the compiler gave the vector."
+	"The vector's own variable when THIS scope holds the vector a captured variable lives in: the
+	method declares it, but a block reading it holds a copy under the compiler's name."
 
 	| owningScope vectorVar |
 	aVariable class name = #OCVectorTempVariable ifFalse: [ ^ nil ].

@@ -1,12 +1,8 @@
 tests
 testItServesRepeatedReadsFromOneBlock
 
-	"Reads near each other come from a block already in hand rather than from the file. A heap
-	walk is nothing but such reads -- a few words per object, millions of objects, always
-	forwards -- so this is the difference between a walk that finishes and one that does not.
-
-	What has to be true is that caching changes nothing about the answers, including at the
-	edges of a region and past them."
+	"Nearby reads come from a block already in hand, which is what lets a heap walk finish.
+	Caching must change no answer, including at a region's edges and past them."
 
 	| dump |
 	dump := ElfCoreDump on: dumpFile.

@@ -1,10 +1,8 @@
 tests
 testAFrameWithoutSourceHighlightsNothing
 
-	"Where a frame is can only be worked out by compiling its method's source and checking
-	the result against the code in the file. This image carries no source, so there is
-	nothing to compile and nothing to check, and an empty interval is the answer: the
-	debugger highlights nothing rather than guessing at a line."
+	"Where a frame is needs its source compiled and checked against the file's code. With no
+	source there is nothing to check: an empty interval, never a guessed line."
 
 	| frame |
 	frame := (reifiedMemory contextsOfProcess: reifiedMemory reifiedActiveProcess) first.

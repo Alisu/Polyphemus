@@ -1,11 +1,8 @@
 tests
 testItReadsACoreDump
 
-	"The memory of a virtual machine that died, through the same door, answering the same
-	questions.
-
-	The process with the most to show is what a newcomer should be shown first. Most are a
-	single context waiting on a semaphore; the one that was running has none at all."
+	"A dead VM's memory through the same front door. The deepest process is the one to show:
+	most are one context waiting on a semaphore."
 
 	| core memory deepest |
 	core := (Smalltalk os environment at: 'POLYPHEMUS_CORE' ifAbsent: [ nil ])

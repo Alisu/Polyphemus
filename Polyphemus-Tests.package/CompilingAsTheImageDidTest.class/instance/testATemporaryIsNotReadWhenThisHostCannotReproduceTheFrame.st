@@ -1,10 +1,8 @@
 tests
 testATemporaryIsNotReadWhenThisHostCannotReproduceTheFrame
 
-	"#6. On Pharo 11 a block temporary read as an Array instead of its Semaphore: names and
-	slots come from analysing the source here, which is only safe where the code compiled
-	here is the file's code. This host can reproduce it, so the test marks the method as
-	not reproducible and requires a refusal instead of a value."
+	"#6. Temporaries are only named where the code compiled here is the file's. The method is
+	marked not reproducible, so a refusal is required instead of a value."
 
 	| memory frame |
 	memory := Polyphemus readImageFile: PharoImageAccessor pathToPharo10.

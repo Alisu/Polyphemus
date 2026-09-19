@@ -16,6 +16,9 @@ echo "== compiling working copy into dev.image =="
 timeout 600 ./pharo dev.image st "$HERE/sync-from-working-copy.st" 2>/dev/null \
   | tr -d '\033' | grep -E '^SYNC|^CREATED|^REMOVED|^COMPILE ERR|^SKIP|^NO COMMENT|^RETAGGED' || true
 
+# Method comments are one to three lines (CLAUDE.md, Working agreement).
+command -v python3 >/dev/null && python3 "$HERE/long-comments.py" "$HERE/.."
+
 echo "== rebuilding warm.image =="
 cp -f dev.image warm.image
 cp -f dev.changes warm.changes

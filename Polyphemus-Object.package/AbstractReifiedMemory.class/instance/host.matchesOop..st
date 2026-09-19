@@ -1,11 +1,8 @@
 highlighting
 host: aHostCode matchesOop: anOopCode
 
-	"Same bytecodes, in the same order, and as many of them.
-
-	Read through #bytecodeAt:, never #at:, which means the bytecode at a pc for a method and
-	the nth raw byte for a block: a block read the wrong way answers its own header and
-	literals, which match nothing."
+	"Same bytecodes, in the same order and number. Read through #bytecodeAt:, never #at:, which
+	answers a block's raw bytes -- its header and literals."
 
 	| first last ours theirs |
 	^ [

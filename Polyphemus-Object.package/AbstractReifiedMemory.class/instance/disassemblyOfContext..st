@@ -1,11 +1,8 @@
 contexts
 disassemblyOfContext: aContextOop
 
-	"The bytecodes of the method a context is running, as text, one per line.
-
-	Source can be missing: a bootstrap image ships no sources file, and a damaged one
-	may have lost it. Bytecodes are in the image by definition, so a frame can always
-	show something."
+	"The bytecodes a context runs, one per line: what a frame can always show when the source is
+	missing, as in a bootstrap image."
 
 	^ String streamContents: [ :stream |
 		  [ (self homeMethodOf: (aContextOop reifiedSlotAt: self contextMethodSlot))

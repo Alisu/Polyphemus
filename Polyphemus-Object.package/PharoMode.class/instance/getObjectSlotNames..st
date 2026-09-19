@@ -1,11 +1,8 @@
 mode
 getObjectSlotNames: aClassOop
 
-	"The instance variable names of a class, read out of its layout.
-
-	Defensive: a snapshot can hold a class whose layout is not shaped the way this
-	expects, and losing every name because one entry is odd is worse than losing that
-	entry. Which layouts those are is worth its own look."
+	"A class's instance variable names, read from its layout. Defensive: one oddly shaped entry
+	costs that entry, not every name."
 
 	| res layout |
 	res := OrderedCollection new.

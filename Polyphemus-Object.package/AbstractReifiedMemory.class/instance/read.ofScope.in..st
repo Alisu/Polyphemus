@@ -1,10 +1,8 @@
 naming
 read: aVariable ofScope: aScope in: anActivation
 
-	"Read a variable this activation holds. Most live in the activation itself, one slot per
-	name. A captured one lives in a vector that it holds, and the variable's index counts
-	inside that vector: reading it as an ordinary temporary would answer whatever else is at
-	that position."
+	"Read a variable of this activation: one slot per name, except a captured one, which lives
+	in a vector the activation holds and is indexed inside it."
 
 	| vector |
 	vector := self vectorHolding: aVariable inScope: aScope.

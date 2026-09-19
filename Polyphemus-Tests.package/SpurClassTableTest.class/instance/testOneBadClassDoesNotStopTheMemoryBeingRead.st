@@ -1,12 +1,8 @@
 tests
 testOneBadClassDoesNotStopTheMemoryBeingRead
 
-	"One entry of the table is not a class. That costs the name of the classes at that index
-	and nothing else: the table still resolves, the heap is still a heap, and the million
-	objects that have nothing to do with it are still readable.
-
-	Refusing the whole memory over one bad class would be the wrong trade -- and damage of
-	that kind is far likelier than a table that has gone entirely."
+	"One table entry that is not a class costs that index's name only: the table resolves, the
+	heap is a heap, and every other object reads."
 
 	| space dumped |
 	space := self spaceFor: (self heapWithAClassTableHolding: #( 18 2 5 )).

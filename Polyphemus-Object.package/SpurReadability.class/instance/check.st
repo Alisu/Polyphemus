@@ -1,11 +1,8 @@
 checking
 check
 
-	"Climb the ladder. A global rung failing stops it -- the rungs above cannot be tested,
-	and guessing at them would be the dishonesty this exists to avoid. A local one is
-	recorded and the climb goes on, because damage in one part of a heap says nothing about
-	another: a walk that stopped halfway still leaves a class table that is perfectly
-	readable."
+	"Climb the ladder. A global rung failing stops the climb; a local one is recorded and the
+	climb goes on, since damage in one part of a heap says nothing about another."
 
 	| found |
 	found := Dictionary new.

@@ -1,11 +1,8 @@
 tests
 testDamageInOnePartDoesNotHideWhatIsSoundInAnother
 
-	"A heap that stops walking part way through is damaged where it stops, and nowhere else.
-	Its class table is untouched, and refusing to read it because the walk ended early would
-	be answering a question about one end of the memory with a fact about the other.
-
-	So the walk failing is recorded, the climb carries on, and classes stay readable."
+	"A walk that stops part way is damage there only: it is recorded, the climb carries on, and
+	the untouched class table stays readable."
 
 	| space dumped |
 	space := self spaceFor:

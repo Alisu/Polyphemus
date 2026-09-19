@@ -1,12 +1,8 @@
 reading the map
 segmentFrom: aLine
 
-	"One line of the map, or nil if it is not one we can read. The shape is
-
-		7f3c1a400000-7f3c1a600000 rw-p 00000000 00:00 0    [heap]
-
-	and the offsets of `/proc/<pid>/mem` are addresses, so a region's offset in the file we
-	read from is its own address."
+	"One line of the map (7f3c1a400000-7f3c1a600000 rw-p ...), or nil if it cannot be read.
+	/proc/<pid>/mem's offsets are addresses, so a region's file offset is its address."
 
 	| parts range from to |
 	parts := aLine substrings: ' '.

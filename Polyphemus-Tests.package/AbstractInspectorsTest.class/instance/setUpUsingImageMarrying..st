@@ -1,10 +1,8 @@
 running
 setUpUsingImageMarrying: marryInitialContext
 
-	"Open the image in the simulator. Marrying the initial context is what a VM does
-	when it starts an image: it takes the running process' context and gives it a
-	frame to run in. Stage two wants that. Stage one does not: it reads the snapshot
-	as written, where every stack is contexts and nothing is married."
+	"Open the image in the simulator, marrying the initial context as a starting VM does. Stage
+	two wants that; stage one reads the snapshot as written, all contexts."
 
 	interpreter := self newInterpreter pluginList: { }.
 

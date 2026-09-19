@@ -1,10 +1,8 @@
 highlighting
 highlightRangeOf: anActivation active: contextIsActive
 
-	"Where in the source the activation is, as an interval. Activations below the top are
-	read at pc - 1, Pharo's own rule. Code compiled here identical to the file's is read at
-	the same pc; code making the same sends has the pc carried over send for send (#4).
-	Otherwise nothing is highlighted."
+	"The activation's place in its source, as an interval, read at pc - 1 below the top (Pharo's
+	rule). Identical code keeps the pc; same sends carry it over (#4); else nothing."
 
 	| thePC code host fileCode mapped |
 	thePC := ([ anActivation isDead ] on: Error do: [ :e | false ])

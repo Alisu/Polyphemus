@@ -1,10 +1,8 @@
 building the fixture
 verifyMapping: offsetOf of: aMemory in: anImageFile
 
-	"Check the file offsets against objects that are already known: each slot of the
-	special objects array, read out of the file and shifted, has to be the oop the
-	simulator reports. Wrong arithmetic here would damage some unrelated object and the
-	test would be testing nothing in particular."
+	"Each special object slot read from the file and shifted has to be the oop the simulator
+	reports: wrong arithmetic would damage some unrelated object and test nothing."
 
 	| delta |
 	delta := aMemory reifiedSpecialObjectArray address

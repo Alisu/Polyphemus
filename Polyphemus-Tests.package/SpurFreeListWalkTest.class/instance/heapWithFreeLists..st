@@ -1,10 +1,8 @@
 building a heap
 heapWithFreeLists: aCollectionOfAssociations
 
-	"nil, false and true, then a free lists object of the shape Spur gives it: 64 word
-	slots, the first the root of the tree and the rest one per size. Each association says
-	which list holds which chunk, by the VM's own index -- which is one less than the slot,
-	since the VM counts from zero. Whatever follows is the caller's business."
+	"nil, false, true, then a free lists object of Spur's shape: 64 slots, the tree root first.
+	Each association maps the VM's list index (slot minus one) to its chunk."
 
 	| slots |
 	slots := Array new: 64 withAll: 0.
