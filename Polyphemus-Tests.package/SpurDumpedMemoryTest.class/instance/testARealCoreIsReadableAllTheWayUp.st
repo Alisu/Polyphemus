@@ -5,7 +5,7 @@ testARealCoreIsReadableAllTheWayUp
 	worth testing is that a dump of a VM which was running perfectly well passes every one
 	of them -- including the audit of every entry of every class table page in use."
 
-	self assert: dumped classTableProblems asArray equals: #(  ).
-	self assert: dumped readability refusals asArray equals: #(  ).
-	self assert: dumped readability isFullyReadable.
-	self assert: dumped readability highestReadableLevel equals: #specialObjects
+	self assert: dumped raw classTableProblems asArray equals: #(  ).
+	self assert: dumped raw readability refusals asArray equals: #(  ).
+	self assert: dumped raw readability isFullyReadable.
+	self assert: dumped raw readability highestReadableLevel equals: #specialObjects

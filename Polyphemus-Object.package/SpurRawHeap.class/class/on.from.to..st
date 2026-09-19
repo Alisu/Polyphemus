@@ -2,5 +2,5 @@ instance creation
 on: anAddressSpace from: anAddress to: aLimit
 
 	^ self new
-		  setRaw: (SpurRawHeap on: anAddressSpace from: anAddress to: aLimit);
+		  setSpace: anAddressSpace from: anAddress to: aLimit;
 		  yourself

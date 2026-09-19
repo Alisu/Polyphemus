@@ -13,13 +13,13 @@ testTheHandlerCacheAgreesWithAskingEveryHandler
 	reified := dumped reifiedMemory.
 	checked := 0.
 	seen := 0.
-	address := dumped heapStart.
-	[ address notNil and: [ address < dumped liveEnd ] ] whileTrue: [
+	address := dumped raw heapStart.
+	[ address notNil and: [ address < dumped raw liveEnd ] ] whileTrue: [
 		seen := seen + 1.
-		(seen \\ 101 = 0 and: [ (dumped scanner isFreeChunkAt: address) not ]) ifTrue: [
+		(seen \\ 101 = 0 and: [ (dumped raw scanner isFreeChunkAt: address) not ]) ifTrue: [
 			checked := checked + 1.
 			self
 				assert: (reified handlerForObjectAt: address)
 				equals: (reified handlerToUseFor: address) ].
-		address := dumped scanner objectAfter: address ].
+		address := dumped raw scanner objectAfter: address ].
 	self assert: checked > 1000

@@ -1,6 +1,6 @@
 building the memory
 memory
 
-	"A VMMaker memory manager whose view of memory is the dump's, built once."
+	"The VMMaker memory manager built from the raw heap, built once."
 
 	^ memory ifNil: [ memory := self buildMemory ]

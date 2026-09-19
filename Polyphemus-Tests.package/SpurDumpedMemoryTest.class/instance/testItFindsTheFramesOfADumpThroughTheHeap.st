@@ -5,9 +5,9 @@ testItFindsTheFramesOfADumpThroughTheHeap
 
 	| reified frames |
 	reified := dumped reifyEverything: dumped reifiedMemory.
-	frames := dumped framePointersIn: reified.
+	frames := dumped raw framePointersIn: reified.
 
 	self assert: frames size > 5.
 	self assert: (frames allSatisfy: [ :fp |
-			 (dumped wordOfFrame: fp at: -16) isNotNil ]).
-	self assert: (frames allSatisfy: [ :fp | fp > dumped mappingLimit ])
+			 (dumped raw wordOfFrame: fp at: -16) isNotNil ]).
+	self assert: (frames allSatisfy: [ :fp | fp > dumped raw mappingLimit ])

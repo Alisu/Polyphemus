@@ -12,10 +12,10 @@ testATableWhosePagesAreGoneCannotBeRead
 		          from: self baseAddress
 		          to: self baseAddress + space size.
 
-	self assert: (dumped readability canRead: #objects).
-	self deny: (dumped readability canRead: #classes).
+	self assert: (dumped raw readability canRead: #objects).
+	self deny: (dumped raw readability canRead: #classes).
 	self
-		assert: (dumped readability whyNot: #classes)
+		assert: (dumped raw readability whyNot: #classes)
 		equals: #classTablePageIsTheWrongSize.
 
 	raised := [ dumped reifiedMemory. nil ]

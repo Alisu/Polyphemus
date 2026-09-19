@@ -9,10 +9,10 @@ testItFindsTheObjectsInNewSpaceByTheirShape
 	mark. What lies past the last live object is memory the image has not used yet."
 
 	| walk |
-	self assert: dumped youngSpaceStart isNotNil.
-	self assert: dumped youngSpaceStart < dumped heapStart.
+	self assert: dumped raw youngSpaceStart isNotNil.
+	self assert: dumped raw youngSpaceStart < dumped raw heapStart.
 
-	walk := dumped youngObjectsWalk.
+	walk := dumped raw youngObjectsWalk.
 	self assert: walk objectCount > 100.
-	self assert: walk stoppedAt < dumped heapStart.
+	self assert: walk stoppedAt < dumped raw heapStart.
 	self assert: walk reason equals: #nothingButFreeSpace

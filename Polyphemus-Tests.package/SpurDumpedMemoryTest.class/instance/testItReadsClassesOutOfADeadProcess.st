@@ -9,13 +9,13 @@ testItReadsClassesOutOfADeadProcess
 	reified := dumped reifiedMemory.
 
 	self
-		assert: (reified reifyOop: dumped heapStart) oopClass name
+		assert: (reified reifyOop: dumped raw heapStart) oopClass name
 		equals: 'UndefinedObject'.
 	self
-		assert: (reified reifyOop: dumped heapStart + 16) oopClass name
+		assert: (reified reifyOop: dumped raw heapStart + 16) oopClass name
 		equals: 'False'.
 	self
-		assert: (reified reifyOop: dumped heapStart + 32) oopClass name
+		assert: (reified reifyOop: dumped raw heapStart + 32) oopClass name
 		equals: 'True'.
 	self
 		assert: reified specialObjectsOop

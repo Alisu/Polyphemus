@@ -55,15 +55,15 @@ testItReadsAnotherImageLaunchedAsObservable
 	reader whileStopped: [
 		self assert: reader isStopped.
 		dumped := SpurDumpedMemory on: reader.
-		self assert: dumped heapWalk objectCount > 100000.
+		self assert: dumped raw heapWalk objectCount > 100000.
 		self
-			assert: (dumped reifiedMemory reifyOop: dumped heapStart) oopClass name
+			assert: (dumped reifiedMemory reifyOop: dumped raw heapStart) oopClass name
 			equals: 'UndefinedObject'.
 
 		"held still, the two accounts of the free space agree"
-		self assert: dumped freeListsAreIntact.
-		self assert: dumped readability refusals asArray equals: #(  ).
-		self assert: dumped readability isFullyReadable ].
+		self assert: dumped raw freeListsAreIntact.
+		self assert: dumped raw readability refusals asArray equals: #(  ).
+		self assert: dumped raw readability isFullyReadable ].
 
 	self deny: reader isStopped ] ensure: [
 		LibC system: 'kill ' , pid printString.

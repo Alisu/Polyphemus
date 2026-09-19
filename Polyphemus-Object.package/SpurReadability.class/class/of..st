@@ -1,4 +1,4 @@
 instance creation
-of: aDumpedMemory
+of: aRawHeap
 
-	^ self new setDumped: aDumpedMemory; yourself
+	^ self new setHeap: aRawHeap; yourself

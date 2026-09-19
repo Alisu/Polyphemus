@@ -1,26 +1,11 @@
 {
- "commentStamp": "",
- "super": "Object",
- "category": "Polyphemus-Object-dump",
- "classinstvars": [],
- "pools": [],
- "classvars": [],
- "instvars": [
-  "space",
-  "scanner",
-  "mappingStart",
-  "mappingLimit",
-  "heapStart",
-  "liveEnd",
-  "specialObjectsOop",
-  "memory",
-  "interpreter",
-  "walk",
-  "readability",
-  "classTableProblems",
-  "bytes",
-  "youngStart"
- ],
- "name": "SpurDumpedMemory",
- "type": "normal"
+	"commentStamp": "",
+	"super": "Object",
+	"category": "Polyphemus-Object-dump",
+	"classinstvars": [],
+	"pools": [],
+	"classvars": [],
+	"instvars": [ "raw", "memory", "interpreter" ],
+	"name": "SpurDumpedMemory",
+	"type": "normal"
 }

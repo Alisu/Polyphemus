@@ -8,7 +8,7 @@ testAVirtualMachineCanReadItsOwnRunningHeap
 	live := LinuxProcessMemory onSelf.
 	dumped := SpurDumpedMemory on: live.
 
-	self assert: dumped heapStart isNotNil.
-	self assert: dumped heapWalk objectCount > 10000.
-	self assert: (dumped readability canRead: #objects).
+	self assert: dumped raw heapStart isNotNil.
+	self assert: dumped raw heapWalk objectCount > 10000.
+	self assert: (dumped raw readability canRead: #objects).
 	live close

@@ -1,12 +1,11 @@
 building the memory
 buildMemory
 
-	"The same seat `SpurImageReader` sits in. `StackInterpreterSimulator>>openOn:` makes a
-	memory manager, gives it to the object memory and has a reader fill it; this fills it
-	from a dump instead, and nothing above has to know which it was."
+	"A VMMaker memory manager filled from the raw heap, in the seat SpurImageReader fills
+	from an image file; nothing above has to know which it was."
 
 	| manager |
-	self findHeap.
+	raw findHeap.
 	memory := Spur64BitMemoryManager simulatorClass new.
 	StackInterpreterSimulatorLSB
 		initializeWithOptions: {

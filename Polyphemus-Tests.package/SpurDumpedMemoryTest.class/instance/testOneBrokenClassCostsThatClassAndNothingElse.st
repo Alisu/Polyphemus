@@ -5,24 +5,24 @@ testOneBrokenClassCostsThatClassAndNothingElse
 	the memory stays readable."
 
 	| soa index page entry copy broken reified |
-	soa := dumped specialObjectsOop.
+	soa := dumped raw specialObjectsOop.
 	index := dumped memory classIndexOf: soa.
-	page := dumped scanner
-		        slotOf: (dumped scanner hiddenRootsFrom: dumped heapStart)
+	page := dumped raw scanner
+		        slotOf: (dumped raw scanner hiddenRootsFrom: dumped raw heapStart)
 		        at: index // 1024 + 1.
 	entry := page + 8 + (index \\ 1024 * 8).
 
-	copy := dumped bytes copy.
+	copy := dumped raw bytes copy.
 	self poke: soa "an Array, which is not a class" at: entry in: copy.
 	broken := SpurDumpedMemory
-		          on: (ByteArrayAddressSpace on: copy at: dumped mappingStart)
-		          from: dumped mappingStart
-		          to: dumped mappingLimit.
+		          on: (ByteArrayAddressSpace on: copy at: dumped raw mappingStart)
+		          from: dumped raw mappingStart
+		          to: dumped raw mappingLimit.
 
 	"local damage: the table still resolves, so the memory is still readable"
-	self assert: (broken readability canRead: #classes).
-	self assert: broken classTableStructureProblems asArray equals: #(  ).
-	self assert: (broken unreadableClassIndexes includes: index).
+	self assert: (broken raw readability canRead: #classes).
+	self assert: broken raw classTableStructureProblems asArray equals: #(  ).
+	self assert: (broken raw unreadableClassIndexes includes: index).
 
 	reified := broken reifiedMemory.
 	self assert: (reified reifyOop: soa) oopClass isUnreadableClass.
@@ -31,5 +31,5 @@ testOneBrokenClassCostsThatClassAndNothingElse
 
 	"and nothing else lost its name"
 	self
-		assert: (reified reifyOop: broken heapStart) oopClass name
+		assert: (reified reifyOop: broken raw heapStart) oopClass name
 		equals: 'UndefinedObject'

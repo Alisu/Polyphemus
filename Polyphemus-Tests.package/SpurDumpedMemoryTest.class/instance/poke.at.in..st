@@ -6,5 +6,5 @@ poke: aValue at: anAddress in: someBytes
 
 	0 to: 7 do: [ :offset |
 		someBytes
-			at: anAddress - dumped mappingStart + offset + 1
+			at: anAddress - dumped raw mappingStart + offset + 1
 			put: (aValue bitShift: offset * -8) \\ 256 ]

@@ -1,10 +1,9 @@
 accessing
 imageName
 
-	"Polyphemus asks the interpreter for an image name to tell a real image from an empty
-	test fixture (`#setUpMode`), and answers the fixture if there is none. A dump is a real
-	image's memory, so it says where it came from."
+	"Where this memory came from. Polyphemus takes a nil image name for an empty test
+	fixture, so a dump must answer one."
 
-	^ (space respondsTo: #file)
-		  ifTrue: [ space file fullName ]
+	^ (raw space respondsTo: #file)
+		  ifTrue: [ raw space file fullName ]
 		  ifFalse: [ 'dumped memory' ]

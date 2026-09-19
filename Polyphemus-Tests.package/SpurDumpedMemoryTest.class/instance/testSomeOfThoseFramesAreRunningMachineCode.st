@@ -5,10 +5,10 @@ testSomeOfThoseFramesAreRunningMachineCode
 
 	| reified frames jitted |
 	reified := dumped reifyEverything: dumped reifiedMemory.
-	frames := dumped framePointersIn: reified.
-	jitted := frames select: [ :fp | dumped isMachineCodeFrameAt: fp ].
+	frames := dumped raw framePointersIn: reified.
+	jitted := frames select: [ :fp | dumped raw isMachineCodeFrameAt: fp ].
 
 	self assert: jitted notEmpty.
 	self assert: jitted size < frames size.
 	self assert: (jitted allSatisfy: [ :fp |
-			 (dumped wordOfFrame: fp at: -8) < dumped mappingStart ])
+			 (dumped raw wordOfFrame: fp at: -8) < dumped raw mappingStart ])

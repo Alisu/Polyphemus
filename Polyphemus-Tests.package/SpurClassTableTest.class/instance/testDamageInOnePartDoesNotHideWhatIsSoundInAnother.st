@@ -16,7 +16,7 @@ testDamageInOnePartDoesNotHideWhatIsSoundInAnother
 		          from: self baseAddress
 		          to: self baseAddress + space size.
 
-	self deny: (dumped readability canRead: #objects).
-	self assert: (dumped readability canRead: #classes).
-	self assert: dumped classTableProblems asArray equals: #(  ).
-	self assert: (dumped readability refusals includesKey: #objects)
+	self deny: (dumped raw readability canRead: #objects).
+	self assert: (dumped raw readability canRead: #classes).
+	self assert: dumped raw classTableProblems asArray equals: #(  ).
+	self assert: (dumped raw readability refusals includesKey: #objects)

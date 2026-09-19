@@ -10,5 +10,5 @@ testTheHeapSpansEveryMappingItGrewInto
 	largest := (ElfCoreDump on: self dumpFile) loadableSegments detectMax: [ :each |
 		           each sizeInFile ].
 
-	self assert: dumped mappingLimit > (largest address + largest sizeInFile).
-	self assert: dumped liveEnd < dumped mappingLimit
+	self assert: dumped raw mappingLimit > (largest address + largest sizeInFile).
+	self assert: dumped raw liveEnd < dumped raw mappingLimit

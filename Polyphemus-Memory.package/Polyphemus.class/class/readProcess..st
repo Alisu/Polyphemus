@@ -12,5 +12,5 @@ readProcess: aPid
 	reader := LinuxProcessMemory on: aPid.
 	[ reader whileStopped: [
 		  dumped := SpurDumpedMemory on: reader.
-		  dumped bytes ] ] ensure: [ reader close ].
+		  dumped raw bytes ] ] ensure: [ reader close ].
 	^ dumped reifyEverything: dumped reifiedMemory

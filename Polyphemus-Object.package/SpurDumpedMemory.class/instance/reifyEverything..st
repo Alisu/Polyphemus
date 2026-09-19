@@ -5,6 +5,6 @@ reifyEverything: aReifiedMemory
 	then rebuild its compressed view."
 
 	self memory allOldSpaceObjectsDo: [ :oop | aReifiedMemory reifyOop: oop ].
-	self youngObjectsDo: [ :oop | aReifiedMemory reifyOop: oop ].
+	raw youngObjectsDo: [ :oop | aReifiedMemory reifyOop: oop ].
 	aReifiedMemory createCompressedVersion.
 	^ aReifiedMemory

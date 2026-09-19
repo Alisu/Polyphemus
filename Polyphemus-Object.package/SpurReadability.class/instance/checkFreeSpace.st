@@ -6,8 +6,8 @@ checkFreeSpace
 	rebuild."
 
 	| lists |
-	lists := dumped freeListWalk.
+	lists := heap freeListWalk.
 	lists isIntact ifFalse: [ ^ lists problems first key ].
-	^ (lists agreesWith: dumped heapWalk)
+	^ (lists agreesWith: heap heapWalk)
 		  ifTrue: [ nil ]
 		  ifFalse: [ #theListsAndTheHeapDisagreeAboutFreeSpace ]

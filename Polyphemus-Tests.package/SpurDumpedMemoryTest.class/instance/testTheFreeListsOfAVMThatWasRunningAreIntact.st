@@ -9,10 +9,10 @@ testTheFreeListsOfAVMThatWasRunningAreIntact
 	evidence for no reason at all."
 
 	| byTheHeap byTheLists |
-	byTheHeap := dumped heapWalk.
-	byTheLists := dumped freeListWalk.
+	byTheHeap := dumped raw heapWalk.
+	byTheLists := dumped raw freeListWalk.
 
 	self assert: byTheLists problems asArray equals: #(  ).
 	self assert: byTheLists chunkCount equals: byTheHeap freeChunkCount.
 	self assert: byTheLists bytes equals: byTheHeap freeBytes.
-	self assert: dumped freeListsAreIntact
+	self assert: dumped raw freeListsAreIntact

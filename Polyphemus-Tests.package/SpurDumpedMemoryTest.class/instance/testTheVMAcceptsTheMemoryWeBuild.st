@@ -8,7 +8,7 @@ testTheVMAcceptsTheMemoryWeBuild
 	| memory |
 	memory := dumped memory.
 
-	self assert: memory oldSpaceStart equals: dumped heapStart.
-	self assert: memory specialObjectsOop equals: dumped specialObjectsOop.
+	self assert: memory oldSpaceStart equals: dumped raw heapStart.
+	self assert: memory specialObjectsOop equals: dumped raw specialObjectsOop.
 	self assert: (memory classIndexOf: memory nilObject) equals: 3075.
 	self assert: (memory fetchClassOfNonImm: memory nilObject) > memory oldSpaceStart

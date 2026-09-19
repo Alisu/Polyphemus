@@ -5,7 +5,7 @@
 	"classinstvars": [],
 	"pools": [],
 	"classvars": [],
-	"instvars": [ "dumped", "refusals" ],
+	"instvars": [ "heap", "refusals" ],
 	"name": "SpurReadability",
 	"type": "normal"
 }

@@ -15,6 +15,6 @@ testOneBadClassDoesNotStopTheMemoryBeingRead
 		          from: self baseAddress
 		          to: self baseAddress + space size.
 
-	self assert: dumped classTableStructureProblems asArray equals: #(  ).
-	self assert: dumped unreadableClassIndexes asArray equals: #( 3 ).
-	self assert: (dumped readability canRead: #classes)
+	self assert: dumped raw classTableStructureProblems asArray equals: #(  ).
+	self assert: dumped raw unreadableClassIndexes asArray equals: #( 3 ).
+	self assert: (dumped raw readability canRead: #classes)

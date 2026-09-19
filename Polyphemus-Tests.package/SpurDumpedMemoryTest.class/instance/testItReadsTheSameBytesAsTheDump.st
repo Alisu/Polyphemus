@@ -10,6 +10,6 @@ testItReadsTheSameBytesAsTheDump
 
 	#( 0 16 32 ) do: [ :offset |
 		self
-			assert: (memory memoryManager unsignedLong64At: dumped heapStart + offset)
-			equals: (dump unsignedAt: dumped heapStart + offset size: 8) ].
+			assert: (memory memoryManager unsignedLong64At: dumped raw heapStart + offset)
+			equals: (dump unsignedAt: dumped raw heapStart + offset size: 8) ].
 	dump close
