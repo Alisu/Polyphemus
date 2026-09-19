@@ -328,3 +328,33 @@ reported a chunk eight bytes outside the heap, which turned out to be a bug in *
 heap ran into a second mapping we were not looking at. Two independent routes to the same number
 disagreeing is how you learn that one of them is wrong -- and it is worth remembering that the
 one that is wrong may be yours.
+
+## The VM's own variables
+
+Everything above is found by shape, because a dump has no image header. The VM, though, keeps
+its registers in ordinary C variables. The core holds the VM library's data segment, and the
+library on disk has a full symbol table (`.symtab`, and DWARF too). So `VMVariables` reads
+them by name:
+
+- **Where the library was loaded** comes from the core's NT_FILE note (`ElfCoreDump>>mappedFiles`).
+  For a live process it comes from `/proc/<pid>/maps` (`LinuxProcessMemory>>mappedFiles`).
+- **Which build it is.** The GNU build-id in the library's first page, as loaded, has to equal the
+  file's. Otherwise every read is refused (`#itsVMLibraryIsAnotherBuild`): a symbol of another
+  build names some other word.
+- **A variable** is `base + symbol value`, one word (`at:`). For eden, pastSpace and futureSpace,
+  `boundsOf:` answers `start -> limit`.
+
+On the real core they agree with what the shape found:
+- `newSpaceStart` is where the young walk starts.
+- Every object the walk reported is below `pastSpaceStart`.
+- Every frame reached from a married context lies in the stack pages
+  (`stackBasePlus1`, `numStackPages` × `bytesPerPage`).
+
+A running VM read through `/proc/self` reports its own `numStackPages` and eden size, which
+agree with `Smalltalk vm parameterAt: 42` and `44`.
+
+**How fresh they are.** The interpreter's `framePointer`, `stackPointer` and
+`instructionPointer` are written when it leaves for C, and by the trampolines when machine code
+does. Machine code calling machine code writes nothing, and its live registers are the
+thread's `rbp`/`rsp`. So check a saved register against the frames before believing it.
+

@@ -1,0 +1,1 @@
+The virtual machine's own variables, read out of a core or a running process: where the VM library was loaded, plus the value of a symbol of that library. Refuses a library that is not the build that ran.
