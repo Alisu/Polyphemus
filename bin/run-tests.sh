@@ -79,12 +79,16 @@ Smalltalk exitSuccess
 INNER
   fi
   start=$(date +%s)
-  out=$(timeout "$TMO" ./pharo "$IMAGE" st "$script" 2>/dev/null | noise | grep -E '^RES |^    (FAIL|ERROR)')
+  # rc must be timeout's own status: $? after a pipeline is grep's, which hid every timeout (#14).
+  out=$(timeout "$TMO" ./pharo "$IMAGE" st "$script" 2>/dev/null | noise | grep -E '^RES |^    (FAIL|ERROR)'; exit ${PIPESTATUS[0]})
   rc=$?
   el=$(( $(date +%s) - start ))
   rm -f "$script"
   if [ $rc -eq 124 ]; then
     echo "RES $c TIMEOUT ${TMO}s"
+  elif ! grep -q "^RES $c " <<< "$out"; then
+    # The image died, or printed nothing: a class that did not report is broken, not absent.
+    echo "RES $c BROKEN no result (exit $rc)"
   else
     echo "$out" | sed "1s/\$/ (${el}s)/"
     [ -z "${ONLY_TEST:-}" ] && echo "$c $el" >> "$TIMINGS.new"
