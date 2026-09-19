@@ -194,8 +194,8 @@ The order of what remains, decided rather than assumed:
    from the VM's own variables (`VMVariables`, `docs/reading-a-dump.md`). Trampolines by name,
    each page's newest frame and its pc (the page records), and the running process (the VM's
    saved registers, checked against the threads' `rip`) are done. A machine code pc is
-   mapped by VMMaker's own Cogit over the dump. **Item 3 is done** for cores; a live process's
-   running process waits on reading its registers. Item 4 is parked until these are done.
+   mapped by VMMaker's own Cogit over the dump. **Item 3 is done**, for cores and for
+   stopped live processes (`/proc/<pid>/task/*/syscall` gives each thread's pc). Item 4 is parked until these are done.
 4. **Editing and writing back** — modify the bytes, write the image out.
 
 ## Open question, raised 2026-09-15 - partly answered 2026-09-16

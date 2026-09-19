@@ -168,9 +168,15 @@ is just after the send that made it. That send is the callee's selector, a `valu
 block, or a send that runs a method under another name (`withArgs:executeMethod:`). The dumped
 VM was built from VMMaker v9.0.22 and is read with v10.0.0; the map agreed on every frame.
 
-**Still missing:** a live process cannot yet say whether it was stopped in machine code (no
-registers without ptrace), so its running process is refused. And a running process caught *in*
-machine code would need its newest frames from `rbp`/`rsp`.
+**A live process, stopped, says where each thread was** without ptrace:
+`/proc/<pid>/task/<tid>/syscall` gives a blocked thread's stack pointer and pc
+(`LinuxProcessMemory>>threadRegisters`). It needs the same permission as reading
+`/proc/<pid>/mem`. A thread that answers `running` gives no pc, and then the running process is
+refused as for a core that kept no registers. A stopped observable image was idling in
+`pselect6` and reads its running process's stack like a core.
+
+**Still missing:** a running process caught *in* machine code would need its newest frames from
+`rbp`/`rsp`. On a core the registers are there; `/proc` gives only the stack pointer and pc.
 
 ## Finding a dump's frames, through the heap
 
