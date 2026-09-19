@@ -1,0 +1,17 @@
+{
+ "commentStamp": "",
+ "super": "InstructionClient",
+ "category": "Polyphemus-Object-debugger",
+ "classinstvars": [],
+ "pools": [],
+ "classvars": [],
+ "instvars": [
+  "code",
+  "origin",
+  "starts",
+  "sends",
+  "current"
+ ],
+ "name": "SendSequence",
+ "type": "normal"
+}
