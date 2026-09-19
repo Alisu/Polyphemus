@@ -8,5 +8,6 @@ newFrameBelow: aStackFrame starting: start from: aCogStackPage on: aPreReifiedMe
 		memory: aPreReifiedMemory;
 		computeFields ;
 		computeOperandStack: aStackFrame framePointer;
+		takeSavedIPFromOperandStack: aStackFrame;
 		frameAbove: aStackFrame.
 	^ instance
