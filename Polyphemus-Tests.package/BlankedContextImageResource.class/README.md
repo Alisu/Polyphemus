@@ -1,0 +1,1 @@
+A copy of the pinned Pharo 10 image with the running process's stack pointer blanked in the file's own bytes -- damage we did not cause through our own API, so reading it proves we can read damage rather than merely undo our own.

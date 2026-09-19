@@ -5,11 +5,20 @@
  of every Polyphemus package, creating classes that do not exist yet and removing
  methods whose files are gone."
 | root joined ensureClass syncSide created compiled removed |
-root := '/home/observant/polyphemus/Polyphemus/' asFileReference.
+"Wherever this checkout is: Iceberg has it registered, which the test fixtures rely on too."
+root := (IceRepository registeredRepositoryIncludingPackage:
+	(RPackageOrganizer default packageNamed: 'Polyphemus-Object')) location.
 created := compiled := removed := 0.
 
 joined := [ :coll | String streamContents: [ :s |
 	coll do: [ :each | s nextPutAll: each asString ] separatedBy: [ s space ] ] ].
+
+"A class with no README.md has no comment, and FileTree hands a Metacello load a nil where the
+ comment should be -- which stops the whole load with a message about line endings. This loader
+ never reads comments, so it would never notice. Saying so here is the only warning there is."
+(root allChildrenMatching: '*.class') , (root allChildrenMatching: '*.trait') do: [ :each |
+	(each / 'README.md') exists ifFalse: [
+		('NO COMMENT ' , each basename , ' -- a Metacello load will fail on it') traceCr ] ].
 
 ensureClass := [ :props :packageName |
 	| name |
