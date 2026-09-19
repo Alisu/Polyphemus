@@ -5,11 +5,7 @@ pc
 	when unavailable or for a JIT frame."
 
 	| ip |
-	self isReadable ifFalse: [ ^ nil ].
+	self isMachineCodeFrame ifTrue: [ ^ nil ].
 	ip := self instructionPointer.
 	ip ifNil: [ ^ nil ].
-	^ [
-	  memory integerValueOf:
-		  (memory interpreter contextInstructionPointer: ip frame: framePointer) ]
-		  on: Error
-		  do: [ :e | nil ]
+	^ [ self layout contextPCOf: ip frame: framePointer ] on: Error do: [ :e | nil ]

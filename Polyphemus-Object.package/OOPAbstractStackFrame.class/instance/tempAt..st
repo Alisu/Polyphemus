@@ -8,6 +8,4 @@ tempAt: anIndex
 	count := [ self compiledCode numTemps ] on: Error do: [ :e | 0 ].
 	(anIndex between: 1 and: count) ifFalse: [
 		^ self error: 'this frame has no temporary ' , anIndex printString ].
-
-	^ memory objectAt:
-		  (memory interpreter temporary: anIndex - 1 in: framePointer)
+	^ self layout objectAt: (self layout temporary: anIndex - 1 in: framePointer)

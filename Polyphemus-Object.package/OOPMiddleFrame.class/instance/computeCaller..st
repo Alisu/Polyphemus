@@ -3,6 +3,6 @@ computeCaller: aCogStackPage
 
 	caller := OOPAbstractStackFrame
 		          newFrameBelow: self
-		          starting: (memory interpreter stackPages longAt: framePointer)
+		          starting: (self layout wordAt: framePointer)
 		          from: aCogStackPage
 		          on: memory

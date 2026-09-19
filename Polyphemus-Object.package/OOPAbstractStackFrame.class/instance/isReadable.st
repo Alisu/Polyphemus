@@ -1,6 +1,7 @@
 testing
 isReadable
 
-	"Whether this frame can be read with the interpreter's layout. A JIT frame cannot."
+	"A JIT frame is readable only by a reader that knows Cog's layout."
 
-	^ self isMachineCodeFrame not
+	^ self isMachineCodeFrame not or: [
+		  [ self layout readsMachineCodeFrames ] on: Error do: [ :e | false ] ]

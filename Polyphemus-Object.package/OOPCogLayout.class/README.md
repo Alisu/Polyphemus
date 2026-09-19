@@ -1,0 +1,1 @@
+A Cog VM's layout, read out of a core dump or a live process (64-bit). Frames follow CoInterpreter class>>initializeFrameIndices. A machine code frame, and a method Cog compiled, are read through their CogMethod in the code zone; a machine code pc needs the JIT's map and is not read yet.

@@ -1,0 +1,4 @@
+reading
+isActiveFrame: aFramePointer
+
+	^ false

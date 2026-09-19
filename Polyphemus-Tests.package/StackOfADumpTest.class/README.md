@@ -1,0 +1,1 @@
+The stack of a process read from a core dump: past the context married to a frame, through the frames of its stack page, laid out as Cog lays them out. Skips without a core (see SpurDumpedMemoryTest>>dumpFile).

@@ -1,0 +1,11 @@
+{
+	"commentStamp" : "",
+	"super" : "OOPVMLayout",
+	"category" : "Polyphemus-Object-oop-stack",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [  ],
+	"name" : "OOPStackInterpreterLayout",
+	"type" : "normal"
+}

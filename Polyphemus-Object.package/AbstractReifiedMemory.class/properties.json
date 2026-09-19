@@ -1,32 +1,33 @@
 {
- "commentStamp": "",
- "super": "VMSimulatorAccess",
- "category": "Polyphemus-Object-image",
- "classinstvars": [],
- "pools": [],
- "classvars": [
-  "MemoryCache"
- ],
- "instvars": [
-  "baseAddress",
-  "flagErrorObjects",
-  "lastKnownObject",
-  "objectsArray",
-  "objects",
-  "mode",
-  "flagErrorFreeTree",
-  "freeze",
-  "stringClassIndexes",
-  "compiledMethodClassIndex",
-  "metaclassIndex",
-  "objectHandlers",
-  "traitedMetaclassIndex",
-  "metaclassForTraitIndex",
-  "globalsByName",
-  "instancesByClassTag",
-  "wrappedVariables",
-  "handlerCache"
- ],
- "name": "AbstractReifiedMemory",
- "type": "normal"
+	"commentStamp": "",
+	"super": "VMSimulatorAccess",
+	"category": "Polyphemus-Object-image",
+	"classinstvars": [],
+	"pools": [],
+	"classvars": [
+	 "MemoryCache"
+	],
+	"instvars": [
+	 "baseAddress",
+	 "flagErrorObjects",
+	 "lastKnownObject",
+	 "objectsArray",
+	 "objects",
+	 "mode",
+	 "flagErrorFreeTree",
+	 "freeze",
+	 "stringClassIndexes",
+	 "compiledMethodClassIndex",
+	 "metaclassIndex",
+	 "objectHandlers",
+	 "traitedMetaclassIndex",
+	 "metaclassForTraitIndex",
+	 "globalsByName",
+	 "instancesByClassTag",
+	 "wrappedVariables",
+	 "handlerCache",
+	 "vmLayout"
+	],
+	"name": "AbstractReifiedMemory",
+	"type": "normal"
 }

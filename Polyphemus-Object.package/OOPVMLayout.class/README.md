@@ -1,0 +1,1 @@
+How the VM that wrote a memory laid out what is not plain Spur: its stack frames, and the headers of methods it compiled. Frames and compiled code ask it rather than the simulator, so the same classes read a simulator and a dump.

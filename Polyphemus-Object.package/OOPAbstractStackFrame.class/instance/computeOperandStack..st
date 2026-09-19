@@ -1,24 +1,20 @@
 update
 computeOperandStack: limit
 
-	| address stackpages wordSize |
+	"Every word from the first temporary down to limit. Below a frame above us, the lowest
+	of them is not ours but our saved ip, kept in that frame (#frameCallerSavedIP:). A nil
+	limit means the stack pointer is not known, and the stack is left empty."
+
+	| address reader wordSize |
 	operandStack := OrderedCollection new.
-	address := self offsetForOperandStack.
-	stackpages := memory interpreter stackPages.
+	limit ifNil: [ ^ self ].
+	reader := self layout.
+	address := reader firstTemporaryAddressOf: framePointer.
 	wordSize := memory wordSize.
-
-	[ address > limit ]
-		whileTrue: [
-			operandStack add: (memory objectAt:
-					 (stackpages longAt: address)).
-			address := address - wordSize ].
-
-	"An empty operand stack is legal: the frame was prepared but not used yet.
-	When this frame has a frame above it, the lowest slot collected is not one of
-	our operands but our own saved instruction pointer, which lives in the frame
-	above at its frame pointer plus one word (VMMaker reads it with
-	#frameCallerSavedIP:)."
+	[ address > limit ] whileTrue: [
+		operandStack add: (reader objectAt: (reader wordAt: address)).
+		address := address - wordSize ].
 	self isTopFrame ifFalse: [
 		operandStack ifNotEmpty: [
-			savedIP := stackpages longAt: address + wordSize.
+			savedIP := reader wordAt: address + wordSize.
 			operandStack removeLast ] ]

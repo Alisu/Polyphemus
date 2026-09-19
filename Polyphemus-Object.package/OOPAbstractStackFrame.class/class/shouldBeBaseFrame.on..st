@@ -1,4 +1,4 @@
 assert
-shouldBeBaseFrame: anInteger on: aPreReifiedMemory 
+shouldBeBaseFrame: anInteger on: aPreReifiedMemory
 
-	^aPreReifiedMemory interpreter isBaseFrame: anInteger
+	^ aPreReifiedMemory vmLayout isBaseFrame: anInteger

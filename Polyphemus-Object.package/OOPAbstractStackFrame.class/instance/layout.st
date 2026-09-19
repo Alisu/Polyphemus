@@ -1,0 +1,4 @@
+accessing
+layout
+
+	^ memory vmLayout

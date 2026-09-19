@@ -2,9 +2,9 @@ accessing
 instructionPointer
 
 	"The byte this frame is about to execute: the interpreter's register for the active
-	frame, the saved IP otherwise, or nil. Refused for a JIT frame."
+	frame, the saved IP otherwise, or nil. Refused for a JIT frame: its ip is machine code."
 
-	self refuseIfMachineCode.
+	self isMachineCodeFrame ifTrue: [ self signalMachineCode ].
 	^ self isActiveFrame
 		  ifTrue: [ [ memory interpreter instructionPointer ] on: Error do: [ :e | nil ] ]
 		  ifFalse: [ savedIP ]
