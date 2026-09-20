@@ -5,7 +5,12 @@
 	"classinstvars": [],
 	"pools": [],
 	"classvars": [],
-	"instvars": [ "pid", "segments", "stream" ],
+	"instvars": [
+		"pid",
+		"segments",
+		"stream",
+		"writeStream"
+	],
 	"name": "LinuxProcessMemory",
 	"type": "normal"
 }
