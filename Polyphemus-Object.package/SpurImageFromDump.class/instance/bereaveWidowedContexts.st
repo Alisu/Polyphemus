@@ -3,18 +3,16 @@ bereaveWidowedContexts
 
 	"A context whose frame is gone still names it. In an image that is a sender no reader can
 	follow, so it becomes none -- what
-	#bereaveAllMarriedContextsForSnapshotFlushingExternalPrimitivesIf: does at snapshot."
+	#bereaveAllMarriedContextsForSnapshotFlushingExternalPrimitivesIf: does at snapshot. In
+	old space and in new: a married context may be in either."
 
-	| scanner oop contextClass memory bereaved |
-	memory := dumped memory.
+	| scanner oop bereaved |
 	scanner := dumped raw scanner.
-	contextClass := self classIndexOfContexts.
-	oop := dumped raw heapStart.
 	bereaved := 0.
+	oop := dumped raw heapStart.
 	[ oop notNil and: [ oop < dumped memory freeOldSpaceStart ] ] whileTrue: [
-		(((scanner headerAt: oop) bitAnd: 16r3FFFFF) = contextClass and: [
-			 memory isIntegerObject: (scanner slotOf: oop at: 1) ]) ifTrue: [
-			memory storePointerUnchecked: 0 ofObject: oop withValue: memory nilObject.
-			bereaved := bereaved + 1 ].
+		(self bereave: oop) ifTrue: [ bereaved := bereaved + 1 ].
 		oop := scanner objectAfter: oop ].
+	dumped raw youngObjectsDo: [ :each |
+		(self bereave: each) ifTrue: [ bereaved := bereaved + 1 ] ].
 	^ bereaved
