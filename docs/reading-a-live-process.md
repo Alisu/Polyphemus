@@ -82,6 +82,10 @@ can be made to reach -- a hook to trap it from outside, rather than waiting for 
 safepoint of its own accord. Recorded because it is a good idea and because perm space is the
 reason it would work; not pursued, and not part of stage two.
 
+**Not with this VM, though.** Perm space is recent: `permSpace` appears nowhere in the pinned
+VMMaker (`v10.0.0`), and the machine here is 9.0.22. Stopping a live image at a safepoint has
+to be reached some other way until the VM is newer.
+
 ## Reading a process that is still running, from Pharo, with no foreign call
 
 `LinuxProcessMemory` answers the same three messages `ElfCoreDump` does, and the same
