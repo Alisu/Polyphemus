@@ -252,3 +252,35 @@ One Pharo image reading another's heap, with `ptrace_scope` left at 1:
 | ptrace_scope | 1, untouched |
 | objects read from the other image | **1,107,894** |
 | class of its first object | `UndefinedObject` |
+
+## Interrupting an image that will not yield
+
+A wedged image is often not idle: a process spins and nothing else gets a turn, so waiting for
+it to be quiet never ends. It can be preempted from outside, and by the VM's own machinery.
+
+`StackInterpreter>>checkForEventsMayContextSwitch:` ends with
+
+```smalltalk
+interruptPending ifTrue:
+	[interruptPending := false.
+	 sema := objectMemory splObj: TheInterruptSemaphore.
+	 (sema ~= objectMemory nilObject and: [self synchronousSignal: sema]) ifTrue:
+		[switched := true]]
+```
+
+`interruptPending` is an eight-byte variable in `libPharoVMCore.so`, which `VMVariables` locates
+in a live process, and `/proc/<pid>/mem` takes the write. So: stop the process, set it to one,
+let it go. The VM reaches its next check within milliseconds and signals the image's interrupt
+semaphore -- Pharo's own Cmd-. path, driven from outside.
+
+**How often the check comes.** Measured on an idle VM: about **70 a second**, forced by the
+heartbeat, which smashes `stackLimit` to all-ones so the next send falls into the check
+(`forceInterruptCheck`). Nothing has to be forced by us; the image is at a safepoint constantly.
+`statCheckForEvents` and `statForceInterruptCheck` count them, and are readable from outside.
+
+On a target spinning at priority 40, with a watcher at 70 on special objects slot 31, the
+watcher ran **within 100 ms** of the write, and the VM had cleared `interruptPending` itself.
+`LinuxProcessMemoryTest>>testItInterruptsAnImageThatIsNotResponding` is that, kept.
+
+What it does not yet do is **hold** the image there and let it go afterwards (#24): the watcher
+has to wait for something Polyphemus can release from outside, which is the next question.
