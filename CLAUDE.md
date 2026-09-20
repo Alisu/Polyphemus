@@ -238,6 +238,28 @@ Worth thinking about, not answered:
 - The free-list recovery work on the `recoveryFreeListV2` branch (issue #20) is the same
   problem from the other end.
 
+## Cog is the real case, and the split is not where it looks
+
+Every image anyone runs is run by **Cog**: every dump and every live process we have read is a
+Cog VM. The StackInterpreter is the simulator we host a *heap* in, not a VM anyone uses.
+
+The line that matters is not Cog against StackInterpreter, it is:
+
+- **The object memory is the same in both.** Spur is Spur, so VMMaker's memory manager, its
+  allocator, its stores, its collection and its image writer are reused whole, on a dump as on
+  an image file.
+- **The execution state is Cog's**: frames on stack pages, a code zone of CogMethods, machine
+  code pcs. There we reuse VMMaker's *descriptions* -- `CoInterpreter class>>initializeFrameIndices`,
+  `CogStackPageSurrogate64`, `CogMethodSurrogate64`, the Cogit's map -- through `OOPVMLayout`,
+  but not its engine, because a dump's frames and code zone are outside the simulator and
+  building a `CogVMSimulator` costs a native processor emulator and the frame-constants pool
+  (#23).
+
+So: anything about objects goes through VMMaker. Anything about frames or compiled code goes
+through the layout, which is Cog's for a dump or a live process and the StackInterpreter's for a
+snapshot opened in the simulator. Stage 3 (a live image) is where Cog's own machinery may be
+worth its cost; #23 holds what that would take.
+
 ## Working agreement
 
 - **Bugs go to GitHub issues** on `Alisu/Polyphemus` -- `gh` on the box is logged in as Alisu and the clone's default is the fork, so `gh issue create` never lands on hogoww's. A bug gets an issue first -- what fails,
