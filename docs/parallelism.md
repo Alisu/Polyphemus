@@ -359,3 +359,140 @@ of the interpreter would make the VM legible, and would let a tool like this one
 reimplement. For parallelism it changes the conclusion only by narrowing it: the collector is
 still the prize, marking is still the target, and the 148 stateless methods are the reason a
 parallel marker is feasible at all.
+
+## 9. How entangled, and how many pieces
+
+Section 8 found the seams. This asks the blunter question: if you pulled the shared state apart,
+how many independent pieces would there be? Measured by treating protocols as nodes, drawing an
+edge wherever two protocols touch the same instance variable, and counting connected components --
+then removing the most-shared variables one at a time to see what falls off.
+
+**`StackInterpreter` (880 methods, 106 ivars, 57 protocols)**
+
+| Variables removed | Pieces | Methods in the largest piece |
+|---|---|---|
+| 0 | 6 | **873** |
+| 1 | 17 | 833 |
+| 4 | 21 | 820 |
+| 10 | 22 | 783 |
+| 20 | 33 | **632** |
+
+**`SpurMemoryManager` (976 methods, 77 ivars, 59 protocols)**
+
+| Variables removed | Pieces | Methods in the largest piece |
+|---|---|---|
+| 0 | 17 | **828** |
+| 2 | 21 | 813 |
+| 8 | 27 | 785 |
+| 20 | 29 | **719** |
+
+The "pieces" counts flatter than they are: at zero removals the interpreter is *one blob of 873
+methods* with five satellites, and the memory manager is one blob of 828 with sixteen -- the
+sixteen being the stateless protocols of section 8. Removing the twenty most-shared variables from
+either class still leaves two thirds of it in a single piece.
+
+And the hub variables say why:
+
+| `StackInterpreter` | protocols touching it | | `SpurMemoryManager` | protocols |
+|---|---|---|---|---|
+| `objectMemory` | **46 of 57** | | `coInterpreter` | 26 |
+| `stackPointer` | 24 | | `scavenger` | 19 |
+| `framePointer` | 21 | | `endOfMemory` | 17 |
+| `stackPages` | 17 | | `segmentManager` | 16 |
+| `instructionPointer` | 17 | | `nilObj` | 16 |
+| `argumentCount` | 14 | | `freeStart` | 10 |
+| `stackPage` | 12 | | `totalFreeOldSpace` | 10 |
+| `newMethod`, `method`, `messageSelector` | 11 each | | `hiddenRootsObj` | 10 |
+
+These are not accidental couplings that a tidy-up would remove. They are the machine's registers
+and the heap's bounds. Every part of an interpreter touches the interpreter's registers; that is
+what an interpreter is. **The entanglement is essential, not accidental**, and no amount of moving
+variables partitions a state machine into independent pieces.
+
+So the realistic answer to "how many pieces" is not twenty or thirty classes. It is roughly **four
+to six extractable modules, all of them peripheral**:
+
+| Module | Methods | From |
+|---|---|---|
+| object representation algebra (stateless) | 148 | `SpurMemoryManager` |
+| debugging, printing, leak checking | ~205 | 122 interpreter + 83 memory manager |
+| simulation-only support | ~80 | 62 memory manager + 18 Cogit |
+| snapshot in and out | ~38 | 20 memory manager + 18 interpreter |
+| plugin/external primitive bridge | 26 | `StackInterpreter` |
+| frames and stack pages (arguable: narrow state, hot path) | 103 | `StackInterpreter` |
+
+What remains after those is an execution core of roughly 750 methods and a memory/GC core of
+roughly 800, and both stay monolithic because they are the state machine rather than services
+around it.
+
+## 10. Is it still only the collector?
+
+Yes -- and after section 9 for a better reason than "that is where the time is".
+
+**The structural reason.** The collector is the only major component whose work is
+*phase-structured* rather than *state-machine-structured*. Marking, sweeping and compacting are
+passes over a data structure: they have a beginning, an end, and a partitionable domain. Passes
+over data parallelise. Interpretation is a dependent sequence of operations over a register set,
+and a dependent sequence does not, no matter how it is refactored. That is the same fact that
+section 9 measured from the other side.
+
+**The measured reason**, now on ordinary Pharo work rather than on this tool's own workload. GC
+share of wall time, `cleanP10.image`, one fresh process:
+
+| Workload | Wall | Full GCs | in full GC | in scavenges | **GC share** |
+|---|---|---|---|---|---|
+| recompile `Collections-Sequenceable` | 173 ms | 0 | 0 ms | 1 ms | **0.6 %** |
+| recompile `Kernel` | 1,314 ms | 0 | 0 ms | 29 ms | **2.2 %** |
+| sort 2 M integers | 1,000 ms | 2 | 126 ms | 0 ms | **12.6 %** |
+| read every `Kernel` method's source | 101 ms | 0 | 0 ms | 45 ms | **44.6 %** |
+| build a `Dictionary` of 1 M associations | 640 ms | 2 | 210 ms | 108 ms | **49.7 %** |
+| **run the Collections test suite (64 classes)** | 3,995 ms | **61** | **2,326 ms** | 45 ms | **59.3 %** |
+| build a 20 MB `String` by streaming | 402 ms | 7 | 340 ms | 0 ms | **84.6 %** |
+| (Polyphemus reifying `cleanP10.image`, section 3) | 10,656 ms | 8 | 611 ms | 2,796 ms | 32.0 % |
+
+Two corrections to section 4 fall out of this.
+
+**Compilation is almost GC-free** -- 0.6 % and 2.2 %. The most characteristic Pharo activity
+allocates heavily but dies in eden, and the scavenger clears it in 29 ms out of 1,314. A concurrent
+collector would do nothing for a compile. So the case is not "Pharo spends its life in the
+collector".
+
+**Anything that builds long-lived structure is dominated by it**, and that includes running a test
+suite: 59.3 %, higher than this tool's own workload. That is the strongest single argument here,
+because running tests is the heavy thing a Pharo developer does most.
+
+But note *which* collections: 61 full GCs in 4 seconds, and 7 to build one 20 MB string. Those are
+driven by **old-space growth**, not by garbage density -- the VM is collecting because it is
+growing. So part of that 59 % and 85 % is reachable by tuning growth policy
+(`growHeadroom`, `shrinkThreshold`, `maxOldSpaceSize`) and costs no threading at all. Anyone
+betting on a concurrent collector should first find out how much of the pause is growth rather
+than garbage; it is the cheaper experiment and it has not been run.
+
+### Everything else, priced
+
+| Candidate | Measured cost | Verdict |
+|---|---|---|
+| collector | 0.6–85 % of wall, 59 % on a test suite | **the prize** |
+| ... its compaction phase | 353 ms of 608 ms of full GC (58 %) | the biggest slice, and the one needing a load barrier |
+| JIT code generation | not separately counted; code zone compacted **once** in a heavy run | no |
+| JIT code zone management | **669 µs** | no |
+| heap enumeration | **8 ms** per full scan of 113.8 MB | no (section 8) |
+| writing a snapshot | 60 MB image: **~70–150 ms** (0.22 s vs 0.15 s to start and exit) | no, and `fork()` would make it free |
+| event polling | already only runs when the image would idle; `statIdleUsecs` accounts for it | already off the path |
+| FFI | already threaded, one OS thread per `TFWorker` | done |
+| several interpreters | speeds up no single program; section 2(b) is the bill | no |
+
+### What Spur already has for it, and what it lacks
+
+Two of the three things a concurrent collector needs are in the VM:
+
+- a **write barrier** -- the scavenger's remembered set, maintained on every store to an old object;
+- the **relocation primitive** -- forwarders, with `followForwarded:`, `isForwarded:`,
+  `isUnambiguouslyForwarder:`, `followForwardedObjectFields:toDepth:`,
+  `followForwardingPointersInStackZone:`, and a `forwardedFormat`. Brooks pointers are essentially
+  this, and `forwarding` is one of the stateless protocols of section 8.
+
+What is missing is the **load barrier**: the guarantee that every read follows a forwarder, rather
+than the specific points Spur follows them at today. And emitting that barrier is the **Cogit's**
+job, not the memory manager's. Which lands on the most expensive phase: parallel *marking* is
+reachable with what Spur has; concurrent *relocation* is a JIT project as much as a GC one.
