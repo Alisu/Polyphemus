@@ -16,17 +16,17 @@ contextFor: aFrame sender: aSenderOop
 		^ self error: 'the frame at ' , aFrame framePointer printStringHex , ' has no pc' ].
 	context := self contextOf: aFrame holding: stackp.
 	memory
-		storePointerUnchecked: 0 ofObject: context withValue: aSenderOop;
-		storePointerUnchecked: 1 ofObject: context withValue: (memory integerObjectOf: aFrame pc);
-		storePointerUnchecked: 2 ofObject: context withValue: (memory integerObjectOf: stackp);
-		storePointerUnchecked: 3 ofObject: context withValue: aFrame compiledCode address;
-		storePointerUnchecked: 4
+		storePointer: 0 ofObject: context withValue: aSenderOop;
+		storePointer: 1 ofObject: context withValue: (memory integerObjectOf: aFrame pc);
+		storePointer: 2 ofObject: context withValue: (memory integerObjectOf: stackp);
+		storePointer: 3 ofObject: context withValue: aFrame compiledCode address;
+		storePointer: 4
 		ofObject: context
 		withValue: (aFrame closureOrNil ifNil: [ memory nilObject ] ifNotNil: [ :closure | closure address ]);
-		storePointerUnchecked: 5 ofObject: context withValue: aFrame oopReceiver address.
+		storePointer: 5 ofObject: context withValue: aFrame oopReceiver address.
 	1 to: (memory numSlotsOf: context) - 6 do: [ :each |
 		memory
-			storePointerUnchecked: each + 5
+			storePointer: each + 5
 			ofObject: context
 			withValue: (each <= stackp
 					 ifTrue: [ words at: each ]

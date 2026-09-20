@@ -5,10 +5,6 @@ writtenFrom: aDumpedMemory
 	first: writing it changes the memory the fixture shares -- frames become contexts in it."
 
 	^ Written ifNil: [
-		  Frames := (StackOfADumpTest memory allReifiedProcesses
-			             inject: 0
-			             into: [ :all :process |
-				             all + ((StackOfADumpTest memory activationsOfProcess: process) select: [ :each |
-						              each isStackFrame ]) size ]).
+		  Stacks := self stacksOf: StackOfADumpTest memory.
 		  Written := (SpurImageFromDump on: aDumpedMemory) writeTo:
 			             FileLocator temp / 'polyphemus-from-dump.image' ]

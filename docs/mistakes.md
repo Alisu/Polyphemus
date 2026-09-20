@@ -88,6 +88,16 @@ gone, and the decompiler calls the temporaries `arg1` and `tmp1`. Analysing that
 variables nobody ever wrote.
 → Analyse **real source only** (`getSourceFromFile`), and answer nothing when there is none.
 
+**Reading the dump's bytes after writing to VMMaker's memory.** Writing an image from a dump
+happens in two memories at once: `SpurRawHeap` answers the bytes the dump file holds, and
+`dumped memory` is the VMMaker memory they were copied into. Every pass writes to the second.
+`bereaveWidowedContexts` read the first: it looked for contexts whose sender is a frame pointer,
+found the ones `divorceFrames` had just given a sender of their own -- still married in the
+bytes -- and nilled it. Fourteen thousand contexts were bereaved, every stack in the written
+image was one deep, and the frames looked lost in the collection.
+→ After the first write to `dumped memory`, read from it: `classIndexOf:`, `fetchPointer:`,
+`allObjectsDo:`. The raw heap is for what the dump alone knows, before any pass has written.
+
 ## Reusing what already exists
 
 **Re-deriving the method trailer.** Several probes went into working out how to decode a

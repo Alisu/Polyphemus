@@ -384,26 +384,34 @@ thread's `rbp`/`rsp`. So check a saved register against the frames before believ
 
 ## Writing an image from a dump
 
-`SpurImageFromDump` writes a dump's old space out as an image file, through **VMMaker's own
-`SpurImageWriter`**. What a dump does not carry, the dumped VM's variables do: `lastHash`,
-`imageHeaderFlags`, `extraVMMemory`, `preemptionYields`, the eden size, the stack page count.
-A dump-built memory has no segments either, so old space is described as the one segment an
-image holds, from `oldSpaceStart` to the VM's `freeOldSpaceStart` (what `SpurRawHeap` calls
-`liveEnd`), and VMMaker plants the bridge that ends it.
+`SpurImageFromDump` writes a dump out as an image file a virtual machine starts, through
+**VMMaker's own `SpurImageWriter`** and **`garbageCollectForSnapshot`**. What a dump does not
+carry, the dumped VM's variables do: `lastHash`, `imageHeaderFlags`, `extraVMMemory`,
+`preemptionYields`, the eden size, the stack page count. A dump-built memory has no segments
+either, so old space is described as the one segment an image holds and VMMaker plants the
+bridge that ends it.
 
-A walk of a dump runs *past* that point, into memory that never held an object, so the count to
-compare against is the objects below `liveEnd`. The written file holds one more: the bridge.
+The passes `writeTo:` runs are the ones a snapshot does for itself:
 
-**What it is not yet.** The heap is written as the dump has it, so the file is read by our own
-readers but is not a snapshot a VM can start:
+| Pass | What it does | What a snapshot calls it |
+|---|---|---|
+| `restoreJittedHeaders` | puts a jitted method's header back where Cog left a CogMethod (#3) | `CogMethodZone>>freeMethod:` |
+| `prepareMemory` | segments, free lists, stack pages, new space and the remembered set as VMMaker expects to find them | reading an image |
+| `divorceFrames` | every frame becomes a context, the newest of them the process's | `divorceAllFrames` |
+| `bereaveWidowedContexts` | a context whose frame is gone names none | `bereaveAllMarriedContextsForSnapshotFlushingExternalPrimitivesIf:` |
+| `collect` | new space flushed into old, the unreachable freed, the segment settled | `garbageCollectForSnapshot` |
 
-| Left to do | Why |
-|---|---|
-| Methods Cog compiled hold a CogMethod where their header belongs (#3) | A garbage collection would follow it into the code zone |
-| Contexts married to frames still name frames | An image file holds no stack pages: every frame must become a context |
-| New space is not written | `garbageCollectForSnapshot` does this: `flushNewSpace`, "There is no place to put newSpace in the snapshot file" |
-| The free lists describe the dump's trailing free space (`#chunkOutsideTheHeap`) | `segmentManager prepareForSnapshot` settles it, after a real collection |
+**Objects move.** The collection frees what the dump could not reach and compacts the rest, so
+the file holds fewer objects than a walk of the dump's old space counts, and only the processes
+that were really alive -- 11 of the 17 a walk finds on the real core. Those keep what they had:
+read the file back and every process is one of the dump's, by name and by the depth of its
+stack (`Morphic UI Process` 12 deep, `CommandLine handler process` 13, `Calypso update` 7).
 
-The last two are VMMaker's `garbageCollectForSnapshot`, which we can call once the first two are
-repaired: a GC must not meet a CogMethod in a header, and frames only exist in the dump.
+**Two memories, one dump.** `SpurRawHeap` answers the bytes the dump holds; `dumped memory` is
+the VMMaker memory they were copied into, and every pass writes to that one. After the first
+write, read from it too -- see `mistakes.md`, where reading the stale bytes cost every stack in
+the written image.
 
+The file is read back by the same readers a real image gets, with no rung refused, and the
+virtual machine running these tests loads it and goes on running it -- silently, it being the
+idle process the dumped machine was in (`SpurImageFromDumpTest`).
