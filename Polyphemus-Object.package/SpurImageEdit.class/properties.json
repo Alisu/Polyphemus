@@ -1,15 +1,17 @@
 {
-	"commentStamp" : "",
-	"super" : "Object",
-	"category" : "Polyphemus-Object-dump",
-	"classinstvars" : [ ],
-	"pools" : [ ],
-	"classvars" : [ ],
-	"instvars" : [
+	"commentStamp": "",
+	"super": "Object",
+	"category": "Polyphemus-Object-dump",
+	"classinstvars": [],
+	"pools": [],
+	"classvars": [],
+	"instvars": [
 		"file",
 		"bytes",
-		"raw"
+		"raw",
+		"reading",
+		"shift"
 	],
-	"name" : "SpurImageEdit",
-	"type" : "normal"
+	"name": "SpurImageEdit",
+	"type": "normal"
 }
