@@ -1,0 +1,1 @@
+Writing an image file from a core dump: the heap as it was, with the header a dump never carried, read back with the same readers a real image gets. Skips without a core (see SpurDumpedMemoryTest>>dumpFile).

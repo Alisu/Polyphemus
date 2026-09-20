@@ -1,0 +1,16 @@
+{
+	"commentStamp": "",
+	"super": "TestCase",
+	"category": "Polyphemus-Tests",
+	"classinstvars": [
+	 "Written"
+	],
+	"pools": [],
+	"classvars": [],
+	"instvars": [
+	 "raw",
+	 "dumped"
+	],
+	"name": "SpurImageFromDumpTest",
+	"type": "normal"
+}

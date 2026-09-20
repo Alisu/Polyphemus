@@ -199,7 +199,11 @@ The order of what remains, decided rather than assumed:
 4. **Editing and writing back** -- unparked 2026-09-19. **a. Done:** `SpurImageEdit` edits an
    image file's objects in a copy of its bytes, addressed as its heap addresses them, and writes
    the copy out. Repairing the blanked-context fixture's slot with the clean image's word gives
-   back the clean file byte for byte. **b. Next:** write a loadable image from a core dump --
+   back the clean file byte for byte. **b. Started:** `SpurImageFromDump` writes the dump's old space as an image file through
+   VMMaker's own writer, read back by our readers (`docs/reading-a-dump.md`). Left, in order:
+   restore jitted headers, divorce frames into contexts, then VMMaker's `garbageCollectForSnapshot`
+   (which flushes new space and settles the free lists) before writing. The original plan said:
+   write a loadable image from a core dump --
    frames divorced into contexts (JIT pcs through Cog's map), jitted method headers restored
    from their CogMethods, eden kept, header and segments as `SpurImageFile` reads them. The C
    stack (#18) and jitted code (#19) are shown, never edited: the JIT regenerates machine code.
