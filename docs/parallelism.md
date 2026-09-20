@@ -242,3 +242,120 @@ symbol name through `VMVariables>>addressOf:` with the build id checked -- `stat
 the shared object declares.
 
 So the tool can measure a VM that will not report on itself. Any VM global is fair game by name.
+
+## 8. Breaking the god classes down, and what that reveals
+
+`StackInterpreter` and `SpurMemoryManager` are god classes, and the question is whether the
+breakdown exposes parallelisation candidates the component list in section 1 hides. It does, but
+not the ones expected -- and one of them turned out not to be worth it, which is recorded here
+because measuring it is the only reason we know.
+
+Measured by asking, for every method, which instance variables it reads or writes
+(`CompiledMethod>>readsField:`/`writesField:`), then grouping by VMMaker's own method protocols.
+
+| Class | Methods | Ivars | Protocols | Ivars only one protocol touches | Ivars its own methods never touch |
+|---|---|---|---|---|---|
+| `StackInterpreter` | 880 | 106 | 57 | 28 | 4 |
+| `CoInterpreter` | 352 | 128 | 37 | 23 | 66 |
+| `SpurMemoryManager` | 976 | 77 | 59 | 6 | 0 |
+| `StackToRegisterMappingCogit` | 245 | 187 | 22 | 27 | 118 |
+
+### The memory manager splits cleanly; the interpreter does not
+
+**`SpurMemoryManager` has 148 methods that touch no instance variable at all** -- pure functions
+over an address or a header word:
+
+| Protocol | Methods |
+|---|---|
+| header access | 28 |
+| header format | 27 |
+| header formats | 24 |
+| ffi - helpers | 12 |
+| class table puns | 11 |
+| object format | 10 |
+| forwarding | 9 |
+| immediates | 7 |
+| heap management | 6 |
+| word size | 4 |
+
+That is the object-representation algebra -- header decoding, format predicates, tagging,
+forwarding tests -- and it is **already stateless**. It is the first thing to extract, it makes
+everything above it testable without a heap, and it is what any parallel worker needs to be able
+to call safely. This matters more than it looks: the enabling condition for threading a GC phase
+is that the phase's helpers have no shared mutable state, and here a sixth of the memory manager
+already satisfies it.
+
+Then come services whose state is narrow, each a plausible class:
+
+| Protocol | Methods | Ivars touched |
+|---|---|---|
+| object access | 63 | 4 |
+| object testing | 58 | 8 |
+| free space | 61 | 13 |
+| object enumeration | 40 | 10 |
+| interpreter access | 36 | 4 |
+| obj stacks | 33 | 10 |
+| class table | 27 | 8 |
+| allocation | 23 | 7 |
+| snapshot | 20 | 14 |
+| become implementation | 16 | 7 |
+| weakness and ephemerality | 16 | 7 |
+| instantiation | 13 | 2 |
+
+And the part that resists: `accessing` (102 methods, **53** of the 77 ivars), `gc - global` (24
+methods, **33** ivars), `gc - scavenging` (15 methods, 22 ivars). Ivar fan-out confirms it -- most
+ivars are touched by two to five protocols, and three of them by ten. So the collector core is the
+most entangled region of the most splittable class, which tempers section 4: parallelising marking
+is the right target, but marking reaches a third of the memory manager's state.
+
+**`StackInterpreter` has only 4 pure methods**, and its state does not cluster: `initialization`
+alone touches 53 of 106 ivars. What it has instead is behavioural seams:
+
+| Cluster | Protocols | Methods |
+|---|---|---|
+| execution engine | stack / return / jump / send / sista bytecodes, common selector sends | 163 |
+| frames and stack pages | frame access (80, 8 ivars), stack pages (23, 8 ivars) | 103 |
+| debugging | debug printing (82, 16 ivars), debug support (40, 16 ivars) | 122 |
+| primitive dispatch | primitive support, indexing primitive support | 57 |
+| plugin bridge | plugin primitive support | 26 |
+| scheduler | process primitive support (27, 22 ivars) | 27 |
+| image in and out | image save/restore | 18 |
+
+The debugging surface is the largest single block and the cheapest to move: 122 methods on 16
+ivars, none of it on any hot path. `frames and stack pages` is the next cleanest -- 103 methods on
+about 8 ivars -- and it happens to be exactly the region Polyphemus reimplements from outside.
+
+### The candidate this raised, priced, and rejected
+
+`object enumeration` (40 methods) looked like the find: `allObjects`, `allInstancesOf:`,
+`objectsReachableFromRoots:`, `nextObject`, `printReferencesTo:` are stop-the-world **linear walks
+over old space**, which is the textbook embarrassingly-parallel shape, splittable by segment, and
+resting entirely on the stateless layer above.
+
+Priced on the host image (113.8 MB of old space):
+
+| | |
+|---|---|
+| `Array allInstances` (a full heap scan) | **8 ms**, 169,486 found |
+| `CompiledMethod allInstances` | **8 ms**, 152,532 found |
+| a warm full GC on the same heap | **52 ms** |
+
+**8 ms.** Splitting it four ways saves six milliseconds, against a collector costing 52 ms on the
+same heap and 611 ms across the reification workload. So it is not worth threading inside the VM,
+and the candidate is withdrawn. It is recorded because the shape was convincing and only the
+measurement said otherwise.
+
+Where that work *is* worth parallelising is one level up: Polyphemus' own walk of a foreign heap
+reads 844,507 objects through `/proc/<pid>/mem` and is the bulk of the 10.7 s reification (the
+collector accounts for 3.4 s of it). That is our Smalltalk, not the VM's C, and the parallelism
+available to it is the one that already works here -- several processes over disjoint address
+ranges.
+
+### What the breakdown is worth, then
+
+Two things, and threading is the smaller of them. The extraction is worth doing for its own sake:
+a stateless representation layer, a frame/stack component, and 122 methods of debugging lifted out
+of the interpreter would make the VM legible, and would let a tool like this one reuse rather than
+reimplement. For parallelism it changes the conclusion only by narrowing it: the collector is
+still the prize, marking is still the target, and the 148 stateless methods are the reason a
+parallel marker is feasible at all.
