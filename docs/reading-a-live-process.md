@@ -282,5 +282,30 @@ On a target spinning at priority 40, with a watcher at 70 on special objects slo
 watcher ran **within 100 ms** of the write, and the VM had cleared `interruptPending` itself.
 `LinuxProcessMemoryTest>>testItInterruptsAnImageThatIsNotResponding` is that, kept.
 
-What it does not yet do is **hold** the image there and let it go afterwards (#24): the watcher
-has to wait for something Polyphemus can release from outside, which is the next question.
+## Holding it there, and letting it go
+
+Interrupting is half of it. To read an image at leisure it has to *stay* where it was put, and a
+semaphore cannot be signalled from outside: the process waiting on one is in its queue, and
+nothing looks at that queue again until the image itself signals or waits.
+
+What works is a word the image watches and we can find without searching. The semaphore the VM
+signals is special objects slot 31, and its third instance variable is `excessSignals`, so:
+
+- the watcher, once signalled, **holds without yielding**: `[ (interrupt instVarAt: 3) > 0 ]
+  whileFalse: [ ]`, a loop that allocates nothing, at a priority above the wedged process;
+- Polyphemus reads the heap while it is held, stopping it with SIGSTOP as usual;
+- to let it go, it writes one SmallInteger into that slot -- `1 * 8 + 1`, the value shifted
+  three bits with the tag -- and the watcher's next turn round the loop sees it.
+
+Measured on a target spinning at priority 40: held immediately, **844,508 objects walked with no
+rung refused and the free lists intact**, released the moment the word changed, and spinning
+again afterwards. `LinuxProcessMemoryTest>>testItHoldsAWedgedImageStillAndThenLetsItGo`.
+
+**Use `instVarAt:`, not an accessor.** `Semaphore` has no `excessSignals` method, and the
+watcher's DNU killed it silently in a headless image -- which looked exactly like the release
+not arriving.
+
+**The image has to carry the watcher.** Signalling the interrupt semaphore of an image that
+knows nothing of Polyphemus reaches whatever *it* has on that semaphore, not us. For the
+instances we launch, that is no limitation: they load Polyphemus, as they already consent to
+being read through `bin/pharo-debuggable`.
