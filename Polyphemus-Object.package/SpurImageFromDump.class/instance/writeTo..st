@@ -6,7 +6,11 @@ writeTo: aPath
 
 	self prepareInterpreter.
 	self restoreJittedHeaders.
-	self describeOldSpaceAsOneSegment.
+	self describeOldSpaceUpTo: dumped raw mappingLimit plantingBridge: false.
+	self divorceFrames.
+	self
+		describeOldSpaceUpTo: dumped memory freeOldSpaceStart + dumped memory bridgeSize
+		plantingBridge: true.
 	dumped interpreter imageName: aPath asFileReference fullName.
 	dumped interpreter writeImageFileIO.
 	^ aPath asFileReference

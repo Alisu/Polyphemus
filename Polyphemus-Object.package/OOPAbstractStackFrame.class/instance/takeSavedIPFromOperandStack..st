@@ -6,4 +6,5 @@ takeSavedIPFromOperandStack: aFrameAbove
 
 	operandStack ifNotEmpty: [
 		savedIP := self layout wordAt: aFrameAbove framePointer + memory wordSize.
-		operandStack removeLast ]
+		operandStack removeLast.
+		stackWords removeLast ]

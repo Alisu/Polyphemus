@@ -1,8 +1,7 @@
 context protocol
 closureOrNil
 
-	"The closure a block activation is running. A frame says whether it is running one
-	through its flags; reading the closure itself out of the frame is not done yet, so a
-	block frame answers nil rather than something invented."
+	"The closure a block activation is running, read where its layout keeps it; nil for a
+	method activation, and where the layout cannot read it."
 
-	^ nil
+	^ [ self layout closureOf: framePointer ] on: Error do: [ :e | nil ]

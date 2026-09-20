@@ -1,20 +1,21 @@
 {
-	"commentStamp" : "",
-	"super" : "Object",
-	"category" : "Polyphemus-Object-oop-stack",
-	"classinstvars" : [ ],
-	"pools" : [ ],
-	"classvars" : [ ],
-	"instvars" : [
-		"method",
-		"flags",
-		"context",
-		"receiver",
-		"operandStack",
-		"memory",
-		"framePointer",
-		"savedIP"
+	"commentStamp": "",
+	"super": "Object",
+	"category": "Polyphemus-Object-oop-stack",
+	"classinstvars": [],
+	"pools": [],
+	"classvars": [],
+	"instvars": [
+	 "method",
+	 "flags",
+	 "context",
+	 "receiver",
+	 "operandStack",
+	 "memory",
+	 "framePointer",
+	 "savedIP",
+	 "stackWords"
 	],
-	"name" : "OOPAbstractStackFrame",
-	"type" : "normal"
+	"name": "OOPAbstractStackFrame",
+	"type": "normal"
 }

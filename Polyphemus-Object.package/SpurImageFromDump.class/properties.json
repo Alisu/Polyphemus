@@ -1,13 +1,15 @@
 {
-	"commentStamp" : "",
-	"super" : "Object",
-	"category" : "Polyphemus-Object-dump",
-	"classinstvars" : [ ],
-	"pools" : [ ],
-	"classvars" : [ ],
-	"instvars" : [
-		"dumped"
+	"commentStamp": "",
+	"super": "Object",
+	"category": "Polyphemus-Object-dump",
+	"classinstvars": [],
+	"pools": [],
+	"classvars": [],
+	"instvars": [
+	 "dumped",
+	 "reified",
+	 "contextLikeness"
 	],
-	"name" : "SpurImageFromDump",
-	"type" : "normal"
+	"name": "SpurImageFromDump",
+	"type": "normal"
 }

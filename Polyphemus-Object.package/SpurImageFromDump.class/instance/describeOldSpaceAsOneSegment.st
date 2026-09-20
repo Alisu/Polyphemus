@@ -8,7 +8,9 @@ describeOldSpaceAsOneSegment
 	| memory manager end |
 	memory := dumped memory.
 	manager := memory segmentManager.
-	end := dumped raw liveEnd + memory bridgeSize.
+	"Past the last object, which is where the memory allocates next: contexts made for frames
+	are there too."
+	end := memory freeOldSpaceStart + memory bridgeSize.
 	memory endOfMemory: end.
 	manager clearSegments; allocateOrExtendSegmentInfos.
 	manager withNewSegmentDo: [ :segment |
