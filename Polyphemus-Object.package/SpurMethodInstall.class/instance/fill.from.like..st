@@ -7,4 +7,4 @@ fill: anOop from: aCompilation like: aReifiedMethod
 		  fill: anOop
 		  from: aCompilation
 		  withLiterals: ((1 to: aCompilation numLiterals) collect: [ :each |
-				   memory fetchPointer: each ofObject: aReifiedMethod address ])
+				   self slot: each of: aReifiedMethod address ])

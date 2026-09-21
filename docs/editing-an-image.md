@@ -206,9 +206,13 @@ Integer flushCache. Smalltalk garbageCollect. "...then answer 3 reset"
 so the image forgets its cached lookups, collects its garbage -- where a pointer we failed to
 remember would be lost -- and only then calls the method. It answers **42**, and goes on running.
 
-What is refused: a literal needing room of its own. Making an object in a running image is one
-thing; making its literals there is the same work again, and a symbol it does not already hold
-would have to be interned in its table with the same care.
+Its literals are made the same way, in eden beside it -- strings, arrays, blocks, large integers,
+all of them. What a new method names is therefore no longer a reason to refuse it.
+
+**The trap that cost the afternoon:** a header holds a class's **hash**, and `oopClassIndex` is
+that plus one, the class table counting from one. Objects made with the index were given the next
+class along, which nothing noticed until a live image was asked for one's class and died. See
+`mistakes.md`.
 
 ## The method the machine compiled
 

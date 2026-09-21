@@ -8,9 +8,8 @@ selectorOf: aCompilation keeping: aReifiedMethod
 	| literal |
 	literal := aCompilation literalAt: aCompilation numLiterals - 1.
 	literal isSymbol ifTrue: [ ^ self intern: literal asString ].
-	aCompilation pragmas asArray printString
-	= (self pragmasOf: aReifiedMethod) ifFalse: [
+	aCompilation pragmas asArray printString = (self pragmasOf: aReifiedMethod) ifFalse: [
 		^ self error: 'the pragmas of that method would have to be made in the image' ].
-	^ memory
-		  fetchPointer: (reading literalCountOf: aReifiedMethod address) - 1
-		  ofObject: aReifiedMethod address
+	^ self
+		  slot: (reading literalCountOf: aReifiedMethod address) - 1
+		  of: aReifiedMethod address

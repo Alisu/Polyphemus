@@ -1,13 +1,12 @@
 {
 	"commentStamp": "",
-	"super": "Object",
+	"super": "SpurMethodInstall",
 	"category": "Polyphemus-Object-dump",
 	"classinstvars": [],
 	"pools": [],
 	"classvars": [],
 	"instvars": [
 		"process",
-		"reading",
 		"variables"
 	],
 	"name": "SpurProcessInstall",

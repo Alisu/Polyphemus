@@ -109,6 +109,20 @@ not load.
 fixture, in a directory of its own so the Iceberg cache is its own too. `bin/check-newcomer.sh`
 does it.
 
+**Writing a class table index where a header wants a class's hash.** An object's header holds the
+class's **hash**; `OOPAbstractClass>>oopClassIndex` is that plus one, because the class table
+counts its slots from one. Every object the installer made was therefore given the *next class
+along*: a string became some other byte class, and the running image died the moment anything
+asked what it was -- not on the string, not on the method, but later, in whatever walked it.
+
+It hid for a while because nothing noticed. A mis-classed string still answers `size`, since the
+machine reads that from the header's slots and format; the file-side tests installed one, ran it,
+and passed. An array made the same way answered `size` too. Only a live image, asked for the
+object's *class*, went down.
+→ A header takes `aClass oopHash`. Where an installer needs a class, prove it against a real
+instance of that class in the same image: `(reader unsignedAt: instance address size: 8) bitAnd:
+16r3FFFFF`, and compare.
+
 ## Reusing what already exists
 
 **Re-deriving the method trailer.** Several probes went into working out how to decode a

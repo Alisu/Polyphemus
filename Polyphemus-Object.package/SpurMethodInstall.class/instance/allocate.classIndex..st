@@ -7,7 +7,7 @@ allocate: aCompilation classIndex: anIndex
 	| total |
 	total := 8 + (aCompilation numLiterals * 8)
 	         + (aCompilation size - aCompilation initialPC + 1).
-	^ memory
-		  allocateSlotsInOldSpace: total + 7 // 8
+	^ self
+		  allocateSlots: total + 7 // 8
 		  format: 24 + (8 - (total \\ 8) \\ 8)
 		  classIndex: anIndex

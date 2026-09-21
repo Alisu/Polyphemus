@@ -6,11 +6,8 @@ allocateSymbol: aString
 	later would leave the method where no lookup goes."
 
 	| oop |
-	oop := memory
-		       allocateSlotsInOldSpace: aString size + 7 // 8
-		       format: 16 + (8 - (aString size \\ 8) \\ 8)
-		       classIndex: self classIndexOfSymbols.
+	oop := self allocateBytesOfSymbolClass: aString size.
 	1 to: aString size do: [ :each |
-		memory byteAt: oop + 8 + each - 1 put: (aString at: each) asInteger ].
-	memory setHashBitsOf: oop to: (1 max: (aString hash bitAnd: 16r3FFFFF)).
+		self byteAt: oop + 8 + each - 1 put: (aString at: each) asInteger ].
+	self setHashOf: oop to: (1 max: (aString hash bitAnd: 16r3FFFFF)).
 	^ oop

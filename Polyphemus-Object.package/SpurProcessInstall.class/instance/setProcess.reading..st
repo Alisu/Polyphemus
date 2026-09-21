@@ -2,5 +2,5 @@ initialization
 setProcess: aProcessMemory reading: aReifiedMemory
 
 	process := aProcessMemory.
-	reading := aReifiedMemory.
-	variables := VMVariables on: aProcessMemory
+	variables := VMVariables on: aProcessMemory.
+	self setReading: aReifiedMemory

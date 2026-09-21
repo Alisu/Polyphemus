@@ -6,13 +6,10 @@ fill: anOop from: aCompilation withLiterals: anArray
 
 	| literals |
 	literals := aCompilation numLiterals.
-	memory
-		storePointerUnchecked: 0
-		ofObject: anOop
-		withValue: (memory integerObjectOf: aCompilation header).
+	self slot: 0 of: anOop put: (self smallIntegerOop: aCompilation header).
 	1 to: literals do: [ :each |
-		memory storePointerUnchecked: each ofObject: anOop withValue: (anArray at: each) ].
+		self slot: each of: anOop put: (anArray at: each) ].
 	aCompilation initialPC to: aCompilation size do: [ :each |
-		memory
+		self
 			byteAt: anOop + 8 + (literals + 1 * 8) + (each - aCompilation initialPC)
 			put: (aCompilation at: each) ]
