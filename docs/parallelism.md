@@ -764,3 +764,62 @@ four effective cores:
 | recompiling `Kernel` | 1,314 ms | 29 ms | ~1,292 ms | **2 %** |
 
 Those are ceilings, not estimates, and they are the numbers any of this should be held to.
+
+## 16. Optimise first: tuning gets what parallelism would, for free
+
+Asked before starting stage 2, and the answer changes the plan. The pinned VM accepts
+**`--edenSize=<size>[mk]`** (in `--help`, parsed by `processEdenSizeOption`), so the nursery is
+tunable with no rebuild. Default here is **16,748,256 bytes**, about 16 MB.
+
+Three workloads, three eden sizes, same pinned VM:
+
+| Workload | eden | Wall | Full GC | Scavenges | Scavenging | Tenures | GC share |
+|---|---|---|---|---|---|---|---|
+| reify `cleanP10.image` | 15 MB | 14,208 ms | 8 (680 ms) | 647 | **3,286 ms** | 891,507 | 27.9 % |
+| | 46 MB | 12,500 ms | 9 (798 ms) | 210 | **1,312 ms** | 662,906 | 16.9 % |
+| | 138 MB | 13,254 ms | 9 (782 ms) | 69 | **897 ms** | **0** | **12.7 %** |
+| `Dictionary` of 1 M | 15 MB | 896 ms | 2 (259 ms) | 2 | 123 ms | 1,257,601 | 42.6 % |
+| | 46 MB | 873 ms | 1 (208 ms) | 1 | 135 ms | 1,069,791 | 39.3 % |
+| | 138 MB | **676 ms** | 1 (174 ms) | 0 | 0 ms | **0** | **25.7 %** |
+| Collections suite, 57 classes | 15 MB | 2,186 ms | 20 (830 ms) | 25 | 17 ms | 0 | 38.7 % |
+| | 46 MB | 2,309 ms | 20 (1,001 ms) | 8 | 6 ms | 0 | 43.6 % |
+| | 138 MB | 1,898 ms | 20 (811 ms) | 2 | 3 ms | 0 | 42.9 % |
+
+**Scavenging on the reification workload falls from 3,286 ms to 897 ms -- 3.7x -- from a command
+line flag.** A perfectly parallel scavenger on this box's measured ~4x plateau would have taken the
+same 3,286 ms to about 822 ms. The flag gets what the VM project would have got.
+
+Tenuring collapses to zero at 138 MB, which is the mechanism: a bigger nursery lets objects die
+before they are promoted, so the scavenger stops copying survivors and old space stops growing.
+891,507 tenures to none.
+
+Per-scavenge cost rises with eden (5.1 ms to 13.0 ms on reify, 0.68 ms to 1.5 ms on the suite) but
+there are far fewer, so the total falls.
+
+**Caveats, stated because they bound what the table can be used for.** Wall time on this box is
+noisy -- the same reification workload measured 10,725 ms in section 11 and 14,208 ms here at the
+same settings, because the box shares with an Android emulator -- so read the GC counters, not the
+wall. And a bigger eden is not monotonically better: 46 MB gave the best reify wall, 138 MB the best
+GC share. There is a locality cost the counters do not show.
+
+**Root table overflows were 0 in every run**, so the remembered set is not a pathology here. Ruled
+out rather than assumed.
+
+### What this does to the plan
+
+| Step | Cost | What it gets | Status |
+|---|---|---|---|
+| `--edenSize` | a flag | scavenging 3.7x down; a workload 25 % faster; tenuring to zero | **do first** |
+| `growHeadroom` / `shrinkThreshold` | two runtime parameters | one workload 85 % GC to 0 %, 5x faster (section 11) | **do first** |
+| find the suite's 20 full GCs | investigation | unaffected by eden *and* by growth, and now the dominant remaining cost | **do next** |
+| `SpurSelectiveCompactor` | a VM build | the 58 % of full-GC time that is compaction | untested |
+| **stage 2, parallel marking** | a CAS primitive + per-worker mark stacks | full GC survives all the tuning above: still 20 full GCs and ~800 ms in the suite | **still justified** |
+| **stage 3, parallel scavenger** | the hardest of the parallel work | after tuning, scavenging is 897 ms of a ~13 s workload, ~7 %; parallelising that 4x saves ~5 % of wall | **demoted** |
+
+So stage 3 does not survive its own measurement, and should not be started. Full GC does survive:
+every workload above still shows 20 full GCs in the suite and 8 or 9 in the reification, unchanged by
+eden and by growth headroom. Marking and compaction are therefore where the remaining collector
+time lives, which keeps stage 2 and makes stage 1's compactor experiment the more urgent of the two.
+
+The general lesson, and the reason this section exists before any VM work: **reducing the work beats
+parallelising it**, and here the reduction was a flag that nobody had set.
