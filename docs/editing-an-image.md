@@ -61,11 +61,52 @@ The image is written by VMMaker's writer, through `memory coInterpreter writeIma
 would not survive one multiplication. A virtual machine runs the written image and answers
 `6 * 7 * 1000000000000 * 1000000000000` with 42 followed by twenty-four zeros.
 
+## Rung 3: a method the class never had
+
+A new method needs literals of its own. A compiled method ends with its selector and the binding
+of the class it was compiled in, so the binding is taken from a method that class already has --
+every one of them ends with it -- and before those, only what can be made here: a SmallInteger,
+a Character. Anything else has to be found in the image.
+
+The dictionary entry goes where `MethodDictionary>>scanFor:` will look for it: from the
+selector's **identity** hash, `(basicIdentityHash \\ array size) + 1`, on to the first free slot.
+The selectors are the dictionary's own indexable slots and the methods are in its array, paired
+by index -- selector at dictionary slot `2 + i` with method at array slot `i`, the two named
+slots being the tally and the array itself (#28 was exactly this confusion). A dictionary that
+would have to grow is refused rather than grown.
+
+`Integer` was given `#reset`, which no integer understood: a machine said "did not understand"
+before and answered 42 after.
+
+## Interning a symbol the image does not hold
+
+A symbol table is a `WeakSet` in `Symbol`'s class pool, and an empty slot there holds its **flag**
+object rather than nil -- nil means a symbol the collector took. A symbol hashes **by its
+characters** (`Symbol>>hash` is `String>>hash`), so a name hashes the same here as there, and
+`Symbol class>>lookup:` scans from `(hash \\ array size) + 1`.
+
+So Polyphemus scans that table itself and answers either the image's symbol or the slot the scan
+would stop at. A new one is a byte object of the class the image's own symbols have, holding the
+characters, with **its identity hash set here** -- a method dictionary is placed by that hash,
+and one the machine assigned later would leave the method where no lookup goes.
+
+Checked on the pinned Pharo 10: `polyphemusZork` was absent, its slot would be 4666, and after
+installing it is there. A machine running the written image answers `#(42 true true)` to
+
+```smalltalk
+{ 3 polyphemusZork.
+  (Integer >> #polyphemusZork) selector == #polyphemusZork.
+  #polyphemusZork == 'polyphemusZork' asSymbol }
+```
+
+The last of those is the one that matters: the image interned the name itself and found **ours**,
+not a second symbol beside it.
+
 ## What is not done
 
 | Left | Why |
 |---|---|
-| A literal the image does not hold | interning a new symbol means placing it in the target's own symbol table |
-| A new selector | the method dictionary has to grow, which is more than one store |
+| A literal that is not a symbol, a SmallInteger or a Character | a string, an array, a float has to be made in the image, and nothing yet does |
+| A class whose method dictionary is full | growing one means a bigger array, rehashed by the image's own rules |
 | Editing a live process | the same passes with a third destination, and a heap that moves under them |
 | The old method's source pointer | the installed method carries its new source embedded; the old object is left where it was |
