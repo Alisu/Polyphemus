@@ -6,7 +6,8 @@
 	"pools": [],
 	"classvars": [],
 	"instvars": [
-		"fix"
+		"fix",
+		"release"
 	],
 	"name": "ReifiedDebugSession",
 	"type": "normal"
