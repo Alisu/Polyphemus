@@ -126,9 +126,41 @@ So editing a wedged image is the passes of #25 pointed at the process of #24:
 itself answered `4 even` with **false**, where the same test without the patch answers **true**.
 Six seconds, end to end: nothing heavy is read, the reified memory being lazy.
 
-**Refused, on purpose:** a method the machine has already compiled. Its header holds a CogMethod
-rather than the header word, and patching the bytecodes would leave the machine code as it was.
-The check is one slot.
+A method the machine has already compiled needs one thing more, which the next section is.
+
+## The method the machine compiled
+
+A wedged image is wedged in hot code, so the method worth fixing is the one Cog has compiled --
+and **machine code is what runs**. Patching the bytecodes of such a method changes nothing at
+all, which is a quiet way to be wrong. Detecting it is one slot: a jitted method's header holds
+a CogMethod where the header word belongs (#3).
+
+`CompiledMethod>>flushCache` is not the answer, whatever its comment says. Followed into VMMaker:
+primitive 116 reaches `StackInterpreter>>flushMethodCacheForMethod:`, which clears the
+interpreter's own cache, its external primitives and the at-cache -- and nothing of Cog's.
+
+**`voidCogVMState` is.** `CompiledCode>>voidCogVMState` is primitive 215 and discards that
+method's machine code; `VirtualMachine>>voidCogVMState` is 214 and discards all of it. So the
+held image is asked to run it, its own compiler doing the asking:
+
+```smalltalk
+(SmallInteger >> #even) voidCogVMState
+```
+
+which is why the watcher runs whatever script is left beside it before letting go. The fix is
+written from outside; the un-jitting is asked of the image, through the API meant for it.
+
+**Measured, three tests that only mean something together:**
+
+| | what the image answers afterwards |
+|---|---|
+| jitted, patched, nothing discarded | `true` -- the patch is in the bytecodes and the machine code runs regardless |
+| jitted, patched, `voidCogVMState` | `false` |
+| not jitted, patched | `false` |
+
+And the point of it: with the runaway process looping on `4 even`, the fix ends the loop at the
+next question. The image stops running away and goes idle, alive -- which is what an image that
+answers again looks like from outside.
 
 ## What is not done
 
@@ -137,5 +169,5 @@ The check is one slot.
 | A literal that is not a symbol, a SmallInteger or a Character | a string, an array, a float has to be made in the image, and nothing yet does |
 | A class whose method dictionary is full | growing one means a bigger array, rehashed by the image's own rules |
 | Installing a *new* method in a live image | allocating in a heap the machine owns, and telling its collector about the pointer |
-| A method the machine has already compiled | the bytecodes are not what runs; its machine code would have to go too |
+| A held image that cannot run anything | the un-jitting is asked of the image; one too broken to compile would need Cog's zone edited from outside |
 | The old method's source pointer | the installed method carries its new source embedded; the old object is left where it was |
