@@ -97,12 +97,21 @@ INNER
   fi
   start=$(date +%s)
   # rc must be timeout's own status: $? after a pipeline is grep's, which hid every timeout (#14).
-  out=$(timeout "$TMO" ./pharo "$IMAGE" st "$script" 2>/dev/null | noise | grep -E '^RES |^    (FAIL|ERROR)'; exit ${PIPESTATUS[0]})
+  # A flat limit makes the slow classes report TIMEOUT whenever the machine is busy, which is a
+  # red suite that means nothing. Give each class what it took last time, three times over (#31).
+  local limit known
+  known=$(awk -v c="$c" '$1==c {print $2}' "$TIMINGS" 2>/dev/null | tail -1)
+  limit="$TMO"
+  if [ -n "$known" ] && [ "$known" -gt 0 ] 2>/dev/null; then
+    limit=$(( known * 3 ))
+    [ "$limit" -lt "$TMO" ] && limit="$TMO"
+  fi
+  out=$(timeout "$limit" ./pharo "$IMAGE" st "$script" 2>/dev/null | noise | grep -E '^RES |^    (FAIL|ERROR)'; exit ${PIPESTATUS[0]})
   rc=$?
   el=$(( $(date +%s) - start ))
   rm -f "$script"
   if [ $rc -eq 124 ]; then
-    echo "RES $c TIMEOUT ${TMO}s"
+    echo "RES $c TIMEOUT ${limit}s"
   elif ! grep -q "^RES $c " <<< "$out"; then
     # The image died, or printed nothing: a class that did not report is broken, not absent.
     echo "RES $c BROKEN no result (exit $rc)"

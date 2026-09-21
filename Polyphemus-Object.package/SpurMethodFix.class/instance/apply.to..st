@@ -10,6 +10,9 @@ apply: aSource to: aReifiedMethod
 	old := self compilationOf: aReifiedMethod for: class.
 	new := (reading compileHostSource: aSource for: class) ifNil: [
 		       ^ self error: 'that source does not compile' ].
+	(self pragmasOf: old first) = (self pragmasOf: new first) ifFalse: [
+		^ self error:
+			  'that change is to the pragmas, which are the image''s own and are kept as they are' ].
 	(old first literals = new first literals and: [
 		 (self codeLengthOf: new first) = (self codeLengthOf: old first) ]) ifTrue: [
 		edit replaceCodeOfMethodShown: aReifiedMethod from: old first to: new first.

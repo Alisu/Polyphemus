@@ -1,5 +1,5 @@
 literals
-arrayFor: anArray
+arrayFor: anArray inside: anOuterOop
 
 	"An array of the image's own, holding what its elements became."
 
@@ -12,5 +12,5 @@ arrayFor: anArray
 		memory
 			storePointerUnchecked: index - 1
 			ofObject: oop
-			withValue: (self literalFor: each) ].
+			withValue: (self literalFor: each inside: anOuterOop) ].
 	^ oop

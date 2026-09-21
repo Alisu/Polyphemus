@@ -126,7 +126,7 @@ is built instead -- each literal found in the image or made there:
 | a large integer | its bytes, least significant first, under the class its sign asks for |
 | the class's binding | taken from a method that class already has |
 | the pragmas of a method that has them | the image's own state object, kept, so the pragmas must be the ones already there |
-| a block of its own | **refused by name**: a compiled block would have to be made in the image |
+| a block of its own | a compiled block made in the image, belonging to the method (below) |
 
 **The proof is that it runs.** With a string the image never held added to `Integer>>digitSubtract:`
 and its symbols reordered, the written image answers
@@ -137,6 +137,26 @@ and its symbols reordered, the written image answers
 ```
 
 which is that method, with the frame that was built for it, in a machine that knows nothing of us.
+
+### A block of its own
+
+Most edits contain a block, and a block that is not inlined is an object: a `CompiledBlock`
+literal in the method's frame. It has a method's shape -- header word, literals, bytecodes -- and
+**its last literal is the code it belongs to**, which is why the method is allocated first and
+its blocks made afterwards, pointing back at it. A block inside a block belongs to the block, and
+the same recursion serves.
+
+Checked by running it: an edit adding
+`((1 to: 3) collect: [ :each | each * 2 ]) size = 3 ifTrue: [ ]` to `Integer>>digitSubtract:`
+installs, and a machine running the written image still answers `1` to
+`1000000000000000000000 - 999999999999999999999` -- the statement really evaluates, so a block
+put together wrongly would not survive it.
+
+**Pragmas are the line.** A method's pragmas live in the state object it carries, which stays the
+image's own; an edit that changes them is refused. That refusal had to be added twice over: the
+first check compared literal frames, and `literals` does not include that state, so a
+pragma-only edit compiled to the same bytecodes, took the in-place path, and reported success
+while the change went nowhere. Silence of that kind is worse than a refusal.
 
 ## The live destination
 
@@ -202,7 +222,7 @@ answers again looks like from outside.
 
 | Left | Why |
 |---|---|
-| New code holding a block of its own | a compiled block has to be made in the image, with its own literals and its back-pointer |
+| New code naming a whole method of its own | rare, and refused by name |
 | A method whose pragmas change | its state object is the image's, kept as it is |
 | A class whose method dictionary is full | growing one means a bigger array, rehashed by the image's own rules |
 | Installing a *new* method in a live image | allocating in a heap the machine owns, and telling its collector about the pointer |
