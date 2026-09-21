@@ -102,11 +102,40 @@ installing it is there. A machine running the written image answers `#(42 true t
 The last of those is the one that matters: the image interned the name itself and found **ours**,
 not a second symbol beside it.
 
+## The live destination
+
+The passes above write into a reading of a *file*. The same ones aim at a running image, which is
+what they were for: `SpurEdit` holds what is common -- replacing a method's code with one
+compiled here -- and a subclass says how to read and write bytes, and how far its addresses are
+from the reading's.
+
+| | reads and writes | shift |
+|---|---|---|
+| `SpurImageEdit` | a copy of the file's bytes, written out afterwards | the reading is 0x151CD20 above the file |
+| `SpurProcessEdit` | `/proc/<pid>/mem`, refused unless the process is stopped | **none**: a process is read at its own addresses |
+
+So editing a wedged image is the passes of #25 pointed at the process of #24:
+
+1. interrupt it, and hold it without yielding;
+2. stop it, read it, and check the method holds what the old compilation says it does;
+3. write the new bytecodes;
+4. let it go.
+
+**Measured.** A target spinning at priority 40 was held, and `SmallInteger>>even` -- its
+`= 0` made `= 1`, the same length and the same literals -- was written into it. Let go, the image
+itself answered `4 even` with **false**, where the same test without the patch answers **true**.
+Six seconds, end to end: nothing heavy is read, the reified memory being lazy.
+
+**Refused, on purpose:** a method the machine has already compiled. Its header holds a CogMethod
+rather than the header word, and patching the bytecodes would leave the machine code as it was.
+The check is one slot.
+
 ## What is not done
 
 | Left | Why |
 |---|---|
 | A literal that is not a symbol, a SmallInteger or a Character | a string, an array, a float has to be made in the image, and nothing yet does |
 | A class whose method dictionary is full | growing one means a bigger array, rehashed by the image's own rules |
-| Editing a live process | the same passes with a third destination, and a heap that moves under them |
+| Installing a *new* method in a live image | allocating in a heap the machine owns, and telling its collector about the pointer |
+| A method the machine has already compiled | the bytecodes are not what runs; its machine code would have to go too |
 | The old method's source pointer | the installed method carries its new source embedded; the old object is left where it was |

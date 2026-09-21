@@ -21,7 +21,7 @@ testItInstallsCodeCompiledHereOverAMethodOfTheImage
 	file := SpurImageFile on: written.
 	installed := (1 to: (edit codeOf: found third) size) collect: [ :each |
 		             file
-			             unsignedAt: (edit addressInFileOf: found first) + 8
+			             unsignedAt: (edit addressOf: found first) + 8
 				             + (found second initialPC - 1) + each - 1
 			             size: 1 ].
 	file close.

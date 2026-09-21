@@ -1,0 +1,1 @@
+Editing another Spur memory: what is common to an image file and a running process. A subclass says how to read and write bytes there, and how far its addresses are from the ones a reading of it shows; this class does the rest, of which the part worth sharing is replacing a method's code with one compiled here.

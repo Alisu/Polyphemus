@@ -13,7 +13,7 @@ replaceCodeOfMethodShown: aReifiedMethod from: anOldCompilation to: aNewCompilat
 	old size = new size ifFalse: [
 		^ self error: 'the new code is ' , new size printString , ' bytes where there is room for '
 			, old size printString ].
-	address := (self addressInFileOf: aReifiedMethod) + 8 + (anOldCompilation initialPC - 1).
-	(self codeAt: address ofSize: old size) = old ifFalse: [
-		^ self error: 'the file does not hold the code this was compiled from' ].
+	address := (self addressOf: aReifiedMethod) + 8 + (anOldCompilation initialPC - 1).
+	(self bytesAt: address count: old size) = old ifFalse: [
+		^ self error: 'this memory does not hold the code that was compiled from' ].
 	^ self storeBytes: new asByteArray at: address

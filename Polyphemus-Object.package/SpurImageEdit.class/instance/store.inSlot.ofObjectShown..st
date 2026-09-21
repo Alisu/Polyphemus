@@ -5,5 +5,5 @@ store: aValue inSlot: anIndex ofObjectShown: aReifiedObject
 
 	^ self
 		  storePointer: anIndex
-		  ofObject: (self addressInFileOf: aReifiedObject)
+		  ofObject: (self addressOf: aReifiedObject)
 		  value: (self wordFor: aValue)

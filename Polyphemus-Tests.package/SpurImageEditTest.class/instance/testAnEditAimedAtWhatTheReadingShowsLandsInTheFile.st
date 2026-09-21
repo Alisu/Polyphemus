@@ -9,7 +9,7 @@ testAnEditAimedAtWhatTheReadingShowsLandsInTheFile
 	reading := Polyphemus readImageFile: PharoImageAccessor pathToCandle64Bit.
 	edit := (SpurImageEdit on: PharoImageAccessor pathToCandle64Bit) reading: reading.
 	specials := reading reifiedSpecialObjectArray.
-	self assert: specials address ~= (edit addressInFileOf: specials).
+	self assert: specials address ~= (edit addressOf: specials).
 
 	edit store: 42 inSlot: 1 ofObjectShown: specials.
 	edit writeTo: written.

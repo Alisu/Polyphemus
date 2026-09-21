@@ -3,7 +3,8 @@ testItHoldsAWedgedImageStillAndThenLetsItGo
 
 	"#24 whole: a wedged image is interrupted from outside, holds without yielding while its
 	heap is read entire, and goes back to running when the word it watches changes -- one
-	signal nobody has taken, written into the semaphore from here."
+	signal nobody has taken, written into the semaphore from here. Untouched, it still says
+	four is even, which is what makes the patching test mean something."
 
 	| pid reader |
 	pid := self launchSpinningTarget.
@@ -28,6 +29,7 @@ testItHoldsAWedgedImageStillAndThenLetsItGo
 	self
 		assert: (self waitFor: [ (self spikeDirectory / 'released') exists ])
 		description: 'it never let go'.
+	self assert: (self spikeDirectory / 'answer') contents trimBoth equals: 'true'.
 	self
 		assert: (self waitFor: [ (LinuxProcessMemory unchecked: pid) isQuiet not ])
 		description: 'it never went back to running' ] ensure: [

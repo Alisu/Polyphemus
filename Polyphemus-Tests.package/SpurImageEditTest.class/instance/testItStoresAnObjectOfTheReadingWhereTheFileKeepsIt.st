@@ -15,5 +15,5 @@ testItStoresAnObjectOfTheReadingWhereTheFileKeepsIt
 	file := SpurImageFile on: written.
 	word := file unsignedAt: file specialObjectsOop + 8 size: 8.
 	file close.
-	self assert: word equals: (edit addressInFileOf: reading reifiedTrueObject).
+	self assert: word equals: (edit addressOf: reading reifiedTrueObject).
 	self assert: (Polyphemus readabilityOfImageFile: written) isFullyReadable

@@ -1,7 +1,7 @@
 editing
-addressInFileOf: aReifiedObject
+addressOf: aReifiedObject
 
-	"Where that object is in the file, which is not where the reading has it. An immediate is
+	"Where that object is here, which need not be where the reading has it. An immediate is
 	its own value and is shifted by nothing."
 
 	aReifiedObject isImmediateOop ifTrue: [ ^ aReifiedObject address ].
