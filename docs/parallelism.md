@@ -823,3 +823,105 @@ time lives, which keeps stage 2 and makes stage 1's compactor experiment the mor
 
 The general lesson, and the reason this section exists before any VM work: **reducing the work beats
 parallelising it**, and here the reduction was a flag that nobody had set.
+
+## 17. Where full GC's time goes, and which algorithms that points at
+
+The VM keeps per-phase counters that the image cannot reach. Read from live targets by symbol name
+(section 7), after each workload:
+
+| Counter | Collections suite, 57 classes | `Dictionary` of 1 M | recompile `Kernel` |
+|---|---|---|---|
+| `statFullGCs` | 20 | 1 | **0** |
+| `statFullGCUsecs` | 1,935,355 | 427,867 | 0 |
+| **`statMarkUsecs`** | **1,277,501 (66 %)** | 216,520 (51 %) | 0 |
+| `statSweepUsecs` | **0** | **0** | 0 |
+| `statCompactionUsecs` | 631,449 (33 %) | 181,287 (42 %) | 0 |
+| `statScavengeGCUsecs` | 22,620 | **398,819** | 85,358 |
+| `statSurvivorCount` | 7,145 | 130,509 | 13,329 |
+| `statTenures` | **0** | 1,217,853 | **0** |
+| `statAllocatedBytes` | 490,831,336 | 103,030,104 | 992,811,808 |
+| `statGrowMemory` / `statShrinkMemory` | 1 / 0 | 3 / 0 | 1 / 0 |
+| `statRootTableCount` | 104 | 90 | 531 |
+| `statCompileMethodCount` / `Usecs` | 21,875 / **113,559** | 3,998 / 20,272 | 5,402 / **88,517** |
+| `statCompileFullBlockCount` / `Usecs` | 5,050 / 20,215 | 707 / 3,294 | 871 / 13,025 |
+| `statCodeCompactionUsecs` | 31,785 | 1,468 | 9,141 |
+
+### A correction: the JIT's compile time is counted, and it is not noise
+
+Section 10 priced the JIT at 669 µs and dismissed it. That was `statCodeCompactionUsecs` -- code
+*zone* management -- and it was the wrong counter. Compilation itself is
+`statCompileMethodUsecs` + `statCompileFullBlockUsecs`:
+
+| Workload | JIT compile | GC total | JIT as share of wall |
+|---|---|---|---|
+| recompile `Kernel` | **101,542 µs** | 85,358 µs | ~8 % |
+| Collections suite | 133,774 µs | 1,957,975 µs | ~6 % |
+| `Dictionary` of 1 M | 23,566 µs | 826,686 µs | ~3 % |
+
+On a compile-heavy workload **the JIT costs more than the collector does**. It is still not the
+first target -- 6-8 % against marking's 66 % of a two-second full-GC budget -- but "noise" was wrong,
+and background compilation is genuinely parallelisable, unlike most of the interpreter.
+
+### Marking is the phase to attack
+
+Two thirds of full GC is marking, and **sweeping is zero** -- the planning compactor plans and slides
+rather than sweeping separately. So:
+
+| Candidate | Grounds | Verdict |
+|---|---|---|
+| **A side mark bitmap** instead of mark bits in object headers | Spur marks in the header, so marking touches one cache line per live object. A bitmap of one bit per allocation unit shrinks marking's working set by roughly 64x. The classic result is 1.5-3x on mark time, and it attacks the 66 % directly. It also makes a parallel marker easier, since bitmap words can be CAS'd without touching objects. | **the biggest algorithmic lever** |
+| **Prefetching in the mark loop** | `markLoopFrom:` pops an oop from the obj stack and scans its slots; the next entries are known and not prefetched. Known 10-30 % on mark-dominated collectors. | cheap, try early |
+| **`traceImmediatelySlotLimit`** | already exists: small objects are traced inline instead of pushed. It is a threshold nobody here has measured. | a one-line experiment |
+| **Region compaction** (`SpurSelectiveCompactor`) | 33 % of full GC is compaction, done by whole-heap sliding, while a region-based compactor sits unused in the tree. | second lever |
+| **Lazy sweeping** | `statSweepUsecs` is **0**. | **ruled out by measurement** |
+| **Card marking** instead of a remembered set | `statRootTableCount` is 90-531 and root-table overflows were 0 throughout. The remembered set is tiny; a cheaper barrier would buy nothing. | **ruled out by measurement** |
+| Scavenger algorithm work | 398,819 µs on the `Dictionary` workload with 1,217,853 tenures -- but section 16 showed eden sizing removes most of it. Policy (`tenureCriterion`, `tenuringProportion`), not algorithm. | low priority |
+
+### And the suite's 20 full GCs are explicit
+
+`statTenures` is **0** and `statGrowMemory` is **1** across those 20 collections. A full GC cannot be
+triggered by allocation pressure when nothing was promoted and the heap grew once. So they are
+requested, by a caller outside the seven test classes already found in section 11. That turns stage
+0's open question from "find the policy" into "find the sender", which is a much smaller hunt.
+
+## 18. Choosing an eden size for images that are not this one
+
+The question is how to pick a general default without oversizing, given not every image is doing
+what this fork does. Three facts bound it.
+
+**The benefit saturates, and it saturates where tenuring stops.** Section 16: tenures fall
+891,507 -> 662,906 -> 0 as eden goes 15 -> 46 -> 138 MB, and that is the mechanism -- a nursery large
+enough that objects die before promotion. Once `statTenures` reaches zero for a workload, a larger
+eden buys nothing at all, because there is no survivor copying left to avoid.
+
+**The cost is pause length, and it grows.** Average scavenge pause against eden:
+
+| Workload | 15 MB | 46 MB | 138 MB |
+|---|---|---|---|
+| Collections suite | 0.68 ms | 0.75 ms | 1.5 ms |
+| reify `cleanP10.image` | 5.1 ms | 6.2 ms | **13.0 ms** |
+
+Thirteen milliseconds is past a 60 Hz frame. For a headless batch image that is irrelevant; for an
+interactive one it is a visible stutter. **This is why there should not be one general default.**
+
+**The third cost, per-image resident memory, is not yet measured here** -- the attempt to measure it
+picked up another session's processes and is void. It should be measured before any default changes,
+because eden is paid by every image at startup, including small tool images.
+
+So the method, rather than a number:
+
+1. For a representative workload, sweep `--edenSize` and record `statTenures`, `statScavenges`,
+   `statScavengeGCUsecs` and the average pause. The counters are reliable on this box; **wall time is
+   not** (section 16: the same workload measured 10.7 s and 14.2 s at identical settings, and the box
+   thermally throttles -- zones reach 110 °C and a core drops to 400 MHz).
+2. Take the **smallest** eden at which `statTenures` is near zero. That is the saturation point;
+   beyond it the benefit is gone and only the pause and the footprint grow.
+3. Cap it by the pause budget for that kind of image: a few milliseconds for interactive, whatever
+   throughput prefers for batch.
+4. Set it **per launch**, not globally. `--edenSize` is a command-line flag, so a test runner, a
+   headless build and a developer's interactive image can each have the right one, and no image pays
+   for another's workload.
+
+For this fork specifically, the suite's own numbers say its tenures are already 0 at the default, so
+the runner has nothing to gain from a larger eden -- the win measured in section 16 was on
+allocation-heavy reification, not on running tests.
