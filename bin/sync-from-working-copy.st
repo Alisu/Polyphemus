@@ -28,9 +28,26 @@ ensureClass := [ :props :packageName |
 			"An instance variable added to the working copy has to reach the class, or the
 			 methods using it will not compile and the loop reports errors that are not
 			 in the code."
-			| cls |
+			| cls wantedSuper wantedIvars |
 			cls := Smalltalk at: name.
-			((props at: 'instvars') collect: [ :each | each asString ]) do: [ :ivar |
+			"A class whose definition changed -- a new superclass, or instance variables it no
+			 longer has -- is defined again. Topping up the variables alone would leave it under
+			 the old superclass, with whatever it inherits shadowed, and nothing said so."
+			wantedSuper := (props at: 'super') asSymbol.
+			wantedIvars := (props at: 'instvars') collect: [ :each | each asString ].
+			(cls superclass name asSymbol = wantedSuper and: [
+				 cls instVarNames asSet = wantedIvars asSet ]) ifFalse: [
+				(Smalltalk includesKey: wantedSuper)
+					ifFalse: [ ('SKIP ', name, ': superclass ', wantedSuper, ' missing') traceCr ]
+					ifTrue: [
+						(Smalltalk at: wantedSuper)
+							subclass: name
+							instanceVariableNames: (joined value: (props at: 'instvars'))
+							classVariableNames: (joined value: (props at: 'classvars'))
+							package: packageName.
+						cls := Smalltalk at: name.
+						('REDEFINED ', name, ' under ', wantedSuper) traceCr ] ].
+			wantedIvars do: [ :ivar |
 				(cls instVarNames includes: ivar) ifFalse: [
 					cls addInstVarNamed: ivar.
 					('IVAR ', name, '>>', ivar) traceCr ] ].
