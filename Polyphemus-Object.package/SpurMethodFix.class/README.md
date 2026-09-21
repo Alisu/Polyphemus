@@ -1,0 +1,1 @@
+One accepted edit, applied to a method of another image: compiled here against that image's own class, then written there in place when it fits, or installed as a new method when it does not. What it refuses, it refuses by name.

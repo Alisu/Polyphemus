@@ -1,0 +1,13 @@
+{
+	"commentStamp": "",
+	"super": "DebugSession",
+	"category": "Polyphemus-Memory",
+	"classinstvars": [],
+	"pools": [],
+	"classvars": [],
+	"instvars": [
+		"fix"
+	],
+	"name": "ReifiedDebugSession",
+	"type": "normal"
+}

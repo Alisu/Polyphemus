@@ -1,0 +1,1 @@
+The debug session Polyphemus opens on another image's stack. Pharo's debugger is the one on screen; accepting in its code pane reaches here, and here the method is written into the image being read rather than recompiled in this one.
