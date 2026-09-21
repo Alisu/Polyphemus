@@ -627,3 +627,140 @@ So the order that the measurements argue for: parallel marking and parallel surv
 with no barrier; then region-selective compaction, building on `SpurSelectiveCompactor`; and only
 then, if pause latency is the goal rather than throughput, the load barrier that concurrent
 evacuation needs -- which is a Cogit project.
+
+## 14. Isolates are a library, not a VM change
+
+Recorded because it closes off section 2(d)'s cousin for good.
+
+N interpreters over N *separate* heaps with message passing does not need the VM touched at all: it
+is processes plus a serialiser, which is a library. The only thing an in-process version could add
+is sharing what is read-only between isolates -- compiled methods, symbols, the class table -- which
+is most of what an image *is*. And that saving buys nothing here, because the measurements in
+section 6 say memory is not the constraint: 16 instances cost 1.24 GB out of ~20 GB available,
+while aggregate throughput plateaus at about 4x around **8** instances. Optimising the abundant
+resource is not worth a VM project.
+
+So: several interpreters is low-value in every form -- over one heap it is the hardest thing in
+section 2(b) and speeds up no single program; over many heaps it is a library. Phase parallelism
+inside the collector is the only route that makes one program faster.
+
+## 15. A plan
+
+Ordered so that each stage is cheap to abandon and the expensive stages are entered only once the
+cheap ones have been measured. The reason for that order is PR #650: its own description ends with
+"Unit test to write:", and it was closed eleven months later without ever being evaluable.
+
+### Stage 0 -- settle the numbers. No VM change.
+
+- A fixed benchmark set with GC accounting: the workloads of sections 10 and 11 plus whatever real
+  work matters, each in a fresh process, reporting wall, full GCs, full-GC ms, scavenges,
+  scavenge ms, grows and shrinks (VM parameters 7, 8, 9, 10, 31, 32).
+- **Find what triggers the 20 full GCs** in the 57 non-forcing Collections test classes. Not growth
+  (headroom made no difference) and not those classes' own `garbageCollect` calls. Look at their
+  superclasses, `TestResource`, and Pharo's test-execution machinery. Until this is known, the
+  48.5 % figure cannot be spent.
+- Per workload, split growth-triggered from garbage-triggered collection, as section 11 did for four.
+
+The output of stage 0 is a target metric. Without one, "faster GC" is unfalsifiable.
+
+### Stage 1 -- the configuration wins. Still no new code.
+
+- **Try the other compactor.** `SpurMemoryManager class>>compactorClass` answers
+  `#SpurPlanningCompactor` unless `InitializationOptions` says otherwise, so the 353 ms of
+  compaction measured in section 3 -- 58 % of full-GC time -- was whole-heap *sliding* compaction.
+  `SpurSelectiveCompactor` is already in the tree, already region-based
+  (`computeSegmentsToCompact`, `occupationOf:`, `findAndSetSegmentToFill`,
+  `globalSweepAndSegmentOccupationAnalysis`), and unused. Rebuilding the VM with it and measuring is
+  the single highest-value-per-effort experiment available. It needs a VM build, which this fork
+  does not currently do, so that is the prerequisite.
+- **Growth policy per workload.** Proven: 85 % to 0 % and five times faster on one workload from two
+  parameters (section 11).
+- **Scavenger tenuring.** The reification workload is 648 scavenges and 884,298 tenures;
+  `tenureThreshold`, `tenuringProportion` and `tenureCriterion` are all there to be measured.
+
+It would be a poor outcome to write a parallel collector and then find a configuration change had
+most of it.
+
+### Stage 2 -- parallel marking, world stopped.
+
+Chosen first among the parallel work because **the marker is almost stateless**, which was the
+surprise of this investigation:
+
+| Method | Instance variables it touches |
+|---|---|
+| `markAndTrace:` | **none** |
+| `markLoopFrom:` | **`markStack`** |
+| `markObjects:` | `coInterpreter`, `marking` |
+| `markWeaklingsAndMarkAndFireEphemerons` | `coInterpreter`, `weaklingStack` |
+
+So the reentrancy surface for N markers is a handful of variables, not the 561 of section 2(a).
+Mark stacks are already obj stacks living in the heap, with machinery to make more of them
+(`objStackAt:`, `initializeMarkStack`, `push:onObjStack:`, `ensureRoomOnObjStackAt:`).
+
+What it needs:
+
+1. **A compare-and-swap primitive, which does not exist.** No VMMaker method mentions
+   `compareAndSwap`, and the binary imports no `__sync_*` or `atomic_*` symbol. This is the one
+   genuinely new platform primitive, and it is small.
+2. The mark bit set by CAS on the header; only the thread that wins pushes the object. Marking an
+   object twice is harmless, pushing it twice is not.
+3. `markLoopFrom:` taking its stack as an argument rather than reading `markStack`.
+4. N worker threads from the platform layer that already spawns them (`ioInitHeartbeat`,
+   `worker_newSpawning`), with work stealing between stacks, joined before the sweep.
+5. Weak and ephemeron processing left **serial** at first (`weaklingStack`, `unscannedEphemerons`).
+
+Because the world is stopped, no barrier is required and the tri-colour invariant that sank PR #650
+never arises. That is the whole reason to do parallel before concurrent.
+
+**How to verify it**, using the tool this fork already has: the serial and parallel markers must
+mark the *same set of objects*. Polyphemus can stop a live VM, walk its heap from outside and
+compare mark bits, and read `statMarkCount`, `statFullGCUsecs` and `statCompactionUsecs` by symbol
+name (section 7) -- without instrumenting the image under test.
+
+### Stage 3 -- parallel survivor copying in the scavenger.
+
+This is where *this fork's* time actually is: 2,811 ms of scavenging against 590 ms of full GC on
+the reification workload (section 11), and raising the headroom left scavenging untouched.
+
+The state is again small: `copyAndForward:` touches `manager`, `futureSpace` and
+`futureSurvivorStart`, so each worker needs its own bump pointer into a slice of future space.
+Harder than marking, because it moves objects: two workers may reach the same survivor, so
+installing the forwarding pointer must be a CAS, with the loser adopting the winner's forwarder.
+The remembered-set scan partitions naturally; `weakList` and `ephemeronList` appends must be
+serialised or made per-worker and merged.
+
+### Stage 4 -- region-parallel compaction.
+
+Only after stage 1 has said whether `SpurSelectiveCompactor` already solves enough. If not, it is
+the right base: segments are the natural unit, occupation analysis already exists, and
+`isSegmentBeingCompacted:` already tracks which are in flight. Each worker needs its own
+`segmentToFill`.
+
+### Stage 5 -- concurrent, with a load barrier. Only for latency.
+
+If the goal becomes pause time rather than throughput, this is Shenandoah's territory and Spur is
+well placed for it: forwarders already exist and `forwarding` is one of the stateless protocols.
+What is missing is the guarantee that every read follows a forwarder, and emitting that is the
+**Cogit's** job. This is a far larger project than stages 2 to 4 combined, and nothing measured
+here argues for it yet -- with one mutator thread, a shorter pause and no pause are nearly the same
+thing.
+
+### What is deliberately not in the plan
+
+The interpreter (section 9: the entanglement is essential), several interpreters (section 14), and
+the components already priced and rejected: JIT code generation, code-zone management (669 µs),
+heap enumeration (8 ms), snapshot writing (70-150 ms), event polling (already off the critical
+path).
+
+### What it is worth, at the ceiling
+
+Bounded by GC share and by the box's measured ~4x plateau, so a perfectly parallel collector on
+four effective cores:
+
+| Workload | Wall | GC | Wall if GC were 4x faster | Gain |
+|---|---|---|---|---|
+| reifying `cleanP10.image` | 10,725 ms | 3,401 ms | ~8,174 ms | **24 %** |
+| Collections suite, 57 classes | 1,519 ms | 737 ms | ~966 ms | **36 %** |
+| recompiling `Kernel` | 1,314 ms | 29 ms | ~1,292 ms | **2 %** |
+
+Those are ceilings, not estimates, and they are the numbers any of this should be held to.
