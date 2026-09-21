@@ -2,7 +2,8 @@ highlighting
 compileHostSource: aString for: aReifiedClass
 
 	"That source compiled here as the image's own compiler would, with its tree: {method.
-	tree}. A pc maps to source only through the tree that made the method (#4)."
+	tree}. Nothing when it does not compile -- and a syntax error is no Error, so it is named
+	here or it would take the whole run with it (#29)."
 
 	^ [
 	  | compiler tree |
@@ -15,5 +16,5 @@ compileHostSource: aString for: aReifiedClass
 	  tree := compiler parse.
 	  compiler doSemanticAnalysis.
 	  Array with: tree generateWithSource with: tree ]
-		  on: Error
+		  on: Error , SyntaxErrorNotification
 		  do: [ :e | nil ]

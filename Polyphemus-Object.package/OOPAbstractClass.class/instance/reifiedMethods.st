@@ -1,7 +1,11 @@
 querying
 reifiedMethods
-	| methodDict |
-	methodDict := self reifiedMethodDictionary reifiedSlotAt: 2.
-	^ (3 to: methodDict oopNumberOfSlots) collect: [ :anIndex |
-		methodDict reifiedSlotAt: anIndex
-		] thenSelect: [ :anOop | anOop isNilOop not ].
+
+	"Every method the dictionary holds. They are in its array, from that array's first slot,
+	while its selectors are in the dictionary itself from the third (#28)."
+
+	| methods |
+	methods := self reifiedMethodDictionary reifiedSlotAt: 2.
+	^ (1 to: methods oopNumberOfSlots)
+		  collect: [ :anIndex | methods reifiedSlotAt: anIndex ]
+		  thenSelect: [ :anOop | anOop isNilOop not ]
