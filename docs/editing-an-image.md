@@ -184,6 +184,32 @@ Six seconds, end to end: nothing heavy is read, the reified memory being lazy.
 
 A method the machine has already compiled needs one thing more, which the next section is.
 
+### A method the running image never had
+
+Old space in a running image ends at its bridge -- measured on a held target, `freeOldSpaceStart`
+and `endOfMemory` were the same address, nothing between them. So what is made goes where the
+machine itself allocates: **eden**, at `freeStart`, which is then moved past it. There was four
+megabytes free of sixteen.
+
+That makes the new method *young*, and the method dictionary that now points at it *old*, which
+is the whole difficulty: a scavenge would take an unremembered young object for garbage. So the
+dictionary's array is remembered as the scavenger would do it -- bit 29 of its header, its oop
+appended to the remembered set, `rememberedSetSize` moved on -- and the collector then tenures
+what we made and fixes the pointer itself.
+
+**Checked by asking the image to collect.** The script left for the watcher is
+
+```smalltalk
+Integer flushCache. Smalltalk garbageCollect. "...then answer 3 reset"
+```
+
+so the image forgets its cached lookups, collects its garbage -- where a pointer we failed to
+remember would be lost -- and only then calls the method. It answers **42**, and goes on running.
+
+What is refused: a literal needing room of its own. Making an object in a running image is one
+thing; making its literals there is the same work again, and a symbol it does not already hold
+would have to be interned in its table with the same care.
+
 ## The method the machine compiled
 
 A wedged image is wedged in hot code, so the method worth fixing is the one Cog has compiled --
@@ -225,6 +251,6 @@ answers again looks like from outside.
 | New code naming a whole method of its own | rare, and refused by name |
 | A method whose pragmas change | its state object is the image's, kept as it is |
 | A class whose method dictionary is full | growing one means a bigger array, rehashed by the image's own rules |
-| Installing a *new* method in a live image | allocating in a heap the machine owns, and telling its collector about the pointer |
+| A new method in a live image whose literals need room | the method is made in eden (below); its literals would each need the same |
 | A held image that cannot run anything | the un-jitting is asked of the image; one too broken to compile would need Cog's zone edited from outside |
 | The old method's source pointer | the installed method carries its new source embedded; the old object is left where it was |

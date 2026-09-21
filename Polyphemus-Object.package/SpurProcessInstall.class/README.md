@@ -1,0 +1,1 @@
+Putting a new method into an image that is running. Old space in a live image ends at its bridge, so what is made goes in eden, where the machine allocates too -- and an old object pointed at it is remembered, or the next scavenge would lose the pointer. The process must be stopped, which for a wedged one means held at a safepoint first (#24).
