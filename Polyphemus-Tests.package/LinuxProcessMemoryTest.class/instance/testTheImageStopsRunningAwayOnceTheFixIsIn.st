@@ -1,10 +1,9 @@
 tests
 testTheImageStopsRunningAwayOnceTheFixIsIn
 
-	"The whole of it, on a machine that is not responding: the process that will not yield is
-	looping on SmallInteger>>even, which the machine has compiled. Held, patched, its code
-	discarded, and let go -- the loop ends at its next question and the image goes idle, which
-	is what an image that answers again looks like from outside."
+	"The whole of it, on a machine that is not responding: the process that will not yield
+	loops on SmallInteger>>even, which the machine compiled. Held, patched, its code
+	discarded, let go -- the loop ends at its next question and the image goes idle."
 
 	| pid reader |
 	pid := self launchWarmedSpinningTarget.

@@ -102,6 +102,42 @@ installing it is there. A machine running the written image answers `#(42 true t
 The last of those is the one that matters: the image interned the name itself and found **ours**,
 not a second symbol beside it.
 
+## The literals a real edit wants
+
+An edit almost never keeps the literal frame. Putting `nil == nil ifTrue: [ ]` into
+`digitSubtract:` was enough:
+
+```
+old: ... #normalize #to:do: #ifTrue:ifFalse: #whileTrue: #and:
+new: ... #normalize #ifTrue: #ifTrue:ifFalse: #and: #to:do: #whileTrue:
+```
+
+Pharo keeps inlined selectors as literals and orders them by first appearance, so `#ifTrue:`
+arrived and moved the rest along. Copying the old method's oops cannot serve that, so the frame
+is built instead -- each literal found in the image or made there:
+
+| literal | how |
+|---|---|
+| SmallInteger, Character, `nil`, `true`, `false`, a float | immediate, or what the memory answers for it |
+| a symbol | found in the image's table, interned when absent |
+| a string | a byte object of the image's `ByteString`, filled |
+| a literal array | an array of the image's own, its elements translated the same way |
+| another global's binding | the image's own association, **found and never copied** -- a binding points at the global |
+| a large integer | its bytes, least significant first, under the class its sign asks for |
+| the class's binding | taken from a method that class already has |
+| the pragmas of a method that has them | the image's own state object, kept, so the pragmas must be the ones already there |
+| a block of its own | **refused by name**: a compiled block would have to be made in the image |
+
+**The proof is that it runs.** With a string the image never held added to `Integer>>digitSubtract:`
+and its symbols reordered, the written image answers
+
+```smalltalk
+(1000000000000000000000 - 999999999999999999999)   "1"
+(12345678901234567890 - 1)                          "12345678901234567889"
+```
+
+which is that method, with the frame that was built for it, in a machine that knows nothing of us.
+
 ## The live destination
 
 The passes above write into a reading of a *file*. The same ones aim at a running image, which is
@@ -166,7 +202,8 @@ answers again looks like from outside.
 
 | Left | Why |
 |---|---|
-| A literal that is not a symbol, a SmallInteger or a Character | a string, an array, a float has to be made in the image, and nothing yet does |
+| New code holding a block of its own | a compiled block has to be made in the image, with its own literals and its back-pointer |
+| A method whose pragmas change | its state object is the image's, kept as it is |
 | A class whose method dictionary is full | growing one means a bigger array, rehashed by the image's own rules |
 | Installing a *new* method in a live image | allocating in a heap the machine owns, and telling its collector about the pointer |
 | A held image that cannot run anything | the un-jitting is asked of the image; one too broken to compile would need Cog's zone edited from outside |

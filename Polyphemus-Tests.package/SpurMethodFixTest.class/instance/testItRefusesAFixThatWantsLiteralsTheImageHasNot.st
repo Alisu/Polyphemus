@@ -1,18 +1,18 @@
 tests
 testItRefusesAFixThatWantsLiteralsTheImageHasNot
 
-	"What it will not do, said plainly rather than done badly. A literal frame that differs --
-	even in its order, which an inlined ifTrue: is enough to change -- cannot be the old
-	method's, and making one in the image is not wired to this yet."
+	"What it will not do, said plainly rather than done badly: new code holding a block of its
+	own needs a compiled block made in the image, and nothing makes one yet."
 
 	| method source |
 	method := self aMethodWithAComparison.
 	method ifNil: [ ^ self fail: 'no method of Integer recompiles here and holds a comparison' ].
-	source := method getSourceFromFile.
-	source := source copyReplaceAll: ' < ' with: ' < ''polyphemus'' size + '.
+	source := self
+		          statementPutInto: method getSourceFromFile
+		          source: '(1 to: 2) collect: [ :each | each + 1 ]. '.
 
 	self
 		should: [ self fix apply: source to: method ]
 		raise: Error
 		withExceptionDo: [ :error |
-			self assert: (error messageText includesSubstring: 'literals') ]
+			self assert: (error messageText includesSubstring: 'block') ]
