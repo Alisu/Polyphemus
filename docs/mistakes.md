@@ -98,6 +98,17 @@ image was one deep, and the frames looked lost in the collection.
 → After the first write to `dumped memory`, read from it: `classIndexOf:`, `fetchPointer:`,
 `allObjectsDo:`. The raw heap is for what the dump alone knows, before any pass has written.
 
+**A "clean" image that was not clean, so the newcomer check checked nothing.** The working
+agreement says to load the package from GitHub into a clean Pharo 10 before calling it
+shareable, because our own runner compiles from files and is blind to a broken Metacello load.
+The image kept for that, `~/fresh/fresh.image`, already held an older Polyphemus -- and
+Metacello keeps what it has. The load reported success while `SpurImageEdit`, `SpurImageFromDump`
+and `SpurMethodInstall` were all absent afterwards, which looks exactly like a package that does
+not load.
+→ Build the image for that check from `resources/cleanP10.image`, which is the pinned clean
+fixture, in a directory of its own so the Iceberg cache is its own too. `bin/check-newcomer.sh`
+does it.
+
 ## Reusing what already exists
 
 **Re-deriving the method trailer.** Several probes went into working out how to decode a
