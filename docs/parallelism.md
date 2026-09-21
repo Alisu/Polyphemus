@@ -496,3 +496,134 @@ What is missing is the **load barrier**: the guarantee that every read follows a
 than the specific points Spur follows them at today. And emitting that barrier is the **Cogit's**
 job, not the memory manager's. Which lands on the most expensive phase: parallel *marking* is
 reachable with what Spur has; concurrent *relocation* is a JIT project as much as a GC one.
+
+## 11. Growth, garbage, and a claim withdrawn
+
+Section 10 said a test suite spends 59 % of its time collecting, and called that the strongest
+argument here. That was measured correctly and interpreted wrongly. Two follow-ups, both cheap,
+change the conclusion.
+
+### How much of it is the heap merely growing
+
+Re-run with `shrinkThreshold` raised to 1 GB and `growHeadroom` to 512 MB (VM parameters 24 and
+25), so the VM grows instead of collecting:
+
+| Workload | Default | Roomy | Full GCs |
+|---|---|---|---|
+| build a 20 MB `String` | 440 ms, **85.0 %** | **82 ms, 0.0 %** | 7 -> **0** |
+| `Dictionary` of 1 M associations | 644 ms, 48.4 % | 636 ms, **47.2 %** | 2 -> 2 |
+| Collections test suite | 3,815 ms, 60.2 % | 3,906 ms, **59.6 %** | 61 -> 61 |
+| Polyphemus reifying `cleanP10.image` | 10,725 ms, 31.7 % | 10,335 ms, **29.5 %** | 8 -> 3 |
+
+**The string case was entirely an artifact of growth policy**: 85 % to nothing, and five times
+faster, from two parameters and no threading. Anyone quoting a figure like that as a reason to
+build a concurrent collector is quoting a tuning bug.
+
+The other three barely move. So growth explains one of four workloads, and the collector is
+genuinely earning its time in the rest.
+
+### The test suite figure was the tests asking for it
+
+Of the 64 Collections test classes, **7 contain 27 methods that call `garbageCollect` explicitly** --
+`WeakRegistryTest`, `WeakSetTest`, `WeakKeyDictionaryTest`, `WeakValueDictionaryTest`,
+`WeakOrderedCollectionTest`, `WeakIdentityKeyDictionaryTest`, `ByteSymbolTest`. Testing weakness and
+finalization means forcing a collection, so those tests *are* the collector's workload.
+
+| The Collections suite | Wall | Full GCs | in full GC | GC share |
+|---|---|---|---|---|
+| all 64 classes | 3,790 ms | 61 | 2,271 ms | **61.0 %** |
+| the 7 that force a GC | 2,290 ms | 40 | 1,495 ms | 65.7 % |
+| **the other 57** | 1,519 ms | 20 | 728 ms | **48.5 %** |
+
+So two thirds of the full GCs were requested by the tests, and **59 % should have been 48.5 %**.
+The claim is withdrawn as stated; the corrected figure is still high, and the trigger for the
+remaining 20 full GCs in 1.5 s is **not identified** -- it is not growth, since raising the headroom
+left the count unchanged, and the search for explicit calls covered only the test classes
+themselves, not their superclasses or SUnit's own machinery. Worth finding before anyone leans on
+this number.
+
+### Which phase, though
+
+The reification workload is the clearest case of genuine collector cost, and it is not the phase
+section 4 pointed at. Its 3.4 s of GC is **2.8 s of scavenging across 648 scavenges** with 884,298
+tenures, against 0.6 s of full GC -- and raising the headroom cut full GCs from 8 to 3 while leaving
+scavenging identical at 2,834 ms.
+
+That is the scavenger copying survivors, over and over, because the workload builds a large
+*live* graph. So the phase worth parallelising depends on what the image does:
+
+| If the workload... | the cost is | and the target is |
+|---|---|---|
+| builds a large long-lived graph | scavenging, tenuring | the **scavenger** (copy survivors in parallel) |
+| runs long against a full, fragmented heap | full GC, 58 % of it compaction | the **compactor** |
+| compiles, or allocates short-lived garbage | almost nothing (0.6–2.2 %) | nothing |
+| grows the heap fast | growth policy, not garbage | two parameters |
+
+Both the scavenger and the compactor are passes over data, so section 10's structural argument
+stands for either. But for the work this fork does, it is the scavenger.
+
+## 12. Has anyone upstream done this?
+
+Checked against the repositories, not recalled.
+
+**`pharo-project/pharo-vm`** (default branch `pharo-12`, last pushed 2026-09-17, so actively
+developed): no branch whose name mentions gc, concurrent, parallel, incremental or thread. The
+Spur collector classes on `pharo-12` are **exactly those in the pinned v10.0.0** -- `SpurCompactor`,
+`SpurHybridCompactor`, `SpurPlanningCompactor`, `SpurSelectiveCompactor`, `SpurGenerationScavenger`,
+and their simulators. No new class for incremental, concurrent or parallel collection.
+
+**One attempt exists**, and it is instructive:
+
+> **PR #650, "[WIP] Incremental gc"** -- LucFabresse, opened 2023-07-15, **closed unmerged**
+> 2024-06-28. Two commits, one file (`SpurMemoryManager.class.st`), +123 / −15. "Start thinking in
+> an incremental GC during a VM dojo."
+
+It split `fullGC` into `incrementalFullGC` and `finishIncrementalFullGCWithoutInterruption` and let
+Pharo code run between steps of the **mark phase**. The VM compiled and then crashed, and the
+author's own diagnosis is the tri-colour invariant, stated plainly:
+
+- the GC should suspend at chosen points (after N objects marked) rather than where they cut it;
+- **"newly allocated objects are not marked and will be thrown away"** -- there is no marking
+  barrier, only the generational remembered set;
+- mark-phase internal structures may be lost across a suspension.
+
+That is exactly the missing piece section 10 identified from the other direction: Spur has a write
+barrier for *generational* purposes and no barrier for *marking*, and without one (SATB or
+incremental-update) a mark phase cannot be interrupted, let alone run concurrently.
+
+**`OpenSmalltalk/opensmalltalk-vm`**: nothing. No branch, no issue, and no class matching
+incremental, concurrent or parallel collection.
+
+So: one 138-line exploratory attempt, at *incremental* rather than parallel collection, abandoned
+after eleven months on the barrier problem. Nothing parallel has been attempted in either lineage.
+
+## 13. Which collector design fits, and why "most advanced" is the wrong axis
+
+Shenandoah and ZGC exist to avoid stopping **many** mutator threads on **very large** heaps. This
+VM has **one** mutator thread and a heap measured here between 103 MB and 566 MB. Stopping one
+thread is cheap and uncontroversial; the machinery that avoids stopping it is therefore mostly
+paying for a problem this VM does not have.
+
+Which points at a much smaller first step than section 4 implied:
+
+**Parallel, not concurrent.** With one mutator, a stop-the-world collector whose *marking is spread
+over N threads* captures most of the available win and needs **no new barrier at all** -- the world
+is stopped, so the tri-colour invariant that sank PR #650 never arises. Per-thread mark stacks with
+work stealing, over a heap the segment manager already partitions. The scavenger's survivor copying
+is the same shape and is where the reification time actually is.
+
+Concurrency, and therefore barriers, only becomes necessary when the pause itself is the problem --
+interactive latency, not throughput. That is a later and much larger project, and it is the one
+where the design choice matters:
+
+| Design | Fit here |
+|---|---|
+| **Shenandoah** (Brooks forwarding pointer, concurrent evacuation, load-reference barriers) | closest conceptually: Spur already has forwarders and `followForwarded:`, which is the same primitive. Needs the load barrier, emitted by the Cogit. |
+| **ZGC** (coloured pointers + load barrier) | more invasive: Spur treats an oop as an address with low tag bits, so stealing high bits for colours touches every address computation and the JIT's addressing. |
+| **G1** (region-based, parallel evacuation, mostly stop-the-world) | a good match for the segment manager, and closer to "parallel not concurrent", which is the step that fits. |
+| **Immix** (mark-region, opportunistic defragmentation) | worth a look precisely because `SpurSelectiveCompactor` already compacts only selected segments -- the same instinct, already in the tree. |
+
+So the order that the measurements argue for: parallel marking and parallel survivor copying first,
+with no barrier; then region-selective compaction, building on `SpurSelectiveCompactor`; and only
+then, if pause latency is the goal rather than throughput, the load barrier that concurrent
+evacuation needs -- which is a Cogit project.
