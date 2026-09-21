@@ -1,10 +1,9 @@
 tests
 testItHoldsAWedgedImageStillAndThenLetsItGo
 
-	"#24 whole: a wedged image is interrupted from outside, holds without yielding while its
-	heap is read entire, and goes back to running when the word it watches changes -- one
-	signal nobody has taken, written into the semaphore from here. Untouched, it still says
-	four is even, which is what makes the patching test mean something."
+	"#24 whole: a wedged image is interrupted, holds while its heap is read entire, and runs
+	again when the word it watches changes. Untouched it still says four is even, which is
+	what makes the patching test mean anything."
 
 	| pid reader |
 	pid := self launchSpinningTarget.

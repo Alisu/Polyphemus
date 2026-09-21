@@ -1,10 +1,9 @@
 tests
 testItPutsANewMethodIntoARunningImage
 
-	"A method the class never had, made in an image that is running: in its eden, where the
-	machine allocates too, with the dictionary that now points at it remembered. The image is
-	asked to collect its garbage before answering, so a pointer the collector could lose
-	would be lost."
+	"A method the class never had, made in a running image: in its eden, where the machine
+	allocates too, with the dictionary now pointing at it remembered. It is asked to collect
+	before answering, so a pointer nothing remembered would be gone."
 
 	| pid reader selector |
 	pid := self launchSpinningTarget.

@@ -2,9 +2,8 @@ tests
 testAVirtualMachineCanReadItsOwnRunningHeap
 
 	"This image finds and walks its own heap through /proc/self/mem. Only the heap and the
-	walk are asserted: a self-read is torn, and the rungs above the walk may refuse for that
-	reason alone -- they did once this class had read a target first, the churn of it making
-	the tear likelier."
+	walk are asserted: a self-read is torn, so the rungs above the walk may refuse for that
+	reason alone -- they did, once this class had reified a target first."
 
 	| live dumped |
 	live := LinuxProcessMemory onSelf.

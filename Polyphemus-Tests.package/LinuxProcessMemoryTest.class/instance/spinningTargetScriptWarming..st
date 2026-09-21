@@ -1,11 +1,9 @@
 helpers
 spinningTargetScriptWarming: aBoolean
 
-	"What the target runs: a watcher at high priority on the VM's interrupt semaphore which,
-	once signalled, holds without yielding until that semaphore's third slot changes, runs
-	whatever script was left for it, and says what an even number is. Warmed, the machine has
-	compiled #even and the process that will not yield loops on it, so a fix to that method
-	ends the loop; cold, neither is true."
+	"What the target runs: a watcher on the VM's interrupt semaphore which, once signalled,
+	holds without yielding, runs whatever script was left beside it, and says what an even
+	number is. Warmed, #even is compiled and the runaway process loops on it."
 
 	^ '| interrupt dir start |
 	dir := ''' , self spikeDirectory fullName , ''' asFileReference.
