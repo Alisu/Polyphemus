@@ -10,4 +10,4 @@ findHeap
 	heapStart ifNil: [ ^ self error: 'no Spur heap in this memory' ].
 	walk := self scanner walkFrom: heapStart upTo: mappingLimit.
 	liveEnd := heapStart + walk liveBytes.
-	specialObjectsOop := walk specialObjectsArray
+	specialObjectsOop := self statedSpecialObjectsOop ifNil: [ walk specialObjectsArray ]
