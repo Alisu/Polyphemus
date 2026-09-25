@@ -1,9 +1,7 @@
 instance creation
 on: aReifiedMemory
 
-	"An installer for that reading: what it allocates and stores goes into the memory VMMaker
-	loaded the image into, and the image is written from there."
+	"An installer into the memory VMMaker loaded that reading into; the image is written out
+	from there."
 
-	^ self new
-		  setReading: aReifiedMemory;
-		  yourself
+	^ self on: aReifiedMemory into: (SpurWritableVMMakerMemory on: aReifiedMemory)

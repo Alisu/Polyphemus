@@ -5,11 +5,11 @@ internNew: aString at: anIndex
 	it, and the slot the scan ended at. The table is told it may now hold something younger."
 
 	| oop table array tally |
-	table := self symbolTable.
-	array := (table reifiedSlotAt: 2) address.
-	tally := ((self slot: 0 of: table address) - 1) // 8.
+	table := self symbolTable address.
+	array := (self symbolTable reifiedSlotAt: 2) address.
+	tally := ((memory fetchPointer: 0 ofObject: table) - 1) // 8.
 	oop := self allocateSymbol: aString.
-	self remember: array.
-	self slot: anIndex - 1 of: array put: oop.
-	self slot: 0 of: table address put: (self smallIntegerOop: tally + 1).
+	memory remember: array.
+	memory storePointer: anIndex - 1 ofObject: array withValue: oop.
+	memory storePointer: 0 ofObject: table withValue: (memory smallIntegerOop: tally + 1).
 	^ oop

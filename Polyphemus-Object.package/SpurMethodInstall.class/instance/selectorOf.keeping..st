@@ -10,6 +10,6 @@ selectorOf: aCompilation keeping: aReifiedMethod
 	literal isSymbol ifTrue: [ ^ self intern: literal asString ].
 	aCompilation pragmas asArray printString = (self pragmasOf: aReifiedMethod) ifFalse: [
 		^ self error: 'the pragmas of that method would have to be made in the image' ].
-	^ self
-		  slot: (reading literalCountOf: aReifiedMethod address) - 1
-		  of: aReifiedMethod address
+	^ memory
+		  fetchPointer: (reading literalCountOf: aReifiedMethod address) - 1
+		  ofObject: aReifiedMethod address

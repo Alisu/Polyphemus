@@ -1,0 +1,4 @@
+objects
+canMakeObjects
+
+	^ false

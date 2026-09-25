@@ -170,10 +170,18 @@ them) over three memories:
 | | reads and writes | shift |
 |---|---|---|
 | `SpurWritableImageFile` | a copy of the file's bytes, written out afterwards | the reading is 0x151CD20 above the file |
+| `SpurWritableVMMakerMemory` | the memory VMMaker loaded a reading into, written out by VMMaker's own writer | **none**: it *is* where the reading is |
 | `SpurWritableProcess` | `/proc/<pid>/mem`, refused unless the process is stopped | **none**: a process is read at its own addresses |
 
 A memory reads back what was written to it, not the bytes it started from: the lesson of the two
 memories in `mistakes.md`, taken into the protocol rather than left to each caller.
+
+The last two can also make objects (`canMakeObjects`): VMMaker's memory in old space with VMMaker's
+allocator, the process in eden (below). `SpurMethodInstall on:into:` takes either, and refuses at
+once a memory that cannot make objects or does not hold the image where the reading shows it --
+the installer writes what it finds by the reading's addresses. A copy of a file therefore takes
+only code that fits, and `SpurMethodFix on:into:` builds its edit and its installer from the one
+memory, so a fix written in place and one that made room end up in the same image.
 
 So editing a wedged image is the passes of #25 pointed at the process of #24:
 

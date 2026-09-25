@@ -13,7 +13,7 @@ testItAddsAMethodUnderASelectorTheImageAlreadyHolds
 	install := SpurMethodInstall on: reading.
 
 	install install: compilation under: selector address in: integer.
-	install writeTo: written.
+	install memory writeTo: written.
 
 	answer := self evaluate: '3 ' , selector asString in: written.
 	self

@@ -13,7 +13,7 @@ testItInternsASymbolTheImageDoesNotHave
 	install := SpurMethodInstall on: reading.
 
 	install install: compilation named: name in: integer.
-	install writeTo: written.
+	install memory writeTo: written.
 
 	answer := self
 		          evaluate: '{ 3 ' , name , '. (Integer >> #' , name , ') selector == #' , name , ' }'

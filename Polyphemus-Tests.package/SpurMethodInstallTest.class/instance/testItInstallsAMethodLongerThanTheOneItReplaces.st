@@ -24,6 +24,6 @@ testItInstallsAMethodLongerThanTheOneItReplaces
 	self assert: installed equals: (install codeOf: found third).
 	self assert: installed size > (install codeOf: found second) size.
 
-	install writeTo: written.
+	install memory writeTo: written.
 	self assert: (Polyphemus readabilityOfImageFile: written) refusals asArray equals: #(  ).
 	self assert: (Polyphemus readabilityOfImageFile: written) isFullyReadable

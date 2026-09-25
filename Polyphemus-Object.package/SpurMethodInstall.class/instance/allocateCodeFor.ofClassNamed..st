@@ -7,7 +7,7 @@ allocateCodeFor: aCompiledCode ofClassNamed: aString
 	| total |
 	total := 8 + (aCompiledCode numLiterals * 8)
 	         + (aCompiledCode size - aCompiledCode initialPC + 1).
-	^ self
+	^ memory
 		  allocateSlots: total + 7 // 8
 		  format: 24 + (8 - (total \\ 8) \\ 8)
 		  classIndex: (reading oopClassNamed: aString) oopHash

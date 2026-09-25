@@ -11,7 +11,7 @@ testTheFixedMethodStillRuns
 	source := self statementPutInto: method getSourceFromFile
 		          source: '''polyphemus'' size = 10 ifTrue: [ ]. '.
 	self assert: (self fix apply: source to: method) equals: #madeRoomForIt.
-	(SpurMethodInstall on: reading) writeTo: written.
+	(SpurWritableVMMakerMemory on: reading) writeTo: written.
 
 	self
 		assert: (self

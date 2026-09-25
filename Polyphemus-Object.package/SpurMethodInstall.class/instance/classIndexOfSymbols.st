@@ -10,5 +10,5 @@ classIndexOfSymbols
 		| element |
 		element := array reifiedSlotAt: each.
 		(element address = flag address or: [ element isNilOop ]) ifFalse: [
-			^ (self wordAt: element address) bitAnd: 16r3FFFFF ] ].
+			^ memory classIndexOf: element address ] ].
 	^ self error: 'this image holds no symbols'

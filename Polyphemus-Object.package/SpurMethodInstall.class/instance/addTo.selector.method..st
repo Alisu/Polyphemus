@@ -6,17 +6,17 @@ addTo: aReifiedClass selector: aSelectorOop method: anOop
 	its named ones, and the methods are in its array -- which may now hold something younger."
 
 	| dictionary methods size index tally |
-	dictionary := aReifiedClass reifiedSlotAt: 2.
-	methods := dictionary reifiedSlotAt: 2.
-	size := methods oopNumberOfSlots.
-	tally := ((self slot: 0 of: dictionary address) - 1) // 8.
+	dictionary := (aReifiedClass reifiedSlotAt: 2) address.
+	methods := ((aReifiedClass reifiedSlotAt: 2) reifiedSlotAt: 2) address.
+	size := memory numSlotsOf: methods.
+	tally := ((memory fetchPointer: 0 ofObject: dictionary) - 1) // 8.
 	tally + 1 > (size * 3 // 4) ifTrue: [
 		^ self error: 'that dictionary would have to grow, which is not done yet' ].
-	index := (((self wordAt: aSelectorOop) bitShift: -32) bitAnd: 16r3FFFFF) \\ size + 1.
-	[ (self slot: index + 1 of: dictionary address) = self nilOop ] whileFalse: [
+	index := (memory hashBitsOf: aSelectorOop) \\ size + 1.
+	[ (memory fetchPointer: index + 1 ofObject: dictionary) = self nilOop ] whileFalse: [
 		index := index \\ size + 1 ].
-	self remember: methods address.
-	self slot: index + 1 of: dictionary address put: aSelectorOop.
-	self slot: index - 1 of: methods address put: anOop.
-	self slot: 0 of: dictionary address put: (self smallIntegerOop: tally + 1).
+	memory remember: methods.
+	memory storePointer: index + 1 ofObject: dictionary withValue: aSelectorOop.
+	memory storePointer: index - 1 ofObject: methods withValue: anOop.
+	memory storePointer: 0 ofObject: dictionary withValue: (memory smallIntegerOop: tally + 1).
 	^ index

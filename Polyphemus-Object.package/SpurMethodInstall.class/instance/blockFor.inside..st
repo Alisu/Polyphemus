@@ -6,16 +6,16 @@ blockFor: aBlock inside: anOuterOop
 
 	| oop |
 	oop := self allocateCodeFor: aBlock ofClassNamed: 'CompiledBlock'.
-	self slot: 0 of: oop put: (self smallIntegerOop: aBlock header).
+	memory storePointer: 0 ofObject: oop withValue: (memory smallIntegerOop: aBlock header).
 	1 to: aBlock numLiterals do: [ :each |
-		self
-			slot: each
-			of: oop
-			put: (each = aBlock numLiterals
+		memory
+			storePointer: each
+			ofObject: oop
+			withValue: (each = aBlock numLiterals
 					 ifTrue: [ anOuterOop ]
 					 ifFalse: [ self literalFor: (aBlock literalAt: each) inside: oop ]) ].
 	aBlock initialPC to: aBlock size do: [ :each |
-		self
+		memory
 			byteAt: oop + 8 + (aBlock numLiterals + 1 * 8) + (each - aBlock initialPC)
 			put: (aBlock at: each) ].
 	^ oop

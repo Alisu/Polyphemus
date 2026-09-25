@@ -16,5 +16,5 @@ largeIntegerFor: anInteger
 		       ofClassNamed: (anInteger negative
 				        ifTrue: [ 'LargeNegativeInteger' ]
 				        ifFalse: [ 'LargePositiveInteger' ]).
-	bytes doWithIndex: [ :each :index | self byteAt: oop + 8 + index - 1 put: each ].
+	bytes doWithIndex: [ :each :index | memory byteAt: oop + 8 + index - 1 put: each ].
 	^ oop

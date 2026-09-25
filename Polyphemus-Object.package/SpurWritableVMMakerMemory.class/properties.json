@@ -1,0 +1,11 @@
+{
+	"commentStamp" : "",
+	"super" : "SpurWritableMemory",
+	"category" : "Polyphemus-Object-dump",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [ "memory" ],
+	"name" : "SpurWritableVMMakerMemory",
+	"type" : "normal"
+}

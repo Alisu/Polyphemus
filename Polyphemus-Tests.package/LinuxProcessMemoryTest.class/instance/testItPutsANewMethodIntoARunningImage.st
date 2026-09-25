@@ -16,7 +16,7 @@ testItPutsANewMethodIntoARunningImage
 		reading := dumped reifiedMemory.
 		integer := reading oopClassNamed: 'Integer'.
 		selector := self aSelectorIntegersDoNotUnderstandIn: reading.
-		(SpurProcessInstall on: reader reading: reading)
+		(SpurMethodInstall on: reading into: (SpurWritableProcess on: reader))
 			install: (reading compileHostSource: selector asString , ' ^ 42' for: integer) first
 			under: selector address
 			in: integer.

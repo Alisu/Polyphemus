@@ -1,9 +1,7 @@
 helpers
 fix
 
-	"A fix that can both write in place and make room, the image being a file we rewrite."
+	"A fix that can both write in place and make room, in the memory VMMaker loaded the image
+	into, which the image is written from."
 
-	^ SpurMethodFix
-		  on: reading
-		  editing: (SpurEdit on: (SpurWritableImageFile on: path) reading: reading)
-		  installing: (SpurMethodInstall on: reading)
+	^ SpurMethodFix on: reading into: (SpurWritableVMMakerMemory on: reading)

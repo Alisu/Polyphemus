@@ -5,7 +5,7 @@
 	"classinstvars" : [ ],
 	"pools" : [ ],
 	"classvars" : [ ],
-	"instvars" : [ "process" ],
+	"instvars" : [ "process", "variables" ],
 	"name" : "SpurWritableProcess",
 	"type" : "normal"
 }

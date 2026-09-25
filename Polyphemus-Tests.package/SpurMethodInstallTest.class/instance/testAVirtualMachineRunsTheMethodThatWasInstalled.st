@@ -13,7 +13,7 @@ testAVirtualMachineRunsTheMethodThatWasInstalled
 		as: found first
 		of: (reading oopClassNamed: 'Integer')
 		insteadOf: found second.
-	install writeTo: written.
+	install memory writeTo: written.
 
 	answer := self evaluate: '6 * 7 * 1000000000000 * 1000000000000' in: written.
 

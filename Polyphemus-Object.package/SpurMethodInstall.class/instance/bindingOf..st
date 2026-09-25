@@ -6,6 +6,6 @@ bindingOf: aReifiedClass
 
 	| method |
 	method := aReifiedClass reifiedMethods first.
-	^ self
-		  slot: (reading literalCountOf: method address)
-		  of: method address
+	^ memory
+		  fetchPointer: (reading literalCountOf: method address)
+		  ofObject: method address
