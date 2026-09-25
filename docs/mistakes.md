@@ -340,6 +340,19 @@ AppleDouble resource forks, and the loader tried to compile them as methods.
 -> They were deleted before committing; `find . -name "._*" -delete` after any transfer from a
 Mac.
 
+**A fixture older than its pin.** The pinned Pharo 10 is downloaded, not committed, and ours had
+been downloaded before the pin existed: a different build (`28169ae`) from the one the code names
+(`0542643`). Nothing ever replaced it, so for months our suite read an image no newcomer gets.
+It also hid two bugs, because the stale build matched the host's own sources file: the pinned
+image could not find its sources (#38), and a live reading took them from our working
+directory (#39). The newcomer check found it, the first time it really ran tests.
+-> A pinned file on disk is only pinned if something checks it against the pin. When a check
+from a clean start disagrees with the usual loop, suspect the usual loop's environment first.
+
+**A check that never checked.** `check-newcomer.sh --tests` loaded Polyphemus and then ran the
+tests in the image *before* the load, since the load was never saved: "0 run", and exit 0.
+-> A test step that reports zero tests has failed. Make it say so.
+
 ## Searching
 
 **A negative result is only as good as the scope of the search.** Hunting the special objects

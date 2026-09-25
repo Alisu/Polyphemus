@@ -5,6 +5,7 @@ evaluate: anExpression in: anImage
 	answer goes to a file of this class's own: classes run side by side."
 
 	| out |
+	self putSourcesBeside: anImage.
 	out := FileLocator temp / ('polyphemus-eval-' , self class name , '.txt').
 	out ensureDelete.
 	LibC system: Smalltalk vm fullPath , ' --headless ' , anImage fullName , ' eval "'

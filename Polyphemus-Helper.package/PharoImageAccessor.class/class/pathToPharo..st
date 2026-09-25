@@ -4,7 +4,9 @@ pathToPharo: aNumber
 	
 	path := self pathToImageNamed: (self nameForPharo: aNumber) , '.image'.
 	path asFileReference 
-		ifExists: [ ^ path ]
+		ifExists: [
+			self giveSourcesTheirOwnNameFor: aNumber at: path.
+			^ path ]
 		ifAbsent: [ 
 			self getImageForPharo: aNumber.
 			^ self pathToPharo: aNumber ].
