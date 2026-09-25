@@ -57,10 +57,13 @@ say value: 'VMMaker packages here' value: [
 			  (p name beginsWith: 'Unicorn') or: [ p name beginsWith: 'LLVM' ] ] ] ])
 		 collect: [ :p | p name -> p methods size ]) asSortedCollection asArray ].
 say value: 'classes missing' value: [
-	(#( AbstractReifiedMemory LinuxProcessMemory SpurImageEdit SpurImageFromDump
-	    SpurMethodInstall SpurReadability OOPCogLayout VMVariables OOPBuilder )
+	(#( AbstractReifiedMemory LinuxProcessMemory SpurEdit SpurWritableImageFile
+	    SpurWritableVMMakerMemory SpurWritableProcess SpurMethodFix SpurImageFromDump
+	    SpurMethodInstall SpurReadability OOPCogLayout VMVariables OOPBuilder
+	    PolyphemusTestCase LiveEditingTest )
 		 reject: [ :each | Smalltalk includesKey: each ]) asArray ].
-Smalltalk exitSuccess
+"Saved, so that --tests runs in what was loaded: the image is a throwaway copy anyway."
+Smalltalk snapshot: true andQuit: true
 SMALLTALK
 
 echo "== loading $branch ${group:+group $group }into a clean Pharo 10 =="
@@ -72,5 +75,11 @@ timeout 1800 ./pharo newcomer.image st check.st 2>&1 | tr -d '\033' \
 
 if [ "$run_tests" = "yes" ]; then
 	echo "== running Polyphemus-Tests in it =="
-	timeout 3000 ./pharo newcomer.image test "Polyphemus-Tests" 2>&1 | tr -d '\033' | tail -5
+	result=$(timeout 3000 ./pharo newcomer.image test "Polyphemus-Tests" 2>&1 | tr -d '\033' | tail -5)
+	echo "$result"
+	# Nothing run is not a pass: it is what this printed while the loaded image went unsaved.
+	if grep -qE '^0 run' <<<"$result"; then
+		echo "BROKEN no test ran"
+		exit 1
+	fi
 fi
