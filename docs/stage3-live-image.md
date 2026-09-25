@@ -144,6 +144,16 @@ and `interpretNextInstructionFor:` -- bytecode interpretation in Smalltalk. `ste
 through `Process>>completeStep:` the same way. So a held image steps its own process with no
 machine-level help, and stepping is a matter of what we ask over the channel.
 
+**Single steps: built.** `HeldProcess` names the process on both sides by its identity hash (set
+first, while stopped, when it has none), and the image opens a `DebugSession` of its own on it;
+`ReifiedDebugSession stepWith:` sends Step Over and Step Into there and shows the debugger what
+memory holds afterwards. A step costs ~15 ms in the image and ~1.5 s to read back: the reading
+is built once per hold (seconds, most of it the class table) and refreshed after each step,
+keeping the classes and refusing when the heap grew or a full GC moved the class table or the
+special objects (measured: one did, and the rebuild agreed with the image). Still to do: a
+front door that opens `StDebugger` on a held image with all of this composed; "run until";
+and a step of a frame selected below the top one, which today steps the top.
+
 ### D. Editing objects, not only methods (#20)
 
 `SpurEdit>>store:inSlot:ofObjectShown:` sets any slot of any object a reading shows, and the
