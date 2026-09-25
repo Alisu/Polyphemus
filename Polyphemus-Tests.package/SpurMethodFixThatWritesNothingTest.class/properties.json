@@ -2,10 +2,10 @@
 	"commentStamp" : "",
 	"super" : "SpurMethodFixTestCase",
 	"category" : "Polyphemus-Tests",
-	"classinstvars" : [  ],
+	"classinstvars" : [ "Reading" ],
 	"pools" : [ ],
 	"classvars" : [ ],
 	"instvars" : [  ],
-	"name" : "SpurMethodFixTest",
+	"name" : "SpurMethodFixThatWritesNothingTest",
 	"type" : "normal"
 }

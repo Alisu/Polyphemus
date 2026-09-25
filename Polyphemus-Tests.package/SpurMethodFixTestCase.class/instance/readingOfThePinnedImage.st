@@ -1,0 +1,4 @@
+running
+readingOfThePinnedImage
+
+	^ self subclassResponsibility

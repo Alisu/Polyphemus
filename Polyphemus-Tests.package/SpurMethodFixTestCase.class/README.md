@@ -1,0 +1,1 @@
+What the fix tests share: the pinned Pharo 10 image read, a method of Integer to fix, and a fix aimed at the memory VMMaker loaded it into. How the reading is had is the subclass's: fresh for a test that changes it, shared by those that do not. Abstract.

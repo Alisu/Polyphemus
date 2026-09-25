@@ -1,0 +1,1 @@
+Fixes and sessions that leave the image as it was -- refused, written into a copy of the file, or accepting a method's own source -- sharing one reading of the pinned image: a reading costs ten seconds, and nothing here changes it.
