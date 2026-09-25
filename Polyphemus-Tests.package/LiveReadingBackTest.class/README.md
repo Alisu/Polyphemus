@@ -1,0 +1,1 @@
+Reading back what a step left in a held image: found without reading everything, taking the last reading's classes over, surviving a compacting GC, and leaving earlier readings valid for the contexts the debugger still holds (#34).
