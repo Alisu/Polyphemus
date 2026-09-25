@@ -1,1 +1,0 @@
-Edits to an image file, made in a copy of its bytes and addressed as its heap addresses them: an object's slot, or a word. Nothing is written to the original; #writeTo: writes the edited copy out as an image file. Navigation reads the file as it was, through #raw.

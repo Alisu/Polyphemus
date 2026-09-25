@@ -13,8 +13,14 @@ cd "$WORK"
 HERE="$WORK/Polyphemus/bin"
 
 echo "== compiling working copy into dev.image =="
-timeout 600 ./pharo dev.image st "$HERE/sync-from-working-copy.st" 2>/dev/null \
-  | tr -d '\033' | grep -E '^SYNC|^CREATED|^REMOVED|^COMPILE ERR|^SKIP|^NO COMMENT|^RETAGGED' || true
+sync=$(timeout 600 ./pharo dev.image st "$HERE/sync-from-working-copy.st" 2>&1 | tr -d '\033')
+grep -E '^SYNC|^CREATED|^REMOVED|^REDEFINED|^IVAR|^COMPILE ERR|^SKIP|^NO COMMENT|^RETAGGED' <<<"$sync"
+# No summary line means the script itself failed, and the tests would run the image as it was.
+if ! grep -q '^SYNC' <<<"$sync"; then
+  echo "!! the working copy was not compiled; the sync script said:"
+  tail -20 <<<"$sync"
+  exit 1
+fi
 
 # Method comments are one to three lines (CLAUDE.md, Working agreement).
 command -v python3 >/dev/null && python3 "$HERE/long-comments.py" "$HERE/.."

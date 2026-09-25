@@ -1,1 +1,0 @@
-Editing a running image through /proc/<pid>/mem: the same passes as an image file's, at the address the process itself uses, so nothing is shifted. The process must be stopped, which for a wedged one means held at a safepoint first (#24).

@@ -3,7 +3,7 @@
  Metacello refuses to reload a package whose version looks unchanged, so during the
  TDD loop we compile straight from the files: every *.class and *.extension directory
  of every Polyphemus package, creating classes that do not exist yet and removing
- methods whose files are gone."
+ classes and methods whose files are gone."
 | root joined ensureClass syncSide created compiled removed packages pending |
 "Wherever this checkout is: Iceberg has it registered, which the test fixtures rely on too."
 root := (IceRepository registeredRepositoryIncludingPackage:
@@ -128,6 +128,21 @@ packages do: [ :pkgDir |
 		value: (STONJSON fromString: (each key / 'properties.json') contents)
 		value: each value) notNil ].
   pending notEmpty and: [ pending size < before ] ] whileTrue.
+
+"A class whose directory is gone goes too, or tests keep passing against a class a fresh load
+ would not have. Subclasses first, so none is left without its superclass."
+packages do: [ :pkgDir |
+	| packageName wanted gone |
+	packageName := pkgDir basename copyReplaceAll: '.package' with: ''.
+	wanted := (pkgDir directories
+		select: [ :d | (d basename endsWith: '.class') or: [ d basename endsWith: '.trait' ] ])
+		collect: [ :d | ((STONJSON fromString: (d / 'properties.json') contents) at: 'name') asSymbol ].
+	gone := (RPackageOrganizer default packageNamed: packageName) definedClasses
+		reject: [ :cls | wanted includes: cls name asSymbol ].
+	(gone asSortedCollection: [ :a :b | a allSuperclasses size >= b allSuperclasses size ])
+		do: [ :cls |
+			('REMOVED CLASS ' , cls name) traceCr.
+			cls removeFromSystem ] ].
 
 packages do: [ :pkgDir |
 	| packageName |
