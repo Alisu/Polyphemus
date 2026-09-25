@@ -1,7 +1,6 @@
 stepping
 letGo
 
-	"The process back in its queue, and the image let go."
+	"End the agent: the image, and the process in its queue, go on."
 
-	channel ask: '(self at: #process) resume. nil'.
 	channel letGo

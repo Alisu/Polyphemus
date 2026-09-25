@@ -1,14 +1,11 @@
 {
-	"commentStamp": "",
-	"super": "DebugSession",
-	"category": "Polyphemus-Memory",
-	"classinstvars": [],
-	"pools": [],
-	"classvars": [],
-	"instvars": [
-		"fix",
-		"release"
-	],
-	"name": "ReifiedDebugSession",
-	"type": "normal"
+	"commentStamp" : "",
+	"super" : "DebugSession",
+	"category" : "Polyphemus-Memory",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [ "fix", "release", "held" ],
+	"name" : "ReifiedDebugSession",
+	"type" : "normal"
 }

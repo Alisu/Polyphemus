@@ -5,5 +5,8 @@ withTheRunawayHeldDo: aBlock
 
 	self withAnAgentIn: self launchSpinningTarget do: [ :channel :reader |
 		aBlock
-			value: (HeldProcess on: channel identityHash: (self runawayHashIn: reader))
+			value: (HeldProcess
+					 on: channel
+					 reader: reader
+					 identityHash: (self runawayHashIn: reader))
 			value: reader ]
