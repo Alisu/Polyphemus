@@ -135,6 +135,8 @@ run_set() {
     if grep -qx "$c" <<<"$LANE"; then lane+=("$c"); else pool+=("$c"); fi
   done
   [ ${#lane[@]} -lt "$lanes" ] && lanes=${#lane[@]}
+  # No lanes: those classes run in the pool like any other (#45).
+  if [ "$lanes" -eq 0 ]; then pool+=(${lane[@]+"${lane[@]}"}); lane=(); fi
   [ ${#pool[@]} -gt 0 ] && [ "$JOBS" -gt "$lanes" ] && pool_jobs=$((JOBS - lanes))
   echo "== $label: ${#classes[@]} classes, $JOBS at a time; ${#lane[@]} launching images, in $lanes lane(s) =="
   local start; start=$(date +%s)
@@ -157,6 +159,10 @@ run_set() {
       | xargs -P "$pool_jobs" -I{} bash -c 'run_class "$@"' _ {} | tee -a "$RESULTS"
   fi
   wait
+  # Every class given must have said something: one that never ran is broken, not green (#45).
+  for c in "${classes[@]}"; do
+    grep -q "^RES $c " "$RESULTS" || echo "RES $c BROKEN never ran" | tee -a "$RESULTS"
+  done
   echo "== $label done in $(( $(date +%s) - start ))s =="
 }
 
