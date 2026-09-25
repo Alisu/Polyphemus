@@ -12,9 +12,11 @@ Three stages, in order:
 1. **Stage 1 (done)** — debug a corrupted *image file*. A snapshot has no stack frames: the VM
    turns every frame into a Context before writing (`divorceAllFrames` +
    `bereaveAllMarriedContextsForSnapshot…`), so stage 1 walks reified contexts, never frames.
-2. **Stage 2 (current)** — debug a crashed/hung *process* (core dump first, live attach later).
+2. **Stage 2 (done)** — debug a crashed/hung *process* (core dump first, live attach later).
    A dump *has* frames, which is the whole reason for it: they are what a snapshot throws away.
-3. **Stage 3** — observe a *live* image: stop/read/resume at the VM's interrupt-check safepoint.
+3. **Stage 3 (current)** — a *live* image: interrupt it, hold it, read it, fix it, let it go.
+   Much of it arrived with stage 2's editing work; what is left, and what is only believed
+   rather than checked, is in `docs/stage3-live-image.md`.
 
 ## Environment (on the Ubuntu box, `~/polyphemus`)
 
@@ -104,6 +106,7 @@ Fork-only, and the canonical record. `mistakes.md` first if a hunt is going long
 | `dump-formats.md` | what a dump is and is not, across ELF cores and minidumps |
 | `reading-a-dump.md` | reading an ELF core: program headers, notes, segments |
 | `reading-a-live-process.md` | `/proc/pid/mem`, Mach, Windows, and why one protocol covers all three |
+| `stage3-live-image.md` | what works on a live image, what stage 3 must still do, and what is only believed |
 
 ## Current state
 
@@ -140,7 +143,13 @@ What it does not do, and why:
 - **The receiver's instance variables in the debugger are the reifier's** (`address`, `memory`),
   not the receiver's in the image being read. Everything else resolves over there.
 
-### Stage 2 — a crashed or stale process. In progress.
+### Stage 2 — a crashed or stale process. Done.
+
+Reading a dump or a live process, writing a loadable image from one, and editing either --
+in place, or by installing methods and the literals they name. `docs/editing-an-image.md`
+has the editing; `docs/stage3-live-image.md` carries what was learned about live images
+into stage 3. Left over rather than blocking: #27 (holding an image that carries no watcher
+of ours), #22 (a flaky test), #12 (waits for a newer VM), #35 (the tidy-up this work owes).
 
 A dump is memory that was already running, so it is put back at its original addresses and the
 `bytesToShift` an image needs is zero. Reading one is *simpler* than reading an image file — the

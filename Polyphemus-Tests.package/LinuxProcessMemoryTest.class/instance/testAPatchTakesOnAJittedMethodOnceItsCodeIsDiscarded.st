@@ -1,8 +1,8 @@
 tests
 testAPatchTakesOnAJittedMethodOnceItsCodeIsDiscarded
 
-	"And the fix: voidCogVMState, primitive 215, is what discards the machine code a method
-	has -- flushCache, whatever its comment says, only clears the interpreter's own cache.
+	"And the fix: voidCogVMState, primitive 215, discards the machine code a method has.
+	flushCache was measured not to, though why is not established -- see editing-an-image.md.
 	Asked for it while held, the image answers the new bytecodes once it is let go."
 
 	| pid reader |

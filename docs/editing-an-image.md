@@ -221,9 +221,13 @@ and **machine code is what runs**. Patching the bytecodes of such a method chang
 all, which is a quiet way to be wrong. Detecting it is one slot: a jitted method's header holds
 a CogMethod where the header word belongs (#3).
 
-`CompiledMethod>>flushCache` is not the answer, whatever its comment says. Followed into VMMaker:
-primitive 116 reaches `StackInterpreter>>flushMethodCacheForMethod:`, which clears the
-interpreter's own cache, its external primitives and the at-cache -- and nothing of Cog's.
+`CompiledMethod>>flushCache` did not do it, and **why is still unknown**. Measured: asking the held
+image to run it left the old machine code running, while `voidCogVMState` took effect. The
+explanation first written here -- that primitive 116 only reaches
+`StackInterpreter>>flushMethodCacheForMethod:`, which touches nothing of Cog's -- does not survive
+reading the senders list: `CoInterpreterPrimitives>>primitiveFlushCacheByMethod` *does* send
+`unlinkSendsTo:andFreeIf:`, which frees the CogMethod. So the measurement is sound and the cause is
+not established. Commit `a5a750c` carries the wrong reason in its message.
 
 **`voidCogVMState` is.** `CompiledCode>>voidCogVMState` is primitive 215 and discards that
 method's machine code; `VirtualMachine>>voidCogVMState` is 214 and discards all of it. So the
