@@ -35,33 +35,35 @@ ensureClass := [ :props :packageName |
 			 the old superclass, with whatever it inherits shadowed, and nothing said so."
 			wantedSuper := (props at: 'super') asSymbol.
 			wantedIvars := (props at: 'instvars') collect: [ :each | each asString ].
-			(cls superclass name asSymbol = wantedSuper and: [
-				 cls instVarNames asSet = wantedIvars asSet ]) ifFalse: [
-				(Smalltalk includesKey: wantedSuper)
-					ifFalse: [ ('SKIP ', name, ': superclass ', wantedSuper, ' missing') traceCr ]
-					ifTrue: [
+			"A superclass that is itself new may only arrive in a later pass: answer nil, and the
+			 class is tried again then, as a new one would be."
+			(Smalltalk includesKey: wantedSuper)
+				ifFalse: [ nil ]
+				ifTrue: [
+					(cls superclass name asSymbol = wantedSuper and: [
+						 cls instVarNames asSet = wantedIvars asSet ]) ifFalse: [
 						(Smalltalk at: wantedSuper)
 							subclass: name
 							instanceVariableNames: (joined value: (props at: 'instvars'))
 							classVariableNames: (joined value: (props at: 'classvars'))
 							package: packageName.
 						cls := Smalltalk at: name.
-						('REDEFINED ', name, ' under ', wantedSuper) traceCr ] ].
-			wantedIvars do: [ :ivar |
-				(cls instVarNames includes: ivar) ifFalse: [
-					cls addInstVarNamed: ivar.
-					('IVAR ', name, '>>', ivar) traceCr ] ].
-			"The category is the class's tag, which is how the browser groups it."
-			(props at: 'category' ifAbsent: [ nil ]) ifNotNil: [ :wanted |
-				cls category = wanted asSymbol ifFalse: [
-					cls category: wanted.
-					('RETAGGED ', name, ' -> ', wanted) traceCr ] ].
-			cls ]
+						('REDEFINED ', name, ' under ', wantedSuper) traceCr ].
+					wantedIvars do: [ :ivar |
+						(cls instVarNames includes: ivar) ifFalse: [
+							cls addInstVarNamed: ivar.
+							('IVAR ', name, '>>', ivar) traceCr ] ].
+					"The category is the class's tag, which is how the browser groups it."
+					(props at: 'category' ifAbsent: [ nil ]) ifNotNil: [ :wanted |
+						cls category = wanted asSymbol ifFalse: [
+							cls category: wanted.
+							('RETAGGED ', name, ' -> ', wanted) traceCr ] ].
+					cls ] ]
 		ifFalse: [
 			| superName cls |
 			superName := (props at: 'super') asSymbol.
 			(Smalltalk includesKey: superName)
-				ifFalse: [ ('SKIP ', name, ': superclass ', superName, ' missing') traceCr. nil ]
+				ifFalse: [ nil ]
 				ifTrue: [
 					cls := (Smalltalk at: superName)
 						subclass: name
@@ -128,6 +130,8 @@ packages do: [ :pkgDir |
 		value: (STONJSON fromString: (each key / 'properties.json') contents)
 		value: each value) notNil ].
   pending notEmpty and: [ pending size < before ] ] whileTrue.
+pending do: [ :each |
+	('SKIP ' , each key basename , ': its superclass is not in the image or the working copy') traceCr ].
 
 "A class whose directory is gone goes too, or tests keep passing against a class a fresh load
  would not have. Subclasses first, so none is left without its superclass."
