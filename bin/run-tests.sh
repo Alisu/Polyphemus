@@ -180,6 +180,8 @@ if [ ${#SELECTED[@]} -ne 1 ]; then
   COLLECTED=$(collect)
   LANE=$(grep '^LANE ' <<<"$COLLECTED" | awk '{print $2}')
 fi
+# SERIAL_LANE=no puts the image-launching classes back in the pool, to measure what the lane costs.
+[ "${SERIAL_LANE:-yes}" = no ] && LANE=
 
 if [ ${#SELECTED[@]} -gt 0 ]; then
   run_set "selected" "${SELECTED[@]}"
