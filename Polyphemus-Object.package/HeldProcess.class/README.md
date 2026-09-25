@@ -1,0 +1,1 @@
+A process of a held image, stepped by that image's own debugger through a channel (#34): Pharo steps by interpreting bytecodes in Smalltalk, so the image needs nothing from us but the request. Both sides name the process by its identity hash, which a move in memory does not change. What a step left is read back from memory.

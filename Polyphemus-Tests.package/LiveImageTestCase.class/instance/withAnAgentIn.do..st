@@ -1,7 +1,8 @@
 helpers
 withAnAgentIn: aPid do: aBlock
 
-	"Hold the image, hand it the agent, and give aBlock a channel to it; kill it afterwards."
+	"Hold the image, hand it the agent, and give aBlock a channel to it and the reader; kill
+	the image afterwards."
 
 	| reader channel |
 	channel := DirectoryChannel on: self spikeDirectory / 'channel'.
@@ -10,6 +11,6 @@ withAnAgentIn: aPid do: aBlock
 	self holdWithTheInterrupt: reader.
 	self askTheHeldImageTo: (PolyphemusAgent sourceServing: channel directory).
 	reader whileStopped: [ self letGo: reader heap: (SpurDumpedMemory on: reader) raw ].
-	aBlock value: channel ] ensure: [
+	aBlock cull: channel cull: reader ] ensure: [
 		LibC system: 'kill -9 ' , aPid printString.
 		reader ifNotNil: [ reader close ] ]
