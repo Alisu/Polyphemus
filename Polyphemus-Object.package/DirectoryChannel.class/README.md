@@ -1,0 +1,1 @@
+Our end of a channel to a PolyphemusAgent, through a directory both sides can see: each request is Smalltalk source the image evaluates, and each answer its print string, or a PolyphemusChannelError naming what went wrong there. The first transport behind the channel; nothing about it is meant to leak to whoever asks.

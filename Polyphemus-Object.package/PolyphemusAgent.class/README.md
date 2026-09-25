@@ -1,0 +1,1 @@
+What a held image runs to answer us (#34): Smalltalk source for a stock image, which has none of Polyphemus in it. It evaluates each request left in a directory and leaves the answer beside it, never yielding -- so the image stays held while it serves -- until told to go.

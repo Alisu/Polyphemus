@@ -108,6 +108,23 @@ instances" needs anyway -- so it is worth building once, deliberately, rather th
 accident. Whatever carries it, the debugger on screen must not learn whether it is talking to a
 core, a file or an agent.
 
+**Built.** `PolyphemusAgent sourceServing:` is Smalltalk source for a *stock* image -- nothing of
+Polyphemus is in the target -- which the watcher runs as its script once held. It evaluates each
+`request.N` left in a directory and writes `answer.N` beside it (each written under another name
+and renamed, so neither side reads half a file), never yielding, until a file named `go` appears.
+`DirectoryChannel` is our end: `ask:` answers the print string of the value over there, or
+raises `PolyphemusChannelError` naming what went wrong there, or that nothing answered.
+
+Measured on a held target (`LiveChannelTest`): it answers `3 + 4` with `7`, the agent runs at
+priority 70, and a process forked at 40 does not run until `letGo`. Files, not a socket, because
+checking for a file is a primitive that does not yield -- the hold survives the serving -- and
+because the answers can stay small: what a step leaves behind is read from memory, which is what
+Polyphemus already does. The transport sits behind `ask:` and `letGo`, so a socket can replace it
+for instances on other machines.
+
+What the agent does not have yet: state kept between requests, and a way to speak first -- a
+trap that fires has to reach us unasked. Both belong to C.
+
 ### C. Stepping (#34)
 
 Théo's shape: let the image resume, instrumented, and have it call back when it reaches the method
@@ -121,9 +138,11 @@ and pc we are waiting for. Two halves, and they are for different things:
 The second is what makes a wedged image tractable: you do not step a hundred thousand times to
 reach the interesting call.
 
-**To check before building:** Pharo's debugger appears to step by simulating in the image rather
-than asking the VM (`Context>>step`), which would mean "step" needs no machine-level trick at all.
-That belief has not been verified against the source, and the plan leans on it.
+**Checked against the source (Pharo 10, build 527):** `DebugSession>>stepInto:` sends
+`Process>>step:`, which sends `Context>>step`, which is `InstructionStream on: method pc: pc`
+and `interpretNextInstructionFor:` -- bytecode interpretation in Smalltalk. `stepOver:` goes
+through `Process>>completeStep:` the same way. So a held image steps its own process with no
+machine-level help, and stepping is a matter of what we ask over the channel.
 
 ### D. Editing objects, not only methods (#20)
 
@@ -155,7 +174,6 @@ need splitting, and they should be split first.
 
 - Who waits on the interrupt semaphore in a stock headless image, and what it does when woken.
 - Whether a jitted method's *linked send sites* defeat a dictionary swap, and for how long.
-- Whether Pharo steps by simulation in the image (`Context>>step`) as believed.
 - Why `flushCache` did not discard machine code in the measurement, when VMMaker's
   `CoInterpreterPrimitives>>primitiveFlushCacheByMethod` does send `unlinkSendsTo:andFreeIf:`.
   The measurement is solid -- `voidCogVMState` took, `flushCache` did not -- but the explanation
