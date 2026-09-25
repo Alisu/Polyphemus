@@ -11,9 +11,10 @@ the pinned Pharo 10 the reading sits **0x151CD20** above the file: nil is at `17
 the file says `16868C00`. An edit aimed at the address an inspector shows would land in a
 neighbouring object and report success.
 
-So `SpurImageEdit>>reading:` takes the reading, and everything aimed at an object it shows goes
-through `#addressInFileOf:`. `#store:inSlot:ofObjectShown:` tags an integer, translates an
-object, and refuses anything the image does not already hold.
+So `SpurEdit on:reading:` takes the reading as well as the memory it writes into, asks that
+memory how far the reading is from it (`#shiftFrom:`), and everything aimed at an object the
+reading shows goes through `#addressOf:`. `#store:inSlot:ofObjectShown:` tags an integer,
+translates an object, and refuses anything the image does not already hold.
 
 ## Where a method keeps its code
 
@@ -30,7 +31,7 @@ leaves the file identical byte for byte, which is how that arithmetic is tested.
 
 ## Rung 1: code that fits where it is
 
-`SpurImageEdit>>replaceCodeOfMethodShown:from:to:` writes bytecodes over a method in place. It
+`SpurEdit>>replaceCodeOfMethodShown:from:to:` writes bytecodes over a method in place. It
 needs both compilations, because what makes it safe is the check highlighting already does:
 **the file must hold exactly what the old compilation says it does**. It refuses when the
 literals differ, when the lengths differ, or when the file holds something else.
@@ -161,14 +162,18 @@ while the change went nowhere. Silence of that kind is worse than a refusal.
 ## The live destination
 
 The passes above write into a reading of a *file*. The same ones aim at a running image, which is
-what they were for: `SpurEdit` holds what is common -- replacing a method's code with one
-compiled here -- and a subclass says how to read and write bytes, and how far its addresses are
-from the reading's.
+what they were for. `SpurEdit` does the editing once; what it writes into is a
+`SpurWritableMemory`, one protocol in VMMaker's own words (`fetchPointer:ofObject:`,
+`storePointer:ofObject:withValue:` and `numSlotsOf:`, slots counting from zero as the machine counts
+them) over three memories:
 
 | | reads and writes | shift |
 |---|---|---|
-| `SpurImageEdit` | a copy of the file's bytes, written out afterwards | the reading is 0x151CD20 above the file |
-| `SpurProcessEdit` | `/proc/<pid>/mem`, refused unless the process is stopped | **none**: a process is read at its own addresses |
+| `SpurWritableImageFile` | a copy of the file's bytes, written out afterwards | the reading is 0x151CD20 above the file |
+| `SpurWritableProcess` | `/proc/<pid>/mem`, refused unless the process is stopped | **none**: a process is read at its own addresses |
+
+A memory reads back what was written to it, not the bytes it started from: the lesson of the two
+memories in `mistakes.md`, taken into the protocol rather than left to each caller.
 
 So editing a wedged image is the passes of #25 pointed at the process of #24:
 

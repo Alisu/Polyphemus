@@ -5,7 +5,5 @@ fix
 
 	^ SpurMethodFix
 		  on: reading
-		  editing: ((SpurImageEdit on: path)
-				   reading: reading;
-				   yourself)
+		  editing: (SpurEdit on: (SpurWritableImageFile on: path) reading: reading)
 		  installing: (SpurMethodInstall on: reading)

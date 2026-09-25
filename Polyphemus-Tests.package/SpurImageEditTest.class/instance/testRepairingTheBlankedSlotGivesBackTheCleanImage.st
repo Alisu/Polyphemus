@@ -5,13 +5,13 @@ testRepairingTheBlankedSlotGivesBackTheCleanImage
 	word back into that slot gives the clean file again, byte for byte."
 
 	| clean damaged slot word |
-	clean := SpurImageEdit on: PharoImageAccessor pathToPharo10.
-	damaged := SpurImageEdit on: BlankedContextImageResource corruptedImagePath.
+	clean := SpurWritableImageFile on: PharoImageAccessor pathToPharo10.
+	damaged := SpurWritableImageFile on: BlankedContextImageResource corruptedImagePath.
 	slot := self suspendedContextSlotOf: clean.
 	word := clean raw scanner slotOf: slot key at: slot value.
 
 	self assert: (damaged raw scanner slotOf: slot key at: slot value) equals: 0.
-	damaged storePointer: slot value ofObject: slot key value: word.
+	damaged storePointer: slot value - 1 ofObject: slot key withValue: word.
 	damaged writeTo: written.
 
 	self

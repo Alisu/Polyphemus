@@ -1,0 +1,1 @@
+The protocol every memory we write into answers, checked on an image file's: slots count from zero as VMMaker's do, a count past 254 is read from the overflow word, and what was written is what is read back.

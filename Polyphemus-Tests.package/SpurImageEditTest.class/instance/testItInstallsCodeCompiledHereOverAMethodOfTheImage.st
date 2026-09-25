@@ -7,7 +7,7 @@ testItInstallsCodeCompiledHereOverAMethodOfTheImage
 
 	| reading edit integer found file installed |
 	reading := Polyphemus readImageFile: PharoImageAccessor pathToPharo10.
-	edit := (SpurImageEdit on: PharoImageAccessor pathToPharo10) reading: reading.
+	edit := SpurEdit on: (SpurWritableImageFile on: PharoImageAccessor pathToPharo10) reading: reading.
 	integer := reading oopClassNamed: 'Integer'.
 	found := self aMethodWhoseComparisonCanBeSwappedIn: integer of: reading.
 	found ifNil: [ ^ self fail: 'no method of Integer recompiles here and holds a comparison' ].
@@ -16,7 +16,7 @@ testItInstallsCodeCompiledHereOverAMethodOfTheImage
 		replaceCodeOfMethodShown: found first
 		from: found second
 		to: found third.
-	edit writeTo: written.
+	edit memory writeTo: written.
 
 	file := SpurImageFile on: written.
 	installed := (1 to: (edit codeOf: found third) size) collect: [ :each |

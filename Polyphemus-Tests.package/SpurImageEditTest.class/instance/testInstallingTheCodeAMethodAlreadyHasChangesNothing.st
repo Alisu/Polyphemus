@@ -6,13 +6,13 @@ testInstallingTheCodeAMethodAlreadyHasChangesNothing
 
 	| reading edit activation host |
 	reading := Polyphemus readImageFile: PharoImageAccessor pathToPharo10.
-	edit := (SpurImageEdit on: PharoImageAccessor pathToPharo10) reading: reading.
+	edit := SpurEdit on: (SpurWritableImageFile on: PharoImageAccessor pathToPharo10) reading: reading.
 	activation := (reading activationsOfProcess: reading reifiedActiveProcess) detect: [ :each |
 		                  [ (reading hostMethodFor: each) notNil ] on: Error do: [ :e | false ] ].
 	host := reading hostMethodFor: activation.
 
 	edit replaceCodeOfMethodShown: activation homeMethod from: host to: host.
-	edit writeTo: written.
+	edit memory writeTo: written.
 
 	self
 		assert: (written binaryReadStreamDo: [ :each | each upToEnd ])

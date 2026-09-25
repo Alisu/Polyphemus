@@ -205,8 +205,8 @@ The order of what remains, decided rather than assumed:
    saved registers, checked against the threads' `rip`) are done. A machine code pc is
    mapped by VMMaker's own Cogit over the dump. **Item 3 is done**, for cores and for
    stopped live processes (`/proc/<pid>/task/*/syscall` gives each thread's pc). Item 4 is parked until these are done.
-4. **Editing and writing back** -- unparked 2026-09-19. **a. Done:** `SpurImageEdit` edits an
-   image file's objects in a copy of its bytes, addressed as its heap addresses them, and writes
+4. **Editing and writing back** -- unparked 2026-09-19. **a. Done:** `SpurImageEdit` (since #35, `SpurEdit` on a
+   `SpurWritableImageFile`) edits an image file's objects in a copy of its bytes, addressed as its heap addresses them, and writes
    the copy out. Repairing the blanked-context fixture's slot with the clean image's word gives
    back the clean file byte for byte. **b. Done:** `SpurImageFromDump` writes a dump as an image file a virtual machine starts:
    jitted method headers restored from their CogMethods, frames divorced into contexts (JIT pcs

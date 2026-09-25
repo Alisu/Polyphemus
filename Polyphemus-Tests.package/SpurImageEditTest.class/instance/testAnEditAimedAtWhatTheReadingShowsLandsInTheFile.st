@@ -7,12 +7,12 @@ testAnEditAimedAtWhatTheReadingShowsLandsInTheFile
 
 	| reading edit specials file word |
 	reading := Polyphemus readImageFile: PharoImageAccessor pathToCandle64Bit.
-	edit := (SpurImageEdit on: PharoImageAccessor pathToCandle64Bit) reading: reading.
+	edit := SpurEdit on: (SpurWritableImageFile on: PharoImageAccessor pathToCandle64Bit) reading: reading.
 	specials := reading reifiedSpecialObjectArray.
 	self assert: specials address ~= (edit addressOf: specials).
 
 	edit store: 42 inSlot: 1 ofObjectShown: specials.
-	edit writeTo: written.
+	edit memory writeTo: written.
 
 	file := SpurImageFile on: written.
 	word := file unsignedAt: file specialObjectsOop + 8 size: 8.

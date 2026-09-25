@@ -1,0 +1,1 @@
+A copy of an image file's bytes, addressed as its heap addresses them; #writeTo: writes the copy out as an image file of its own, and the original is left alone. #raw is the file as it was, to find objects in.

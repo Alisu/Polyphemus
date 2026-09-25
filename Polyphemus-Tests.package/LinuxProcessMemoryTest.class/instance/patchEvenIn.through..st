@@ -18,7 +18,6 @@ patchEvenIn: aDumpedMemory through: aReader
 	self
 		assert: (reading host: old matchesOop: method)
 		description: 'the image does not hold the code that was compiled from'.
-	(SpurProcessEdit on: aReader)
-		reading: reading;
+	(SpurEdit on: (SpurWritableProcess on: aReader) reading: reading)
 		replaceCodeOfMethodShown: method from: old to: new.
 	^ ((aDumpedMemory raw scanner slotOf: method address at: 1) bitAnd: 7) ~= 1

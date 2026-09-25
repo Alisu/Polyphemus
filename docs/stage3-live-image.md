@@ -127,10 +127,11 @@ That belief has not been verified against the source, and the plan leans on it.
 
 ### D. Editing objects, not only methods (#20)
 
-`SpurImageEdit` can set any slot of any object a reading shows, and the debugger's code pane is
-wired. The inspector is not, and the live editor has no `store:inSlot:ofObjectShown:` of its own --
-so today you can fix a method in a running image but not correct the instance variable that made
-it fail. Same machinery, one class short.
+`SpurEdit>>store:inSlot:ofObjectShown:` sets any slot of any object a reading shows, and the
+debugger's code pane is wired. The inspector is not. Since #35 put every memory behind one protocol
+the same method reaches a running image, but no test has aimed it at one yet -- so today you can
+fix a method in a running image, and correcting the instance variable that made it fail is
+believed to work rather than checked.
 
 ### E. Many instances at once
 

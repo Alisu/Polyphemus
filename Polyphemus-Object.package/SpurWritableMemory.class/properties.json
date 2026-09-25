@@ -5,7 +5,7 @@
 	"classinstvars" : [ ],
 	"pools" : [ ],
 	"classvars" : [ ],
-	"instvars" : [ "memory", "reading", "shift" ],
-	"name" : "SpurEdit",
+	"instvars" : [  ],
+	"name" : "SpurWritableMemory",
 	"type" : "normal"
 }

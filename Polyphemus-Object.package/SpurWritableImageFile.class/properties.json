@@ -1,11 +1,11 @@
 {
 	"commentStamp" : "",
-	"super" : "Object",
+	"super" : "SpurWritableMemory",
 	"category" : "Polyphemus-Object-dump",
 	"classinstvars" : [ ],
 	"pools" : [ ],
 	"classvars" : [ ],
-	"instvars" : [ "memory", "reading", "shift" ],
-	"name" : "SpurEdit",
+	"instvars" : [ "file", "bytes", "raw" ],
+	"name" : "SpurWritableImageFile",
 	"type" : "normal"
 }

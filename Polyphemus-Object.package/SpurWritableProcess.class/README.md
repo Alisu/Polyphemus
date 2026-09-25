@@ -1,0 +1,1 @@
+A running image, written through /proc/<pid>/mem at the addresses the process itself uses. The reader refuses to write unless the process is stopped, which for a wedged image means held at a safepoint first (#24).

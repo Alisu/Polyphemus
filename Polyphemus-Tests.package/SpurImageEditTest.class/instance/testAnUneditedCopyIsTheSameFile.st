@@ -1,9 +1,9 @@
 tests
 testAnUneditedCopyIsTheSameFile
 
-	| edit |
-	edit := SpurImageEdit on: PharoImageAccessor pathToCandle64Bit.
-	edit writeTo: written.
+	| memory |
+	memory := SpurWritableImageFile on: PharoImageAccessor pathToCandle64Bit.
+	memory writeTo: written.
 
 	self
 		assert: (written binaryReadStreamDo: [ :each | each upToEnd ])
