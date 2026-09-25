@@ -18,6 +18,7 @@ IMAGE="${IMAGE:-warm.image}"
 JOBS="${JOBS:-6}"
 TMO="${TMO:-400}"
 SLOW_THRESHOLD="${SLOW_THRESHOLD:-8}"
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$WORK"
 TIMINGS="$WORK/.test-timings"
 RESULTS="$WORK/.test-results"
@@ -41,10 +42,10 @@ done
 noise() { tr -d '\033' | grep -vE 'Simd|addMapped|extensionBytecode|CleanBlockChecker|^\[' ; }
 export -f noise
 
-all_classes() {
-  timeout 120 ./pharo "$IMAGE" st collect-tests.st 2>/dev/null | noise \
-    | grep '^CLASS ' | awk '{print $2}' | sort -u
+collect() {
+  timeout 120 ./pharo "$IMAGE" st "$HERE/collect-tests.st" 2>/dev/null | noise
 }
+all_classes() { grep '^CLASS ' <<<"$COLLECTED" | awk '{print $2}' | sort -u; }
 
 is_slow() {
   local c="$1" t
@@ -127,12 +128,25 @@ run_set() {
   local label="$1"; shift
   local classes=("$@")
   [ ${#classes[@]} -eq 0 ] && { echo "== $label: nothing to run =="; return 0; }
-  echo "== $label: ${#classes[@]} classes, $JOBS at a time =="
+  # Classes that launch images of their own run one after another, in a lane beside the rest:
+  # two 59 MB targets starting at once is what made their tests flaky (#31).
+  local lane=() pool=() c pool_jobs="$JOBS"
+  for c in "${classes[@]}"; do
+    if grep -qx "$c" <<<"$LANE"; then lane+=("$c"); else pool+=("$c"); fi
+  done
+  [ ${#lane[@]} -gt 0 ] && [ ${#pool[@]} -gt 0 ] && [ "$JOBS" -gt 1 ] && pool_jobs=$((JOBS - 1))
+  echo "== $label: ${#classes[@]} classes, $JOBS at a time; ${#lane[@]} launching images, one after another =="
   local start; start=$(date +%s)
+  if [ ${#lane[@]} -gt 0 ]; then
+    ( for c in "${lane[@]}"; do run_class "$c"; done ) | tee -a "$RESULTS" &
+  fi
   # Slowest first, by the last recorded time; a class never timed is unknown, so it goes first
   # too. Run by name, a heavy class could start last and alone set the end of the run.
-  printf '%s\n' "${classes[@]}" | longest_first \
-    | xargs -P "$JOBS" -I{} bash -c 'run_class "$@"' _ {} | tee -a "$RESULTS"
+  if [ ${#pool[@]} -gt 0 ]; then
+    printf '%s\n' "${pool[@]}" | longest_first \
+      | xargs -P "$pool_jobs" -I{} bash -c 'run_class "$@"' _ {} | tee -a "$RESULTS"
+  fi
+  wait
   echo "== $label done in $(( $(date +%s) - start ))s =="
 }
 
@@ -158,6 +172,14 @@ echo $$ > "$LOCK"
 trap 'rm -f "$LOCK"' EXIT
 
 : > "$RESULTS"; : > "$TIMINGS.new"
+
+# Which classes exist, and which launch images: asked of the image once. A single class needs
+# neither, so the tightest loop does not pay for starting Pharo to ask.
+COLLECTED=; LANE=
+if [ ${#SELECTED[@]} -ne 1 ]; then
+  COLLECTED=$(collect)
+  LANE=$(grep '^LANE ' <<<"$COLLECTED" | awk '{print $2}')
+fi
 
 if [ ${#SELECTED[@]} -gt 0 ]; then
   run_set "selected" "${SELECTED[@]}"

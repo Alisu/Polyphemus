@@ -9,5 +9,11 @@ names := OrderedCollection new.
 	do: [ :e | ('ERR ', e class name, ' ', e messageText asString) traceCr ].
 ('CLASSCOUNT ', names size printString) traceCr.
 names asSortedCollection do: [ :n | ('CLASS ', n) traceCr ].
+"Those that launch images of their own, which the runner keeps from running side by side."
+names do: [ :n |
+	| c |
+	c := Smalltalk at: n.
+	((c class canUnderstand: #launchesImages) and: [ c launchesImages ])
+		ifTrue: [ ('LANE ', n) traceCr ] ].
 
 Smalltalk exitSuccess
