@@ -83,7 +83,8 @@ the runner starts one Pharo process per test class and fans them out across the 
 - **One run at a time**: starting a run stops the one still going (a pid file, then
   `pkill -x pharo`). Two suites on this box fight for memory — three classes load a 59 MB image
   apiece — and the loser looks like a flaky test rather than an overloaded machine. A full run
-  wants `-j 5`: two lanes for the classes that launch images, a pool of three for the rest.
+  wants `-j 5`, every class in one pool: 418 s. Lanes for the classes that launch images
+  (`SERIAL_LANES=n`) were slower -- two 483 s, one 573 s -- and prevented no flake.
 - **What bounds a run is memory, not cores** (measured 2026-09-25). A heavy class runs ~2x
   slower beside three others -- 157 s alone, 312 s in company -- whether pinned to the
   performance cores or not, at 100% CPU with no I/O wait: they fight over cache and memory

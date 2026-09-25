@@ -128,9 +128,9 @@ run_set() {
   local label="$1"; shift
   local classes=("$@")
   [ ${#classes[@]} -eq 0 ] && { echo "== $label: nothing to run =="; return 0; }
-  # Classes that launch images of their own run in SERIAL_LANES lanes beside the rest, one
-  # after another in each: several 59 MB targets starting at once was blamed for flakes (#31).
-  local lanes="${SERIAL_LANES:-2}" lane=() pool=() c pool_jobs="$JOBS"
+  # With SERIAL_LANES=n, classes that launch images of their own run in n lanes beside the rest,
+  # one after another in each (#31). None by default.
+  local lanes="${SERIAL_LANES:-0}" lane=() pool=() c pool_jobs="$JOBS"
   for c in "${classes[@]}"; do
     if grep -qx "$c" <<<"$LANE"; then lane+=("$c"); else pool+=("$c"); fi
   done
@@ -190,8 +190,9 @@ if [ ${#SELECTED[@]} -ne 1 ]; then
   COLLECTED=$(collect)
   LANE=$(grep '^LANE ' <<<"$COLLECTED" | awk '{print $2}')
 fi
-# SERIAL_LANE=no puts the image-launching classes back in the pool; SERIAL_LANES=n gives them n
-# lanes (2 by default: 483 s, against 573 s with one). Both measure what the lanes cost (#31).
+# SERIAL_LANES=n runs the image-launching classes in n lanes of their own; by default there are
+# none. Measured at -j 5 with the dump cache warm: no lanes 418 s, two 483 s, one 573 s, all
+# green -- the lanes cost more than the flakes they were meant to prevent (#31).
 [ "${SERIAL_LANE:-yes}" = no ] && LANE=
 
 if [ ${#SELECTED[@]} -gt 0 ]; then
