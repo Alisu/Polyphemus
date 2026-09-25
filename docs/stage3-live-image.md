@@ -148,9 +148,10 @@ machine-level help, and stepping is a matter of what we ask over the channel.
 first, while stopped, when it has none), and the image opens a `DebugSession` of its own on it;
 `ReifiedDebugSession stepWith:` sends Step Over and Step Into there and shows the debugger what
 memory holds afterwards. A step costs ~20 ms in the image and ~1.7-2 s to read back (measured under load): the reading
-is built once per hold (seconds, most of it the class table) and refreshed after each step,
-keeping the classes and refusing when the heap grew or a full GC moved the class table or the
-special objects (measured: one did, and the rebuild agreed with the image).
+is built whole once per hold (seconds, most of it the class table); after each step a new copy is
+read, taking the last reading's classes over, and read whole again if the heap's mapping changed
+or a compacting GC moved the class table or the special objects (measured: one did, and the
+rebuild agreed with the image). Earlier copies are left intact for the contexts the debugger holds.
 
 **The front door: built.** `Polyphemus debugProcess: pid watchedIn: dir` opens `StDebugger` on
 what a running image is busy with; `holdProcess:watchedIn:` answers the session. The image must
