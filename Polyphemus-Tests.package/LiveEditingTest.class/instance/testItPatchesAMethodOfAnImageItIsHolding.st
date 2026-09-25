@@ -9,19 +9,13 @@ testItPatchesAMethodOfAnImageItIsHolding
 	pid := self launchSpinningTarget.
 	[
 	reader := LinuxProcessMemory on: pid.
-	reader whileStopped: [
-		reader storeWord: 1 at: ((VMVariables on: reader) addressOf: 'interruptPending') ].
-	self
-		assert: (self waitFor: [ (self spikeDirectory / 'interrupted') exists ])
-		description: 'it never took the interrupt'.
+	self holdWithTheInterrupt: reader.
 
 	reader whileStopped: [
 		| dumped |
 		dumped := SpurDumpedMemory on: reader.
 		self makeEvenOdd: dumped through: reader.
-		reader
-			storeWord: 1 * 8 + 1
-			at: (self excessSignalsOfTheInterruptSemaphoreIn: dumped raw) ].
+		self letGo: reader heap: dumped raw ].
 
 	self
 		assert: (self waitFor: [ (self spikeDirectory / 'released') exists ])

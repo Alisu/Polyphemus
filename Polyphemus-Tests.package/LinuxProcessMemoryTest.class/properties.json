@@ -1,6 +1,6 @@
 {
 	"commentStamp": "",
-	"super": "TestCase",
+	"super": "LiveImageTestCase",
 	"category": "Polyphemus-Tests",
 	"classinstvars": [],
 	"pools": [],

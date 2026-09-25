@@ -1,0 +1,1 @@
+Tests against another image running on this machine: the pinned Pharo 10 image launched observable, spinning so it never goes idle, with a watcher that holds it once interrupted. Launching, holding and letting go are here once. Each class has a directory of its own for what the target leaves, because classes run side by side. Abstract; Linux only.

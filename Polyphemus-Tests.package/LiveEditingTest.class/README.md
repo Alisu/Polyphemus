@@ -1,0 +1,1 @@
+Editing an image while it runs: held at a safepoint, a method patched in place or installed new with the literals it names, its machine code discarded when it had some, and the image let go -- after which it answers the new code itself.

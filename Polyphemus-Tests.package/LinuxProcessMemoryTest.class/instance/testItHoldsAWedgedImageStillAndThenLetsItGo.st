@@ -9,11 +9,7 @@ testItHoldsAWedgedImageStillAndThenLetsItGo
 	pid := self launchSpinningTarget.
 	[
 	reader := LinuxProcessMemory on: pid.
-	reader whileStopped: [
-		reader storeWord: 1 at: ((VMVariables on: reader) addressOf: 'interruptPending') ].
-	self
-		assert: (self waitFor: [ (self spikeDirectory / 'interrupted') exists ])
-		description: 'it never took the interrupt'.
+	self holdWithTheInterrupt: reader.
 
 	reader whileStopped: [
 		| raw |
@@ -21,9 +17,7 @@ testItHoldsAWedgedImageStillAndThenLetsItGo
 		self assert: raw heapWalk objectCount > 100000.
 		self assert: raw readability refusals asArray equals: #(  ).
 		self assert: raw freeListsAreIntact.
-		reader
-			storeWord: 1 * 8 + 1
-			at: (self excessSignalsOfTheInterruptSemaphoreIn: raw) ].
+		self letGo: reader heap: raw ].
 
 	self
 		assert: (self waitFor: [ (self spikeDirectory / 'released') exists ])

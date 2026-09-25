@@ -18,9 +18,7 @@ testAPatchTakesOnAJittedMethodOnceItsCodeIsDiscarded
 			assert: (self patchEvenIn: dumped through: reader)
 			description: 'the machine had not compiled that method, so this proves nothing'.
 		self askTheHeldImageTo: '(SmallInteger >> #even) voidCogVMState'.
-		reader
-			storeWord: 1 * 8 + 1
-			at: (self excessSignalsOfTheInterruptSemaphoreIn: dumped raw) ].
+		self letGo: reader heap: dumped raw ].
 
 	self
 		assert: (self waitFor: [ (self spikeDirectory / 'released') exists ])

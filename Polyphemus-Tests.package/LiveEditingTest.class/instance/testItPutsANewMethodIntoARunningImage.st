@@ -21,9 +21,7 @@ testItPutsANewMethodIntoARunningImage
 			under: selector address
 			in: integer.
 		self askTheHeldImageTo: (self scriptAsking: selector asString).
-		reader
-			storeWord: 1 * 8 + 1
-			at: (self excessSignalsOfTheInterruptSemaphoreIn: dumped raw) ].
+		self letGo: reader heap: dumped raw ].
 
 	self
 		assert: (self waitFor: [ (self spikeDirectory / 'released') exists ])
