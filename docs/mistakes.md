@@ -349,6 +349,15 @@ directory (#39). The newcomer check found it, the first time it really ran tests
 -> A pinned file on disk is only pinned if something checks it against the pin. When a check
 from a clean start disagrees with the usual loop, suspect the usual loop's environment first.
 
+**A sum taken for an address.** `liveEnd` was the heap's start plus the size of its live
+objects, which is where the objects end only if no free chunk lies among them. Image files are
+compacted, so it held there, and the tests that read dumps checked what they found rather
+than what they missed. On a live heap it fell a third short, and VMMaker's walks stopped there.
+The dump writer compounded it: a comment said the dump's free space was trailing, VMMaker turned
+everything past that short end into one free chunk, and the writer allocated into live objects.
+-> An address is read or found, never computed from sizes. A comment stating a property of
+the data ("the free space is trailing") is a check waiting to be written (#46).
+
 **#29 again, in the agent.** The agent answered errors with `on: Error do:`, and a request
 that did not parse raised `SyntaxErrorNotification`, which is not an `Error`: it escaped, and
 headless Pharo exited -- taking the held target image with it. Found because a request of our

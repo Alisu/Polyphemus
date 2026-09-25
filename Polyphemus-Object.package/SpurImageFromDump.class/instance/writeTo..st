@@ -12,7 +12,7 @@ writeTo: aPath
 	self divorceFrames.
 	self collect.
 	self
-		describeOldSpaceUpTo: dumped memory endOfMemory + dumped memory bridgeSize
+		describeOldSpaceUpTo: self trimTheFreeSpaceAtTheEnd + dumped memory bridgeSize
 		plantingBridge: true.
 	dumped interpreter imageName: aPath asFileReference fullName.
 	dumped interpreter writeImageFileIO.

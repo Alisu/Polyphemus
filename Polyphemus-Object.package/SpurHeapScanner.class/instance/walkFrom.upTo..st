@@ -4,7 +4,7 @@ walkFrom: anAddress upTo: aLimit
 	"Walk objects from anAddress, counting live objects and free chunks apart and noting the
 	special objects array. Gives up after a long run of free chunks."
 
-	| count free liveBytes freeBytes consecutiveFree current soa answer |
+	| count free liveBytes freeBytes consecutiveFree current soa answer lastLiveEnd |
 	count := 0. free := 0. liveBytes := 0. freeBytes := 0. consecutiveFree := 0.
 	current := anAddress.
 	answer := [ :where :why |
@@ -16,6 +16,7 @@ walkFrom: anAddress upTo: aLimit
 			          at: where
 			          because: why;
 			          specialObjectsArray: soa;
+			          lastLiveEnd: lastLiveEnd;
 			          yourself ].
 	[ current < aLimit ] whileTrue: [
 		| wrong size |
@@ -32,6 +33,7 @@ walkFrom: anAddress upTo: aLimit
 			ifFalse: [
 				count := count + 1.
 				liveBytes := liveBytes + size.
+				lastLiveEnd := current + size.
 				consecutiveFree := 0.
 				(soa isNil and: [
 					 self looksLikeTheSpecialObjectsArrayAt: current from: anAddress ])
