@@ -150,9 +150,37 @@ first, while stopped, when it has none), and the image opens a `DebugSession` of
 memory holds afterwards. A step costs ~15 ms in the image and ~1.5 s to read back: the reading
 is built once per hold (seconds, most of it the class table) and refreshed after each step,
 keeping the classes and refusing when the heap grew or a full GC moved the class table or the
-special objects (measured: one did, and the rebuild agreed with the image). Still to do: a
-front door that opens `StDebugger` on a held image with all of this composed; "run until";
-and a step of a frame selected below the top one, which today steps the top.
+special objects (measured: one did, and the rebuild agreed with the image).
+
+**The front door: built.** `Polyphemus debugProcess: pid watchedIn: dir` opens `StDebugger` on
+what a running image is busy with; `holdProcess:watchedIn:` answers the session. The image must
+run our watcher (`PolyphemusAgent watcherSourceWatching:afterwards:`), which arms itself again
+after each release. Checked through StDebugger's own action model: Step Into, Over, Through,
+and Proceed. What was learned wiring it:
+
+- *Which process.* The scheduler's `activeProcess` at the moment the image is stopped to be
+  interrupted, named by hash in that stop. Queue order is wrong: the target preempts with
+  yielding, so a UI process waiting at the same priority comes first.
+- *A copy per step.* The debugger keeps contexts of the last reading (its stack list, its
+  inspector), so each step reads a new copy and leaves the old intact; refreshing one copy in
+  place broke exactly that. The new reading takes the last one's classes over (~3.7 s a step).
+- *Frames are not in the copy.* A preempted process keeps its newest activations as frames on
+  stack pages, which live outside the heap mapping we copy. Before each read the image is asked
+  for `voidCogVMState`, which moves every frame into a context; it discards machine code too,
+  which the image makes again once let go.
+- StDebugger needs its session to carry an exception (#41): `PolyphemusStop`, never signalled.
+
+**"Run until": built.** `session runUntil: 'Integer >> #sqrt'` has the held image put a
+Reflectivity MetaLink before that method (`PolyphemusAgent trapSourceFor:in:`), and lets it go.
+The first process to reach it takes the trap out, says who it is, and signals the interrupt
+semaphore -- our watcher wakes and holds the image right there. The debugger opens at the
+method's own context, below the trap's frames; a step from there runs the trap out and goes on
+in the method. Not reached in time, the image is held again where it got to and the trap
+removed. Known edge: two processes already inside the method when it fires would signal twice,
+and the watcher would read the second as our release.
+
+Still to do: stepping a frame selected below the one the image's debugger is at; seeding
+`findHeap` from the last reading (most of what a step still costs).
 
 ### D. Editing objects, not only methods (#20)
 

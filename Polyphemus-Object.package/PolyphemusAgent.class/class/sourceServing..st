@@ -3,7 +3,7 @@ sourceServing: aDirectory
 
 	"The agent's source, serving that directory: request.N in, answer.N out, each written under
 	another name and renamed so a half-written file is never read; a file named go ends it. Each
-	request runs with a workspace kept between them as self."
+	request runs with a workspace kept between them as self; one that does not parse is answered."
 
 	^ '| dir count going workspace |
 dir := ' , aDirectory asFileReference fullName printString , ' asFileReference.
@@ -19,7 +19,7 @@ workspace := Dictionary new.
 			| answer written |
 			count := count + 1.
 			answer := [ ''ok'' , String lf , (Smalltalk compiler receiver: workspace; evaluate: request contents) printString ]
-				on: Error
+				on: Error , SyntaxErrorNotification
 				do: [ :error | ''error'' , String lf , error class name , '': '' , error messageText asString ].
 			written := dir / ''answer.tmp''.
 			written ensureDelete.

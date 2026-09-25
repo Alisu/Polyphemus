@@ -18,7 +18,7 @@ launchSpinningTargetWarming: aBoolean
 	pidFile := self spikeDirectory / 'pid'.
 	LibC system: 'POLYPHEMUS_OBSERVER=any ' , shim fullName , ' ' , Smalltalk vm fullPath
 		, ' --headless ' , target fullName , ' st ' , (self spikeDirectory / 'target.st') fullName
-		, ' > /dev/null 2>&1 & echo $' , bang , ' > ' , pidFile fullName.
+		, ' > ' , (self spikeDirectory / 'target.log') fullName , ' 2>&1 & echo $' , bang , ' > ' , pidFile fullName.
 	self
 		assert: (self waitFor: [ (self spikeDirectory / 'started') exists ])
 		description: 'the target never started'.

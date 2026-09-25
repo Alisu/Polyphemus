@@ -349,6 +349,13 @@ directory (#39). The newcomer check found it, the first time it really ran tests
 -> A pinned file on disk is only pinned if something checks it against the pin. When a check
 from a clean start disagrees with the usual loop, suspect the usual loop's environment first.
 
+**#29 again, in the agent.** The agent answered errors with `on: Error do:`, and a request
+that did not parse raised `SyntaxErrorNotification`, which is not an `Error`: it escaped, and
+headless Pharo exited -- taking the held target image with it. Found because a request of our
+own had a stray `| method |` in it.
+-> Anything that evaluates source it was handed catches `Error , SyntaxErrorNotification`. Now
+tested in `DirectoryChannelTest`.
+
 **A check that never checked.** `check-newcomer.sh --tests` loaded Polyphemus and then ran the
 tests in the image *before* the load, since the load was never saved: "0 run", and exit 0.
 -> A test step that reports zero tests has failed. Make it say so.

@@ -1,0 +1,1 @@
+A running image we hold and let go, as many times as asked: through the watcher it runs (PolyphemusAgent watcherSourceWatching:afterwards:), an agent served over a fresh channel each time, and the process it is busy with in its own debugger. It can also let the image run until some process reaches a method, and hold it there (#34).
