@@ -1,0 +1,1 @@
+The front door to a running image: one call interrupts it, holds it, hands it the agent and answers a debug session on the process it was running, which steps there and lets it go on proceeding (#34).
