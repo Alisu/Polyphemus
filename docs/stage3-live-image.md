@@ -147,7 +147,7 @@ machine-level help, and stepping is a matter of what we ask over the channel.
 **Single steps: built.** `HeldProcess` names the process on both sides by its identity hash (set
 first, while stopped, when it has none), and the image opens a `DebugSession` of its own on it;
 `ReifiedDebugSession stepWith:` sends Step Over and Step Into there and shows the debugger what
-memory holds afterwards. A step costs ~15 ms in the image and ~1.5 s to read back: the reading
+memory holds afterwards. A step costs ~20 ms in the image and ~1.7-2 s to read back (measured under load): the reading
 is built once per hold (seconds, most of it the class table) and refreshed after each step,
 keeping the classes and refusing when the heap grew or a full GC moved the class table or the
 special objects (measured: one did, and the rebuild agreed with the image).
@@ -163,7 +163,8 @@ and Proceed. What was learned wiring it:
   yielding, so a UI process waiting at the same priority comes first.
 - *A copy per step.* The debugger keeps contexts of the last reading (its stack list, its
   inspector), so each step reads a new copy and leaves the old intact; refreshing one copy in
-  place broke exactly that. The new reading takes the last one's classes over (~3.7 s a step).
+  place broke exactly that. The new reading takes the last one's classes over, and its heap's
+  start, end and special objects without walking it (#46): ~1.7-2 s a step, the step itself ~20 ms.
 - *Frames are not in the copy.* A preempted process keeps its newest activations as frames on
   stack pages, which live outside the heap mapping we copy. Before each read the image is asked
   for `voidCogVMState`, which moves every frame into a context; it discards machine code too,
