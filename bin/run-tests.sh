@@ -128,17 +128,27 @@ run_set() {
   local label="$1"; shift
   local classes=("$@")
   [ ${#classes[@]} -eq 0 ] && { echo "== $label: nothing to run =="; return 0; }
-  # Classes that launch images of their own run one after another, in a lane beside the rest:
-  # two 59 MB targets starting at once is what made their tests flaky (#31).
-  local lane=() pool=() c pool_jobs="$JOBS"
+  # Classes that launch images of their own run in SERIAL_LANES lanes beside the rest, one
+  # after another in each: several 59 MB targets starting at once was blamed for flakes (#31).
+  local lanes="${SERIAL_LANES:-2}" lane=() pool=() c pool_jobs="$JOBS"
   for c in "${classes[@]}"; do
     if grep -qx "$c" <<<"$LANE"; then lane+=("$c"); else pool+=("$c"); fi
   done
-  [ ${#lane[@]} -gt 0 ] && [ ${#pool[@]} -gt 0 ] && [ "$JOBS" -gt 1 ] && pool_jobs=$((JOBS - 1))
-  echo "== $label: ${#classes[@]} classes, $JOBS at a time; ${#lane[@]} launching images, one after another =="
+  [ ${#lane[@]} -lt "$lanes" ] && lanes=${#lane[@]}
+  [ ${#pool[@]} -gt 0 ] && [ "$JOBS" -gt "$lanes" ] && pool_jobs=$((JOBS - lanes))
+  echo "== $label: ${#classes[@]} classes, $JOBS at a time; ${#lane[@]} launching images, in $lanes lane(s) =="
   local start; start=$(date +%s)
+  # Each lane class, longest first, goes to the lane with the least recorded time so far.
   if [ ${#lane[@]} -gt 0 ]; then
-    ( for c in "${lane[@]}"; do run_class "$c"; done ) | tee -a "$RESULTS" &
+    local assigned; assigned=$(printf '%s\n' "${lane[@]}" | longest_first | awk -v n="$lanes" -v timings="$TIMINGS" '
+      BEGIN { while ((getline line < timings) > 0) { split(line, f, " "); t[f[1]] = f[2] } }
+      { best = 0; for (i = 1; i < n; i++) if (load[i] < load[best]) best = i
+        load[best] += ($1 in t ? t[$1] : 60); print best, $1 }')
+    local i
+    for (( i = 0; i < lanes; i++ )); do
+      ( for c in $(awk -v i="$i" '$1 == i { print $2 }' <<<"$assigned"); do run_class "$c"; done ) \
+        | tee -a "$RESULTS" &
+    done
   fi
   # Slowest first, by the last recorded time; a class never timed is unknown, so it goes first
   # too. Run by name, a heavy class could start last and alone set the end of the run.
@@ -180,7 +190,8 @@ if [ ${#SELECTED[@]} -ne 1 ]; then
   COLLECTED=$(collect)
   LANE=$(grep '^LANE ' <<<"$COLLECTED" | awk '{print $2}')
 fi
-# SERIAL_LANE=no puts the image-launching classes back in the pool, to measure what the lane costs.
+# SERIAL_LANE=no puts the image-launching classes back in the pool; SERIAL_LANES=n gives them n
+# lanes (2 by default: 483 s, against 573 s with one). Both measure what the lanes cost (#31).
 [ "${SERIAL_LANE:-yes}" = no ] && LANE=
 
 if [ ${#SELECTED[@]} -gt 0 ]; then

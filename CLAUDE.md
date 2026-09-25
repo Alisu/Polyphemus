@@ -64,7 +64,7 @@ the runner starts one Pharo process per test class and fans them out across the 
 | `bin/run-tests.sh -c Foo` | one class | 1–20 s |
 | `bin/run-tests.sh --fast` | everything under 8 s/class | **~10 s** |
 | `bin/run-tests.sh` | fast tier, then the slow tier only if fast is green | ~80 s |
-| `bin/run-tests.sh --all -j 4` | everything (40 classes, 402 tests) | **80 s** |
+| `bin/run-tests.sh --all -j 5` | everything (69 classes, 599 tests) | **~8 min** |
 
 - **A test class that only reads must say so.** `mutatesResource` defaults to true, and a class
   that does not override it is handed `veryDeepCopy` of the interpreter and a 59 MB heap for
@@ -83,7 +83,14 @@ the runner starts one Pharo process per test class and fans them out across the 
 - **One run at a time**: starting a run stops the one still going (a pid file, then
   `pkill -x pharo`). Two suites on this box fight for memory — three classes load a 59 MB image
   apiece — and the loser looks like a flaky test rather than an overloaded machine. A full run
-  wants `-j 4`; classes that load an image want `TMO=900`.
+  wants `-j 5`: two lanes for the classes that launch images, a pool of three for the rest.
+- **What bounds a run is memory, not cores** (measured 2026-09-25). A heavy class runs ~2x
+  slower beside three others -- 157 s alone, 312 s in company -- whether pinned to the
+  performance cores or not, at 100% CPU with no I/O wait: they fight over cache and memory
+  bandwidth. So `-j 6` is no faster than `-j 4`, and the lever is doing less, not more at once.
+  The image `SpurImageFromDumpTest` writes from the dump (VMMaker's simulated snapshot GC,
+  the old floor of every run) is cached in `/tmp/polyphemus-cache`, keyed on the dump and on
+  every method of `Polyphemus-Object`.
 - **Watch the image sizes**: `dev.image` ~80 MB, `warm.image` ~524 MB (fixtures preloaded, on
   purpose). They once grew to 896 MB and 1.09 GB because each fixture reset left its resource
   class, and each class held a loaded image. Growth like that is silent; the size is the
