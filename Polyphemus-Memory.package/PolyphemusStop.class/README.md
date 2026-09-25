@@ -1,0 +1,1 @@
+Why a stack from another image is in front of the debugger: read from memory, or held while it ran. Never signalled -- Pharo's debugger wants its session to carry an exception, and titles itself with this one's text (#41).
