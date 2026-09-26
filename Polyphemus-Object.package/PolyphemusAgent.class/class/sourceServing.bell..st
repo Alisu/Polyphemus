@@ -1,11 +1,9 @@
 source
 sourceServing: aDirectory bell: aSource
 
-	"The agent's source, serving that directory: request.N in, answer.N out, each written under
-	another name and renamed so a half-written file is never read; a file named go ends it. Each
-	request runs with a workspace kept between them as self; one that does not parse is answered.
-	Between requests it allocates nothing -- so the image moves nothing we read -- spinning until
-	the third slot of the bell is set; it looks for a request first, so no ring is missed."
+	"The agent: request.N in, answer.N out, go to end; see DirectoryChannel. Between requests it
+	allocates nothing, so nothing we read moves: it spins until the bell's third slot is set, and
+	consumes each ring before looking for the file it was rung for, so none is left behind (#49)."
 
 	^ '| dir count going workspace bell |
 dir := ' , aDirectory asFileReference fullName printString , ' asFileReference.
@@ -14,8 +12,11 @@ count := 0.
 going := false.
 workspace := Dictionary new.
 bell := ' , aSource , '.
+(dir / ''serving'') ensureCreateFile.
 [ going ] whileFalse: [
 	| request |
+	[ (bell instVarAt: 3) > 0 ] whileFalse: [ ].
+	bell instVarAt: 3 put: 0.
 	request := dir / (''request.'' , (count + 1) printString).
 	request exists
 		ifTrue: [
@@ -28,7 +29,4 @@ bell := ' , aSource , '.
 			written ensureDelete.
 			written writeStreamDo: [ :stream | stream nextPutAll: answer ].
 			written renameTo: ''answer.'' , count printString ]
-		ifFalse: [
-			(going := (dir / ''go'') exists) ifFalse: [
-				[ (bell instVarAt: 3) > 0 ] whileFalse: [ ].
-				bell instVarAt: 3 put: 0 ] ] ]'
+		ifFalse: [ going := (dir / ''go'') exists ] ]'

@@ -228,8 +228,16 @@ Found on the way: frames of code evaluated from a script (`UndefinedObject>>DoIt
 temporaries, because names come from compiling the frame's source back (#6) and a doit's source is
 not kept. The objects are still reachable, through whatever the frame's callees hold.
 
-Still to do for D: the inspector's value cells, and the debugger's code pane accepting a method
-fix in a running image (the front door opens its session `fixing: nil` today).
+**A method, from the code pane: built and checked.** Accepted in the live debugger, the source is
+compiled for the method's class and written into the image under the same guard, and the image
+is asked for `voidCogVMState` so a jitted method stops running the old bytecodes
+(`LiveEditingTest`: stopped by `runUntil: 'SmallInteger >> #even'`, `even ^ false` accepted, the
+runaway loop on it ends). It is aimed at the method the class holds *now* for that selector: the
+context may run an older one, and after "run until" it does -- the trap's instrumented copy,
+whose bytecodes match no source. On the way, the trap was found to fire in our own agent when the
+agent ran the method too (#48); it now lets the agent through.
+
+Still to do for D: the inspector's value cells.
 
 ### Many instances at once -- not stage 3
 

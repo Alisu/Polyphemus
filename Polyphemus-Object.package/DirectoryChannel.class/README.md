@@ -1,1 +1,3 @@
 Our end of a channel to a PolyphemusAgent, through a directory both sides can see: each request is Smalltalk source the image evaluates, and each answer its print string, or a PolyphemusChannelError naming what went wrong there. The first transport behind the channel; nothing about it is meant to leak to whoever asks.
+
+The files: request.N from us and answer.N from the agent, each written under another name and renamed so neither side reads one half written; go ends the agent; serving is the agent saying it is there. With a bell (ringing:), each file of ours is rung for once the agent is serving, and the agent waits for the ring without allocating, so a held image moves nothing between requests.

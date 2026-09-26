@@ -8,6 +8,7 @@ ask: aSource within: aDuration
 	self write: aSource as: 'request.' , count printString.
 	answer := directory / ('answer.' , count printString).
 	deadline := DateAndTime now + aDuration.
+	self ringBefore: deadline.
 	[ answer exists ] whileFalse: [
 		DateAndTime now > deadline ifTrue: [
 			^ PolyphemusChannelError signal:
