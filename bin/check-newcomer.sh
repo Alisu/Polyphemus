@@ -56,6 +56,7 @@ say value: 'VMMaker packages here' value: [
 		  (p name beginsWith: 'VMMaker') or: [ (p name beginsWith: 'Slang') or: [
 			  (p name beginsWith: 'Unicorn') or: [ p name beginsWith: 'LLVM' ] ] ] ])
 		 collect: [ :p | p name -> p methods size ]) asSortedCollection asArray ].
+say value: 'edition' value: [ (Smalltalk at: #PolyphemusEdition) current name ].
 say value: 'classes missing' value: [
 	(#( AbstractReifiedMemory LinuxProcessMemory SpurEdit SpurWritableImageFile
 	    SpurWritableVMMakerMemory SpurWritableProcess SpurMethodFix SpurImageFromDump
@@ -68,7 +69,7 @@ SMALLTALK
 
 echo "== loading $branch ${group:+group $group }into a clean Pharo 10 =="
 timeout 1800 ./pharo newcomer.image st check.st 2>&1 | tr -d '\033' \
-	| grep -E "^(loading|packages|methods loaded|VMMaker packages|classes missing)" || {
+	| grep -E "^(loading|packages|methods loaded|VMMaker packages|edition|classes missing)" || {
 	echo "BROKEN the load said nothing"
 	exit 1
 }
