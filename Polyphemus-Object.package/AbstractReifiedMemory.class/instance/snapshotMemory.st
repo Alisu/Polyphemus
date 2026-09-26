@@ -5,7 +5,7 @@ snapshotMemory
 	(and VMMaker v10.0.5) lay them gigabytes apart."
 
 	self forgetWhatWasRead.
-	objectsArray := OOPAddressTable covering: {
+	objectsArray := self addressTableClass covering: {
 			                (memory newSpaceStart -> memory newSpaceLimit).
 			                (memory oldSpaceStart -> memory endOfMemory) }.
 	self initializeObjectsFromMemory

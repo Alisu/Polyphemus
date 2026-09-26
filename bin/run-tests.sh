@@ -123,7 +123,8 @@ INNER
     echo "RES $c BROKEN no result (exit $rc)"
   else
     echo "$out" | sed "1s/\$/ (${el}s)/"
-    [ -z "${ONLY_TEST:-}" ] && echo "$c $el" >> "$TIMINGS.new"
+    # Only a class that passed says what it costs: a failing one can hang for its whole budget.
+    [ -z "${ONLY_TEST:-}" ] && grep -q " 0 failures 0 errors" <<< "$out" && echo "$c $el" >> "$TIMINGS.new"
   fi
 }
 export -f run_class

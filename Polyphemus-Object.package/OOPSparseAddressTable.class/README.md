@@ -1,0 +1,1 @@
+OOPAddressTable's answers from only the objects put in it, by address: a lazy reading wraps a few thousand objects of millions, and a slot for every word -- eleven million, made again at each re-read -- was most of what a step allocated.

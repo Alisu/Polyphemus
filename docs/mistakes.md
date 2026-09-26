@@ -403,3 +403,15 @@ down. Nobody was misled, this time.
 browser was built instead, because it was cheaper and seemed close enough. It was not what was
 asked.
 → Build what was asked, or say why not **before** building something else.
+
+**Waiting on `pgrep -f` for a command that is in the waiting shell's own line.** Twice: the loop
+`while pgrep -f "run-tests.sh --all -j 4"` matched the `bash -c` running it, and spun for an hour
+after the suites it waited for had finished (2026-09-26).
+→ Wait on something the job writes -- its log's "all done" line, a file -- never on `pgrep -f` of
+a string the waiting command contains.
+
+**Switching off VMMaker's `CloneOnGC` to halve writing an image from a dump.** The profile showed
+the simulated collection run twice, the first on a clone of the whole simulation (`CloneOnGC`, a
+check). Off, the write went from **107 s to 203-222 s**; off with a host `Smalltalk
+garbageCollect` first, 172 s. Why the clone makes it faster is not understood (2026-09-26).
+→ Leave it as VMMaker has it. Profile the host's own collections before trying again.
