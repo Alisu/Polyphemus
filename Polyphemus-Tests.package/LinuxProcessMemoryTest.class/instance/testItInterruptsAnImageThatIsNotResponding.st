@@ -1,22 +1,26 @@
 tests
 testItInterruptsAnImageThatIsNotResponding
 
-	"#24: a word set from outside makes the VM signal the image's interrupt semaphore at its
-	next check, so a process that will not yield is preempted -- Pharo's own Cmd-. path,
-	driven from outside, which is how a wedged image will be stopped where we want it."
+	"#24: a semaphore signalled from outside, as the VM's own threads do it, wakes a process
+	above the one that will not yield -- how a wedged image is stopped where we want it. The
+	VM answers the request it was given."
 
-	| pid reader address |
+	| pid reader requests |
 	pid := self launchSpinningTarget.
 	[
 	reader := LinuxProcessMemory on: pid.
-	address := (VMVariables on: reader) addressOf: 'interruptPending'.
+	requests := (VMVariables on: reader) at: 'signalRequests'.
 	self deny: (LinuxProcessMemory unchecked: pid) isQuiet.
 
-	reader whileStopped: [ reader storeWord: 1 at: address ].
+	reader whileStopped: [
+		(SpurWritableProcess on: reader) signalExternalSemaphore: self watcherSemaphoreIndex ].
 
 	self
 		assert: (self waitFor: [ (self spikeDirectory / 'interrupted') exists ])
 		description: 'the image never took the interrupt'.
-	self assert: (reader unsignedAt: address size: 8) equals: 0 ] ensure: [
-		LibC system: 'kill -9 ' , pid printString.
-		reader ifNotNil: [ reader close ] ]
+	self
+		assert: (reader bytesAt: requests + (self watcherSemaphoreIndex - 1 * 8) count: 4)
+		equals: (reader bytesAt: requests + (self watcherSemaphoreIndex - 1 * 8) + 4 count: 4) ]
+		ensure: [
+			LibC system: 'kill -9 ' , pid printString.
+			reader ifNotNil: [ reader close ] ]

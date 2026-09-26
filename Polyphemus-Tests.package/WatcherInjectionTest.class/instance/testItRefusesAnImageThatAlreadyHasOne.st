@@ -1,8 +1,7 @@
 tests
 testItRefusesAnImageThatAlreadyHasOne
 
-	"Something waiting on the interrupt semaphore already -- a watcher of ours, or the image's
-	own handler -- is not stood in front of."
+	"A watcher of ours already waiting on the semaphore left in that directory is not doubled."
 
 	| pid |
 	pid := self launchSpinningTarget.
@@ -11,5 +10,5 @@ testItRefusesAnImageThatAlreadyHasOne
 		should: [ Polyphemus putAWatcherInto: pid watchedIn: self spikeDirectory ]
 		raise: Error
 		withExceptionDo: [ :error |
-			self assert: (error messageText includesSubstring: 'already waits') ] ] ensure: [
+			self assert: (error messageText includesSubstring: 'already has a watcher') ] ] ensure: [
 		LibC system: 'kill -9 ' , pid printString ]

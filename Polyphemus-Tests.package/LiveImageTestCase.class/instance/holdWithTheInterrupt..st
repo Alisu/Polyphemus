@@ -1,12 +1,10 @@
 helpers
 holdWithTheInterrupt: aReader
 
-	"Interrupt the image and wait until its watcher says it is holding."
+	"Signal the watcher's semaphore from outside and wait until it says it is holding."
 
 	aReader whileStopped: [
-		aReader
-			storeWord: 1
-			at: ((VMVariables on: aReader) addressOf: 'interruptPending') ].
+		(SpurWritableProcess on: aReader) signalExternalSemaphore: self watcherSemaphoreIndex ].
 	self
 		assert: (self waitFor: [ (self spikeDirectory / 'interrupted') exists ])
 		description: 'it never took the interrupt'

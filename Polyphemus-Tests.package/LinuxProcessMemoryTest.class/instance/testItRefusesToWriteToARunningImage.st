@@ -7,7 +7,7 @@ testItRefusesToWriteToARunningImage
 	pid := self launchObservableTarget.
 	[
 	reader := LinuxProcessMemory on: pid.
-	address := (VMVariables on: reader) addressOf: 'interruptKeycode'.
+	address := (VMVariables on: reader) addressOf: 'statStackOverflow'.
 
 	self deny: reader isStopped.
 	self should: [ reader storeWord: 1 at: address ] raise: Error ] ensure: [

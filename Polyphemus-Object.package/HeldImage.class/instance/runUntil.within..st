@@ -5,7 +5,10 @@ runUntil: aMethodSource within: aDuration
 	at the method's own context. Answers whether it was; if not, it is held where it got to."
 
 	self forget: #( 'trap' 'interrupted' 'released' ).
-	process ask: (PolyphemusAgent trapSourceFor: aMethodSource in: directory).
+	process ask: (PolyphemusAgent
+			 trapSourceFor: aMethodSource
+			 in: directory
+			 signalling: self semaphoreIndex).
 	process letGo.
 	(self waitFor: 'trap' within: aDuration) ifFalse: [
 		self holdWithin: 1 minute.

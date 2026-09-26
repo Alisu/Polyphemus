@@ -282,6 +282,38 @@ On a target spinning at priority 40, with a watcher at 70 on special objects slo
 watcher ran **within 100 ms** of the write, and the VM had cleared `interruptPending` itself.
 `LinuxProcessMemoryTest>>testItInterruptsAnImageThatIsNotResponding` is that, kept.
 
+### Since 2026-09-26: a semaphore of our own, signalled as the VM's threads do
+
+VM 10 dropped the route above. Nothing but the event check touches `interruptPending` any more,
+so Slang made it a local of that method: it is in no symbol table and no debug information can
+place it (`info address interruptPending` answers "optimized out"). The VM never signals the
+interrupt semaphore by itself, and we cannot make it.
+
+The VM has a door made for signalling from outside the interpreter: the external semaphores
+(`sqExternalSemaphores.c`, byte for byte the same in 9.0.22 and 10.0.5). A plugin thread calls
+`signalSemaphoreWithIndex(i)`, which does three things, and so do we, stopped
+(`SpurWritableProcess>>signalExternalSemaphore:`):
+
+- `signalRequests[i-1].requests += 1` -- an array of `{int requests; int responses}`;
+- widen the tide in use (`useTideA` picks `lowTideA`/`highTideA` or the B pair) to cover `i-1`:
+  the VM looks at no slot outside it;
+- `checkSignalRequests := 1`.
+
+The heartbeat's next check of events (`signalExternalSemaphores`) signals slot `i` of the image's
+external objects table (special objects 39) and counts the response. No `stackLimit` to smash:
+the heartbeat does that 70 times a second anyway.
+
+So the watcher now makes **its own** semaphore, registers it (`Smalltalk registerExternalObject:`)
+and leaves the index in the directory it watches (`semaphore-index`); the hold, the agent's bell
+and the run-until trap all use it. It also leaves Pharo's interrupt semaphore to Pharo: a UI
+image's user-interrupt handler waits there, and injecting a watcher (#27) no longer has to refuse
+it. `LinuxProcessMemoryTest>>testItSignalsAnExternalSemaphoreOfARunningImage`, on VM 9 and VM 10.
+
+**Its address is found in each stop.** The watcher's semaphore is young when made, and a young
+object moves at every scavenge: an address computed once and written later would land in
+whatever took its place. `SpurWritableProcess>>excessSignalsOfExternalSemaphore:` follows
+`specialObjectsOop` to the table to the semaphore each time, while nothing moves.
+
 ## Holding it there, and letting it go
 
 Interrupting is half of it. To read an image at leisure it has to *stay* where it was put, and a
@@ -289,7 +321,8 @@ semaphore cannot be signalled from outside: the process waiting on one is in its
 nothing looks at that queue again until the image itself signals or waits.
 
 What works is a word the image watches and we can find without searching. The semaphore the VM
-signals is special objects slot 31, and its third instance variable is `excessSignals`, so:
+signals -- slot 31 until 2026-09-26, the watcher's own since -- has `excessSignals` as its third
+instance variable, so:
 
 - the watcher, once signalled, **holds without yielding**: `[ (interrupt instVarAt: 3) > 0 ]
   whileFalse: [ ]`, a loop that allocates nothing, at a priority above the wedged process;

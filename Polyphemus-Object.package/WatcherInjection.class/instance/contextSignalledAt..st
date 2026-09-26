@@ -1,5 +1,5 @@
 making
-context
+contextSignalledAt: anIndex
 
 	"A context of the image's own at the start of the watcher's method, as Context
 	class>>newForMethod: would make it: sized for the method's frame, every slot nil."
@@ -7,7 +7,8 @@ context
 	| compilation method class context |
 	class := reading oopClassNamed: 'UndefinedObject'.
 	compilation := (reading
-		                compileHostSource: (PolyphemusAgent watcherMethodSourceWatching: directory)
+		                compileHostSource:
+		                (PolyphemusAgent watcherMethodSourceWatching: directory semaphoreAt: anIndex)
 		                for: class) first.
 	method := installer
 		          methodFrom: compilation

@@ -230,7 +230,7 @@ fi
 
 if [ -s "$TIMINGS.new" ]; then
   cat "$TIMINGS" "$TIMINGS.new" 2>/dev/null \
-    | awk '{t[$1]=$2} END {for (c in t) print c, t[c]}' | sort > "$TIMINGS.tmp"
+    | awk '!($1 in t) || $2 > t[$1] {t[$1]=$2} END {for (c in t) print c, t[c]}' | sort > "$TIMINGS.tmp"   # worst, not last (#54)
   mv "$TIMINGS.tmp" "$TIMINGS"
 fi
 rm -f "$TIMINGS.new"

@@ -8,9 +8,7 @@ holdWithin: aDuration
 	| hash |
 	self forget: #( 'interrupted' 'released' ).
 	hash := reader whileStopped: [
-		        reader
-			        storeWord: 1
-			        at: ((VMVariables on: reader) addressOf: 'interruptPending').
+		        (SpurWritableProcess on: reader) signalExternalSemaphore: self semaphoreIndex.
 		        self activeProcessHash ].
 	(self waitFor: 'interrupted' within: aDuration) ifFalse: [
 		reader close.

@@ -12,7 +12,7 @@ plan for what does not.
 
 | | how | where |
 |---|---|---|
-| interrupt a running image from outside | write the VM's `interruptPending`; it signals the image's interrupt semaphore at its next check | `docs/reading-a-live-process.md` |
+| interrupt a running image from outside | signal the watcher's own semaphore as the VM's threads do (external semaphores; `interruptPending` until VM 10 made it a local) | `docs/reading-a-live-process.md` |
 | hold it there | a watcher of ours, above the wedged process, that does not yield until a word changes | same |
 | read it whole while held | SIGSTOP, then the ordinary ladder -- 844,508 objects, no rung refused | same |
 | fix a method in it | the passes of `docs/editing-an-image.md`, aimed at `/proc/<pid>/mem` | that doc |
@@ -98,7 +98,7 @@ method, and nothing links to it. Every piece B needs was built and tested alread
 (allocating in eden, compiling here with literals made there, remembering an old object that
 comes to point at a young one), and what gets woken is the same watcher source as a launched
 target's, so holding, stepping and letting go are the tested paths. B also refuses cleanly: if
-anything already waits on slot 31, it writes nothing (`WatcherInjection`, `Polyphemus
+a watcher of ours already waits on the semaphore left in that directory, it writes nothing (since 2026-09-26 the watcher has a semaphore of its own, registered in the external objects table) (`WatcherInjection`, `Polyphemus
 putAWatcherInto:watchedIn:`, tested by `WatcherInjectionTest`).
 
 **What B risks, stated rather than hidden:** it is written in one SIGSTOP at a moment we did not

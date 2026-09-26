@@ -1,4 +1,0 @@
-helpers
-excessSignalsOfTheInterruptSemaphoreIn: aRawHeap
-
-	^ aRawHeap addressOfTheInterruptSemaphoresExcessSignals

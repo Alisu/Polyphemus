@@ -15,7 +15,7 @@ testItPatchesAMethodOfAnImageItIsHolding
 		| dumped |
 		dumped := SpurDumpedMemory on: reader.
 		self makeEvenOdd: dumped through: reader.
-		self letGo: reader heap: dumped raw ].
+		self letGo: reader].
 
 	self
 		assert: (self waitFor: [ (self spikeDirectory / 'released') exists ])

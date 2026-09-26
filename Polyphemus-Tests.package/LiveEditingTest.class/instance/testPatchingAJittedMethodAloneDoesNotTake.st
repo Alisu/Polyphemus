@@ -17,7 +17,7 @@ testPatchingAJittedMethodAloneDoesNotTake
 		self
 			assert: (self patchEvenIn: dumped through: reader)
 			description: 'the machine had not compiled that method, so this proves nothing'.
-		self letGo: reader heap: dumped raw ].
+		self letGo: reader].
 
 	self
 		assert: (self waitFor: [ (self spikeDirectory / 'released') exists ])

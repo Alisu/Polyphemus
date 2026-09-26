@@ -21,7 +21,7 @@ testItPutsANewMethodIntoARunningImage
 			under: selector address
 			in: integer.
 		self askTheHeldImageTo: (self scriptAsking: selector asString).
-		self letGo: reader heap: dumped raw ].
+		self letGo: reader].
 
 	self
 		assert: (self waitFor: [ (self spikeDirectory / 'released') exists ])

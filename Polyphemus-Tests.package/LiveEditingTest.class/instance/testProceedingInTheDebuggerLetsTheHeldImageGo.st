@@ -5,17 +5,13 @@ testProceedingInTheDebuggerLetsTheHeldImageGo
 	its watcher is waiting on is written, and it goes back to running. The debugger closes
 	itself, which needs no help from here."
 
-	| pid reader address session |
+	| pid reader session |
 	pid := self launchSpinningTarget.
 	[
 	reader := LinuxProcessMemory on: pid.
 	self holdWithTheInterrupt: reader.
-	address := reader whileStopped: [
-		           self excessSignalsOfTheInterruptSemaphoreIn:
-			           (SpurDumpedMemory on: reader) raw ].
 	session := ReifiedDebugSession named: 'Polyphemus' on: nil startedAt: nil fixing: nil.
-	session releaseWith: [
-		reader whileStopped: [ reader storeWord: 1 * 8 + 1 at: address ] ].
+	session releaseWith: [ reader whileStopped: [ self letGo: reader ] ].
 
 	self assert: session resume.
 

@@ -119,7 +119,7 @@ Fork-only, and the canonical record. `mistakes.md` first if a hunt is going long
 
 ## Current state
 
-Green: **624 tests, 0 failures** (`bin/run-tests.sh --all -j 5`, 7-13 min). Stage 3 done 2026-09-26; next, editions (`docs/editions.md`). The two defects this
+Green: **626 tests, 0 failures** (`bin/run-tests.sh --all -j 5`, 7-13 min). Stage 3 done 2026-09-26; next, editions (`docs/editions.md`). The two defects this
 fork started with — the load-time simulator crash and `computeOperandStack:` — are fixed.
 
 ### Stage 1 — a corrupted image file. Done.

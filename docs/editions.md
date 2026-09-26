@@ -67,10 +67,21 @@ Caches are the edition's own (`/tmp/polyphemus-cache/<edition>/`, #50).
   reproduced answers an `OOPUnknownSourceNode`, and a method answers through itself compiled
   here. A block's code still answers unknown: nothing is highlighted when stepping in a block.
 
-## Next: VM 10 as a target
+## VM 10 as a target (in progress)
 
-VM 10.0.5 no longer has five of the symbols stages 2 and 3 read: `interruptPending`,
-`endOfMemory`, `rememberedSet`, `rememberedSetSize`, `rememberedSetLimit`. The remembered set is
-now behind pointers to structs (`fromOldSpaceRememberedSet`, `fromPermSpaceRememberedSet`), made
-ready for perm space. Reading a VM 10 process needs the variables named per VM build, and those
-structs' layouts; then Pharo 11 images as targets, then VMMaker v10.2.1.
+What changed from VM 9.0.22 to 10.0.5, and where each stands:
+
+| | VM 10.0.5 | status |
+|---|---|---|
+| interrupting from outside | `interruptPending` made a local (Slang) | done: the watcher's own external semaphore, both VMs (`docs/reading-a-live-process.md`) |
+| remembered set | behind `fromOldSpaceRememberedSet`, a `struct _VMRememberedSet` (size +16, limit +24, array +32) | done: `VMVariables>>movedAddressOf:` |
+| `endOfMemory` | gone | nothing to do: the heap walk's end is the fallback |
+| memory layout | new space in a mapping of its own (0x340000000), old space far above (0x10000000000), `memoryMap` states both | **open**: our reading copies one mapping, and VMMaker v10.0.0's simulator lays new and old space out as one |
+
+Both libraries carry DWARF debug information: every layout above was read from it (`gdb -batch
+-ex "ptype /o ..."` on the library file, nothing run), not guessed.
+
+`VMMemoryMap` and `VMRememberedSet` arrived in VMMaker **v10.0.4** -- the release that also
+removed `newInterpreter`, which our tests lean on. Reading VM 10's memory is therefore done with
+the VMMaker it was generated from: the Pharo 11 edition moves to **v10.0.5**, the Pharo 10 one
+keeps v10.0.0 and reads VM 9 only. Then Pharo 11 images as targets.

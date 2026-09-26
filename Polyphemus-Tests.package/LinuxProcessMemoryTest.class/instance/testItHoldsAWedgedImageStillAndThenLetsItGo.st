@@ -17,7 +17,7 @@ testItHoldsAWedgedImageStillAndThenLetsItGo
 		self assert: raw heapWalk objectCount > 100000.
 		self assert: raw readability refusals asArray equals: #(  ).
 		self assert: raw freeListsAreIntact.
-		self letGo: reader heap: raw ].
+		self letGo: reader].
 
 	self
 		assert: (self waitFor: [ (self spikeDirectory / 'released') exists ])
