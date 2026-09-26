@@ -1,0 +1,11 @@
+{
+	"commentStamp" : "",
+	"super" : "Object",
+	"category" : "Polyphemus-Object-edition",
+	"classinstvars" : [  ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [ "pharo", "os", "cpu" ],
+	"name" : "PolyphemusHost",
+	"type" : "normal"
+}

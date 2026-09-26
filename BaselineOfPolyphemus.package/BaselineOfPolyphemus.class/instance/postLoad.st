@@ -1,10 +1,11 @@
 baselines
 postLoad
 
-	"Open a browser and a playground on what was loaded, where there is a screen. A headless
-	load (scripts, CI) has no world, and opening one there made the load fail."
+	"Refuse a host the edition is not made for, by name. Then open a browser and a playground,
+	where there is a screen: a headless load (scripts, CI) has no world to open them in."
 
 	| browser playground |
+	(Smalltalk at: #PolyphemusEdition) current checkHost.
 	Smalltalk isHeadless ifTrue: [ ^ self ].
 	browser := ToolRegistry new openClassBrowser.
 	browser packageView filterField updateTextWith: 'Polyphemus'.

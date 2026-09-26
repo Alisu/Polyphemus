@@ -115,10 +115,11 @@ Fork-only, and the canonical record. `mistakes.md` first if a hunt is going long
 | `reading-a-dump.md` | reading an ELF core: program headers, notes, segments |
 | `reading-a-live-process.md` | `/proc/pid/mem`, Mach, Windows, and why one protocol covers all three |
 | `stage3-live-image.md` | what works on a live image, what stage 3 must still do, and what is only believed |
+| `editions.md` | which host an edition runs on and which Pharo it reads, its name, what it refuses; one branch, editions as packages |
 
 ## Current state
 
-Green: **431 tests, 0 failures** (`bin/run-tests.sh --all -j 6`, ~43 s). The two defects this
+Green: **620 tests, 0 failures** (`bin/run-tests.sh --all -j 5`, 7-13 min). Stage 3 done 2026-09-26; next, editions (`docs/editions.md`). The two defects this
 fork started with — the load-time simulator crash and `computeOperandStack:` — are fixed.
 
 ### Stage 1 — a corrupted image file. Done.

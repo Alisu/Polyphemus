@@ -1,0 +1,1 @@
+An edition of Polyphemus: the host it is made to run on and the versions of Pharo it reads, named after both -- `Polyphemus-Pharo10-Linux-x64-for-Pharo10` -- and refusing, by that name, a host or a target outside them. `current` is the edition this code is; each edition is a set of packages loaded for its host, from one branch.
