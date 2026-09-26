@@ -192,23 +192,20 @@ the same method reaches a running image, but no test has aimed it at one yet -- 
 fix a method in a running image, and correcting the instance variable that made it fail is
 believed to work rather than checked.
 
-### E. Many instances at once
+### Many instances at once -- not stage 3
 
-The vision behind all of it: one debugger, many headless images. Nothing prevents it now -- each
-target is a pid -- but nothing composes it either. It wants the channel from B, a chooser over
-`LinuxProcessMemory pharoProcesses`, and a session per instance.
+The vision behind all of it, one debugger and many headless images, is its own work now (#47),
+to follow stage 3.
 
 ## Order
 
-1. **A's measurements** -- three cheap readings of a stock image; they decide whether #27 is
-   bootstrap or fallback, and they cost an afternoon.
-2. **B, the channel** -- everything else leans on it.
-3. **C, stepping**, first "run until", then single steps.
-4. **D**, which is small and makes the debugger honest.
-5. **E**, which is composition once B exists.
+Done: **#35** (the tidy-up), **B** (the channel), **C** (stepping, "run until", the front door).
+What finishes stage 3:
 
-Before any of it: **#35**, the tidy-up. Stepping and the channel will both land on the classes that
-need splitting, and they should be split first.
+1. **A (#27)** -- holding an image that carries nothing of ours, starting with its three cheap
+   measurements: they decide whether a watcher is bootstrap or fallback.
+2. **C's remainder** -- stepping a frame selected below the one the image's debugger is at.
+3. **D (#20)** -- editing objects from the inspector, not only methods.
 
 ## Facts to check, listed so they are not assumed
 
