@@ -1,4 +1,4 @@
 stepping
 stepOver
 
-	channel ask: '(self at: #session) stepOver: (self at: #session) interruptedContext. nil'
+	self step: 'stepOver:' below: 0

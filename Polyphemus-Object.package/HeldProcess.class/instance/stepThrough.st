@@ -1,4 +1,4 @@
 stepping
 stepThrough
 
-	channel ask: '(self at: #session) stepThrough: (self at: #session) interruptedContext. nil'
+	self step: 'stepThrough:' below: 0

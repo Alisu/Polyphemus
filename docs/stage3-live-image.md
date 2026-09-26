@@ -192,8 +192,12 @@ in the method. Not reached in time, the image is held again where it got to and 
 removed. Known edge: two processes already inside the method when it fires would signal twice,
 and the watcher would read the second as our release.
 
-Still to do: stepping a frame selected below the one the image's debugger is at; seeding
-`findHeap` from the last reading (most of what a step still costs).
+**A frame selected below the top: built.** The debugger steps the frame selected in its stack
+list, as Pharo's does: stepping over one below the top completes the frames above it. A context
+has no name both sides share, so the session counts how many frames below the image debugger's
+own it is, and the image steps the context that many senders down.
+
+Still to do: seeding `findHeap` from the last reading (most of what a step still costs).
 
 ### D. Editing objects, not only methods (#20)
 
@@ -211,11 +215,10 @@ to follow stage 3.
 ## Order
 
 Done: **#35** (the tidy-up), **B** (the channel), **C** (stepping, "run until", the front door),
-**A (#27)** (a watcher put into an image that has none).
-What finishes stage 3:
+**A (#27)** (a watcher put into an image that has none), and stepping a frame selected below the
+top. What finishes stage 3:
 
-1. **C's remainder** -- stepping a frame selected below the one the image's debugger is at.
-2. **D (#20)** -- editing objects from the inspector, not only methods.
+1. **D (#20)** -- editing objects from the inspector, not only methods.
 
 ## Facts to check, listed so they are not assumed
 
