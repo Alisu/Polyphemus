@@ -74,28 +74,39 @@ case the signal only increments `excessSignals` and nothing happens. We can stil
 read it (`whileStoppedWhenQuiet:`), but we cannot choose the moment, and an image spinning in a
 loop never goes quiet, so that fallback covers the idle case and not the interesting one.
 
-**The plan, measured first.** Three questions, in order, none of them answered yet:
+**Measured** (stock Pharo 10 image, launched headless with a busy loop at priority 40, nothing
+of ours in it): nobody waits on slot 31. The semaphore's `firstLink` and `lastLink` are nil, and
+signalling it only raises `excessSignals` -- the loop runs on. So Pharo gives us no handler to
+borrow, and the first instrument has to be put in by us.
 
-1. **Who waits on slot 31 in a stock image?** Read the semaphore's queue from outside -- its
-   `firstLink`/`lastLink` -- in a plain headless Pharo that was not launched by us. If a process
-   of Pharo's own waits there, signalling gives us something that runs at high priority.
-2. **What does it do when woken?** If Pharo's handler interrupts the active process, that alone is
-   worth having on a runaway image, even before any hold.
-3. **Can we get the first instrument in?** The pieces exist: we can install a method into a live
-   image, with literals of our own making. So the shape is *bootstrap* -- patch the code some
-   already-running, high-priority process is about to execute (the delay scheduler ticks at
-   priority 80 and wakes constantly) so that it first looks at a flag object we allocated, and
-   holds while it is set. Once our code runs inside, everything after it is the image's own work.
+**Two ways to put it in:**
 
-**The thing that decides whether this works**, and it has not been checked: a method that runs
-constantly is a method Cog has compiled, and worse, its send sites are *linked* to that machine
-code. Pointing the dictionary at a new method does not unlink them. So the bootstrap patch must
-either land on a method that is not jitted (its header still holds the header word -- one slot to
-check), or wait for the send sites to be unlinked by something else. Measure before building.
+- **A. Patch a hot method.** Rewrite code some high-priority process of the image already runs
+  (the delay scheduler at 80 wakes constantly) so that it first checks a flag of ours and holds
+  while it is set.
+- **B. Put a process in.** Make, inside the image, the watcher every test target is launched
+  with: its method (compiled here, allocated there, in no method dictionary), a context at that
+  method's start, and a process at priority 70 holding the context, queued on the interrupt
+  semaphore as if it had called `wait`. The next interrupt wakes it like any waiter.
 
-**Fallback, stated rather than hidden:** for an image with no watcher and no usable hook, stop it
-with SIGSTOP when it is quiet, read, and refuse to edit -- rather than editing at a moment we did
-not choose.
+**B, because A fights the JIT and B does not touch it.** A method that runs constantly is one Cog
+has compiled, and its send sites are *linked* to that machine code: changing its bytecodes or
+swapping it in the dictionary changes nothing that runs until those links go, and making them go
+is `voidCogVMState`, which needs the image to run our code, which is what we are trying to get.
+B touches no existing method at all. The new method is interpreted on first run, like any fresh
+method, and nothing links to it. Every piece B needs was built and tested already for editing
+(allocating in eden, compiling here with literals made there, remembering an old object that
+comes to point at a young one), and what gets woken is the same watcher source as a launched
+target's, so holding, stepping and letting go are the tested paths. B also refuses cleanly: if
+anything already waits on slot 31, it writes nothing (`WatcherInjection`, `Polyphemus
+putAWatcherInto:watchedIn:`, tested by `WatcherInjectionTest`).
+
+**What B risks, stated rather than hidden:** it is written in one SIGSTOP at a moment we did not
+choose -- an image with no watcher has no safe moment to offer. If the VM was stopped in the
+middle of allocating (eden's `freeStart` loaded but not yet stored back) or of changing the
+semaphore's queue, one of our writes can be lost or undone when it resumes. The window is a few
+instructions wide and has not been seen in the tests; reading the VM thread's registers and
+program counter before writing would close it, and is left until a failure asks for it.
 
 ### B. A channel with answers in it (#34)
 
@@ -199,18 +210,17 @@ to follow stage 3.
 
 ## Order
 
-Done: **#35** (the tidy-up), **B** (the channel), **C** (stepping, "run until", the front door).
+Done: **#35** (the tidy-up), **B** (the channel), **C** (stepping, "run until", the front door),
+**A (#27)** (a watcher put into an image that has none).
 What finishes stage 3:
 
-1. **A (#27)** -- holding an image that carries nothing of ours, starting with its three cheap
-   measurements: they decide whether a watcher is bootstrap or fallback.
-2. **C's remainder** -- stepping a frame selected below the one the image's debugger is at.
-3. **D (#20)** -- editing objects from the inspector, not only methods.
+1. **C's remainder** -- stepping a frame selected below the one the image's debugger is at.
+2. **D (#20)** -- editing objects from the inspector, not only methods.
 
 ## Facts to check, listed so they are not assumed
 
-- Who waits on the interrupt semaphore in a stock headless image, and what it does when woken.
-- Whether a jitted method's *linked send sites* defeat a dictionary swap, and for how long.
+- Whether a jitted method's *linked send sites* defeat a dictionary swap, and for how long (it
+  decided #27 without being measured: B avoids the question).
 - Why `flushCache` did not discard machine code in the measurement, when VMMaker's
   `CoInterpreterPrimitives>>primitiveFlushCacheByMethod` does send `unlinkSendsTo:andFreeIf:`.
   The measurement is solid -- `voidCogVMState` took, `flushCache` did not -- but the explanation

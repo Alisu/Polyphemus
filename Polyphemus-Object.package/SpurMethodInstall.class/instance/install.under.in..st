@@ -5,11 +5,6 @@ install: aCompilation under: aSelectorOop in: aReifiedClass
 	code names made or found there."
 
 	| oop |
-	oop := self allocate: aCompilation classIndex: reading compiledMethodClassIndex.
-	self
-		fill: oop
-		from: aCompilation
-		withLiterals:
-		(self literalsFor: aCompilation under: aSelectorOop in: aReifiedClass inside: oop).
+	oop := self methodFrom: aCompilation under: aSelectorOop in: aReifiedClass.
 	self addTo: aReifiedClass selector: aSelectorOop method: oop.
 	^ oop

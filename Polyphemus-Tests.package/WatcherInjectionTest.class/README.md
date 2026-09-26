@@ -1,0 +1,1 @@
+Holding an image that runs nothing of ours (#27): a watcher put into it from outside -- a method, a context and a process, queued on the VM's interrupt semaphore as if already waiting -- after which it is held, stepped and let go like any target we launch.
