@@ -5,7 +5,7 @@
 	"classinstvars" : [ ],
 	"pools" : [ ],
 	"classvars" : [ ],
-	"instvars" : [ "directory", "channel", "agent" ],
+	"instvars" : [ "directory", "channel", "agent", "bell" ],
 	"name" : "DirectoryChannelTest",
 	"type" : "normal"
 }

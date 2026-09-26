@@ -9,6 +9,7 @@ readAgain
 	reader whileStopped: [
 		fresh := SpurDumpedMemory on: reader.
 		fresh raw bytes.
+		collections := self collectionsSoFar.
 		dumped ifNotNil: [ fresh raw assumeTheHeapOf: dumped raw ] ].
 	reading := (dumped notNil and: [ fresh holdsTheClassesOf: dumped ])
 		           ifTrue: [ fresh reifiedMemorySharingClassesOf: reading ]

@@ -207,6 +207,30 @@ the same method reaches a running image, but no test has aimed it at one yet -- 
 fix a method in a running image, and correcting the instance variable that made it fail is
 believed to work rather than checked.
 
+**A slot, in a running image: built and checked.** `session store: 2 inSlot: 1 ofObjectShown:
+anObject` sets it while the image is held; let go, the image goes on with it
+(`LiveEditingTest`: a runaway loop on `flag first = 1` ends once the slot says 2). What had to
+change, measured first:
+
+- *A held image was not still.* The agent polled for request files, and polling allocates:
+  **223 scavenges in 2 s** of being held with nobody asking. A scavenge moves every young object,
+  so an address read a moment ago could be someone else's by the time we wrote to it. The agent
+  now spins on a bell between requests, as the hold does, and allocates nothing
+  (`sourceServing:bell:`); the channel rings it by writing the word that releases the hold. It
+  looks for a request before waiting, so a ring the watcher's reset swallowed is not missed.
+- *And the edit checks it.* The VM counts its collections (`statScavenges`, `statFullGCs`); the
+  held process notes both in the stop it reads in, and refuses an edit if either moved by the stop
+  it writes in. A process at priority 80 (the delay scheduler) can still allocate while we hold,
+  so a refusal is possible, just rare; reading again and editing again is the answer.
+- An object of an earlier reading, one step back, is refused too: that step ran code.
+
+Found on the way: frames of code evaluated from a script (`UndefinedObject>>DoIt`) show no
+temporaries, because names come from compiling the frame's source back (#6) and a doit's source is
+not kept. The objects are still reachable, through whatever the frame's callees hold.
+
+Still to do for D: the inspector's value cells, and the debugger's code pane accepting a method
+fix in a running image (the front door opens its session `fixing: nil` today).
+
 ### Many instances at once -- not stage 3
 
 The vision behind all of it, one debugger and many headless images, is its own work now (#47),
