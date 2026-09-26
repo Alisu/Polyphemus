@@ -14,4 +14,5 @@ readAgain
 	reading := (dumped notNil and: [ fresh holdsTheClassesOf: dumped ])
 		           ifTrue: [ fresh reifiedMemorySharingClassesOf: reading ]
 		           ifFalse: [ fresh reifiedMemory ].
+	reading editor: self.
 	dumped := fresh

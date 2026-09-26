@@ -26,7 +26,8 @@
 	 "instancesByClassTag",
 	 "wrappedVariables",
 	 "handlerCache",
-	 "vmLayout"
+	 "vmLayout",
+	 "editor"
 	],
 	"name": "AbstractReifiedMemory",
 	"type": "normal"

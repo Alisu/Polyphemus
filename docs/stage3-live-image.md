@@ -237,7 +237,13 @@ context may run an older one, and after "run until" it does -- the trap's instru
 whose bytecodes match no source. On the way, the trap was found to fire in our own agent when the
 agent ran the method too (#48); it now lets the agent through.
 
-Still to do for D: the inspector's value cells.
+**The inspector: built and checked.** In the Oop tab the value of a slot can be typed in -- an
+integer, `nil`, `true` or `false`, since what is stored has to be in the image already -- when the
+reading has an editor; a held process is the editor of every reading it takes, so this lands in
+the running image under the same guard (`LiveEditingTest`), and an image file's reading given a
+`SpurEdit` writes into the copy (`SpurImageEditTest`). The reading on screen still shows what was
+read; the next step or reading shows the change. Not yet: temporaries by name in the debugger's
+own inspector, and "save as" for a dump -- left on #20, past stage 3.
 
 ### Many instances at once -- not stage 3
 
@@ -247,10 +253,10 @@ to follow stage 3.
 ## Order
 
 Done: **#35** (the tidy-up), **B** (the channel), **C** (stepping, "run until", the front door),
-**A (#27)** (a watcher put into an image that has none), and stepping a frame selected below the
-top. What finishes stage 3:
-
-1. **D (#20)** -- editing objects from the inspector, not only methods.
+**A (#27)** (a watcher put into an image that has none), stepping a frame selected below the
+top, and **D** (a slot, a method and the inspector, in a running image). Stage 3 is done: open an
+image that is running, look at it, change it, and let it go on running. What follows is #47,
+many instances at once.
 
 ## Facts to check, listed so they are not assumed
 
