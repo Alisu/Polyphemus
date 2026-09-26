@@ -8,7 +8,7 @@ methodHeaderOf: aMethodOop
 	| slot |
 	slot := memory fetchPointer: 0 ofObject: aMethodOop.
 	(memory isIntegerObject: slot) ifTrue: [ ^ slot ].
-	(slot < raw mappingStart and: [
+	((raw isMachineCodeAddress: slot) and: [
 		 (self wordAt: slot + (2 * memory wordSize)) = aMethodOop ]) ifFalse: [
 		^ (SpurCannotRead new
 			   level: #object

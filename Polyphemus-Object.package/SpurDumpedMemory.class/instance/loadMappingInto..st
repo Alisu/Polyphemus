@@ -1,17 +1,9 @@
 building the memory
 loadMappingInto: aManager
 
-	"Copy the mapping into aManager at its original address. Nothing is relocated."
+	"Copy the mapping into aManager at its original address, and new space's own mapping when
+	it has one (VM 10). Nothing is relocated."
 
-	| region |
-	aManager
-		allocate: raw mappingLimit - raw mappingStart
-		desiredPosition: raw mappingStart.
-	region := aManager regionAtAddress: raw mappingStart.
-	region start = raw mappingStart ifFalse: [
-		^ self error: 'the memory could not be placed at its own address' ].
-	region memory
-		replaceFrom: 1
-		to: raw bytes size
-		with: raw bytes
-		startingAt: 1
+	self load: raw bytes at: raw mappingStart size: raw mappingLimit - raw mappingStart into: aManager.
+	raw youngMappingStart ifNotNil: [ :start |
+		self load: raw youngBytes at: start size: raw youngMappingLimit - start into: aManager ]

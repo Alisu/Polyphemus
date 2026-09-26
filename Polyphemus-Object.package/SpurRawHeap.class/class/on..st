@@ -23,4 +23,5 @@ on: aDump
 	following notNil ] whileTrue: [ limit := limit + following sizeInFile ].
 	^ (self on: aDump from: first address to: limit)
 		  setVMVariables: variables;
+		  findYoungMapping;
 		  yourself

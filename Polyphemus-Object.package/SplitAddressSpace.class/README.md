@@ -1,0 +1,1 @@
+Several ByteArrayAddressSpaces answering as one, for a heap in more than one mapping: VM 10 keeps new space gigabytes below old space. Answers what a core dump answers -- whether an address is there, the bytes or the integer at one -- from whichever piece holds it, and nothing across a gap.

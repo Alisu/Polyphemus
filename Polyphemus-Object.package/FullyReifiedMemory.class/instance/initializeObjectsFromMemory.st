@@ -4,5 +4,5 @@ initializeObjectsFromMemory
 	self reifyAllOops.
 	self createOrOverrideParticularObjects.
 	self reifiedClassTable computeSubclasses.
-	flagErrorObjects ifTrue: [ self fillBlankBetween: lastKnownObject address and: objectsArray size ].
+	flagErrorObjects ifTrue: [ self fillBlankBetween: lastKnownObject address and: memory endOfMemory ].
 	self createCompressedVersion.

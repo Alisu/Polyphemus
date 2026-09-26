@@ -15,14 +15,6 @@ baseline: spec
 
 	spec for: #common do: [
 		spec postLoadDoIt: #postLoad.
-		spec baseline: 'VMMaker' with: [
-			spec
-				repository: 'github://pharo-project/pharo-vm:v10.0.0/smalltalksrc';
-				loads: #( 'core' ) ].
-		spec
-			project: 'VMMakerWithItsTests'
-			copyFrom: 'VMMaker'
-			with: [ spec loads: #( 'core' 'tests' ) ].
 
 		spec package: 'Polyphemus-Helper' with: [ spec requires: #( 'VMMaker' ) ].
 		spec package: 'Polyphemus-Memory' with: [ spec requires: #( 'VMMaker' ) ].
@@ -39,10 +31,26 @@ baseline: spec
 			group: 'tests' with: #( 'Polyphemus-Tests' );
 			group: 'default' with: #( 'core' 'tests' ) ].
 
-	"The edition, chosen by the host's Pharo: one package each, defining forThisHost."
-	#( 10 11 ) do: [ :major |
-		spec for: ('pharo' , major printString , '.x') asSymbol do: [
+	"The edition, chosen by the host's Pharo: one package each, defining forThisHost, and the
+	VMMaker it reads with -- the one its targets' VM was generated from (docs/editions.md)."
+	{ 10 -> 'v10.0.0'. 11 -> 'v10.0.5' } do: [ :each |
+		spec for: ('pharo' , each key printString , '.x') asSymbol do: [
 			| edition |
-			edition := 'Polyphemus-Edition-Pharo' , major printString.
+			spec baseline: 'VMMaker' with: [
+				spec
+					repository: 'github://pharo-project/pharo-vm:' , each value , '/smalltalksrc';
+					loads: #( 'core' ) ].
+			spec
+				project: 'VMMakerWithItsTests'
+				copyFrom: 'VMMaker'
+				with: [ spec loads: #( 'core' 'tests' ) ].
+			edition := 'Polyphemus-Edition-Pharo' , each key printString.
 			spec package: edition with: [ spec requires: #( 'Polyphemus-Object' ) ].
-			spec group: 'core' with: { edition } ] ]
+			spec group: 'core' with: { edition } ] ].
+
+	"What the tests need of VMMaker v10.0.5 beyond what both VMMakers have."
+	spec for: #'pharo11.x' do: [
+		spec
+			package: 'Polyphemus-Tests-Pharo11'
+			with: [ spec requires: #( 'Polyphemus-Tests' ) ].
+		spec group: 'tests' with: #( 'Polyphemus-Tests-Pharo11' ) ]

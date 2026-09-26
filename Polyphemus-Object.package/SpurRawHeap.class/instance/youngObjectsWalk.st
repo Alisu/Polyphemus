@@ -5,4 +5,4 @@ youngObjectsWalk
 	which a dump gives no other way of knowing."
 
 	^ self youngSpaceStart ifNotNil: [ :start |
-		  self scanner walkFrom: start upTo: self heapStart ]
+		  self scanner walkFrom: start upTo: self newSpaceLimit ]

@@ -1,4 +1,4 @@
-*Polyphemus-Memory
+*Polyphemus-Edition-Pharo10
 allOldSpaceEntitiesFrom: initialObject do: aBlock
 	<inline: true>
 	| prevObj prevPrevObj objOop |

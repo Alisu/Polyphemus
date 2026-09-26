@@ -9,7 +9,7 @@ contextPCOf: anInstructionPointer frame: aFramePointer
 	(self isMachineCodeFrame: aFramePointer) ifTrue: [
 		^ self machineCodePCOf: anInstructionPointer frame: aFramePointer ].
 	ip := anInstructionPointer.
-	ip < raw mappingStart ifTrue: [
+	(raw isMachineCodeAddress: ip) ifTrue: [
 		name := self nameOfCodeAddress: ip.
 		(name isNil or: [ name = 'ceReturnToInterpreterTrampoline' ]) ifFalse: [ ^ nil ].
 		ip := self wordAt: aFramePointer - (4 * memory wordSize) ].

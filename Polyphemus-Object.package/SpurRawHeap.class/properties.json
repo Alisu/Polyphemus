@@ -6,7 +6,8 @@
 	"pools": [],
 	"classvars": [],
 	"instvars": [ "space", "scanner", "mappingStart", "mappingLimit", "heapStart", "liveEnd",
-		"specialObjectsOop", "walk", "readability", "classTableProblems", "bytes", "youngStart", "vmVariables" ],
+		"specialObjectsOop", "walk", "readability", "classTableProblems", "bytes", "youngStart", "vmVariables",
+		"youngMappingStart", "youngMappingLimit", "youngBytes", "codeZone" ],
 	"name": "SpurRawHeap",
 	"type": "normal"
 }

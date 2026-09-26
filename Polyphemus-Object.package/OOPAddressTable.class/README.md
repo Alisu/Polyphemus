@@ -1,0 +1,1 @@
+A reading's objects by address, one slot per eight bytes, over the ranges a VM lays its spaces in and nothing for the gaps between: VM 10 puts new space gigabytes below old space, where VM 9 had them side by side. What AbstractReifiedMemory keeps its wrappers in.

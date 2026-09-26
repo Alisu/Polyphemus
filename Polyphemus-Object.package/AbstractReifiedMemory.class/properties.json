@@ -8,7 +8,6 @@
 	 "MemoryCache"
 	],
 	"instvars": [
-	 "baseAddress",
 	 "flagErrorObjects",
 	 "lastKnownObject",
 	 "objectsArray",

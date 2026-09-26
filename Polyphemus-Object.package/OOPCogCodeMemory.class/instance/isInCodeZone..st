@@ -1,4 +1,4 @@
 memory protocol
 isInCodeZone: anAddress
 
-	^ anAddress < raw mappingStart
+	^ raw isMachineCodeAddress: anAddress

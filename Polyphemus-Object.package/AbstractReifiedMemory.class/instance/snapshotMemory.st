@@ -1,8 +1,11 @@
 updating
 snapshotMemory
-	"This size is for an oldSpace we take the end - the beginning then we compress by worsize because every address is wordSize aligned then by 8 because we remove the 3 bits tag"
-	| arraySize |
+
+	"A slot per eight bytes of new space and of old space, and none for what lies between: VM 10
+	(and VMMaker v10.0.5) lay them gigabytes apart."
+
 	self forgetWhatWasRead.
-	arraySize := (memory endOfMemory - memory newSpaceStart) >> 3.
-	objectsArray := Array new: arraySize.
-	self initializeObjectsFromMemory.
+	objectsArray := OOPAddressTable covering: {
+			                (memory newSpaceStart -> memory newSpaceLimit).
+			                (memory oldSpaceStart -> memory endOfMemory) }.
+	self initializeObjectsFromMemory

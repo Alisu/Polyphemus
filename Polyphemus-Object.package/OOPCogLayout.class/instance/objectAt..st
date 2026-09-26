@@ -5,6 +5,6 @@ objectAt: aWord
 	but only a plausible object in the heap, never a machine code address."
 
 	(memory objectAt: aWord) ifNotNil: [ :object | ^ object ].
-	(aWord between: raw mappingStart and: raw mappingLimit - 1) ifFalse: [ ^ nil ].
+	(raw holdsHeapAddress: aWord) ifFalse: [ ^ nil ].
 	(raw scanner isPlausibleObjectAt: aWord) ifFalse: [ ^ nil ].
 	^ memory reifyOop: aWord

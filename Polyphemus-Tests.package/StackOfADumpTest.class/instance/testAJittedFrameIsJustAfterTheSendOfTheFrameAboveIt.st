@@ -2,7 +2,8 @@ tests
 testAJittedFrameIsJustAfterTheSendOfTheFrameAboveIt
 
 	"Mapped through Cog's own map by VMMaker's Cogit. Checked without Cog: a frame is just after
-	the send of the frame above -- its selector, a value... for a block, or perform/executeMethod."
+	the send of the frame above -- its selector, a value... for a block, or perform/executeMethod.
+	28 jitted frames and 12 checked in the VM 9 dump, 14 and 9 in the VM 10 one."
 
 	| jitted checked |
 	jitted := 0.
@@ -25,5 +26,5 @@ testAJittedFrameIsJustAfterTheSendOfTheFrameAboveIt
 									 ifFalse: [ sent = callee selector ] ] ]).
 					checked := checked + 1 ] ] ] ].
 
-	self assert: jitted >= 28.
-	self assert: checked >= 12
+	self assert: jitted >= 10.
+	self assert: checked >= 8
