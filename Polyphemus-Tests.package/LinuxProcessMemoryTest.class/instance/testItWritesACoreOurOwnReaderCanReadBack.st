@@ -5,7 +5,7 @@ testItWritesACoreOurOwnReaderCanReadBack
 	reader used on gdb's cores: the bytes surviving says the header and offsets are right."
 
 	| file written read |
-	file := FileLocator temp / 'polyphemus-round-trip.core'.
+	file := PolyphemusEdition current scratch / 'polyphemus-round-trip.core'.
 	written := memory segments
 		           select: [ :each | each sizeInFile between: 4096 and: 65536 ]
 		           thenCollect: [ :each | each ].

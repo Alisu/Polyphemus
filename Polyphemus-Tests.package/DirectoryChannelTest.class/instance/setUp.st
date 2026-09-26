@@ -4,7 +4,7 @@ setUp
 	"The agent runs here, its bell a semaphore of the test's that the channel rings."
 
 	super setUp.
-	directory := FileLocator temp / ('polyphemus-channel-' , self class name).
+	directory := PolyphemusEdition current scratch / ('polyphemus-channel-' , self class name).
 	directory ensureDeleteAll.
 	bell := Semaphore new.
 	channel := (DirectoryChannel on: directory)

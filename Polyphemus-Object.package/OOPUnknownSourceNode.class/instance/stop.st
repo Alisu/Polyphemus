@@ -1,0 +1,4 @@
+accessing
+stop
+
+	^ 0

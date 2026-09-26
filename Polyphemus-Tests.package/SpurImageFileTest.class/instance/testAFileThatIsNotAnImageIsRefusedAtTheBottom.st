@@ -2,7 +2,7 @@ tests
 testAFileThatIsNotAnImageIsRefusedAtTheBottom
 
 	| zeros readability |
-	zeros := FileLocator temp / 'polyphemus-not-an-image.image'.
+	zeros := PolyphemusEdition current scratch / 'polyphemus-not-an-image.image'.
 	zeros ensureDelete.
 	zeros binaryWriteStreamDo: [ :out | out nextPutAll: (ByteArray new: 4096) ].
 	readability := (SpurRawHeap on: (self open: zeros)) readability.

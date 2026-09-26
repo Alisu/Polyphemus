@@ -17,9 +17,9 @@ launchObservableTarget
 	target exists ifFalse: [ ^ self skip: 'the pinned Pharo 10 image has not been downloaded' ].
 
 	bang := String with: (Character value: 33).
-	pidFile := FileLocator temp / 'polyphemus-observable-target.pid'.
+	pidFile := PolyphemusEdition current scratch / 'polyphemus-observable-target.pid'.
 	pidFile ensureDelete.
-	LibC system: 'POLYPHEMUS_OBSERVER=any ' , shim fullName , ' ' , Smalltalk vm fullPath
+	LibC system: 'POLYPHEMUS_OBSERVER=any ' , shim fullName , ' ' , PharoImageAccessor pathToTargetVM
 		, ' --headless ' , target fullName
 		, ' eval "(Delay forSeconds: 120) wait" > /dev/null 2>&1 & echo $' , bang , ' > '
 		, pidFile fullName.

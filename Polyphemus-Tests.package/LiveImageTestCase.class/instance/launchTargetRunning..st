@@ -15,7 +15,7 @@ launchTargetRunning: aScript
 		stream nextPutAll: aScript ].
 	bang := String with: (Character value: 33).
 	pidFile := self spikeDirectory / 'pid'.
-	LibC system: 'POLYPHEMUS_OBSERVER=any ' , shim fullName , ' ' , Smalltalk vm fullPath
+	LibC system: 'POLYPHEMUS_OBSERVER=any ' , shim fullName , ' ' , PharoImageAccessor pathToTargetVM
 		, ' --headless ' , target fullName , ' st ' , (self spikeDirectory / 'target.st') fullName
 		, ' > ' , (self spikeDirectory / 'target.log') fullName , ' 2>&1 & echo $' , bang , ' > ' , pidFile fullName.
 	self

@@ -1,0 +1,1 @@
+Where a frame is in its source, when its code could not be reproduced faithfully enough to say: no interval, no temporaries, not a halt. Pharo 11's debugger asks every context for its node as it opens (StDebuggerActionModel>>session:), and a nil stopped it.

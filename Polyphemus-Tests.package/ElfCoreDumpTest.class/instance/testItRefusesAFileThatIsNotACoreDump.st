@@ -5,7 +5,7 @@ testItRefusesAFileThatIsNotACoreDump
 	both are binary, and reading one as the other answers numbers that mean nothing."
 
 	| notACore |
-	notACore := FileLocator temp / 'polyphemus-not-a-core'.
+	notACore := PolyphemusEdition current scratch / 'polyphemus-not-a-core'.
 	notACore ensureDelete.
 	notACore binaryWriteStreamDo: [ :stream |
 		stream nextPutAll: (ByteArray new: 128 withAll: 7) ].

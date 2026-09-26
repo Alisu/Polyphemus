@@ -2,5 +2,5 @@ running
 setUp
 
 	super setUp.
-	written := FileLocator temp / 'polyphemus-edited.image'.
+	written := PolyphemusEdition current scratch / 'polyphemus-edited.image'.
 	written ensureDelete

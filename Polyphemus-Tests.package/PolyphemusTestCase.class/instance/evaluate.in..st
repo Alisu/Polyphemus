@@ -6,9 +6,9 @@ evaluate: anExpression in: anImage
 
 	| out |
 	self putSourcesBeside: anImage.
-	out := FileLocator temp / ('polyphemus-eval-' , self class name , '.txt').
+	out := PolyphemusEdition current scratch / ('polyphemus-eval-' , self class name , '.txt').
 	out ensureDelete.
-	LibC system: Smalltalk vm fullPath , ' --headless ' , anImage fullName , ' eval "'
+	LibC system: PharoImageAccessor pathToTargetVM , ' --headless ' , anImage fullName , ' eval "'
 		, anExpression , '" > ' , out fullName , ' 2>&1'.
 	^ out exists
 		  ifTrue: [ out contents trimBoth ]

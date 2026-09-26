@@ -6,6 +6,6 @@ setUp
 	and a program header table."
 
 	super setUp.
-	dumpFile := FileLocator temp / 'polyphemus-test.core'.
+	dumpFile := PolyphemusEdition current scratch / 'polyphemus-test.core'.
 	dumpFile ensureDelete.
 	dumpFile binaryWriteStreamDo: [ :stream | stream nextPutAll: self coreBytes ]

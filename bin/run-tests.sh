@@ -20,6 +20,9 @@ TMO="${TMO:-400}"
 SLOW_THRESHOLD="${SLOW_THRESHOLD:-8}"
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$WORK"
+# What this host's setup says about its targets (POLYPHEMUS_TARGET_VM, POLYPHEMUS_CORE): see
+# docs/editions.md. Absent, targets run on the host's own VM and the dump is next to its image.
+[ -f "$WORK/polyphemus.env" ] && { set -a; . "$WORK/polyphemus.env"; set +a; }
 TIMINGS="$WORK/.test-timings"
 RESULTS="$WORK/.test-results"
 
@@ -60,11 +63,12 @@ longest_first() {
 
 run_class() {
   local c="$1" script out rc start el
-  script="/tmp/polyphemus-run-$c.st"
+  script="/tmp/polyphemus-run-$(basename "$WORK")-$c.st"   # one per host setup (#50)
   if [ -n "${ONLY_TEST:-}" ]; then
     cat > "$script" <<INNER
 | r |
 [ r := ($c selector: #$ONLY_TEST) run.
+  '' traceCr. "a line of its own: the simulator leaves its output unfinished (#51)"
   ('RES $c ', r runCount printString, ' run ', r failureCount printString, ' failures ', r errorCount printString, ' errors') traceCr.
   r failures do: [ :t |
     ('    FAIL  $c>>', t selector, ' -- ',
@@ -82,6 +86,7 @@ INNER
     cat > "$script" <<INNER
 | r |
 [ r := $c buildSuite run.
+  '' traceCr. "a line of its own: the simulator leaves its output unfinished (#51)"
   ('RES $c ', r runCount printString, ' run ', r failureCount printString, ' failures ', r errorCount printString, ' errors') traceCr.
   r failures do: [ :t |
     ('    FAIL  $c>>', t selector, ' -- ',

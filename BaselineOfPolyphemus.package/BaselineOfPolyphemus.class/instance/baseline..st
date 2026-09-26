@@ -37,4 +37,12 @@ baseline: spec
 			with: #( 'Polyphemus-Helper' 'Polyphemus-Memory' 'Polyphemus-Object'
 			         'Polyphemus-Builder' );
 			group: 'tests' with: #( 'Polyphemus-Tests' );
-			group: 'default' with: #( 'core' 'tests' ) ]
+			group: 'default' with: #( 'core' 'tests' ) ].
+
+	"The edition, chosen by the host's Pharo: one package each, defining forThisHost."
+	#( 10 11 ) do: [ :major |
+		spec for: ('pharo' , major printString , '.x') asSymbol do: [
+			| edition |
+			edition := 'Polyphemus-Edition-Pharo' , major printString.
+			spec package: edition with: [ spec requires: #( 'Polyphemus-Object' ) ].
+			spec group: 'core' with: { edition } ] ]
