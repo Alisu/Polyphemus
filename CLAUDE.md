@@ -121,7 +121,7 @@ Fork-only, and the canonical record. `mistakes.md` first if a hunt is going long
 ## Current state
 
 Green: **652 tests on Pharo 10, 645 on Pharo 11 and on Pharo 12, 0 failures** (`bin/run-tests.sh --all -j 5` ~5 min alone;
-`bin/gate.sh` all three, ~35 min). Stage 3 done 2026-09-26; editions for Pharo 10, 11 and 12 done 2026-09-27
+`bin/gate.sh` all three in turn, ~25 min). Stage 3 done 2026-09-26; editions for Pharo 10, 11 and 12 done 2026-09-27
 (`docs/editions.md`, what each changed in `docs/patch-notes.md`); next, later versions, then other OSes. The two defects this
 fork started with — the load-time simulator crash and `computeOperandStack:` — are fixed.
 
