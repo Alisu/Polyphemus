@@ -21,7 +21,7 @@ launchObservableTarget
 	pidFile ensureDelete.
 	LibC system: 'POLYPHEMUS_OBSERVER=any ' , shim fullName , ' ' , PharoImageAccessor pathToTargetVM
 		, ' --headless ' , target fullName
-		, ' eval "(Delay forSeconds: 120) wait" > /dev/null 2>&1 & echo $' , bang , ' > '
+		, ' eval "(Delay forSeconds: ' , self targetLifetime printString , ') wait" > /dev/null 2>&1 & echo $' , bang , ' > '
 		, pidFile fullName.
 	"Wait for it to be there and readable, rather than for a fixed number of seconds. A
 	 sixty megabyte image takes as long as the machine is busy, and a suite running six

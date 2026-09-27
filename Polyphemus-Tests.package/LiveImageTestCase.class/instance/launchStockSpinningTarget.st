@@ -8,5 +8,5 @@ launchStockSpinningTarget
 dir := ' , self spikeDirectory fullName printString , ' asFileReference.
 [ [ true ] whileTrue: [ 1000 timesRepeat: [ 3 sqrt ] ] ] forkAt: 40.
 (dir / ''started'') ensureCreateFile.
-(Delay forSeconds: 1800) wait.
+(Delay forSeconds: ' , self targetLifetime printString , ') wait.
 Smalltalk exitSuccess'

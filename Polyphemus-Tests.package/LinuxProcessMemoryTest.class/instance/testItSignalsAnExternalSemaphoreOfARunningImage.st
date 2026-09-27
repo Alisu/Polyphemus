@@ -12,7 +12,7 @@ semaphore := Semaphore new.
 [ semaphore wait. (dir / ''signalled'') ensureCreateFile ] forkAt: 70.
 [ [ true ] whileTrue: [ 1000 timesRepeat: [ 3 sqrt ] ] ] forkAt: 40.
 (dir / ''started'') ensureCreateFile.
-(Delay forSeconds: 120) wait.
+(Delay forSeconds: ' , self targetLifetime printString , ') wait.
 Smalltalk exitSuccess'.
 	[
 	reader := LinuxProcessMemory on: pid.

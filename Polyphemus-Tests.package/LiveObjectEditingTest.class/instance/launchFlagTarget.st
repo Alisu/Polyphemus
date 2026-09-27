@@ -8,5 +8,5 @@ launchFlagTarget
 	[ flag first = 1 ] whileTrue: [ 1000 timesRepeat: [ flag size. 3 sqrt ] ].
 	(dir / ''stopped'') ensureCreateFile ] value: (Array with: 1) ] forkAt: 40.
 (dir / ''started'') ensureCreateFile.
-(Delay forSeconds: 120) wait.
+(Delay forSeconds: ' , self targetLifetime printString , ') wait.
 Smalltalk exitSuccess'

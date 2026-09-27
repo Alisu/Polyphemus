@@ -5,6 +5,8 @@ placeSpacesIn: aMemory freeLists: aFreeListsObject
 	eden and the survivors as the VM did, and old space is one segment up to its last object."
 
 	| map |
+	"As VMMaker's environment builder does: the interpreter allocates stack pages through it."
+	aMemory coInterpreter memoryManager: aMemory memoryManager.
 	aMemory ensureMemoryMap.
 	map := aMemory getMemoryMap.
 	map

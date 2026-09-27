@@ -1,22 +1,8 @@
 initialization
 createInterpreterFrom: anImagePath
 
-	| memory |
+	"The image as a started VM would show it: opened as Polyphemus opens one, its initial
+	context married to a frame."
 
-	memory := (AbstractInspectorsTest new imagePath: anImagePath) newMemory.
-
-	StackInterpreterSimulatorLSB
-		initializeWithOptions: { 
-			#BytesPerWord. 8.
-		 	#ObjectMemory. memory class name }
-		objectMemoryClass: memory class.
-
-	interpreter := StackInterpreterSimulatorLSB basicNew
-		  objectMemory: memory;
-		  basicInitialize;
-		  pluginList: { };
-		  yourself.
-	
-	interpreter openOn: anImagePath.
-	interpreter initStackPages.
-	interpreter loadInitialContext.
+	interpreter := Polyphemus interpreterOnImageFile: anImagePath.
+	interpreter loadInitialContext

@@ -13,9 +13,8 @@ restoreNewSpace
 		bounds := variables boundsOf: name.
 		(scavenger perform: name) start: bounds key; limit: bounds value ].
 	future := variables boundsOf: 'futureSpace'.
-	scavenger
-		instVarNamed: #futureSurvivorStart put: future key;
-		instVarNamed: #previousRememberedSetSize put: 0.
+	scavenger instVarNamed: #futureSurvivorStart put: future key.
+	(self rememberedSetOf: memory) instVarNamed: #previousRememberedSetSize put: 0.
 	memory
 		instVarNamed: #freeStart put: (variables at: 'freeStart');
 		instVarNamed: #pastSpaceStart put: (variables at: 'pastSpaceStart');

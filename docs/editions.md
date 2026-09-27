@@ -33,14 +33,17 @@ An image file's Pharo version is not checked: its format is, and the test fixtur
 
 ## Editions, and what checks them
 
-| edition | host setup on the box | VMMaker | suite |
-|---|---|---|---|
-| Polyphemus-Pharo10-Linux-x64-for-Pharo10 | `~/polyphemus` (Pharo 10, VM 9.0.22) | v10.0.0 | full |
-| Polyphemus-Pharo11-Linux-x64-for-Pharo10 | `~/polyphemus/pharo11` (Pharo 11 build 688, VM 10.0.5) | v10.0.0 | full |
+| edition | host setup on the box | VMMaker | reads | suite |
+|---|---|---|---|---|
+| Polyphemus-Pharo10-Linux-x64-for-Pharo10 | `~/polyphemus` (Pharo 10, VM 9.0.22) | v10.0.0 | image files; processes and dumps of **VM 9** | full, green |
+| Polyphemus-Pharo11-Linux-x64-for-Pharo10 | `~/polyphemus/pharo11` (Pharo 11 build 688, VM 10.0.5) | v10.0.5 | image files; processes and dumps of **VM 10** | full, green |
 
-The Pharo 11 edition reads what the Pharo 10 one reads: the same Pharo 10 targets, on their own
-VM 9.0.22. VMMaker v10.0.0 was itself developed on a Pharo 11 image (pharo-vm's
-`cmake/vmmaker.cmake`), which is why it loads there unchanged.
+Each edition reads processes and dumps with the VMMaker its VM was generated from. VMMaker v10.0.4
+and later tell old from young objects by address masks that hold only at VM 10's fixed addresses,
+so v10.0.5 cannot read a VM 9 heap where it lies, and v10.0.0 does not know VM 10's split memory.
+Image files are relocated when loaded, and both read them.
+
+`bin/gate.sh` runs every edition's suite side by side (~15 min for both).
 
 ## A host setup
 
@@ -67,21 +70,17 @@ Caches are the edition's own (`/tmp/polyphemus-cache/<edition>/`, #50).
   reproduced answers an `OOPUnknownSourceNode`, and a method answers through itself compiled
   here. A block's code still answers unknown: nothing is highlighted when stepping in a block.
 
-## VM 10 as a target (in progress)
+## VM 10 as a target: done (2026-09-27)
 
-What changed from VM 9.0.22 to 10.0.5, and where each stands:
-
-| | VM 10.0.5 | status |
+| | VM 10.0.5 | how |
 |---|---|---|
-| interrupting from outside | `interruptPending` made a local (Slang) | done: the watcher's own external semaphore, both VMs (`docs/reading-a-live-process.md`) |
-| remembered set | behind `fromOldSpaceRememberedSet`, a `struct _VMRememberedSet` (size +16, limit +24, array +32) | done: `VMVariables>>movedAddressOf:` |
-| `endOfMemory` | gone | nothing to do: the heap walk's end is the fallback |
-| memory layout | new space in a mapping of its own (0x340000000), old space far above (0x10000000000), `memoryMap` states both | **open**: our reading copies one mapping, and VMMaker v10.0.0's simulator lays new and old space out as one |
+| interrupting from outside | `interruptPending` made a local (Slang) | the watcher's own external semaphore, both VMs (`docs/reading-a-live-process.md`) |
+| remembered set | behind `fromOldSpaceRememberedSet`, a `struct _VMRememberedSet` | `VMVariables>>movedAddressOf:`; in a reading, `VMRememberedSet` (`rememberedSetOf:`) |
+| `endOfMemory` | gone | the memory map's `oldSpaceEnd`, or the heap walk's end |
+| memory layout | new space in a mapping of its own (0x340000000), old space far above (0x10000000000), code zone and stack pages stated in `memoryMap` | `SpurRawHeap` keeps new space's own mapping, `OOPAddressTable`/`OOPSparseAddressTable` keep no gap, `isMachineCodeAddress:` asks the map |
+| VMMaker | v10.0.5 builds from its memory map, with the VM's own masks | `placeSpacesIn:freeLists:` per edition |
+| writing an image from a dump | v10.0.5's scavenger has a `1 halt` left in (`scavengeUnfiredEphemeronsInRememberedSet`) | resumed, as the built VM runs past it |
 
-Both libraries carry DWARF debug information: every layout above was read from it (`gdb -batch
--ex "ptype /o ..."` on the library file, nothing run), not guessed.
-
-`VMMemoryMap` and `VMRememberedSet` arrived in VMMaker **v10.0.4** -- the release that also
-removed `newInterpreter`, which our tests lean on. Reading VM 10's memory is therefore done with
-the VMMaker it was generated from: the Pharo 11 edition moves to **v10.0.5**, the Pharo 10 one
-keeps v10.0.0 and reads VM 9 only. Then Pharo 11 images as targets.
+Every layout above was read from the libraries' DWARF debug information (`gdb -batch -ex "ptype /o
+..."` on the library file, nothing run). Next: Pharo 11 images as live targets (the edition's name
+will say `for-Pharo10-11` once its suite checks them).

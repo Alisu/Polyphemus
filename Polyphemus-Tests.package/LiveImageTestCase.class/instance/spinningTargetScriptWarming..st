@@ -12,5 +12,5 @@ spinningTargetScriptWarming: aBoolean
 	1000 timesRepeat: [ 3 sqrt ] ] ] forkAt: 40.
 ' , (aBoolean ifTrue: [ '200000 timesRepeat: [ 4 even ].' ] ifFalse: [ '' ]) , '
 (dir / ''started'') ensureCreateFile.
-(Delay forSeconds: 120) wait.
+(Delay forSeconds: ' , self targetLifetime printString , ') wait.
 Smalltalk exitSuccess'
