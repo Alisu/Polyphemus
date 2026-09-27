@@ -6,7 +6,7 @@ statementPutInto: aSource source: aStatement
 
 	| body |
 	body := [ (RBParser parseMethod: aSource) body ]
-		        on: Error , SyntaxErrorNotification
+		        on: AbstractReifiedMemory syntaxErrors
 		        do: [ :e | nil ].
 	(body isNil or: [ body statements isEmpty ]) ifTrue: [ ^ aSource ].
 	^ (aSource first: body statements first start - 1) , aStatement

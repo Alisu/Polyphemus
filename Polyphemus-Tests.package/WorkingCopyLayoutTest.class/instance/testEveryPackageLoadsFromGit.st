@@ -6,7 +6,7 @@ testEveryPackageLoadsFromGit
 
 	| root missing |
 	root := (IceRepository registeredRepositoryIncludingPackage:
-		         (RPackageOrganizer default packageNamed: 'Polyphemus-Object')) location.
+		         (PolyphemusEdition packageOrganizer packageNamed: 'Polyphemus-Object')) location.
 	missing := (root directories select: [ :each | each basename endsWith: '.package' ])
 		           reject: [ :each |
 			           (each / '.filetree') exists and: [

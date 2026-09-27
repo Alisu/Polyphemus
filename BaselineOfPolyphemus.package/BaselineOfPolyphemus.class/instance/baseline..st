@@ -33,7 +33,7 @@ baseline: spec
 
 	"The edition, chosen by the host's Pharo: one package each, defining forThisHost, and the
 	VMMaker it reads with -- the one its targets' VM was generated from (docs/editions.md)."
-	{ 10 -> 'v10.0.0'. 11 -> 'v10.0.5'. 12 -> 'v10.3.2' } do: [ :each |
+	{ 10 -> 'v10.0.0'. 11 -> 'v10.0.5'. 12 -> 'v10.3.2'. 13 -> 'v10.3.11' } do: [ :each |
 		spec for: ('pharo' , each key printString , '.x') asSymbol do: [
 			| edition |
 			spec baseline: 'VMMaker' with: [
@@ -50,7 +50,7 @@ baseline: spec
 
 	"What VMMaker v10.0.4 and later need -- the memory map, VM 10's split memory -- for the tool
 	and for its tests."
-	spec for: #( #'pharo11.x' #'pharo12.x' ) do: [
+	spec for: #( #'pharo11.x' #'pharo12.x' #'pharo13.x' ) do: [
 		spec
 			package: 'Polyphemus-VMMaker-MemoryMap'
 			with: [ spec requires: #( 'Polyphemus-Object' ) ];

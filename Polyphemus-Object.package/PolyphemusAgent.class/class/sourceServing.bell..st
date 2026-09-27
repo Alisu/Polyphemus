@@ -23,7 +23,7 @@ bell := ' , aSource , '.
 			| answer written |
 			count := count + 1.
 			answer := [ ''ok'' , String lf , (Smalltalk compiler receiver: workspace; evaluate: request contents) printString ]
-				on: Error , SyntaxErrorNotification
+				on: Error , (Smalltalk globals at: #SyntaxErrorNotification ifAbsent: [ Error ])
 				do: [ :error | ''error'' , String lf , error class name , '': '' , error messageText asString ].
 			written := dir / ''answer.tmp''.
 			written ensureDelete.

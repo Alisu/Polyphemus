@@ -5,8 +5,8 @@ methodsTheWrittenImageDependsOn
 
 	^ (self classesTheWrittenImageDependsOn flatCollect: [ :each |
 		   each methods , each class methods ])
-	  , (RPackageOrganizer default packageNamed:
+	  , (PolyphemusEdition packageOrganizer packageNamed:
 			   'Polyphemus-Edition-Pharo' , SystemVersion current major printString) methods
-	  , ((RPackageOrganizer default packageNamed: 'Polyphemus-VMMaker-MemoryMap' ifAbsent: [ nil ])
+	  , ((PolyphemusEdition packageOrganizer packageNamed: 'Polyphemus-VMMaker-MemoryMap' ifAbsent: [ nil ])
 			   ifNil: [ #(  ) ]
 			   ifNotNil: [ :package | package methods ])

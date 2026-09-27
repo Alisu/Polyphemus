@@ -6,6 +6,41 @@ so this is where the difference between them is written down. Newest first.
 Each edition has three parts: what moved underneath us (Pharo, VMMaker, the VM), what we changed
 in answer, and what the edition still does not do.
 
+## Pharo 13: Polyphemus-Pharo13-Linux-x64-for-Pharo13
+
+Host Pharo 13 (build 749, which calls itself 13.1), VMMaker v10.3.11, VM 10.3.11. Done 2026-09-27.
+Small: nothing we read in memory changed.
+
+### What moved underneath
+
+- **VM 10.3.11.** On Linux the memory map is Pharo 12's (stack pages 0x300000000, code zone
+  0x320000000, new space 0x360000000). On macOS all three moved above 0xD000000000, which the
+  Mac edition will meet. The memory manager has one more variable, `maxSlotsForNewSpaceAlloc`.
+- **Compiler and AST.** The AST classes are renamed from `RB*` to `OC*`; `RBParser` and
+  `RBMethodNode` remain only as aliases, and are gone in Pharo 14. `CompilationContext` is
+  `OCCompilationContext`. `SyntaxErrorNotification` no longer exists: a syntax error is a
+  `CodeError`.
+- **Packages.** `RPackageOrganizer` is `PackageOrganizer`, without `includesPackageNamed:`.
+- **Scripts.** A script that names an undeclared variable no longer compiles at all.
+- **The pinned image** looks for its sources as `Pharo13.1-64bit-d7c6f76.sources`: a version and
+  a sha its download name does not give.
+
+### What we changed
+
+- The edition package: `forThisHost`, `generateWithSource` on `OCMethodNode`, and the dump writer
+  wired as Pharo 12's.
+- Syntax errors are caught as whatever this host signals (`AbstractReifiedMemory
+  class>>syntaxErrors`); the agent's source looks it up in the target it runs in.
+- The host's package organizer is asked of `PolyphemusEdition`, and the sync looks it up too.
+- The sources names of the pinned images are pinned beside their downloads, not derived.
+- Fixed for every edition: a test said the image written from a dump holds fewer objects than
+  the dump's old space. New space is tenured into it too, and Pharo 13's dump had more survivors
+  than garbage; the bound is now both spaces.
+
+### Not yet
+
+- Pharo 13 images only.
+
 ## Pharo 12: Polyphemus-Pharo12-Linux-x64-for-Pharo12
 
 Host Pharo 12 (build 1519), VMMaker v10.3.2, VM 10.3.2. Done 2026-09-27.

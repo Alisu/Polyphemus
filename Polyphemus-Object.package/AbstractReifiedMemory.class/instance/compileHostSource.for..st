@@ -17,5 +17,5 @@ compileHostSource: aString for: aReifiedClass
 	  tree isFaulty ifTrue: [ ^ nil ].
 	  compiler doSemanticAnalysis.
 	  Array with: tree generateWithSource with: tree ]
-		  on: Error , SyntaxErrorNotification
+		  on: self class syntaxErrors
 		  do: [ :e | nil ]

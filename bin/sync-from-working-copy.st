@@ -4,10 +4,12 @@
  TDD loop we compile straight from the files: every *.class and *.extension directory
  of every Polyphemus package, creating classes that do not exist yet and removing
  classes and methods whose files are gone."
-| root joined ensureClass syncSide created compiled removed packages pending |
+| root joined ensureClass syncSide created compiled removed packages pending organizer |
+"This host's packages: RPackageOrganizer up to Pharo 12, PackageOrganizer from Pharo 13."
+organizer := (Smalltalk globals at: #RPackageOrganizer ifAbsent: [ Smalltalk globals at: #PackageOrganizer ]) default.
 "Wherever this checkout is: Iceberg has it registered, which the test fixtures rely on too."
 root := (IceRepository registeredRepositoryIncludingPackage:
-	(RPackageOrganizer default packageNamed: 'Polyphemus-Object')) location.
+	(organizer packageNamed: 'Polyphemus-Object')) location.
 created := compiled := removed := 0.
 
 joined := [ :coll | String streamContents: [ :s |
@@ -96,7 +98,7 @@ syncSide := [ :target :dir :packageName |
 					  ifNotNil: [
 						  fileSelectors add: sel.
 						  compiled := compiled + 1 ] ]
-					on: Error , SyntaxErrorNotification
+					on: Error , (Smalltalk globals at: #SyntaxErrorNotification ifAbsent: [ Error ])
 					do: [ :e | ('COMPILE ERR ', f basename, ' :: ', e messageText asString) traceCr ] ] ] ].
 	"Drop methods this package used to define and no longer does. #localSelectors
 	excludes methods a trait provides: removing those would silently strip the class."
@@ -115,7 +117,7 @@ syncSide := [ :target :dir :packageName |
 packages := (root directories select: [ :d | d basename endsWith: '.package' ])
 	select: [ :pkgDir |
 		| loaded |
-		loaded := RPackageOrganizer default includesPackageNamed: (pkgDir basename copyReplaceAll: '.package' with: '').
+		loaded := (organizer packageNamed: (pkgDir basename copyReplaceAll: '.package' with: '') ifAbsent: [ nil ]) notNil.
 		loaded ifFalse: [ ('SKIP package ', (pkgDir basename copyReplaceAll: '.package' with: ''), ': not loaded in this image') traceCr ].
 		loaded ].
 
@@ -144,7 +146,7 @@ packages do: [ :pkgDir |
 	wanted := (pkgDir directories
 		select: [ :d | (d basename endsWith: '.class') or: [ d basename endsWith: '.trait' ] ])
 		collect: [ :d | ((STONJSON fromString: (d / 'properties.json') contents) at: 'name') asSymbol ].
-	gone := (RPackageOrganizer default packageNamed: packageName) definedClasses
+	gone := (organizer packageNamed: packageName) definedClasses
 		reject: [ :cls | wanted includes: cls name asSymbol ].
 	(gone asSortedCollection: [ :a :b | a allSuperclasses size >= b allSuperclasses size ])
 		do: [ :cls |

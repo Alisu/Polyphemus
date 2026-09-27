@@ -14,7 +14,7 @@ holdSourceAfterwards: aSource
 		script := (dir / ''do.st'') contents.
 		(dir / ''do.st'') ensureDelete.
 		[ Smalltalk compiler evaluate: script ]
-			on: Error , SyntaxErrorNotification
+			on: Error , (Smalltalk globals at: #SyntaxErrorNotification ifAbsent: [ Error ])
 			do: [ :error | (dir / ''do-failed'') ensureCreateFile ] ].
 	' , aSource , '
 	(dir / ''released'') ensureCreateFile'

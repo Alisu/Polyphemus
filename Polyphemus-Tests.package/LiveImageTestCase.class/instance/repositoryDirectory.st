@@ -5,4 +5,4 @@ repositoryDirectory
 	fixture images are found as well, so it is already true wherever the suite can run."
 
 	^ (IceRepository registeredRepositoryIncludingPackage:
-		   (RPackageOrganizer default packageNamed: 'Polyphemus-Object')) location
+		   (PolyphemusEdition packageOrganizer packageNamed: 'Polyphemus-Object')) location

@@ -5,5 +5,5 @@ classesTheWrittenImageDependsOn
 
 	| left |
 	left := self classesTheWrittenImageLeavesOut.
-	^ (RPackageOrganizer default packageNamed: 'Polyphemus-Object') definedClasses reject: [ :each |
+	^ (PolyphemusEdition packageOrganizer packageNamed: 'Polyphemus-Object') definedClasses reject: [ :each |
 		  left includes: each ]
