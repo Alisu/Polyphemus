@@ -9,7 +9,7 @@ testItRunsUntilAMethodAndStopsInIt
 		self assert: session interruptedContext selector asString equals: 'sqrt'.
 		self
 			assert: (session heldProcess ask:
-					 '((self at: #process) suspendedContext findContextSuchThat: [ :each | each selector == #timesRepeat: ]) notNil')
+					 '((self at: #process) suspendedContext findContextSuchThat: [ :each | each selector == #do: ]) notNil')
 			equals: 'true'.
 		self
 			assert: (session heldProcess ask: '(Smalltalk globals includesKey: #PolyphemusTrap) or: [ ((Integer >> #sqrt) ast links ifNil: [ #() ]) notEmpty ]')

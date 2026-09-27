@@ -5,7 +5,7 @@ launchFlagTarget
 
 	^ self launchTargetRunning: (PolyphemusAgent watcherSourceWatching: self spikeDirectory afterwards: '') , '
 [ [ :flag |
-	[ flag first = 1 ] whileTrue: [ 1000 timesRepeat: [ flag size. 3 sqrt ] ].
+	[ flag first = 1 ] whileTrue: [ (1 to: 1000) do: [ :each | flag size. 3 sqrt ] ].
 	(dir / ''stopped'') ensureCreateFile ] value: (Array with: 1) ] forkAt: 40.
 (dir / ''started'') ensureCreateFile.
 (Delay forSeconds: ' , self targetLifetime printString , ') wait.

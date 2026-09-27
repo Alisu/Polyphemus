@@ -1,10 +1,9 @@
 injecting
 inject
 
-	"In one stop: refused if a watcher already waits on the semaphore left in that directory;
-	otherwise a semaphore registered in a free slot of the external objects table, and the
-	watcher's method, a context for it and a process holding it, queued there. Answers the
-	process's address."
+	"In one stop, unless a watcher already waits on that directory's semaphore: a semaphore in a
+	free slot of the external objects table, and the watcher's method, a context and a process
+	holding it, queued there. Answers the process's address."
 
 	^ reader whileStopped: [
 		  | index semaphore process |

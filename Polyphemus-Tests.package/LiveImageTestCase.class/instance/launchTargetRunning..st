@@ -7,8 +7,8 @@ launchTargetRunning: aScript
 	| shim target pidFile bang |
 	shim := self repositoryDirectory / 'bin' / 'pharo-debuggable'.
 	shim exists ifFalse: [ ^ self skip: 'build bin/pharo-debuggable first' ].
-	target := PharoImageAccessor pathToPharo10 asFileReference.
-	target exists ifFalse: [ ^ self skip: 'the pinned Pharo 10 image has not been downloaded' ].
+	target := PharoImageAccessor pathToTargetImage asFileReference.
+	target exists ifFalse: [ ^ self skip: 'the pinned target image has not been downloaded' ].
 	self spikeDirectory ensureDeleteAll.
 	self spikeDirectory ensureCreateDirectory.
 	(self spikeDirectory / 'target.st') writeStreamDo: [ :stream |

@@ -10,7 +10,7 @@ dir := ' , self spikeDirectory fullName printString , ' asFileReference.
 semaphore := Semaphore new.
 (dir / ''index'') writeStreamDo: [ :stream | stream print: (Smalltalk registerExternalObject: semaphore) ].
 [ semaphore wait. (dir / ''signalled'') ensureCreateFile ] forkAt: 70.
-[ [ true ] whileTrue: [ 1000 timesRepeat: [ 3 sqrt ] ] ] forkAt: 40.
+[ [ true ] whileTrue: [ (1 to: 1000) do: [ :each | 3 sqrt ] ] ] forkAt: 40.
 (dir / ''started'') ensureCreateFile.
 (Delay forSeconds: ' , self targetLifetime printString , ') wait.
 Smalltalk exitSuccess'.

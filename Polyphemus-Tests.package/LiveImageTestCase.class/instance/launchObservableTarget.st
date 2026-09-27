@@ -1,20 +1,20 @@
 helpers
 launchObservableTarget
 
-	"Launch the pinned Pharo 10 image through bin/pharo-debuggable, not as our descendant,
+	"Launch the pinned target image through bin/pharo-debuggable, not as our descendant,
 	waiting on a delay, and answer its pid once its image is loaded and it is idle: stopped
 	while it still starts up, it is in machine code or changing its heap."
 
 	| shim target bang pidFile pid waited |
 	"Nothing here is particular to one machine: the launcher is found in this repository, the
 	 virtual machine is the one running these tests, and the image launched is the pinned
-	 Pharo 10 fixture the other tests already use. It is told to wait rather than handed a
+	 target the other live tests use (pathToTargetImage). It is told to wait rather than handed a
 	 script, so no file has to be anywhere in particular either."
 	shim := self repositoryDirectory / 'bin' / 'pharo-debuggable'.
 	shim exists ifFalse: [
 		^ self skip: 'build bin/pharo-debuggable first: cc -O2 -o bin/pharo-debuggable bin/pharo-debuggable.c' ].
-	target := PharoImageAccessor pathToPharo10 asFileReference.
-	target exists ifFalse: [ ^ self skip: 'the pinned Pharo 10 image has not been downloaded' ].
+	target := PharoImageAccessor pathToTargetImage asFileReference.
+	target exists ifFalse: [ ^ self skip: 'the pinned target image has not been downloaded' ].
 
 	bang := String with: (Character value: 33).
 	pidFile := PolyphemusEdition current scratch / 'polyphemus-observable-target.pid'.

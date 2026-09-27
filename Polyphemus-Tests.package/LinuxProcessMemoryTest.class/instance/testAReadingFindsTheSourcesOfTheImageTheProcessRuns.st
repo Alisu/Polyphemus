@@ -13,7 +13,7 @@ testAReadingFindsTheSourcesOfTheImageTheProcessRuns
 		dumped := SpurDumpedMemory on: reader.
 		self
 			assert: dumped imageName
-			equals: PharoImageAccessor pathToPharo10 asFileReference fullName.
+			equals: PharoImageAccessor pathToTargetImage asFileReference fullName.
 		reading := dumped reifiedMemory.
 		class := reading oopClassNamed: 'SmallInteger'.
 		self assert:

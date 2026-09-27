@@ -36,7 +36,7 @@ An image file's Pharo version is not checked: its format is, and the test fixtur
 | edition | host setup on the box | VMMaker | reads | suite |
 |---|---|---|---|---|
 | Polyphemus-Pharo10-Linux-x64-for-Pharo10 | `~/polyphemus` (Pharo 10, VM 9.0.22) | v10.0.0 | image files; processes and dumps of **VM 9** | full, green |
-| Polyphemus-Pharo11-Linux-x64-for-Pharo10 | `~/polyphemus/pharo11` (Pharo 11 build 688, VM 10.0.5) | v10.0.5 | image files; processes and dumps of **VM 10** | full, green |
+| Polyphemus-Pharo11-Linux-x64-for-Pharo10-11 | `~/polyphemus/pharo11` (Pharo 11 build 688, VM 10.0.5) | v10.0.5 | image files; processes and dumps of **VM 10**, running Pharo 10 or Pharo 11 | full, with Pharo 11 targets |
 
 Each edition reads processes and dumps with the VMMaker its VM was generated from. VMMaker v10.0.4
 and later tell old from young objects by address masks that hold only at VM 10's fixed addresses,
@@ -55,7 +55,8 @@ One directory per host, run with `WORK=<dir>` by `bin/tdd.sh` and `bin/run-tests
    (`filetree:///home/observant/polyphemus/Polyphemus`), then the repository registered in
    Iceberg (`register-repo.st`) -- the sync and the fixtures find the working copy through it;
 4. `polyphemus.env`, which the runner reads: `POLYPHEMUS_TARGET_VM`, the VM target images run
-   on (else the host's own), and `POLYPHEMUS_CORE`, the dump (else `pharo.core` beside the image).
+   on (else the host's own); `POLYPHEMUS_TARGET_PHARO`, the pinned image live tests launch (else
+   Pharo 10's); and `POLYPHEMUS_CORE`, the dump (else `pharo.core` beside the image).
 
 Targets are explicit because they need not be the host's: the first Pharo 11 run launched its
 Pharo 10 targets on VM 10.0.5 by accident, and every live test failed for a reason that was
@@ -82,5 +83,15 @@ Caches are the edition's own (`/tmp/polyphemus-cache/<edition>/`, #50).
 | writing an image from a dump | v10.0.5's scavenger has a `1 halt` left in (`scavengeUnfiredEphemeronsInRememberedSet`) | resumed, as the built VM runs past it |
 
 Every layout above was read from the libraries' DWARF debug information (`gdb -batch -ex "ptype /o
-..."` on the library file, nothing run). Next: Pharo 11 images as live targets (the edition's name
-will say `for-Pharo10-11` once its suite checks them).
+..."` on the library file, nothing run).
+
+## Pharo 11 images as targets: done (2026-09-27)
+
+The Pharo 11 setup's live tests launch `resources/cleanP11.image` on VM 10
+(`POLYPHEMUS_TARGET_PHARO=11`): the hold, the agent, stepping, "run until", editing and injection
+all worked unchanged. One thing moved: **Pharo 11 inlines `timesRepeat:`** with a literal block, so
+a target looping on it had no such frame, and the tests that looked for one found nothing. The
+targets now loop with `(1 to: 1000) do:`, a real send in both.
+
+The edition names Pharo 10 targets too: the same setup ran them green until this change (0b5478d),
+and its suite now runs Pharo 11 ones.

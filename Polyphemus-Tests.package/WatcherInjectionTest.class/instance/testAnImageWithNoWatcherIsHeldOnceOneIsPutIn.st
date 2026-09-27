@@ -11,7 +11,7 @@ testAnImageWithNoWatcherIsHeldOnceOneIsPutIn
 	session := Polyphemus holdProcess: pid watchedIn: self spikeDirectory.
 	self
 		assert: (session heldProcess ask:
-				 '((self at: #process) suspendedContext findContextSuchThat: [ :each | each selector == #timesRepeat: ]) notNil')
+				 '((self at: #process) suspendedContext findContextSuchThat: [ :each | each selector == #do: ]) notNil')
 		equals: 'true'.
 	session resume.
 	self
