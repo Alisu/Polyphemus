@@ -17,9 +17,8 @@ updateForMemory: memoryPresenter
 	RSVerticalLineLayout new
 		gapSize: 5;
 		on: self canvas nodes.
-	 self canvas when: RSExtentChangedEvent do: [ :evt |
+	self canvas announcer when: RSExtentChangedEvent do: [ :evt |
 		evt canvas zoomToFit.
-		evt signalUpdate.
-		 ].
+		evt signalUpdate ] for: self.
 	self canvas zoomToFit.
 	self canvas signalUpdate.

@@ -22,5 +22,8 @@ cogit
 		  cogit instVarNamed: #backEnd put: CogInLineLiteralsX64Compiler basicNew.
 		  cogit instVarNamed: #generatorTable put: StackToRegisterMappingCogit generatorTable.
 		  cogit instVarNamed: #cogMethodSurrogateClass put: CogMethodSurrogate64.
-		  cogit instVarNamed: #cogBlockMethodSurrogateClass put: CogBlockMethodSurrogate64.
+		  "VMMaker v10.3 has no block surrogate: its block methods read as methods."
+		  (self class environment at: #CogBlockMethodSurrogate64 ifAbsent: [ nil ]) ifNotNil: [
+			  :blockSurrogate |
+			  cogit instVarNamed: #cogBlockMethodSurrogateClass put: blockSurrogate ].
 		  cogit ]

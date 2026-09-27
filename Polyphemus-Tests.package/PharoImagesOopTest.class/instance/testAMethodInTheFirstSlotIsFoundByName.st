@@ -1,12 +1,17 @@
 tests
 testAMethodInTheFirstSlotIsFoundByName
 
-	"#28: what the count hid, a lookup by name could not answer either."
+	"#28: what the count hid, a lookup by name could not answer either. Which class holds a
+	method in its first slot depends on the image."
 
-	| integer methods first |
-	integer := reifiedMemory oopClassNamed: 'Integer'.
-	methods := (integer reifiedSlotAt: 2) reifiedSlotAt: 2.
-	self deny: (methods reifiedSlotAt: 1) isNilOop.
-	first := ((integer reifiedSlotAt: 2) reifiedSlotAt: 3) asString.
+	| class first |
+	class := #( 'Integer' 'String' 'SmallInteger' 'Behavior' 'Object' )
+		         detect: [ :each |
+			         ((((reifiedMemory oopClassNamed: each) reifiedSlotAt: 2) reifiedSlotAt: 2)
+				         reifiedSlotAt: 1) isNilOop not ]
+		         ifNone: [ nil ].
+	self deny: class isNil.
+	class := reifiedMemory oopClassNamed: class.
+	first := ((class reifiedSlotAt: 2) reifiedSlotAt: 3) asString.
 
-	self assert: (integer methodNamed: first) isCompiledMethodOop
+	self assert: (class methodNamed: first) isCompiledMethodOop

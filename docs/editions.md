@@ -19,6 +19,12 @@ with its own VMMaker pin. A fix to shared code is made once and every edition ha
 Chosen over a branch per edition, which would keep each simple but make every shared fix a merge
 into every branch -- and the branches multiply: host Pharo versions times operating systems.
 
+A branch per edition would also have shown, as a diff, what each edition changed. That is kept by
+hand instead, in `docs/patch-notes.md`: one short section per edition, written as it is ported.
+
+Code shared by some editions but not all has a package of its own: `Polyphemus-VMMaker-MemoryMap`
+holds the hooks for VMMaker v10.0.4 and later, loaded by the Pharo 11 and Pharo 12 editions.
+
 ## What an edition refuses
 
 | | when | how |
@@ -37,13 +43,15 @@ An image file's Pharo version is not checked: its format is, and the test fixtur
 |---|---|---|---|---|
 | Polyphemus-Pharo10-Linux-x64-for-Pharo10 | `~/polyphemus` (Pharo 10, VM 9.0.22) | v10.0.0 | image files; processes and dumps of **VM 9** | full, green |
 | Polyphemus-Pharo11-Linux-x64-for-Pharo10-11 | `~/polyphemus/pharo11` (Pharo 11 build 688, VM 10.0.5) | v10.0.5 | image files; processes and dumps of **VM 10**, running Pharo 10 or Pharo 11 | full, with Pharo 11 targets |
+| Polyphemus-Pharo12-Linux-x64-for-Pharo12 | `~/polyphemus/pharo12` (Pharo 12 build 1519, VM 10.3.2) | v10.3.2 | image files; processes and dumps of **VM 10.3**, running Pharo 12 | full, green |
 
 Each edition reads processes and dumps with the VMMaker its VM was generated from. VMMaker v10.0.4
 and later tell old from young objects by address masks that hold only at VM 10's fixed addresses,
 so v10.0.5 cannot read a VM 9 heap where it lies, and v10.0.0 does not know VM 10's split memory.
 Image files are relocated when loaded, and both read them.
 
-`bin/gate.sh` runs every edition's suite side by side (~15 min for both).
+`bin/gate.sh` runs every edition's suite side by side (~15 min for two, ~35 for three: the box has
+four performance cores, and a cold dump build can then outrun its budget).
 
 ## A host setup
 

@@ -5,7 +5,7 @@ testItAnswersTheSameThreeMessagesADumpDoes
 	file. Nothing above this line learns which it was handed."
 
 	| address |
-	address := memory segments first address.
+	address := self executableStartOfSelf.
 
 	self assert: (memory hasAddress: address).
 	self deny: (memory hasAddress: 16r7FFFFFFFFFFF0000).

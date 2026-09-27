@@ -1,6 +1,11 @@
 initialization
 setUpCompiledMethodClass
-	"The compiled Method class should be at index 17, however this is not enforced by the VM anymore."
+
+	"Slot 17 of the special objects names CompiledMethod up to Pharo 11. Pharo 12 leaves it
+	nil, so there it is found by name (#57)."
+
 	| compiledMethodClass |
 	compiledMethodClass := memory fetchPointer: 16 ofObject: memory specialObjectsOop.
-	compiledMethodClassIndex := memory rawHashBitsOf: compiledMethodClass 
+	compiledMethodClass = memory nilObject ifTrue: [
+		^ compiledMethodClassIndex := (self preFindClassNamed: 'CompiledMethod') - 1 ].
+	compiledMethodClassIndex := memory rawHashBitsOf: compiledMethodClass

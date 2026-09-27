@@ -91,9 +91,12 @@ syncSide := [ :target :dir :packageName |
 				  source := String streamContents: [ :s |
 					  lines allButFirst do: [ :l | s nextPutAll: l; cr ] ].
 				  sel := target compile: source classified: lines first.
-				  sel ifNotNil: [ fileSelectors add: sel ].
-				  compiled := compiled + 1 ]
-					on: Error
+				  sel
+					  ifNil: [ ('COMPILE ERR ', f basename, ' :: did not compile') traceCr ]
+					  ifNotNil: [
+						  fileSelectors add: sel.
+						  compiled := compiled + 1 ] ]
+					on: Error , SyntaxErrorNotification
 					do: [ :e | ('COMPILE ERR ', f basename, ' :: ', e messageText asString) traceCr ] ] ] ].
 	"Drop methods this package used to define and no longer does. #localSelectors
 	excludes methods a trait provides: removing those would silently strip the class."

@@ -72,11 +72,11 @@ run_class() {
   ('RES $c ', r runCount printString, ' run ', r failureCount printString, ' failures ', r errorCount printString, ' errors') traceCr.
   r failures do: [ :t |
     ('    FAIL  $c>>', t selector, ' -- ',
-      ([ t runCase. 'passed when it was run again, so it is a flake' ]
+      ([ t runCase. 'passed when run again in the same image: a flake, or state its first run left (#31)' ]
         on: TestFailure do: [ :e | e messageText ifNil: [ 'no message' ] ])) traceCr ].
   r errors   do: [ :t |
     ('    ERROR $c>>', t selector, ' -- ',
-      ([ t runCase. 'passed when it was run again, so it is a flake' ]
+      ([ t runCase. 'passed when run again in the same image: a flake, or state its first run left (#31)' ]
         on: Error do: [ :e | e class name, ' ', e messageText asString ])) traceCr ] ]
   on: Error, Warning
   do: [ :e | ('RES $c BROKEN ', e class name, ' ', e messageText asString) traceCr ].
@@ -90,11 +90,11 @@ INNER
   ('RES $c ', r runCount printString, ' run ', r failureCount printString, ' failures ', r errorCount printString, ' errors') traceCr.
   r failures do: [ :t |
     ('    FAIL  $c>>', t selector, ' -- ',
-      ([ t runCase. 'passed when it was run again, so it is a flake' ]
+      ([ t runCase. 'passed when run again in the same image: a flake, or state its first run left (#31)' ]
         on: TestFailure do: [ :e | e messageText ifNil: [ 'no message' ] ])) traceCr ].
   r errors   do: [ :t |
     ('    ERROR $c>>', t selector, ' -- ',
-      ([ t runCase. 'passed when it was run again, so it is a flake' ]
+      ([ t runCase. 'passed when run again in the same image: a flake, or state its first run left (#31)' ]
         on: Error do: [ :e | e class name, ' ', e messageText asString ])) traceCr ] ]
   on: Error, Warning
   do: [ :e | ('RES $c BROKEN ', e class name, ' ', e messageText asString) traceCr ].

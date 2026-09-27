@@ -10,6 +10,7 @@ ROOT="${ROOT:-$HOME/polyphemus}"
 JOBS="${JOBS:-4}"
 SETUPS=("$ROOT")
 [ -d "$ROOT/pharo11" ] && SETUPS+=("$ROOT/pharo11")
+[ -d "$ROOT/pharo12" ] && SETUPS+=("$ROOT/pharo12")
 
 start=$(date +%s)
 pids=()

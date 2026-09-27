@@ -1,6 +1,14 @@
 debugger
 getSourceFromFile
 
-	| sourceFiles |
+	"Read at the file and position the trailer names, whatever this host's pointers encode."
+
+	| sourceFiles trailer |
 	sourceFiles := memory retrieveSourceFiles.
-	^ [ sourceFiles sourceCodeAt: self sourcePointer ] on: Error do: [ '' ]
+	trailer := self trailer.
+	^ [
+	  (sourceFiles sourceCodeAt: (sourceFiles
+			    sourcePointerFromFileIndex: trailer sourceFileIndex
+			    andPosition: trailer sourceFilePosition)) ifNil: [ '' ] ]
+		  on: Error
+		  do: [ '' ]

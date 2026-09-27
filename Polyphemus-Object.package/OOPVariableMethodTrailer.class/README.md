@@ -1,0 +1,1 @@
+A method's trailer as Pharo up to 11 (and Candle) write it: its last byte says what kind it is -- from 252 a four-byte source pointer, below that a kind in its six high bits -- and how long. Pharo's CompiledMethodTrailer, which Pharo 12 removed, decoded it the same way. Reads any byte view answering #at: and #size.

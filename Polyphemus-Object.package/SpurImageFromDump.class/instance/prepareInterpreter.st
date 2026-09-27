@@ -9,9 +9,5 @@ prepareInterpreter
 	interpreter
 		instVarNamed: #preemptionYields put: (self variableNamed: 'preemptionYields') ~= 0;
 		instVarNamed: #imageHeaderFlags put: (self variableNamed: 'imageHeaderFlags');
-		instVarNamed: #extraVMMemory put: (self variableNamed: 'extraVMMemory');
-		instVarNamed: #imageWriter put: (SpurImageWriter new
-				 interpreter: interpreter;
-				 objectMemory: dumped memory;
-				 segmentManager: dumped memory segmentManager;
-				 yourself)
+		instVarNamed: #extraVMMemory put: (self variableNamed: 'extraVMMemory').
+	self wireWriterOf: interpreter

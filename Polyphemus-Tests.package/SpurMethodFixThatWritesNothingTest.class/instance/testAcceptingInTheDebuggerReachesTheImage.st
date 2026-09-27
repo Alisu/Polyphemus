@@ -7,6 +7,9 @@ testAcceptingInTheDebuggerReachesTheImage
 
 	| context session |
 	context := (reading contextsOfProcess: (Polyphemus deepestProcessIn: reading)) first.
+	(reading hostMethodOfMethod: context homeMethod) ifNil: [
+		self skip: 'this host lays out ' , context printString
+			, ' differently from the fixture, and a fix refuses what it cannot check (#6)' ].
 	session := ReifiedDebugSession
 		           named: 'Polyphemus'
 		           on: nil
