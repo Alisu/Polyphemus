@@ -1,0 +1,1 @@
+What the image SpurImageFromDumpTest writes from the dump depends on, and so what its cache is keyed on: reading, reifying and writing, not the live-image or editing code most changes touch. Checked, so the key cannot quietly leave out something the writing uses.
