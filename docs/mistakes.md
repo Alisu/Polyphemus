@@ -312,6 +312,14 @@ after a full `-j 4` run, then clean through 25 suite runs in one process, 6 fres
 
 `SchedulerOnRealImageTest>>testAskingForANameTheFrameDoesNotHaveIsAnError` and `VMObjectIndexableLayoutTest` joined it on 2026-09-19. Both are tracked as issues from now on (#1, #2), with what was tried; failures after that date live there, not here.
 
+**Believing a pass on the retry.** "Re-run before believing a failure" hid two real bugs (#58,
+#60). The runner's retry runs in the same image, after the first run has left state behind (an
+undeclared variable now declared, a heap that has settled), so a test that fails on every first
+run passed on every retry. `testAVirtualMachineCanReadItsOwnRunningHeap` failed 12 times in 15
+as the first test of a fresh image, and had been counted as a flake (2026-09-27).
+→ The runner prints what the first run signalled and where, beside what the retry did. Run a
+suspect alone, in fresh images, several times, before calling it a flake.
+
 **Committing on a green-looking pipe.** The commit after it was chained on the test command
 *running*, not on it being green, so a red suite went in anyway. Gate on the result.
 

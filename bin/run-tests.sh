@@ -66,36 +66,36 @@ run_class() {
   script="/tmp/polyphemus-run-$(basename "$WORK")-$c.st"   # one per host setup (#50)
   if [ -n "${ONLY_TEST:-}" ]; then
     cat > "$script" <<INNER
-| r |
-[ r := ($c selector: #$ONLY_TEST) run.
+| run |
+[ run := (PolyphemusTestRun of: (TestSuite new addTest: ($c selector: #$ONLY_TEST); yourself)) run.
   '' traceCr. "a line of its own: the simulator leaves its output unfinished (#51)"
-  ('RES $c ', r runCount printString, ' run ', r failureCount printString, ' failures ', r errorCount printString, ' errors') traceCr.
-  r failures do: [ :t |
-    ('    FAIL  $c>>', t selector, ' -- ',
-      ([ t runCase. 'passed when run again in the same image: a flake, or state its first run left (#31)' ]
-        on: TestFailure do: [ :e | e messageText ifNil: [ 'no message' ] ])) traceCr ].
-  r errors   do: [ :t |
-    ('    ERROR $c>>', t selector, ' -- ',
-      ([ t runCase. 'passed when run again in the same image: a flake, or state its first run left (#31)' ]
-        on: Error do: [ :e | e class name, ' ', e messageText asString ])) traceCr ] ]
+  ('RES $c ', run runCount printString, ' run ', run failureCount printString, ' failures ', run errorCount printString, ' errors') traceCr.
+  "What each problem signalled the first time, then what it did when run again (#31)."
+  run problems do: [ :each | | again |
+    again := run againOf: each key selector.
+    (((run isFailure: each value) ifTrue: [ '    FAIL  ' ] ifFalse: [ '    ERROR ' ]), '$c>>', each key selector, ' -- ',
+      (run describe: each value),
+      (again = #passed
+        ifTrue: [ ' (passed when run again in the same image: a flake, or state its first run left, #31)' ]
+        ifFalse: [ ' (again: ', (run describe: again), ')' ])) traceCr ] ]
   on: Error, Warning
   do: [ :e | ('RES $c BROKEN ', e class name, ' ', e messageText asString) traceCr ].
 Smalltalk exitSuccess
 INNER
   else
     cat > "$script" <<INNER
-| r |
-[ r := $c buildSuite run.
+| run |
+[ run := (PolyphemusTestRun of: $c buildSuite) run.
   '' traceCr. "a line of its own: the simulator leaves its output unfinished (#51)"
-  ('RES $c ', r runCount printString, ' run ', r failureCount printString, ' failures ', r errorCount printString, ' errors') traceCr.
-  r failures do: [ :t |
-    ('    FAIL  $c>>', t selector, ' -- ',
-      ([ t runCase. 'passed when run again in the same image: a flake, or state its first run left (#31)' ]
-        on: TestFailure do: [ :e | e messageText ifNil: [ 'no message' ] ])) traceCr ].
-  r errors   do: [ :t |
-    ('    ERROR $c>>', t selector, ' -- ',
-      ([ t runCase. 'passed when run again in the same image: a flake, or state its first run left (#31)' ]
-        on: Error do: [ :e | e class name, ' ', e messageText asString ])) traceCr ] ]
+  ('RES $c ', run runCount printString, ' run ', run failureCount printString, ' failures ', run errorCount printString, ' errors') traceCr.
+  "What each problem signalled the first time, then what it did when run again (#31)."
+  run problems do: [ :each | | again |
+    again := run againOf: each key selector.
+    (((run isFailure: each value) ifTrue: [ '    FAIL  ' ] ifFalse: [ '    ERROR ' ]), '$c>>', each key selector, ' -- ',
+      (run describe: each value),
+      (again = #passed
+        ifTrue: [ ' (passed when run again in the same image: a flake, or state its first run left, #31)' ]
+        ifFalse: [ ' (again: ', (run describe: again), ')' ])) traceCr ] ]
   on: Error, Warning
   do: [ :e | ('RES $c BROKEN ', e class name, ' ', e messageText asString) traceCr ].
 Smalltalk exitSuccess

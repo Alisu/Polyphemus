@@ -4,7 +4,7 @@ followFreeChainAt: anAddress expecting: aSize from: aStart upTo: aLimit into: aW
 	"Follow one free list and add its chunks to aWalk. aSize nil accepts any size. Bounded by
 	the most chunks the heap could hold, so a loop ends."
 
-	| chunk seen mostThereCouldBe |
+	| chunk seen mostThereCouldBe size |
 	chunk := anAddress.
 	seen := 0.
 	mostThereCouldBe := aLimit - aStart // 16.
@@ -15,7 +15,9 @@ followFreeChainAt: anAddress expecting: aSize from: aStart upTo: aLimit into: aW
 			^ aWalk problem: #listHoldsSomethingThatIsNotFree at: chunk ].
 		(seen := seen + 1) > mostThereCouldBe ifTrue: [
 			^ aWalk problem: #listDoesNotEnd at: chunk ].
-		(aSize notNil and: [ (self bytesOfObjectAt: chunk) ~= aSize ]) ifTrue: [
+		size := self bytesOfObjectAt: chunk.
+		size ifNil: [ ^ aWalk problem: #chunkSizeCannotBeRead at: chunk ].
+		(aSize notNil and: [ size ~= aSize ]) ifTrue: [
 			aWalk problem: #chunkIsInTheListForAnotherSize at: chunk ].
-		aWalk countChunkOf: (self bytesOfObjectAt: chunk).
+		aWalk countChunkOf: size.
 		chunk := self slotOf: chunk at: self freeChunkNextSlot ]

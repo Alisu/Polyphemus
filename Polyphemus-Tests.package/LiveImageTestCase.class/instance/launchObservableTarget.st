@@ -17,7 +17,7 @@ launchObservableTarget
 	target exists ifFalse: [ ^ self skip: 'the pinned target image has not been downloaded' ].
 
 	bang := String with: (Character value: 33).
-	pidFile := PolyphemusEdition current scratch / 'polyphemus-observable-target.pid'.
+	pidFile := self observablePidFile.
 	pidFile ensureDelete.
 	LibC system: 'POLYPHEMUS_OBSERVER=any ' , shim fullName , ' ' , PharoImageAccessor pathToTargetVM
 		, ' --headless ' , target fullName

@@ -1,0 +1,4 @@
+accessing
+runCount
+
+	^ outcomes size
