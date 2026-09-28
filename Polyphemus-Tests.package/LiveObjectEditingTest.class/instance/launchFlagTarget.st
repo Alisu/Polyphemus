@@ -3,10 +3,4 @@ launchFlagTarget
 
 	"A target running away while the first slot of its flag is 1, and saying so once it stops."
 
-	^ self launchTargetRunning: (PolyphemusAgent watcherSourceWatching: self spikeDirectory afterwards: '') , '
-[ [ :flag |
-	[ flag first = 1 ] whileTrue: [ (1 to: 1000) do: [ :each | flag size. 3 sqrt ] ].
-	(dir / ''stopped'') ensureCreateFile ] value: (Array with: 1) ] forkAt: 40.
-(dir / ''started'') ensureCreateFile.
-(Delay forSeconds: ' , self targetLifetime printString , ') wait.
-Smalltalk exitSuccess'
+	^ self launchFlagTargetLooping: '(1 to: 1000) do: [ :each | flag size. 3 sqrt ]'
