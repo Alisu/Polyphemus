@@ -5,8 +5,8 @@ testInstallingTheCodeAMethodAlreadyHasChangesNothing
 	gives the same file, byte for byte. The arithmetic of where code sits proves itself."
 
 	| reading edit activation host |
-	reading := Polyphemus readImageFile: PharoImageAccessor pathToPharo10.
-	edit := SpurEdit on: (SpurWritableImageFile on: PharoImageAccessor pathToPharo10) reading: reading.
+	reading := Polyphemus readImageFile: PharoImageAccessor pathToTargetImage.
+	edit := SpurEdit on: (SpurWritableImageFile on: PharoImageAccessor pathToTargetImage) reading: reading.
 	activation := (reading activationsOfProcess: reading reifiedActiveProcess) detect: [ :each |
 		                  [ (reading hostMethodFor: each) notNil ] on: Error do: [ :e | false ] ].
 	host := reading hostMethodFor: activation.
@@ -16,5 +16,5 @@ testInstallingTheCodeAMethodAlreadyHasChangesNothing
 
 	self
 		assert: (written binaryReadStreamDo: [ :each | each upToEnd ])
-		equals: (PharoImageAccessor pathToPharo10 asFileReference binaryReadStreamDo: [ :each |
+		equals: (PharoImageAccessor pathToTargetImage asFileReference binaryReadStreamDo: [ :each |
 				 each upToEnd ])

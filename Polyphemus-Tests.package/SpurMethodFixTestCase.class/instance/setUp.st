@@ -2,7 +2,7 @@ running
 setUp
 
 	super setUp.
-	path := PharoImageAccessor pathToPharo10.
+	path := PharoImageAccessor pathToTargetImage.
 	written := PolyphemusEdition current scratch / 'polyphemus-fixed.image'.
 	written ensureDelete.
 	reading := self readingOfThePinnedImage

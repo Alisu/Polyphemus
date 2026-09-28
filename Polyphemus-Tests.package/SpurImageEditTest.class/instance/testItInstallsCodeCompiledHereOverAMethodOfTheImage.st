@@ -6,8 +6,8 @@ testItInstallsCodeCompiledHereOverAMethodOfTheImage
 	has stay as they were -- rung 1 of #25."
 
 	| reading edit integer found file installed |
-	reading := Polyphemus readImageFile: PharoImageAccessor pathToPharo10.
-	edit := SpurEdit on: (SpurWritableImageFile on: PharoImageAccessor pathToPharo10) reading: reading.
+	reading := Polyphemus readImageFile: PharoImageAccessor pathToTargetImage.
+	edit := SpurEdit on: (SpurWritableImageFile on: PharoImageAccessor pathToTargetImage) reading: reading.
 	integer := reading oopClassNamed: 'Integer'.
 	found := self aMethodWhoseComparisonCanBeSwappedIn: integer of: reading.
 	found ifNil: [ ^ self fail: 'no method of Integer recompiles here and holds a comparison' ].
