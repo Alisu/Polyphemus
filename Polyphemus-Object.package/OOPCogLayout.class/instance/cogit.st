@@ -21,9 +21,17 @@ cogit
 			  put: (OOPCogInterpreterStandIn on: self interpreter: memory interpreter).
 		  cogit instVarNamed: #backEnd put: CogInLineLiteralsX64Compiler basicNew.
 		  cogit instVarNamed: #generatorTable put: StackToRegisterMappingCogit generatorTable.
-		  cogit instVarNamed: #cogMethodSurrogateClass put: CogMethodSurrogate64.
+		  cogit instVarNamed: #cogMethodSurrogateClass put: self cogMethodSurrogateClass.
 		  "VMMaker v10.3 has no block surrogate: its block methods read as methods."
 		  (self class environment at: #CogBlockMethodSurrogate64 ifAbsent: [ nil ]) ifNotNil: [
 			  :blockSurrogate |
 			  cogit instVarNamed: #cogBlockMethodSurrogateClass put: blockSurrogate ].
+		  "Where the running VM's methods and blocks start their code: set as its JIT generated it,
+		  never by a simulated Cogit. VMMaker v12 walks a method's map from them."
+		  #( 'cmEntryOffset' 'cmNoCheckEntryOffset' 'cbEntryOffset' 'cbNoSwitchEntryOffset' ) do: [
+			  :each |
+			  (cogit class allInstVarNames includes: each) ifTrue: [
+				  [ cogit instVarNamed: each put: (raw vmVariables at: each) ]
+					  on: Error
+					  do: [ :e | nil ] ] ].
 		  cogit ]

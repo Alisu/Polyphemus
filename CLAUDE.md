@@ -120,9 +120,9 @@ Fork-only, and the canonical record. `mistakes.md` first if a hunt is going long
 
 ## Current state
 
-Green: **659 tests on each of Pharo 10, 11, 12 and 13, 0 failures** (`bin/run-tests.sh --all -j 6` ~4 min
-alone on a cool box; `bin/gate.sh` all four in turn). Stage 3 done 2026-09-26; editions for Pharo 10 to 13 done 2026-09-27
-(`docs/editions.md`, what each changed in `docs/patch-notes.md`); next, Pharo 14 on VM 12, then other OSes. The two defects this
+Green: **each of Pharo 10 to 14, 0 failures** (`bin/run-tests.sh --all -j 6` ~4 min
+alone on a cool box; `bin/gate.sh` every edition in turn). Stage 3 done 2026-09-26; editions for Pharo 10 to 14 done 2026-09-28
+(`docs/editions.md`, what each changed in `docs/patch-notes.md`); next, other OSes (Pharo 14 is not released yet: its pin will move). The two defects this
 fork started with — the load-time simulator crash and `computeOperandStack:` — are fixed.
 
 ### Stage 1 — a corrupted image file. Done.

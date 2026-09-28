@@ -8,5 +8,5 @@ testPharosDebuggerOpensOnTheDeepestStack
 	memory := Polyphemus readImageFile: PharoImageAccessor pathToCandle64Bit.
 	debugger := StDebugger on: (Polyphemus sessionOnDeepestProcessIn: memory).
 	self
-		assert: debugger debuggerActionModel topContext
+		assert: (PolyphemusTestCase actionModelOf: debugger) topContext
 		equals: debugger session interruptedContext

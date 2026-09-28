@@ -6,5 +6,5 @@ readsAsItsOwnSource: aMethod
 	| source node |
 	source := [ aMethod sourceCode ] on: Error do: [ :e | ^ false ].
 	(source isNil or: [ source isEmpty ]) ifTrue: [ ^ false ].
-	node := RBParser parseMethod: source onError: [ :message :position | ^ false ].
+	node := AbstractReifiedMemory parserClass parseMethod: source onError: [ :message :position | ^ false ].
 	^ [ node selector = aMethod oopSelector asString asSymbol ] on: Error do: [ :e | false ]

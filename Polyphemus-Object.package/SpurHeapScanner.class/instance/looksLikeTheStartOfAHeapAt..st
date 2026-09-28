@@ -1,15 +1,17 @@
 finding a heap
 looksLikeTheStartOfAHeapAt: anAddress
 
-	"Three objects of no slots, sixteen bytes apart, whose classes are the first three of the
-	class table. One header is far too little to go on -- a table of small numbers reads as
-	hundreds of them -- but three in a row, with those classes, is the heap's own beginning."
+	"nil, false and true: three objects of no slots, sixteen bytes apart, whose classes follow
+	each other in the table, wherever it has them (#61: 3075 in Pharo 10, 2051 in Pharo 14)."
 
-	self firstThreeClassIndexes doWithIndex: [ :classIndex :position |
+	| first |
+	0 to: 2 do: [ :position |
 		| header |
-		header := self headerAt: anAddress + ((position - 1) * 16).
+		header := self headerAt: anAddress + (position * 16).
 		header ifNil: [ ^ false ].
-		(self classIndexIn: header) = classIndex ifFalse: [ ^ false ].
+		position = 0 ifTrue: [ first := self classIndexIn: header ].
+		(first > 0 and: [ (self classIndexIn: header) = (first + (position * 2)) ]) ifFalse: [
+			^ false ].
 		(self formatIn: header) = 0 ifFalse: [ ^ false ].
 		(self slotCountIn: header) = 0 ifFalse: [ ^ false ] ].
 	^ true

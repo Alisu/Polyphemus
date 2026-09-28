@@ -4,7 +4,7 @@
  TDD loop we compile straight from the files: every *.class and *.extension directory
  of every Polyphemus package, creating classes that do not exist yet and removing
  classes and methods whose files are gone."
-| root joined ensureClass syncSide created compiled removed packages pending organizer |
+| root joined ensureClass syncSide created compiled removed packages pending organizer define |
 "This host's packages: RPackageOrganizer up to Pharo 12, PackageOrganizer from Pharo 13."
 organizer := (Smalltalk globals at: #RPackageOrganizer ifAbsent: [ Smalltalk globals at: #PackageOrganizer ]) default.
 "Wherever this checkout is: Iceberg has it registered, which the test fixtures rely on too."
@@ -21,6 +21,34 @@ joined := [ :coll | String streamContents: [ :s |
 (root allChildrenMatching: '*.class') , (root allChildrenMatching: '*.trait') do: [ :each |
 	(each / 'README.md') exists ifFalse: [
 		('NO COMMENT ' , each basename , ' -- a Metacello load will fail on it') traceCr ] ].
+
+"A class defined as this host can: the message up to Pharo 13, the fluid syntax from Pharo 14,
+ which has no such message any more."
+"Three arguments: Pharo 14 build 771 on VM 12.0.5-beta fails any value:value:value:value:value:."
+define := [ :superclass :props :packageName |
+	| name ivars classVars |
+	name := (props at: 'name') asSymbol.
+	ivars := props at: 'instvars'.
+	classVars := props at: 'classvars'.
+	(superclass respondsTo: #subclass:instanceVariableNames:classVariableNames:package:)
+		ifTrue: [
+			superclass
+				subclass: name
+				instanceVariableNames: (joined value: ivars)
+				classVariableNames: (joined value: classVars)
+				package: packageName ]
+		ifFalse: [
+			| category builder |
+			category := (props at: 'category' ifAbsent: [ packageName ]) asString.
+			builder := (superclass << name)
+				slots: (ivars collect: [ :each | each asSymbol ]) asArray;
+				sharedVariables: (classVars collect: [ :each | each asSymbol ]) asArray;
+				package: packageName;
+				yourself.
+			"A category is a package and a tag there: Polyphemus-Object-dump is tag dump."
+			(category beginsWith: packageName , '-') ifTrue: [
+				builder tag: (category allButFirst: packageName size + 1) ].
+			builder install ] ].
 
 ensureClass := [ :props :packageName |
 	| name |
@@ -44,11 +72,7 @@ ensureClass := [ :props :packageName |
 				ifTrue: [
 					(cls superclass name asSymbol = wantedSuper and: [
 						 cls instVarNames asSet = wantedIvars asSet ]) ifFalse: [
-						(Smalltalk at: wantedSuper)
-							subclass: name
-							instanceVariableNames: (joined value: (props at: 'instvars'))
-							classVariableNames: (joined value: (props at: 'classvars'))
-							package: packageName.
+						define value: (Smalltalk at: wantedSuper) value: props value: packageName.
 						cls := Smalltalk at: name.
 						('REDEFINED ', name, ' under ', wantedSuper) traceCr ].
 					wantedIvars do: [ :ivar |
@@ -57,7 +81,7 @@ ensureClass := [ :props :packageName |
 							('IVAR ', name, '>>', ivar) traceCr ] ].
 					"The category is the class's tag, which is how the browser groups it."
 					(props at: 'category' ifAbsent: [ nil ]) ifNotNil: [ :wanted |
-						cls category = wanted asSymbol ifFalse: [
+						((cls respondsTo: #category:) and: [ cls category ~= wanted asSymbol ]) ifTrue: [
 							cls category: wanted.
 							('RETAGGED ', name, ' -> ', wanted) traceCr ] ].
 					cls ] ]
@@ -67,17 +91,13 @@ ensureClass := [ :props :packageName |
 			(Smalltalk includesKey: superName)
 				ifFalse: [ nil ]
 				ifTrue: [
-					cls := (Smalltalk at: superName)
-						subclass: name
-						instanceVariableNames: (joined value: (props at: 'instvars'))
-						classVariableNames: (joined value: (props at: 'classvars'))
-						package: packageName.
+					cls := define value: (Smalltalk at: superName) value: props value: packageName.
 					(props at: 'classinstvars') ifNotEmpty: [ :civ |
 						cls class instanceVariableNames: (joined value: civ) ].
 					created := created + 1.
 					('CREATED ', name) traceCr.
 					(props at: 'category' ifAbsent: [ nil ]) ifNotNil: [ :wanted |
-						cls category = wanted asSymbol ifFalse: [
+						((cls respondsTo: #category:) and: [ cls category ~= wanted asSymbol ]) ifTrue: [
 							cls category: wanted.
 							('RETAGGED ', name, ' -> ', wanted) traceCr ] ].
 					cls ] ] ].

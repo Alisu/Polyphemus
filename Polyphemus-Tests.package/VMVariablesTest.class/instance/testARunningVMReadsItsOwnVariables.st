@@ -4,7 +4,7 @@ testARunningVMReadsItsOwnVariables
 	"This very VM, read through /proc: what it says of itself agrees with what it reports."
 
 	| own |
-	(Smalltalk os isUnix and: [ '/proc/self/maps' asFileReference exists ]) ifFalse: [
+	(OSPlatform current isUnix and: [ '/proc/self/maps' asFileReference exists ]) ifFalse: [
 		^ self skip: 'this reads /proc, which only Linux has' ].
 	own := VMVariables on: LinuxProcessMemory onSelf.
 

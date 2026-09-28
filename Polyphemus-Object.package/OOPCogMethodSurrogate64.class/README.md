@@ -1,0 +1,1 @@
+A CogMethod as VM 12 lays it out (gdb ptype /o CogMethod on its library): picHasMNUCaseOrCMIsFullBlock moved to a word of its own after selector, and the bits after it moved down one. VMMaker v12.0.5-beta's own surrogates still read the old layout.

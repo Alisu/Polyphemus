@@ -7,4 +7,5 @@ downloadNameForPharo: aNumber
 	aNumber = 10 ifTrue: [ ^ 'Pharo10.0.1-0.build.527.sha.0542643.arch.64bit' ].
 	aNumber = 12 ifTrue: [ ^ 'Pharo12.0-SNAPSHOT.build.1519.sha.aa50f9c.arch.64bit' ].
 	aNumber = 13 ifTrue: [ ^ 'Pharo13.0-SNAPSHOT.build.749.sha.d7c6f761d5.arch.64bit' ].
+	aNumber = 14 ifTrue: [ ^ 'Pharo14.0-SNAPSHOT.build.771.sha.bf1210affa.arch.64bit' ].
 	^ 'latest-64'

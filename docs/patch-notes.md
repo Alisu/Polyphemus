@@ -6,6 +6,59 @@ so this is where the difference between them is written down. Newest first.
 Each edition has three parts: what moved underneath us (Pharo, VMMaker, the VM), what we changed
 in answer, and what the edition still does not do.
 
+## Pharo 14: Polyphemus-Pharo14-Linux-x64-for-Pharo14
+
+Host Pharo 14 (build 771, not yet released), VMMaker v12.0.5-beta, VM 12.0.5-beta. Done
+2026-09-28. The first new VM line since Pharo 11: a real port.
+
+### What moved underneath
+
+- **VM 12: frames.** Frame unification: the plain interpreter now builds base frames as Cog does,
+  its caller context at the base of the stack page, and `FoxCallerContext` is gone. Its frame
+  constants are renamed (`FrameSlots` is `IFrameSlots`) and only set when VMMaker initialises.
+- **VM 12: Cog methods.** `picHasMNUCaseOrCMIsFullBlock` left the header bits for a word of its
+  own after `selector`, and every bit after it moved down one (`gdb ptype /o CogMethod`).
+  **VMMaker v12.0.5-beta's own surrogates still read the old layout**: an upstream inconsistency.
+  The map of a method is walked from its `stackCheckOffset`, which they misread.
+- **VM 12: symbols.** The C global `imageName` is `_imageName`. The Linux memory map is VM
+  10.3's, and the W^X code zone is off on Linux.
+- **The image.** Its class table is ordered differently: nil, false and true have class indexes
+  2051, 2053 and 2055, where earlier images had 3075, 3077 and 3079. `Process` has two more
+  instance variables, at the end. Method trailers are Pharo 12's.
+- **The host.** A send's selector goes through its class's package
+  (`visibleSelectorForSymbol:`). `SourceFile on:potentialLocations:` is
+  `lookupFileNamed:potentialLocations:`, and an empty file is refused. `SourceFileArray` is
+  `FilesSourcesManager` (still aliased in build 771, as `RBParser` is). `Smalltalk os` and its
+  `environment` are deprecated for `OSPlatform current` and `OSEnvironment current`. The
+  debugger asks contexts for `temporaryVariableNames`, reads them through their method's
+  `debugInfo`, and has a `debuggerClientModel` for an action model. Classes are defined only with
+  the fluid syntax, and categories are package tags.
+- **A bug in build 771 on VM 12.0.5-beta:** any `value:value:value:value:value:` fails.
+
+### What we changed
+
+- The edition package: `forThisHost`, `generateWithSource` on `OCMethodNode`, the dump writer.
+- `OOPStackInterpreterLayout` finds a base frame's caller where VMMaker's interpreter keeps it:
+  asked of VMMaker (`FoxCallerContext` defined or not), Cog's rule otherwise.
+- `OOPCogMethodSurrogate64` reads CogMethod as VM 12 lays it out, chosen where VMMaker declares
+  the moved field; the Cogit takes the VM's own entry offsets from the dump.
+- A heap is found by its shape, not by Pharo 10's class indexes (#61).
+- Reified classes answer a package whose selectors mean what they say; compiled code answers a
+  `debugInfo` reading through our contexts; contexts answer `temporaryVariableNames`.
+- Lookups where the names differ: the parser (`OCParser`, `RBParser` before Pharo 13), the
+  source file constructor, `_imageName`, the frame-slot constant, `OSPlatform current` and
+  `OSEnvironment current`, the debugger's model.
+- The stand-in `.changes` (#16) now holds one chunk, since an empty file is refused.
+- The sync defines classes with the fluid syntax where the old message is gone, tags them
+  there, and avoids five-argument blocks.
+- Fixed for every edition: two dump tests assumed nil's class index (now: an object's class
+  index is its class's hash), and the jitted-frame check's minimum is set per dump.
+
+### Not yet
+
+- Pharo 14 images only. A package-private selector in a target method is taken as written.
+- Build 771 still has `RBParser` and `SourceFileArray` as aliases; we no longer rely on them.
+
 ## Pharo 13: Polyphemus-Pharo13-Linux-x64-for-Pharo13
 
 Host Pharo 13 (build 749, which calls itself 13.1), VMMaker v10.3.11, VM 10.3.11. Done 2026-09-27.

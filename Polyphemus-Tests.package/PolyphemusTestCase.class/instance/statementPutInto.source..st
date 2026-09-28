@@ -5,7 +5,7 @@ statementPutInto: aSource source: aStatement
 	which is where Pharo's own parser says they start."
 
 	| body |
-	body := [ (RBParser parseMethod: aSource) body ]
+	body := [ (AbstractReifiedMemory parserClass parseMethod: aSource) body ]
 		        on: AbstractReifiedMemory syntaxErrors
 		        do: [ :e | nil ].
 	(body isNil or: [ body statements isEmpty ]) ifTrue: [ ^ aSource ].

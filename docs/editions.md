@@ -23,7 +23,7 @@ A branch per edition would also have shown, as a diff, what each edition changed
 hand instead, in `docs/patch-notes.md`: one short section per edition, written as it is ported.
 
 Code shared by some editions but not all has a package of its own: `Polyphemus-VMMaker-MemoryMap`
-holds the hooks for VMMaker v10.0.4 and later, loaded by the Pharo 11, 12 and 13 editions.
+holds the hooks for VMMaker v10.0.4 and later, loaded by the Pharo 11 to 14 editions.
 
 ## What an edition refuses
 
@@ -45,6 +45,7 @@ An image file's Pharo version is not checked: its format is, and the test fixtur
 | Polyphemus-Pharo11-Linux-x64-for-Pharo10-11 | `~/polyphemus/pharo11` (Pharo 11 build 688, VM 10.0.5) | v10.0.5 | image files; processes and dumps of **VM 10**, running Pharo 10 or Pharo 11 | full, with Pharo 11 targets |
 | Polyphemus-Pharo12-Linux-x64-for-Pharo12 | `~/polyphemus/pharo12` (Pharo 12 build 1519, VM 10.3.2) | v10.3.2 | image files; processes and dumps of **VM 10.3**, running Pharo 12 | full, green |
 | Polyphemus-Pharo13-Linux-x64-for-Pharo13 | `~/polyphemus/pharo13` (Pharo 13 build 749, VM 10.3.11) | v10.3.11 | image files; processes and dumps of **VM 10.3**, running Pharo 13 | full, green |
+| Polyphemus-Pharo14-Linux-x64-for-Pharo14 | `~/polyphemus/pharo14` (Pharo 14 build 771, VM 12.0.5-beta) | v12.0.5-beta | image files; processes and dumps of **VM 12**, running Pharo 14 | full, green |
 
 Each edition reads processes and dumps with the VMMaker its VM was generated from. VMMaker v10.0.4
 and later tell old from young objects by address masks that hold only at VM 10's fixed addresses,

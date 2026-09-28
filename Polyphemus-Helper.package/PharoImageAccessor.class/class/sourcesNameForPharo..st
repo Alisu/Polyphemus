@@ -7,6 +7,7 @@ sourcesNameForPharo: aNumber
 	^ {
 		  (10 -> 'Pharo10.0-64bit-0542643.sources').
 		  (12 -> 'Pharo12.0-64bit-aa50f9c.sources').
-		  (13 -> 'Pharo13.1-64bit-d7c6f76.sources') } asDictionary
+		  (13 -> 'Pharo13.1-64bit-d7c6f76.sources').
+		  (14 -> 'Pharo14.0-64bit-bf1210a.sources') } asDictionary
 		  at: aNumber
 		  ifAbsent: [ nil ]

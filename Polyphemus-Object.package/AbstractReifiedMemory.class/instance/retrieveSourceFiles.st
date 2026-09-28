@@ -21,14 +21,17 @@ retrieveSourceFiles
 	sourceFiles := SourceFileArray new.
 	sourcePath ifNotNil: [
 		sourceFiles sourcesFileStream:
-			((SourceFile on: sourcePath fullName potentialLocations: { rootPath fullName })
+			((self sourceFileNamed: sourcePath fullName locations: { rootPath fullName })
 				 tryOpenReadOnly: true) ].
-	"Pharo reads through both files or neither: with no .changes, an empty one (#16)."
+	"Pharo reads through both files or neither: with no .changes, a stand-in (#16). Not empty:
+	Pharo 14 refuses to open an empty one. Nothing in such an image points into it."
 	changesPath ifNil: [
 		changesPath := FileLocator temp / 'polyphemus-no-changes.changes'.
-		changesPath ensureCreateFile ].
+		(changesPath exists and: [ changesPath size > 0 ]) ifFalse: [
+			changesPath writeStreamDo: [ :stream |
+				stream nextPutAll: '"This image has no .changes file."!' ] ] ].
 	sourceFiles changesFileStream:
-		((SourceFile on: changesPath fullName potentialLocations: { changesPath parent fullName })
+		((self sourceFileNamed: changesPath fullName locations: { changesPath parent fullName })
 			 tryOpenReadOnly: true).
 
 	^ sourceFiles

@@ -5,4 +5,4 @@ pathToTargetImage
 	A host's setup names it in its polyphemus.env (docs/editions.md)."
 
 	^ self pathToPharo:
-		  (Smalltalk os environment at: 'POLYPHEMUS_TARGET_PHARO' ifAbsent: [ '10' ]) asNumber
+		  (OSEnvironment current at: 'POLYPHEMUS_TARGET_PHARO' ifAbsent: [ '10' ]) asNumber

@@ -5,7 +5,7 @@ testItReadsACoreDump
 	most are one context waiting on a semaphore."
 
 	| core memory deepest |
-	core := (Smalltalk os environment at: 'POLYPHEMUS_CORE' ifAbsent: [ nil ])
+	core := (OSEnvironment current at: 'POLYPHEMUS_CORE' ifAbsent: [ nil ])
 		        ifNil: [ FileLocator imageDirectory / 'pharo.core' ]
 		        ifNotNil: [ :path | path asFileReference ].
 	core exists ifFalse: [ ^ self skip: 'no core dump here; make one with bin/take-dump.sh' ].

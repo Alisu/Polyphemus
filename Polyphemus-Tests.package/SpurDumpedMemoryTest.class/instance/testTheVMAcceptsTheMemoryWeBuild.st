@@ -10,5 +10,8 @@ testTheVMAcceptsTheMemoryWeBuild
 
 	self assert: memory oldSpaceStart equals: dumped raw heapStart.
 	self assert: memory specialObjectsOop equals: dumped raw specialObjectsOop.
-	self assert: (memory classIndexOf: memory nilObject) equals: 3075.
+	"An object's class index is its class's hash: 3075 for nil in the older images, 2051 in Pharo 14's."
+	self
+		assert: (memory classIndexOf: memory nilObject)
+		equals: (memory rawHashBitsOf: (memory fetchClassOfNonImm: memory nilObject)).
 	self assert: (memory fetchClassOfNonImm: memory nilObject) > memory oldSpaceStart

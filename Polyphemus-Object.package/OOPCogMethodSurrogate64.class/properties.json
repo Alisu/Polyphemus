@@ -1,0 +1,11 @@
+{
+	"commentStamp" : "",
+	"super" : "CogMethodSurrogate64",
+	"category" : "Polyphemus-Object-dump",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [ ],
+	"name" : "OOPCogMethodSurrogate64",
+	"type" : "normal"
+}

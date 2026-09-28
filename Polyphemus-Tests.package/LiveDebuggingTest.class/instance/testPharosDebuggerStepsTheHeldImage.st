@@ -12,9 +12,9 @@ testPharosDebuggerStepsTheHeldImage
 	#( #stepInto: #stepOver: #stepThrough: ) do: [ :each |
 		| before |
 		before := where value.
-		debugger debuggerActionModel perform: each with: debugger session interruptedContext.
+		(PolyphemusTestCase actionModelOf: debugger) perform: each with: debugger session interruptedContext.
 		self deny: where value = before description: each , ' did not move' ].
-	debugger debuggerActionModel proceedDebugSession.
+	(PolyphemusTestCase actionModelOf: debugger) proceedDebugSession.
 	self
 		assert: (self waitFor: [ (self spikeDirectory / 'released') exists ])
 		description: 'proceeding never let it go' ] ensure: [
