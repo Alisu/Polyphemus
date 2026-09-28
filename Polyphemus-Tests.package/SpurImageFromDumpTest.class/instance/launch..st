@@ -8,7 +8,7 @@ launch: anImage
 	bang := String with: (Character value: 33).
 	pidFile := self runDirectory / 'pid'.
 	pidFile ensureDelete.
-	LibC system: PharoImageAccessor pathToTargetVM , ' --headless ' , anImage fullName
+	LibC system: PharoImageAccessor pathToTargetVM , ' --headless ' , anImage fullName , ' --no-default-preferences'
 		, ' > /dev/null 2>&1 & echo $' , bang , ' > ' , pidFile fullName.
 	self
 		assert: (self waitUntil: [ pidFile exists and: [ pidFile contents trimBoth notEmpty ] ])

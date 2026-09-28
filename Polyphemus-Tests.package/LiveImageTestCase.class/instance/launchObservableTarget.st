@@ -20,7 +20,7 @@ launchObservableTarget
 	pidFile := self observablePidFile.
 	pidFile ensureDelete.
 	LibC system: 'POLYPHEMUS_OBSERVER=any ' , shim fullName , ' ' , PharoImageAccessor pathToTargetVM
-		, ' --headless ' , target fullName
+		, ' --headless ' , target fullName , ' --no-default-preferences'
 		, ' eval "(Delay forSeconds: ' , self targetLifetime printString , ') wait" > /dev/null 2>&1 & echo $' , bang , ' > '
 		, pidFile fullName.
 	"Wait for it to be there and readable, rather than for a fixed number of seconds. A

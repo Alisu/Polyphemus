@@ -68,7 +68,7 @@ Smalltalk snapshot: true andQuit: true
 SMALLTALK
 
 echo "== loading $branch ${group:+group $group }into a clean Pharo 10 =="
-timeout 1800 ./pharo newcomer.image st check.st 2>&1 | tr -d '\033' \
+timeout 1800 ./pharo newcomer.image --no-default-preferences st check.st 2>&1 | tr -d '\033' \
 	| grep -E "^(loading|packages|methods loaded|VMMaker packages|edition|classes missing)" || {
 	echo "BROKEN the load said nothing"
 	exit 1
@@ -76,7 +76,7 @@ timeout 1800 ./pharo newcomer.image st check.st 2>&1 | tr -d '\033' \
 
 if [ "$run_tests" = "yes" ]; then
 	echo "== running Polyphemus-Tests in it =="
-	result=$(timeout 3000 ./pharo newcomer.image test "Polyphemus-Tests" 2>&1 | tr -d '\033' | tail -5)
+	result=$(timeout 3000 ./pharo newcomer.image --no-default-preferences test "Polyphemus-Tests" 2>&1 | tr -d '\033' | tail -5)
 	echo "$result"
 	# Nothing run is not a pass: it is what this printed while the loaded image went unsaved.
 	if grep -qE '^0 run' <<<"$result"; then

@@ -46,7 +46,7 @@ noise() { tr -d '\033' | grep -vE 'Simd|addMapped|extensionBytecode|CleanBlockCh
 export -f noise
 
 collect() {
-  timeout 120 ./pharo "$IMAGE" st "$HERE/collect-tests.st" 2>/dev/null | noise
+  timeout 120 ./pharo "$IMAGE" --no-default-preferences st "$HERE/collect-tests.st" 2>/dev/null | noise
 }
 all_classes() { grep '^CLASS ' <<<"$COLLECTED" | awk '{print $2}' | sort -u; }
 
@@ -112,7 +112,7 @@ INNER
     limit=$(( known * 3 ))
     [ "$limit" -lt "$TMO" ] && limit="$TMO"
   fi
-  out=$(timeout "$limit" ./pharo "$IMAGE" st "$script" 2>/dev/null | noise | grep -E '^RES |^    (FAIL|ERROR)'; exit ${PIPESTATUS[0]})
+  out=$(timeout "$limit" ./pharo "$IMAGE" --no-default-preferences st "$script" 2>/dev/null | noise | grep -E '^RES |^    (FAIL|ERROR)'; exit ${PIPESTATUS[0]})
   rc=$?
   el=$(( $(date +%s) - start ))
   rm -f "$script"

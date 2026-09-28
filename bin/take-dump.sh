@@ -30,7 +30,7 @@ gdb --batch \
     -ex run \
     -ex "gcore $OUT" \
     -ex kill \
-    --args "$VM/lib/pharo" --headless "$IMAGE" st "$WORK/idle.st" 2>&1 \
+    --args "$VM/lib/pharo" --headless "$IMAGE" --no-default-preferences st "$WORK/idle.st" 2>&1 \
   | grep -vE "^\[|^warning: |Thread debugging|^$" | tail -20
 
 ls -lh "$OUT"

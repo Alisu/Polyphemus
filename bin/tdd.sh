@@ -23,7 +23,7 @@ fi
 
 if [ -z "${SKIP_PREPARE:-}" ]; then
 echo "== compiling working copy into dev.image =="
-sync=$(timeout 600 ./pharo dev.image st "$HERE/sync-from-working-copy.st" 2>&1 | tr -d '\033')
+sync=$(timeout 600 ./pharo dev.image --no-default-preferences st "$HERE/sync-from-working-copy.st" 2>&1 | tr -d '\033')
 grep -E '^SYNC|^CREATED|^REMOVED|^REDEFINED|^IVAR|^COMPILE ERR|^SKIP|^NO COMMENT|^RETAGGED' <<<"$sync"
 # No summary line means the script itself failed, and the tests would run the image as it was.
 if ! grep -q '^SYNC' <<<"$sync"; then
@@ -38,7 +38,7 @@ command -v python3 >/dev/null && python3 "$HERE/long-comments.py" "$HERE/.."
 echo "== rebuilding warm.image =="
 cp -f dev.image warm.image
 cp -f dev.changes warm.changes
-timeout 600 ./pharo warm.image st "$HERE/build-warm.st" 2>/dev/null \
+timeout 600 ./pharo warm.image --no-default-preferences st "$HERE/build-warm.st" 2>/dev/null \
   | tr -d '\033' | grep -E 'fixture ready|WARM ERR' || true
 fi
 [ -n "${PREPARE_ONLY:-}" ] && exit 0

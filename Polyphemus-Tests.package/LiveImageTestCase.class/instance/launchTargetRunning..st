@@ -16,7 +16,7 @@ launchTargetRunning: aScript
 	bang := String with: (Character value: 33).
 	pidFile := self spikeDirectory / 'pid'.
 	LibC system: 'POLYPHEMUS_OBSERVER=any ' , shim fullName , ' ' , PharoImageAccessor pathToTargetVM
-		, ' --headless ' , target fullName , ' st ' , (self spikeDirectory / 'target.st') fullName
+		, ' --headless ' , target fullName , ' --no-default-preferences st ' , (self spikeDirectory / 'target.st') fullName
 		, ' > ' , (self spikeDirectory / 'target.log') fullName , ' 2>&1 & echo $' , bang , ' > ' , pidFile fullName.
 	(self waitFor: [ (self spikeDirectory / 'started') exists ]) ifFalse: [
 		self fail: 'the target never started; the end of its log: '
