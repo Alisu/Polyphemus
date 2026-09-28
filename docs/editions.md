@@ -51,8 +51,10 @@ and later tell old from young objects by address masks that hold only at VM 10's
 so v10.0.5 cannot read a VM 9 heap where it lies, and v10.0.0 does not know VM 10's split memory.
 Image files are relocated when loaded, and both read them.
 
-`bin/gate.sh` runs every edition's suite in turn, about 8 minutes each. Side by side was slower:
-the box has four performance cores, and three suites at once took 35 minutes.
+`bin/gate.sh` runs every edition's suite in turn, about 5 to 15 minutes each depending on how hot
+the box runs (side by side was slower: four performance cores). A commit gates only the edition
+being worked on, and Pharo 10 when shared code changed; every edition gates a push (CLAUDE.md,
+Working agreement).
 
 ## A host setup
 

@@ -418,6 +418,12 @@ after the suites it waited for had finished (2026-09-26).
 → Wait on something the job writes -- its log's "all done" line, a file -- never on `pgrep -f` of
 a string the waiting command contains.
 
+**Waiting on a marker whose writer had died.** Two waits kept polling for hours: one for ten
+results from a loop an ssh drop had killed at three, one for a summary line a post-processing
+step never wrote (it looked in the wrong directory, 2026-09-28).
+→ A wait needs a bound as well as a marker: give up after a time, or when the job it waits on is
+gone.
+
 **Switching off VMMaker's `CloneOnGC` to halve writing an image from a dump.** The profile showed
 the simulated collection run twice, the first on a clone of the whole simulation (`CloneOnGC`, a
 check). Off, the write went from **107 s to 203-222 s**; off with a host `Smalltalk

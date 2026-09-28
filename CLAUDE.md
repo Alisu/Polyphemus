@@ -292,6 +292,17 @@ worth its cost; #23 holds what that would take.
   cut to this; the originals are in git history.
 
 - **TDD**: red test first, then the fix. No implementation before a failing test.
+- **Gate in tiers** (since 2026-09-28; a gate of every edition took up to 52 min, and a commit
+  build should stay near ten minutes -- Beck's XP guideline, and the most common "maximum
+  acceptable" CI build time in Hilton et al., FSE 2017):
+  - before a commit: the edition being worked on, plus Pharo 10 when shared code changed
+    (`bin/gate.sh 13`, `bin/gate.sh 10 13`);
+  - before a push, and before tagging an edition: every edition (`bin/gate.sh`). Nothing reaches
+    GitHub red on any edition; `bin/gate.sh --status` says which editions are behind HEAD, and
+    `~/polyphemus/gate-history.log` keeps every gate's time and CPU peak.
+  - A gate compiles the working copy into its editions first, then says `working copy free`:
+    edit on, but leave `bin/` alone until it ends, and run `bin/tdd.sh` only on setups the gate
+    is not using.
 - **Prefer a check to a claim.** Where two images have to agree — bytecodes, block order, a
   name — compare them and answer nothing when they disagree, rather than answering something
   plausible. Wrong information in a debugger costs more than missing information.
