@@ -47,6 +47,24 @@ An image file's Pharo version is not checked: its format is, and the test fixtur
 | Polyphemus-Pharo13-Linux-x64-for-Pharo13 | `~/polyphemus/pharo13` (Pharo 13 build 749, VM 10.3.11) | v10.3.11 | image files; processes and dumps of **VM 10.3**, running Pharo 13 | full, green |
 | Polyphemus-Pharo14-Linux-x64-for-Pharo14 | `~/polyphemus/pharo14` (Pharo 14 build 771, VM 12.0.5-beta) | v12.0.5-beta | image files; processes and dumps of **VM 12**, running Pharo 14 | full, green |
 
+## Which edition for which image
+
+| to read | image files | processes and dumps | debug, name temporaries, fix methods |
+|---|---|---|---|
+| Pharo 10 | any edition | Pharo 10 edition (VM 9), Pharo 11 edition (VM 10.0.5) | Pharo 10 or 11 edition |
+| Pharo 11 | any edition | Pharo 11 edition | Pharo 11 edition |
+| Pharo 12 | any edition | Pharo 12 edition | Pharo 12 edition |
+| Pharo 13 | any edition | Pharo 13 edition | Pharo 13 edition |
+| Pharo 14 | any edition | Pharo 14 edition | Pharo 14 edition |
+
+Reading an image file (stage 1) works across versions: files are relocated on load, and the
+tests read Pharo 10, 11, 12 files from other hosts. Processes and dumps need the VMMaker of the
+VM that ran them; only the pairs above are tested. Naming temporaries, exact highlighting and
+fixing a method need this host's compiler to lay out the target's methods as its own compiler
+did, which holds only between close versions (a Pharo 12 or later host refuses or skips those on
+a Pharo 10 image). The exact way round that, compiling with the target's own compiler in the
+simulator, is #65.
+
 Each edition reads processes and dumps with the VMMaker its VM was generated from. VMMaker v10.0.4
 and later tell old from young objects by address masks that hold only at VM 10's fixed addresses,
 so v10.0.5 cannot read a VM 9 heap where it lies, and v10.0.0 does not know VM 10's split memory.

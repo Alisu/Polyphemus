@@ -5,6 +5,9 @@ memory from *outside*, reifying OOPs as Smalltalk objects in a healthy host imag
 
 **This file and the `docs/` notes are fork-only. Never include them in a PR to hogoww.**
 
+**Not on the Ubuntu box?** This file describes the box. Read `AGENTS.md` (Théo's rules, on any
+machine) and your machine's handover first: `docs/handover-windows.md` on the Windows laptop.
+
 ## Goal of this fork
 
 Three stages, in order:
@@ -117,6 +120,7 @@ Fork-only, and the canonical record. `mistakes.md` first if a hunt is going long
 | `stage3-live-image.md` | what works on a live image, what stage 3 must still do, and what is only believed |
 | `editions.md` | which host an edition runs on and which Pharo it reads, its name, what it refuses; one branch, editions as packages |
 | `patch-notes.md` | what changed from one edition to the next: what moved underneath, what we changed, what is not done yet |
+| `handover-windows.md` | for the agent porting to Windows x64 on the Helios laptop: where we stand, what is Linux-only, a plan in steps |
 
 ## Current state
 
