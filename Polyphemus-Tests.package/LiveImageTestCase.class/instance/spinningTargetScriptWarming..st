@@ -11,6 +11,7 @@ spinningTargetScriptWarming: aBoolean
 	  , '[ [ ' , (aBoolean ifTrue: [ '4 even' ] ifFalse: [ 'true' ]) , ' ] whileTrue: [
 	(1 to: 1000) do: [ :each | 3 sqrt ] ] ] forkAt: 40.
 ' , (aBoolean ifTrue: [ '200000 timesRepeat: [ 4 even ].' ] ifFalse: [ '' ]) , '
+Smalltalk garbageCollect.
 (dir / ''started'') ensureCreateFile.
 (Delay forSeconds: ' , self targetLifetime printString , ') wait.
 Smalltalk exitSuccess'
