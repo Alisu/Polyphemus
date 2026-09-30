@@ -1,0 +1,1 @@
+Where an address falls on the memory map (#68): the address space from start to end (excluded), row by row, a fixed number of bytes a pixel, so an address can be read off a position.

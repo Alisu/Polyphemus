@@ -1,0 +1,1 @@
+The memory map as a picture (#68): each pixel in its category's colour, an address ruler on the left, a legend below, and a point of the picture back to the address and the object it shows.

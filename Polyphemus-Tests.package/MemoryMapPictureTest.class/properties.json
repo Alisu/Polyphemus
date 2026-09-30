@@ -1,0 +1,13 @@
+{
+	"commentStamp": "",
+	"super": "MemoryMapPainterTest",
+	"category": "Polyphemus-Tests",
+	"classinstvars": [],
+	"pools": [],
+	"classvars": [],
+	"instvars": [
+		"picture"
+	],
+	"name": "MemoryMapPictureTest",
+	"type": "normal"
+}

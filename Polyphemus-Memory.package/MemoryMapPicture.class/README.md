@@ -1,0 +1,1 @@
+The memory map as a picture (#68): what a MemoryMapPainter found, each pixel in its category's colour, an address ruler on the left and a legend with pixel counts below. A point of the picture answers the address its pixel covers and the object that shows there.

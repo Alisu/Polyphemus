@@ -1,0 +1,1 @@
+The memory map in the inspector (#68), on candle: the heap VMMaker loaded, drawn as one bitmap, and a click handing on the address of the object there. Nothing is opened on screen.

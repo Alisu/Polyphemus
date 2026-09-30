@@ -1,0 +1,16 @@
+{
+	"commentStamp": "",
+	"super": "Object",
+	"category": "Polyphemus-Memory-Map",
+	"classinstvars": [],
+	"pools": [],
+	"classvars": [],
+	"instvars": [
+		"start",
+		"end",
+		"bytesPerPixel",
+		"width"
+	],
+	"name": "MemoryMapGeometry",
+	"type": "normal"
+}

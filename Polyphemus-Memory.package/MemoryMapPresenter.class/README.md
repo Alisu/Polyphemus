@@ -1,0 +1,1 @@
+The memory map (#68) as a tab of the inspector: the old space VMMaker loaded, painted from raw headers into one bitmap, zoomed and panned by Roassal. A click hands the address of the object there to whoever asked (whenObjectChosenDo:); nothing is reified to draw it.

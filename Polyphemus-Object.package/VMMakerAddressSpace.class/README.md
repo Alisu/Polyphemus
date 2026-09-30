@@ -1,0 +1,1 @@
+The memory VMMaker loaded an image or a dump into, answering the three messages of every address space, so what reads raw bytes (the heap scanner, the memory map) reads it where its objects are.

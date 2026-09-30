@@ -1,0 +1,1 @@
+The memory VMMaker loaded an image into, read through the three messages every address space answers, so the heap scanner and the memory map walk it where its objects are (#68). On candle: it loads in a second.

@@ -1,0 +1,20 @@
+{
+	"commentStamp": "",
+	"super": "Object",
+	"category": "Polyphemus-Memory-Map",
+	"classinstvars": [],
+	"pools": [],
+	"classvars": [],
+	"instvars": [
+		"scanner",
+		"geometry",
+		"winners",
+		"winnerBytes",
+		"winnerAddresses",
+		"openPixel",
+		"openCounts",
+		"openFirsts"
+	],
+	"name": "MemoryMapPainter",
+	"type": "normal"
+}

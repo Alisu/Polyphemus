@@ -1,0 +1,1 @@
+Paints the memory map (#68) from raw headers, without reifying anything: each pixel gets the category of what lives there. Where objects share a pixel, unreadable, forwarder and pinned show through anything, used shows over free, and otherwise the category with the most bytes wins. The walk goes in address order, so only one pixel is ever open.

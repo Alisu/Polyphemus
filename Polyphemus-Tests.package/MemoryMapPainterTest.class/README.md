@@ -1,0 +1,1 @@
+What each pixel of the memory map shows (#68), painted from raw headers on hand-built heaps. Where objects share a pixel: unreadable, forwarder and pinned show through anything, used shows over free, and otherwise the most bytes win.

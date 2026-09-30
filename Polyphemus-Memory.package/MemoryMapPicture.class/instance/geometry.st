@@ -1,0 +1,4 @@
+accessing
+geometry
+
+	^ painter geometry

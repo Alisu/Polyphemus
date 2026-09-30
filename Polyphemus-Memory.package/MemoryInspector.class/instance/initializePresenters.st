@@ -17,4 +17,5 @@ initializePresenters
 		addPage: (self pageForPresenter: memoryScripter);
 		addPage: (self pageForPresenter: (ImageClassBrowser newOn: interpreter));
 		addPage: ((self pageForPresenter: newSpacePage) title: 'New Space');
-		addPage: ((self pageForPresenter: oldSpacePage) title: 'Old Space')
+		addPage: ((self pageForPresenter: oldSpacePage) title: 'Old Space');
+		addPage: self mapPage
