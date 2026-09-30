@@ -1,0 +1,14 @@
+{
+	"commentStamp": "",
+	"super": "Object",
+	"category": "Polyphemus-Tests",
+	"classinstvars": [],
+	"pools": [],
+	"classvars": [],
+	"instvars": [
+		"attempts",
+		"created"
+	],
+	"name": "DirectoryLosingARaceOnce",
+	"type": "normal"
+}

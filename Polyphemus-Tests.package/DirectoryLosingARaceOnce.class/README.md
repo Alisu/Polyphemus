@@ -1,0 +1,1 @@
+A directory another process creates first, once: the first attempt to create it fails with DirectoryExists, as when two runs create one parent at the same time (#72).

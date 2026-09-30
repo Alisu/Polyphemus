@@ -7,7 +7,7 @@ sourceServing: aDirectory bell: aSource
 
 	^ '| dir count going workspace bell |
 dir := ' , aDirectory asFileReference fullName printString , ' asFileReference.
-dir ensureCreateDirectory.
+[ dir exists ] whileFalse: [ [ dir ensureCreateDirectory ] on: DirectoryExists do: [ :e | ] ].
 count := 0.
 going := false.
 workspace := Dictionary new.
