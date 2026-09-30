@@ -1,0 +1,64 @@
+# Every edition's suite, side by side, on each push (docs/editions.md). The box keeps the
+# commit gate (the edition worked on); this is the push gate, off the box.
+name: Editions
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  suite:
+    name: Pharo ${{ matrix.edition }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 150
+    strategy:
+      fail-fast: false
+      matrix:
+        edition: [ 10, 11, 12, 13, 14 ]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Tools
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq gdb
+
+      - name: The launcher for live targets
+        run: cc -O2 -o bin/pharo-debuggable bin/pharo-debuggable.c
+
+      # The built setup: VMMaker's load is most of the time. Rebuilt when the recipe or the
+      # baseline changes; the suite compiles the working copy into it anyway.
+      - name: Setup from cache
+        id: setup
+        uses: actions/cache@v4
+        with:
+          path: ~/setup
+          key: setup-${{ matrix.edition }}-${{ hashFiles('bin/ci-setup.sh', 'BaselineOfPolyphemus.package/**') }}
+
+      - name: Build the setup
+        if: steps.setup.outputs.cache-hit != 'true'
+        run: bin/ci-setup.sh ${{ matrix.edition }} ~/setup
+
+      # The pinned images the tests download into resources/ on first use.
+      - name: Test images from cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            resources/*.image
+            resources/*.changes
+            resources/*.sources
+            !resources/candle64Bit.image
+          key: images-${{ hashFiles('Polyphemus-Helper.package/PharoImageAccessor.class/class/downloadNameForPharo..st', 'Polyphemus-Helper.package/PharoImageAccessor.class/class/sourcesNameForPharo..st') }}
+
+      - name: Suite
+        run: |
+          ln -sfn "$GITHUB_WORKSPACE" ~/setup/Polyphemus
+          WORK=~/setup bin/tdd.sh --all -j 4 2>&1 | tee suite.log | grep -aE "^RES|^    (FAIL|ERROR)|totals|BROKEN|TIMEOUT"
+          grep -q "totals: .* 0 failures, 0 errors, 0 broken" suite.log
+
+      - name: Keep the log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: suite-pharo-${{ matrix.edition }}
+          path: |
+            suite.log
+            ~/setup/load.log
