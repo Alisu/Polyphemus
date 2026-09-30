@@ -4,7 +4,7 @@ resources/*.sources
 !resources/candle64Bit.image
 latest-*.zip*
 *.zip
-.filetree
+/.filetree
 
 # built, not committed
 bin/pharo-debuggable

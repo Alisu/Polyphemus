@@ -55,9 +55,18 @@ jobs:
       - name: Suite
         run: |
           ln -sfn "$GITHUB_WORKSPACE" ~/setup/Polyphemus
-          WORK=~/setup bin/tdd.sh --all -j 4 > suite.log 2>&1 || true
+          # No timings yet on a fresh runner: a class gets TMO seconds, not three times its last run.
+          WORK=~/setup TMO=1800 bin/tdd.sh --all -j 4 > suite.log 2>&1 || true
           grep -aE "^RES|^    (FAIL|ERROR)|totals|BROKEN|TIMEOUT" suite.log || true
           grep -q "totals: .* 0 failures, 0 errors, 0 broken" suite.log || { echo "== end of the log =="; tail -60 suite.log; exit 1; }
+
+      - name: Keep the core when the suite fails
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: core-pharo-${{ matrix.edition }}
+          path: ~/setup/pharo.core
+          retention-days: 5
 
       - name: Keep the log
         if: always()
