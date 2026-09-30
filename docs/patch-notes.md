@@ -6,6 +6,22 @@ so this is where the difference between them is written down. Newest first.
 Each edition has three parts: what moved underneath us (Pharo, VMMaker, the VM), what we changed
 in answer, and what the edition still does not do.
 
+## Since the Pharo 14 edition (all editions)
+
+Changes to every edition at once, after `edition/pharo14`.
+
+- **Speed pass (#44).** The fix, install and edit tests read the pinned image of the Pharo the
+  edition targets, where every edition read Pharo 10's: on Pharo 11, 218 s → 169 s for those four
+  classes. Pharo 11's image is pinned (build 750). Running them there found three things: a held
+  target stopped outside `do:` (`flagIn:`), Pharo 14 refusing a written image without its
+  `.changes`, and a swap that changed no bytecode on Pharo 12's image.
+- **Shared directories (#72).** Made until they exist, so runs side by side no longer lose the race
+  after `/tmp` is emptied.
+- **Memory map (#68).** A tab of the inspector drawing old space by address from raw headers:
+  ~7 s to the first picture and 6 ms a pan, where the old space tab takes ~37 s and 10 s.
+- **CI.** Every edition's suite runs on GitHub Actions, side by side, on each push
+  (`.github/workflows/editions.yml`, `bin/ci-setup.sh`).
+
 ## Pharo 14: Polyphemus-Pharo14-Linux-x64-for-Pharo14
 
 Host Pharo 14 (build 771, not yet released), VMMaker v12.0.5-beta, VM 12.0.5-beta. Done

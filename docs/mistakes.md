@@ -329,6 +329,25 @@ Nothing was lost, because the trait re-provides them, but it was luck.
 → Iterate `localSelectors`, handle `.trait` directories, and skip packages the image has not
 loaded.
 
+**An apostrophe in a commit message sent through `ssh '...'`.** The quote ended the remote
+command's quoting: the rest of the message ran as shell words, and a commit went in with half its
+message (amended before any push, 2026-09-29). The same trap stopped a script a day later.
+→ Send commit messages and scripts to the box as files (`scp`, then `git commit -F file`,
+`python3 file`), never inline.
+
+**A helper that refreshed the files beside any image, the pinned ones included.** Written to put
+sources and changes beside images the tests write, it also ran on the pinned Pharo 10 image in
+`resources/`: it overwrote `cleanP10.changes` with Pharo 14's and pointed Pharo 14's sources link
+at itself (2026-09-28). `resources/*.changes` are gitignored; the original came back from a
+newcomer check's Iceberg clone, byte for byte the same download.
+→ Nothing writes in the directory of the pinned images. A test now checks it is left as it was.
+
+**"Create it if absent" trusting what was there.** The written images' `.changes` and sources
+existed, empty or header only: left by earlier starts of those images without them, and Pharo 14
+refuses an empty `.changes` (2026-09-28).
+→ Put fresh files beside a written image every time; "if absent" is only for files nothing else
+makes.
+
 ## The machine, not the code
 
 **A dump written to `/tmp`.** The 204 MB core everything in stage two was developed against
@@ -404,6 +423,14 @@ three objects were "nil, true and false … 8 bytes apart", while the code below
 nil, false, true at 16 for weeks, and the same file said so correctly two sections further
 down. Nobody was misled, this time.
 → When a fact is confirmed against the image, grep the docs for the old version of it.
+
+**A test whose premise was never checked.** The swap test widened the first `' < '` of a method's
+source and assumed that changed the code; on Pharo 12's image the first method it picked
+changed no bytecode, and the test failed as if installing were broken (2026-09-30). And
+`flagIn:` found a held target's flag through the context of `do:`, assumed on the stack: a hold
+stops the target at a quiet moment, which may be its loop's own backward jump (2026-09-29).
+→ Assert the premise (the two compilations differ; the context is there) or pick what holds
+whatever the moment.
 
 ## Listening
 
