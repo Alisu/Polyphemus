@@ -5,7 +5,7 @@ evaluate: anExpression in: anImage
 	answer goes to a file of this class's own: classes run side by side."
 
 	| out |
-	self putSourcesBeside: anImage.
+	self putSourcesAndChangesBeside: anImage.
 	out := PolyphemusEdition current scratch / ('polyphemus-eval-' , self class name , '.txt').
 	out ensureDelete.
 	LibC system: PharoImageAccessor pathToTargetVM , ' --headless ' , anImage fullName , ' --no-default-preferences eval "'
