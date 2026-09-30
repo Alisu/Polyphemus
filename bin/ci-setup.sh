@@ -56,6 +56,7 @@ Smalltalk snapshot: true andQuit: true
 ST
 timeout 3600 ./pharo dev.image --no-default-preferences st load.st 2>&1 | tr -d '\033' | tee load.log | grep -E "LOAD_ERR|REGISTER_ERR|LOADED" || true
 grep -q "LOADED true" load.log || { echo "!! Polyphemus did not load"; tail -40 load.log; exit 1; }
+! grep -q "REGISTER_ERR" load.log || { echo "!! the checkout is not registered in Iceberg (a shallow clone?)"; exit 1; }
 
 cat > polyphemus.env <<ENV
 POLYPHEMUS_TARGET_PHARO=$EDITION

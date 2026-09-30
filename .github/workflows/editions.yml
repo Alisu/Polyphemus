@@ -16,7 +16,11 @@ jobs:
       matrix:
         edition: [ 10, 11, 12, 13, 14 ]
     steps:
+      # Whole history: Iceberg, which the sync and the fixtures find the checkout through,
+      # refuses a shallow clone.
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Tools
         run: sudo apt-get update -qq && sudo apt-get install -y -qq gdb
@@ -51,8 +55,9 @@ jobs:
       - name: Suite
         run: |
           ln -sfn "$GITHUB_WORKSPACE" ~/setup/Polyphemus
-          WORK=~/setup bin/tdd.sh --all -j 4 2>&1 | tee suite.log | grep -aE "^RES|^    (FAIL|ERROR)|totals|BROKEN|TIMEOUT"
-          grep -q "totals: .* 0 failures, 0 errors, 0 broken" suite.log
+          WORK=~/setup bin/tdd.sh --all -j 4 > suite.log 2>&1 || true
+          grep -aE "^RES|^    (FAIL|ERROR)|totals|BROKEN|TIMEOUT" suite.log || true
+          grep -q "totals: .* 0 failures, 0 errors, 0 broken" suite.log || { echo "== end of the log =="; tail -60 suite.log; exit 1; }
 
       - name: Keep the log
         if: always()
