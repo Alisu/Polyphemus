@@ -1,12 +1,6 @@
 helpers
 launchStockSpinningTarget
 
-	"The pinned image spinning as the other targets do, but with no watcher of ours: what a
-	user's own wedged image looks like (#27)."
+	"The pinned image spinning as the other targets do, but with no watcher of ours (#27)."
 
-	^ self launchTargetRunning: '| dir |
-dir := ' , self spikeDirectory fullName printString , ' asFileReference.
-[ [ true ] whileTrue: [ (1 to: 1000) do: [ :each | 3 sqrt ] ] ] forkAt: 40.
-(dir / ''started'') ensureCreateFile.
-(Delay forSeconds: ' , self targetLifetime printString , ') wait.
-Smalltalk exitSuccess'
+	^ self launchStockSpinningTargetLooping: '(1 to: 1000) do: [ :each | 3 sqrt ]'
