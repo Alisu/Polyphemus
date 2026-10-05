@@ -1,0 +1,1 @@
+One thread of a process as /proc shows it: its state, the system call it waits in with its arguments, its stack pointer and pc, and the file its pc lies in.

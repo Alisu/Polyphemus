@@ -1,0 +1,20 @@
+{
+	"commentStamp": "",
+	"super": "Object",
+	"category": "Polyphemus-Object-process",
+	"classinstvars": [],
+	"pools": [],
+	"classvars": [],
+	"instvars": [
+		"id",
+		"state",
+		"number",
+		"arguments",
+		"sp",
+		"pc",
+		"location",
+		"wasRunning"
+	],
+	"name": "StuckThread",
+	"type": "normal"
+}

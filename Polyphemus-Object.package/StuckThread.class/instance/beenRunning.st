@@ -1,0 +1,4 @@
+initialization
+beenRunning
+
+	wasRunning := true

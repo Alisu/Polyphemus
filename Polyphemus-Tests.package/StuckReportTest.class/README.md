@@ -1,0 +1,1 @@
+Saying where an image is stuck, from /proc alone (#36): which system call each thread waits in, where its pc is, which signals the VM catches; a running image stopped for a moment to be looked at, and let go.

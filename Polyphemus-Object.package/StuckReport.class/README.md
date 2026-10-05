@@ -1,0 +1,1 @@
+Where a process is stuck, from /proc alone (#36): each thread's system call, pc and the file it lies in, and the signals the process catches. A thread that is running gives no pc, so the process is then stopped for a moment to look, and the report says so.
