@@ -117,6 +117,13 @@ INNER
   local log="$WORK/.class-logs/$c.log"
   out=$(timeout "$limit" ./pharo "$IMAGE" --no-default-preferences st "$script" 2>&1 | tee "$log" | noise | grep -E '^RES |^    (FAIL|ERROR|NOTE)'; exit ${PIPESTATUS[0]})
   rc=$?
+  # VM 9 may refuse to start when mmap offers its heap below the image's base (#31): the class's
+  # own image, like a live target, gets one more start, and says so.
+  if [ $rc -ne 124 ] && ! grep -q "^RES $c " <<< "$out" && grep -q 'cannot find a good memory address' "$log"; then
+    out=$(timeout "$limit" ./pharo "$IMAGE" --no-default-preferences st "$script" 2>&1 | tee "$log" | noise | grep -E '^RES |^    (FAIL|ERROR|NOTE)'; exit ${PIPESTATUS[0]})
+    rc=$?
+    out="$out"$'\n''    NOTE its image did not start (VM 9 found no memory at its base, #31) and was started again'
+  fi
   el=$(( $(date +%s) - start ))
   rm -f "$script"
   if [ $rc -eq 124 ]; then
