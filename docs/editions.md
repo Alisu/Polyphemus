@@ -72,8 +72,9 @@ Image files are relocated when loaded, and both read them.
 
 `bin/gate.sh` runs every edition's suite in turn, about 5 to 15 minutes each depending on how hot
 the box runs (side by side was slower: four performance cores). A commit gates only the edition
-being worked on, and Pharo 10 when shared code changed; every edition gates a push (CLAUDE.md,
-Working agreement).
+being worked on, and Pharo 10 when shared code changed; every edition is run by CI on each push
+(`.github/workflows/editions.yml`, `bin/ci-setup.sh`, five runners side by side, 10 to 20
+minutes; CLAUDE.md, Working agreement).
 
 ## A host setup
 

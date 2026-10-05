@@ -96,6 +96,26 @@ SpurCannotRead: cannot read bytes: itWasNeverQuietWhenStopped
 
 Holding it works whatever it is doing (step 5).
 
+To know where a process is stuck before touching it, from `/proc` alone:
+
+```smalltalk
+Polyphemus whereIsStuck: 175398.
+```
+
+Run on three Pharo 10 targets on 2026-10-05, it printed (addresses shortened):
+
+```
+Process 254646: blocked in a C call, wait4 (no interrupt reaches it)
+  thread 254646 (S): blocked in a C call, wait4 (no interrupt reaches it), pc … in libc.so.6, first argument 254691
+  thread 254688 (S): waiting in clock_nanosleep, pc … in libc.so.6, first argument 0
+  catches SIGHUP SIGILL SIGTRAP SIGABRT SIGBUS SIGFPE SIGUSR1 SIGSEGV SIGALRM SIGTERM SIGIO SIGSYS SIGRT33
+```
+
+for one in `LibC system: 'sleep 600'`; "idle, waiting for events in pselect6" for an idle one
+(epoll_wait from VM 10.3); and for one spinning in a loop "running, in machine code, in Cog's
+code zone" or "in libPharoVMCore.so, in numSlotsOf", having stopped it for a moment and let it
+go, which it says.
+
 ## 4. A dump
 
 ```smalltalk

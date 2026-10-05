@@ -20,7 +20,20 @@ Changes to every edition at once, after `edition/pharo14`.
 - **Memory map (#68).** A tab of the inspector drawing old space by address from raw headers:
   ~7 s to the first picture and 6 ms a pan, where the old space tab takes ~37 s and 10 s.
 - **CI.** Every edition's suite runs on GitHub Actions, side by side, on each push
-  (`.github/workflows/editions.yml`, `bin/ci-setup.sh`).
+  (`.github/workflows/editions.yml`, `bin/ci-setup.sh`). Its first fresh clones found the
+  `.filetree` of five packages ignored by git, and two runs fetching one pinned image at once
+  (#74).
+- **Memory map, more (#68, closed).** New space above old space at the same scale; a click undoes
+  the zoom and the pan; a dump's VMMaker memory holds new space as the VM had it, where it was
+  declared empty (58,012 young objects on the box's core).
+- **Where a process is stuck (#36, first layer).** `Polyphemus whereIsStuck: pid`: each thread's
+  system call, pc (machine code, or the library and the function holding it), and the signals
+  the VM catches, from `/proc`; a running process is stopped a moment to look, and let go.
+- **Intermittents.** #62 fixed: a jitted top frame of the running process lost its pc
+  (`isInstructionPointer:inMethodOf:` refused machine code addresses). #31 worked around: a VM 9
+  target that cannot map its heap is started once more, with a NOTE; each class's log is kept.
+  #73: a written image's special objects array may move when the snapshot compacts. Two tests
+  asserted where a held loop was (flagIn:, the watcher injection).
 
 ## Pharo 14: Polyphemus-Pharo14-Linux-x64-for-Pharo14
 

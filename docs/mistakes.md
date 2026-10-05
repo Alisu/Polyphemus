@@ -123,6 +123,13 @@ object's *class*, went down.
 instance of that class in the same image: `(reader unsignedAt: instance address size: 8) bitAnd:
 16r3FFFFF`, and compare.
 
+**Naming a function by the nearest symbol below an address.** Every system call of a stuck VM
+came out as `sem_trywait`: libc exports only its public functions, and the wrapper the call was
+in is not one of them, so the nearest exported symbol below was some other function
+(2026-10-05).
+→ Name a function only when the address lies within its size (an ELF symbol has one); else
+name the file alone.
+
 ## Reusing what already exists
 
 **Re-deriving the method trailer.** Several probes went into working out how to decode a
@@ -396,6 +403,14 @@ tested in `DirectoryChannelTest`.
 tests in the image *before* the load, since the load was never saved: "0 run", and exit 0.
 -> A test step that reports zero tests has failed. Make it say so.
 
+**Writing again what the next class already did.** To give a dump's VMMaker memory its new
+space, a new method set eden and the survivors as the dumped VM had them; SpurImageFromDump's
+restoreNewSpace had done just that for years, and also set the scavenge threshold the new one
+forgot. The gate caught it: VMMaker's image-loading path asserts new space is empty, and
+restoreNewSpace ran after it on purpose (2026-10-05).
+→ Before writing what a part of the system needs, search the system for who already does it
+(here, `freeStart` and `pastSpaceStart` written anywhere).
+
 ## Searching
 
 **A negative result is only as good as the scope of the search.** Hunting the special objects
@@ -431,6 +446,19 @@ changed no bytecode, and the test failed as if installing were broken (2026-09-3
 stops the target at a quiet moment, which may be its loop's own backward jump (2026-09-29).
 → Assert the premise (the two compilations differ; the context is there) or pick what holds
 whatever the moment.
+
+**Asserting where a held loop was.** Twice a test asked a held target for the context of
+`do:` in its loop `[ true ] whileTrue: [ (1 to: 1000) do: [ ... ] ]` (flagIn:, then
+WatcherInjectionTest): a hold stops it at a quiet moment, which may be the whileTrue: loop's own
+backward jump, outside the do:, about once in a thousand holds (2026-09-29, 2026-10-05).
+→ Assert what holds at every moment (the block given the flag; the process forked at 40), and
+check it with a target that loops without the do: at all, which fails every time.
+
+**Calling a rare failure a flake before it said why.** #62 failed now and then with a bare
+"Assertion failed" for weeks. Once the assertion described the frame, the first failure in CI
+named it: a jitted idle loop, at once on VM 12, so on the box it was reproduced every time and
+fixed the same day (2026-10-05).
+→ Make a rare failure's message say what was seen, then wait for it.
 
 ## Listening
 

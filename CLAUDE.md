@@ -301,9 +301,14 @@ worth its cost; #23 holds what that would take.
   acceptable" CI build time in Hilton et al., FSE 2017):
   - before a commit: the edition being worked on, plus Pharo 10 when shared code changed
     (`bin/gate.sh 13`, `bin/gate.sh 10 13`);
-  - before a push, and before tagging an edition: every edition (`bin/gate.sh`). Nothing reaches
-    GitHub red on any edition; `bin/gate.sh --status` says which editions are behind HEAD, and
-    `~/polyphemus/gate-history.log` keeps every gate's time and CPU peak.
+  - every edition, on each push: GitHub Actions runs all five side by side
+    (`.github/workflows/editions.yml`, since 2026-09-30), so a push follows the commit gate and
+    CI follows the push. A red CI is the next thing fixed. `bin/gate.sh` alone still runs every
+    edition on the box (about an hour, the box at 113 C): kept for a tag, or when CI cannot run.
+    `bin/gate.sh --status` says which editions are behind HEAD, `~/polyphemus/gate-history.log`
+    keeps every gate's time and CPU peak.
+  - the box is shared (2026-10-05): its other services stay up; gates run light
+    (`JOBS=2 nice -n 10 bin/gate.sh 13 10`).
   - A gate compiles the working copy into its editions first, then says `working copy free`:
     edit on, but leave `bin/` alone until it ends, and run `bin/tdd.sh` only on setups the gate
     is not using.
