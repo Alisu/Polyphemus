@@ -6,11 +6,13 @@
 	"pools": [],
 	"classvars": [],
 	"instvars": [
-	 "file",
-	 "bytes",
-	 "symbols",
-	 "buildId",
-	 "variableNames"
+		"file",
+		"bytes",
+		"symbols",
+		"buildId",
+		"variableNames",
+		"byAddress",
+		"sizes"
 	],
 	"name": "ElfSharedObject",
 	"type": "normal"

@@ -14,4 +14,5 @@ readSymbols: aTable strings: aStringTable
 			ifTrue: [
 				name := self stringAt: strings + nameOffset + 1.
 				symbols at: name put: (ElfNote unsignedFrom: self bytes at: at + 8 size: 8).
+				sizes at: name put: (ElfNote unsignedFrom: self bytes at: at + 16 size: 8).
 				((self bytes at: at + 4) bitAnd: 15) = 1 ifTrue: [ variableNames add: name ] ] ]

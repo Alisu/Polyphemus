@@ -9,7 +9,8 @@
 		"pid",
 		"threads",
 		"stoppedToLook",
-		"caughtSignals"
+		"caughtSignals",
+		"codeZone"
 	],
 	"name": "StuckReport",
 	"type": "normal"

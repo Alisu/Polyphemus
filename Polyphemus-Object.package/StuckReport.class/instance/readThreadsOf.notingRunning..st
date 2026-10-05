@@ -8,7 +8,7 @@ readThreadsOf: aProcess notingRunning: earlierThreads
 	files := aProcess mappedFiles.
 	^ ((aProcess pathFor: 'task') asFileReference directories collect: [ :each |
 		   | thread |
-		   thread := StuckThread from: each files: files.
+		   thread := StuckThread from: each files: files codeZone: codeZone.
 		   (earlierThreads anySatisfy: [ :old | old id = thread id and: [ old wasRunning ] ]) ifTrue: [
 			   thread beenRunning ].
 		   thread ]) asSortedCollection: [ :a :b | a id = pid or: [ b id ~= pid and: [ a id < b id ] ] ]

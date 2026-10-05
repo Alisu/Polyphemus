@@ -11,6 +11,8 @@ testAnIdleImageIsSaidToWaitForEvents
 	self assert: report mainThread isWaitingForEvents.
 	self assert: (#( 'pselect6' 'epoll_wait' ) includes: report mainThread systemCallName).
 	self deny: report stoppedToLook.
+	self assert: report codeZone key < report codeZone value.
+	self assert: (report mainThread location beginsWith: 'libc.so.6').
 	self deny: ((report threads copyWithout: report mainThread) anySatisfy: [ :each |
 			 (report descriptionOf: each) includesSubstring: 'no interrupt' ]).
 	self assert: (report printString includesSubstring: 'waiting for events') ] ensure: [

@@ -7,6 +7,7 @@ setPid: aPid
 	| process |
 	pid := aPid.
 	process := LinuxProcessMemory on: aPid.
+	codeZone := self codeZoneOf: process.
 	threads := self readThreadsOf: process.
 	stoppedToLook := false.
 	(threads anySatisfy: [ :each | each wasRunning ]) ifTrue: [

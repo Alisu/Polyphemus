@@ -1,5 +1,5 @@
 initialization
-setTask: aTaskDirectory files: someMappedFiles
+setTask: aTaskDirectory files: someMappedFiles codeZone: anAssociationOrNil
 
 	"From /proc/<pid>/task/<tid>: its state (stat), and its system call with its arguments, sp
 	and pc (syscall: -1 for a thread stopped outside one, running for one that runs)."
@@ -15,8 +15,4 @@ setTask: aTaskDirectory files: someMappedFiles
 		arguments := (fields copyFrom: 2 to: fields size - 2) collect: [ :each | self hexValueOf: each ].
 		sp := self hexValueOf: (fields at: fields size - 1).
 		pc := self hexValueOf: fields last.
-		location := (someMappedFiles
-			             detect: [ :each | pc between: each start and: each stop - 1 ]
-			             ifNone: [ nil ])
-			            ifNil: [ 'anonymous memory (Cog''s code zone is such)' ]
-			            ifNotNil: [ :file | file path asFileReference basename ] ]
+		location := self class locationOf: pc codeZone: anAssociationOrNil files: someMappedFiles ]
