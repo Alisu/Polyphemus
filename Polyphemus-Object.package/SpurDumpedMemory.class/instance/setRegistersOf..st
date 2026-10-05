@@ -7,6 +7,7 @@ setRegistersOf: aMemory
 	| freeListsObject |
 	freeListsObject := raw scanner objectAfter: raw heapStart + 32.
 	self placeSpacesIn: aMemory freeLists: freeListsObject.
+	self takeNewSpaceFromTheDumpIn: aMemory.
 	aMemory lastHash: 1.
 	aMemory specialObjectsOop: raw specialObjectsOop.
 	aMemory setHiddenRootsObj: (raw scanner objectAfter: freeListsObject)
