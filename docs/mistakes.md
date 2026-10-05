@@ -357,6 +357,13 @@ makes.
 
 ## The machine, not the code
 
+**A cache that hid what a fresh checkout does.** CI kept the images of `resources/` between runs,
+the blanked-context copy among them. When a new pin changed the cache key (2026-10-05), the first
+run without it found two classes building that copy at once (FileExists), and a test that only
+looked for it skipping wherever it ran before the builder.
+-> A fixture built on first use is built where another class may read it: build it under a name
+of its own and rename it into place, and have every user ask the builder, never the file.
+
 **A dump written to `/tmp`.** The 204 MB core everything in stage two was developed against
 lived in `/tmp`, and a reboot cleared it. Nothing was lost that could not be remade, but the
 recipe for remaking it existed only in a doc, as prose.
