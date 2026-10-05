@@ -1,8 +1,8 @@
 tests
 testAClickOnAnObjectHandsItsAddressOn
 
-	"The top left pixel is nil's."
+	"Old space's top left pixel is nil's."
 
-	presenter chooseAt: presenter picture mapOrigin.
+	presenter chooseAt: (presenter picture originOf: 2).
 
 	self assert: chosen equals: memory nilObject

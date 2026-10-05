@@ -1,6 +1,6 @@
 accessing
 mapOrigin
 
-	"Where the map's top left pixel is in the picture: the ruler is on its left."
+	"Where the first map's top left pixel is in the picture: the ruler is on its left."
 
-	^ 150 @ 10
+	^ self originOf: 1

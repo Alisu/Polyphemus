@@ -1,4 +1,4 @@
 mapping
 addressAt: aPoint
 
-	^ self geometry addressAt: aPoint - self mapOrigin
+	^ (self sectionAt: aPoint) ifNotNil: [ :index | (self geometryOf: index) addressAt: aPoint - (self originOf: index) ]

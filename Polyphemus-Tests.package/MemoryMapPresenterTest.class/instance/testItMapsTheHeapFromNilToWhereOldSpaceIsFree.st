@@ -1,5 +1,5 @@
 tests
 testItMapsTheHeapFromNilToWhereOldSpaceIsFree
 
-	self assert: presenter picture geometry start equals: memory nilObject.
-	self assert: presenter picture geometry end equals: memory freeOldSpaceStart
+	self assert: (presenter picture geometryOf: 2) start equals: memory nilObject.
+	self assert: (presenter picture geometryOf: 2) end equals: memory freeOldSpaceStart

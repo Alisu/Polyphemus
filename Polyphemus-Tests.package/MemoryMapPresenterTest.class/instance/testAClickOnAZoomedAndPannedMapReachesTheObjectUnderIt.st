@@ -11,7 +11,7 @@ testAClickOnAZoomedAndPannedMapReachesTheObjectUnderIt
 	canvas camera
 		scale: 2;
 		translateTo: 300 @ 40.
-	target := presenter picture mapOrigin + (40 @ 3).
+	target := (presenter picture originOf: 2) + (40 @ 3).
 	pixel := canvas camera fromSpaceToPixel: target.
 	self deny: (presenter picture objectAt: pixel) equals: (presenter picture objectAt: target).
 

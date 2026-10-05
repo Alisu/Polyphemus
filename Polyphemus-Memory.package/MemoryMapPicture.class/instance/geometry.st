@@ -1,4 +1,4 @@
 accessing
 geometry
 
-	^ painter geometry
+	^ self geometryOf: 1

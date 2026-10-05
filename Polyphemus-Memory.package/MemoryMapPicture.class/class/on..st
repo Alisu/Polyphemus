@@ -1,4 +1,4 @@
 instance creation
 on: aMemoryMapPainter
 
-	^ self new setPainter: aMemoryMapPainter
+	^ self onSections: { (nil -> aMemoryMapPainter) }
