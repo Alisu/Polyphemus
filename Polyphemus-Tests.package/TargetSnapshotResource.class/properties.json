@@ -1,0 +1,11 @@
+{
+	"commentStamp": "",
+	"super": "TargetImageResource",
+	"category": "Polyphemus-Tests-resource",
+	"classinstvars": [],
+	"pools": [],
+	"classvars": [],
+	"instvars": [],
+	"name": "TargetSnapshotResource",
+	"type": "normal"
+}

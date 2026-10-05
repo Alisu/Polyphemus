@@ -1,0 +1,1 @@
+The temporaries of the frames a saved image holds, read on the image of the Pharo this edition targets, where the host compiles its methods as the file has them (#6). The Pharo 10 tests these follow skip on Pharo 12 and later, which cannot reproduce Pharo 10's code.

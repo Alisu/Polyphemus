@@ -65,6 +65,12 @@ did, which holds only between close versions (a Pharo 12 or later host refuses o
 a Pharo 10 image). The exact way round that, compiling with the target's own compiler in the
 simulator, is #65.
 
+So the tests that name temporaries run twice: on the Pharo 10 fixture (`SchedulerOnRealImageTest`,
+`ProcessStackOnRealImageTest`), and on the edition's own target image
+(`TemporariesOnTheTargetImageTest`, `FramesOnTheTargetImageTest`). Each skips where its image is
+not reproduced: the first on Pharo 12 and later, the second on Pharo 11, whose host (build
+cf3d3fd) is older than its target `cleanP11.image` (963dc3a). Every edition runs one of them.
+
 Each edition reads processes and dumps with the VMMaker its VM was generated from. VMMaker v10.0.4
 and later tell old from young objects by address masks that hold only at VM 10's fixed addresses,
 so v10.0.5 cannot read a VM 9 heap where it lies, and v10.0.0 does not know VM 10's split memory.

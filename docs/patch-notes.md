@@ -34,6 +34,10 @@ Changes to every edition at once, after `edition/pharo14`.
   target that cannot map its heap is started once more, with a NOTE; each class's log is kept.
   #73: a written image's special objects array may move when the snapshot compacts. Two tests
   asserted where a held loop was (flagIn:, the watcher injection).
+- **Skips.** The tests that name temporaries, skipped on Pharo 12 and later for the Pharo 10
+  fixture, have counterparts on the edition's own image, where they run. `bin/tdd.sh` now reads
+  the setup's `polyphemus.env` as `bin/run-tests.sh` does, so `warm.image` prepares the target's
+  image, not Pharo 10's. A method fix test that looked for one Pharo 10 method runs on any.
 
 ## Pharo 14: Polyphemus-Pharo14-Linux-x64-for-Pharo14
 

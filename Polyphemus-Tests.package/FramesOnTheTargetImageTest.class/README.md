@@ -1,0 +1,1 @@
+A frame of the target's own image, opened as a running VM has it, names its temporaries and finds where its pc is in its source: the host compiles it as the file has it (#6, #4).

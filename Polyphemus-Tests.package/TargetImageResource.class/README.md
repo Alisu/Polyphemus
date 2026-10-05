@@ -1,0 +1,1 @@
+The pinned image of the Pharo this edition targets (POLYPHEMUS_TARGET_PHARO), opened as a running VM has it. Pharo 10's own on the Pharo 10 edition.

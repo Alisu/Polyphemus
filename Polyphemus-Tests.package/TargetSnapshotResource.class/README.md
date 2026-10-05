@@ -1,0 +1,1 @@
+The target's pinned image read as a snapshot: no context married to a frame.
