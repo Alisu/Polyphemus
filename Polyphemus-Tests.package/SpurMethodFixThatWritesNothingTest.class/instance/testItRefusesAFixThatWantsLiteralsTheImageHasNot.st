@@ -6,11 +6,9 @@ testItRefusesAFixThatWantsLiteralsTheImageHasNot
 	rather than installed with the wrong ones."
 
 	| method source |
-	method := self aMethodWithAComparison.
-	method ifNil: [ ^ self fail: 'no method of Integer recompiles here and holds a comparison' ].
+	method := self aMethodWithAComparisonAndAPrimitive.
+	method ifNil: [ ^ self fail: 'no method of Integer or a subclass recompiles here and holds a comparison and a primitive' ].
 	source := method getSourceFromFile.
-	(source includesSubstring: '<primitive:') ifFalse: [
-		^ self skip: 'that method carries no pragma to change' ].
 	source := source copyReplaceAll: '<primitive:' with: '<polyphemusWasHere> <primitive:'.
 
 	self
