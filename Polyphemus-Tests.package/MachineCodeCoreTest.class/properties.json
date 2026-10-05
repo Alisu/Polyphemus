@@ -1,0 +1,13 @@
+{
+	"commentStamp": "",
+	"super": "LiveImageTestCase",
+	"category": "Polyphemus-Tests",
+	"classinstvars": [],
+	"pools": [],
+	"classvars": [
+		"Cores"
+	],
+	"instvars": [],
+	"name": "MachineCodeCoreTest",
+	"type": "normal"
+}

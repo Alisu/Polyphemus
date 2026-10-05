@@ -1,0 +1,1 @@
+A core taken while the VM ran Cog's machine code (#17): its running process's newest frames are only in the thread's registers. The core is taken once for the class, by gdb attaching to a spinning target (pharo-debuggable lets it) until one is caught in machine code.
