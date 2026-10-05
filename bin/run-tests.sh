@@ -69,7 +69,7 @@ run_class() {
 | run |
 [ run := (PolyphemusTestRun of: (TestSuite new addTest: ($c selector: #$ONLY_TEST); yourself)) run.
   '' traceCr. "a line of its own: the simulator leaves its output unfinished (#51)"
-  ('RES $c ', run runCount printString, ' run ', run failureCount printString, ' failures ', run errorCount printString, ' errors') traceCr.
+  ('RES $c ', run runCount printString, ' run ', run failureCount printString, ' failures ', run errorCount printString, ' errors', (run skippedCount > 0 ifTrue: [ ' ', run skippedCount printString, ' skipped' ] ifFalse: [ '' ])) traceCr.
   "What each problem signalled the first time, then what it did when run again (#31)."
   run problems do: [ :each | | again |
     again := run againOf: each key selector.
@@ -87,7 +87,7 @@ INNER
 | run |
 [ run := (PolyphemusTestRun of: $c buildSuite) run.
   '' traceCr. "a line of its own: the simulator leaves its output unfinished (#51)"
-  ('RES $c ', run runCount printString, ' run ', run failureCount printString, ' failures ', run errorCount printString, ' errors') traceCr.
+  ('RES $c ', run runCount printString, ' run ', run failureCount printString, ' failures ', run errorCount printString, ' errors', (run skippedCount > 0 ifTrue: [ ' ', run skippedCount printString, ' skipped' ] ifFalse: [ '' ])) traceCr.
   "What each problem signalled the first time, then what it did when run again (#31)."
   run problems do: [ :each | | again |
     again := run againOf: each key selector.
