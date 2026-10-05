@@ -67,9 +67,11 @@ simulator, is #65.
 
 So the tests that name temporaries run twice: on the Pharo 10 fixture (`SchedulerOnRealImageTest`,
 `ProcessStackOnRealImageTest`), and on the edition's own target image
-(`TemporariesOnTheTargetImageTest`, `FramesOnTheTargetImageTest`). Each skips where its image is
-not reproduced: the first on Pharo 12 and later, the second on Pharo 11, whose host (build
-cf3d3fd) is older than its target `cleanP11.image` (963dc3a). Every edition runs one of them.
+(`TemporariesOnTheTargetImageTest`, `FramesOnTheTargetImageTest`). The first skips on Pharo 12 and
+later, whose hosts do not reproduce Pharo 10's code; the second runs on every edition, since each
+targets the very build its host is made from (`bin/ci-setup.sh`, checked by
+`PharoImageAccessorTest`). Pharo 11 targeted build 750 until 2026-10-05, newer than its host's 688,
+and skipped there.
 
 Each edition reads processes and dumps with the VMMaker its VM was generated from. VMMaker v10.0.4
 and later tell old from young objects by address masks that hold only at VM 10's fixed addresses,

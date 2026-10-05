@@ -9,7 +9,7 @@ testEveryVersionWeTargetIsPinnedWithItsSources
 		self assert: (PharoImageAccessor sourcesNameForPharo: version) notNil ].
 	self
 		assert: (PharoImageAccessor downloadNameForPharo: 11)
-		equals: 'Pharo11-SNAPSHOT.build.750.sha.963dc3a7de.arch.64bit'.
+		equals: 'Pharo11-SNAPSHOT.build.688.sha.cf3d3fd.arch.64bit'.
 	self
 		assert: (PharoImageAccessor sourcesNameForPharo: 11)
-		equals: 'Pharo11.0-64bit-963dc3a.sources'
+		equals: 'Pharo11.0-64bit-cf3d3fd.sources'

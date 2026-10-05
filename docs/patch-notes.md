@@ -12,7 +12,7 @@ Changes to every edition at once, after `edition/pharo14`.
 
 - **Speed pass (#44).** The fix, install and edit tests read the pinned image of the Pharo the
   edition targets, where every edition read Pharo 10's: on Pharo 11, 218 s → 169 s for those four
-  classes. Pharo 11's image is pinned (build 750). Running them there found three things: a held
+  classes. Pharo 11's image is pinned (build 750, then 688, its host's: see Skips). Running them there found three things: a held
   target stopped outside `do:` (`flagIn:`), Pharo 14 refusing a written image without its
   `.changes`, and a swap that changed no bytecode on Pharo 12's image.
 - **Shared directories (#72).** Made until they exist, so runs side by side no longer lose the race
@@ -38,6 +38,8 @@ Changes to every edition at once, after `edition/pharo14`.
   fixture, have counterparts on the edition's own image, where they run. `bin/tdd.sh` now reads
   the setup's `polyphemus.env` as `bin/run-tests.sh` does, so `warm.image` prepares the target's
   image, not Pharo 10's. A method fix test that looked for one Pharo 10 method runs on any.
+  Pharo 11 now targets build 688, the build its host is made from, where it targeted 750: its
+  host could not reproduce 750's methods, so the counterparts skipped there.
 
 ## Pharo 14: Polyphemus-Pharo14-Linux-x64-for-Pharo14
 
