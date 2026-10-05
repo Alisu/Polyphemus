@@ -20,6 +20,6 @@ testTheRunningProcessOfAStoppedImageShowsItsStack
 
 	self assert: stack notEmpty.
 	self assert: stack first isStackFrame.
-	self assert: stack first pc notNil ] ensure: [
+	self assert: stack first pc notNil description: [ self whyHasNoPc: stack first ] ] ensure: [
 		LibC system: 'kill ' , pid printString.
 		reader ifNotNil: [ reader close ] ]
