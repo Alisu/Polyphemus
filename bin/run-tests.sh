@@ -112,7 +112,10 @@ INNER
     limit=$(( known * 3 ))
     [ "$limit" -lt "$TMO" ] && limit="$TMO"
   fi
-  out=$(timeout "$limit" ./pharo "$IMAGE" --no-default-preferences st "$script" 2>/dev/null | noise | grep -E '^RES |^    (FAIL|ERROR)'; exit ${PIPESTATUS[0]})
+  # The whole output, stderr too, stays in .class-logs: a class that dies says why there (#31).
+  mkdir -p "$WORK/.class-logs"
+  local log="$WORK/.class-logs/$c.log"
+  out=$(timeout "$limit" ./pharo "$IMAGE" --no-default-preferences st "$script" 2>&1 | tee "$log" | noise | grep -E '^RES |^    (FAIL|ERROR|NOTE)'; exit ${PIPESTATUS[0]})
   rc=$?
   el=$(( $(date +%s) - start ))
   rm -f "$script"
@@ -121,8 +124,11 @@ INNER
   elif ! grep -q "^RES $c " <<< "$out"; then
     # The image died, or printed nothing: a class that did not report is broken, not absent.
     echo "RES $c BROKEN no result (exit $rc)"
+    tail -n 5 "$log" | tr -d '\033' | sed 's/^/    | /'
   else
-    echo "$out" | sed "1s/\$/ (${el}s)/"
+    # NOTE lines (a target started again, #31) come after the class's result line.
+    grep -v '^    NOTE' <<< "$out" | sed "1s/\$/ (${el}s)/"
+    grep '^    NOTE' <<< "$out" || true
     # Only a class that passed says what it costs: a failing one can hang for its whole budget.
     [ -z "${ONLY_TEST:-}" ] && grep -q " 0 failures 0 errors" <<< "$out" && echo "$c $el" >> "$TIMINGS.new"
   fi

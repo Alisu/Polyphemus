@@ -57,7 +57,7 @@ jobs:
           ln -sfn "$GITHUB_WORKSPACE" ~/setup/Polyphemus
           # No timings yet on a fresh runner: a class gets TMO seconds, not three times its last run.
           WORK=~/setup TMO=1800 bin/tdd.sh --all -j 4 > suite.log 2>&1 || true
-          grep -aE "^RES|^    (FAIL|ERROR)|totals|BROKEN|TIMEOUT" suite.log || true
+          grep -aE "^RES|^    (FAIL|ERROR|NOTE|\|)|totals|BROKEN|TIMEOUT" suite.log || true
           grep -q "totals: .* 0 failures, 0 errors, 0 broken" suite.log || { echo "== end of the log =="; tail -60 suite.log; exit 1; }
 
       - name: Keep the core when the suite fails
@@ -76,3 +76,4 @@ jobs:
           path: |
             suite.log
             ~/setup/load.log
+            ~/setup/.class-logs

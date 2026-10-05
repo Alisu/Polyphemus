@@ -1,0 +1,1 @@
+When a live test may start its target again (#31): only when VM 9 says it could not map its heap where the image asks, which it does at random now and then. Any other failure to start stays a failure.
