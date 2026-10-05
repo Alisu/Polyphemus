@@ -40,6 +40,13 @@ Changes to every edition at once, after `edition/pharo14`.
   image, not Pharo 10's. A method fix test that looked for one Pharo 10 method runs on any.
   Pharo 11 now targets build 688, the build its host is made from, where it targeted 750: its
   host could not reproduce 750's methods, so the counterparts skipped there.
+- **Fresh checkouts.** The blanked-context copy is built under a name of its own and renamed into
+  place, so two classes building it at once both leave it whole; `SpurImageFileTest` asks for it
+  rather than skipping when it is absent. A class whose own image VM 9 cannot start (#31) is
+  started once more by `bin/run-tests.sh`, with a NOTE.
+- **A frame being built (#17).** A core whose newest frame's method field still held stale stack
+  contents (below the heap, outside the code zone) raised an MNU; that frame is now refused. The
+  code zone of a VM 9 dump is codeBase to limitAddress, where it was anything below the heap.
 
 ## Pharo 14: Polyphemus-Pharo14-Linux-x64-for-Pharo14
 
