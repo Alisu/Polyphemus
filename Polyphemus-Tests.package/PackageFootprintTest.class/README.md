@@ -1,0 +1,1 @@
+What each package of an image owns, in bytes (#69): its classes and metaclasses, their method dictionaries, and their methods with their blocks and method state. Read on the edition's own target image, so Pharo 10-11 (a class names its category, packages are RPackages) and Pharo 12-14 (a class holds its PackageTag) are both covered in CI.

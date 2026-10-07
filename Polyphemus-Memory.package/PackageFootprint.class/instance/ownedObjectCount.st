@@ -1,0 +1,4 @@
+accessing
+ownedObjectCount
+
+	^ owned size

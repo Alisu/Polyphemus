@@ -47,6 +47,12 @@ Changes to every edition at once, after `edition/pharo14`.
 - **What an image is made of (#69).** `HeapCensus of: anObjectMemory`: instances and bytes per
   class, read from raw headers in one walk (the Pharo 10 image in ~2 s). Its counts match an
   independent reader of the file, whose measures of all five editions are on #69.
+- **What each package owns (#69).** `PackageFootprint of: anObjectMemory`: per package, its classes
+  and metaclasses, method dictionaries, methods, blocks and method state, each object counted once
+  (extension methods with the class's package; what class variables keep alive is not counted). A
+  class's package is read from the image: its PackageTag from Pharo 12, the longest RPackage name
+  its category starts with before. Packages own 20.6 MB of Pharo 10's 57.5 MB; the 242–264 test
+  packages own 6.3 MB on Pharo 11 and 6.6 MB on Pharo 14, ~11% of each image.
 - **A frame being built (#17).** A core whose newest frame's method field still held stale stack
   contents (below the heap, outside the code zone) raised an MNU; that frame is now refused. The
   code zone of a VM 9 dump is codeBase to limitAddress, where it was anything below the heap.

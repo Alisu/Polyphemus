@@ -15,6 +15,8 @@ warm value: 'pharo 10 snapshot' value: [
 	Pharo10SnapshotResource availableFor: SchedulerOnRealImageTest new ].
 warm value: 'heap census' value: [
 	HeapCensusResource availableFor: HeapCensusTest new ].
+warm value: 'package footprint' value: [
+	PackageFootprintResource availableFor: PackageFootprintTest new ].
 warm value: 'target snapshot' value: [
 	TargetSnapshotResource availableFor: TemporariesOnTheTargetImageTest new ].
 warm value: 'target image' value: [
