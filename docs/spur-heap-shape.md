@@ -194,6 +194,11 @@ stacks the garbage collector uses -- the mark stack and the weakling stack, whos
 `ObjStackPageSlots` (4092) slots of format 9, which is why they read as large word arrays
 rather than as anything recognisable.
 
+**The end of a saved heap is a segment bridge**: the last 16 bytes of every pinned image, Pharo 10
+to 14, are an object of class index 3 (`segmentBridgePun`), no slots, format 9, **pinned**. So a
+walk of an image file finds two pinned headers: the bridge and the remembered set (read by an
+independent reader of the file, 2026-10-06).
+
 **The special objects array is not among them.** It is not reachable from the hidden roots at
 all: the VM keeps it in a variable of its own, and a snapshot writes it into the *image
 header* -- which is a structure of the file, not of the memory, so a core dump has no copy of

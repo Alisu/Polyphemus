@@ -78,9 +78,12 @@ The Spur header starts with two **32 bit** fields, then words:
 |---|---|---|---|
 | 0 | 4 | image version | 68021 (Spur, 64 bit) |
 | 4 | 4 | header size | 128 |
-| 8 | 8 | data size | 59112800 (+128 = the file size) |
+| 8 | 8 | data size | 57466832 (+128 = the file size) |
 | 16 | 8 | old base address | 377916416 |
-| 24 | 8 | special objects oop | 392438448 |
+| 24 | 8 | special objects oop | 390923032 |
+
+Until 2026-10-07 this table gave 59112800 and 392438448, the header of the Pharo 10 setup's own
+`Pharo.image` (another build), not of the fixture; the base address and `delta` were right.
 
 The simulator loads the heap wherever it likes, so an address it reports is the address in the
 file shifted by a constant. The shift is worked out from the one object whose place in the file
