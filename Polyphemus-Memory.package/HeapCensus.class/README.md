@@ -1,0 +1,1 @@
+How many objects of each class old space holds, and how many bytes they take, headers included (#69). Read from raw headers with the memory map's scanner, so it costs one walk, not a reification of every object. Works on any object memory Polyphemus loads: an image file, a dump.

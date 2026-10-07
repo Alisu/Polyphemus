@@ -13,6 +13,8 @@ warm value: 'candle snapshot' value: [
 	CandleSnapshotResource availableFor: SchedulerReificationTest new ].
 warm value: 'pharo 10 snapshot' value: [
 	Pharo10SnapshotResource availableFor: SchedulerOnRealImageTest new ].
+warm value: 'heap census' value: [
+	HeapCensusResource availableFor: HeapCensusTest new ].
 warm value: 'target snapshot' value: [
 	TargetSnapshotResource availableFor: TemporariesOnTheTargetImageTest new ].
 warm value: 'target image' value: [

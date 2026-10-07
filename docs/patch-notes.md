@@ -44,6 +44,9 @@ Changes to every edition at once, after `edition/pharo14`.
   place, so two classes building it at once both leave it whole; `SpurImageFileTest` asks for it
   rather than skipping when it is absent. A class whose own image VM 9 cannot start (#31) is
   started once more by `bin/run-tests.sh`, with a NOTE.
+- **What an image is made of (#69).** `HeapCensus of: anObjectMemory`: instances and bytes per
+  class, read from raw headers in one walk (the Pharo 10 image in ~2 s). Its counts match an
+  independent reader of the file, whose measures of all five editions are on #69.
 - **A frame being built (#17).** A core whose newest frame's method field still held stale stack
   contents (below the heap, outside the code zone) raised an MNU; that frame is now refused. The
   code zone of a VM 9 dump is codeBase to limitAddress, where it was anything below the heap.

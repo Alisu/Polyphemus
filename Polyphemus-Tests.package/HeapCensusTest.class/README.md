@@ -1,0 +1,1 @@
+How many objects of each class an image holds, and how many bytes they take (#69), checked on the pinned Pharo 10 image against what an independent reader of the file counted on 2026-10-06 (posted on #69).

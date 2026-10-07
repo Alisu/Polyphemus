@@ -1,0 +1,15 @@
+{
+	"commentStamp": "",
+	"super": "Object",
+	"category": "Polyphemus-Memory-Census",
+	"classinstvars": [],
+	"pools": [],
+	"classvars": [],
+	"instvars": [
+		"name",
+		"count",
+		"bytes"
+	],
+	"name": "HeapCensusLine",
+	"type": "normal"
+}
