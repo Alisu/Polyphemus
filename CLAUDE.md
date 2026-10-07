@@ -17,9 +17,10 @@ Three stages, in order:
    `bereaveAllMarriedContextsForSnapshot…`), so stage 1 walks reified contexts, never frames.
 2. **Stage 2 (done)** — debug a crashed/hung *process* (core dump first, live attach later).
    A dump *has* frames, which is the whole reason for it: they are what a snapshot throws away.
-3. **Stage 3 (current)** — a *live* image: interrupt it, hold it, read it, fix it, let it go.
-   Much of it arrived with stage 2's editing work; what is left, and what is only believed
-   rather than checked, is in `docs/stage3-live-image.md`.
+3. **Stage 3 (done)** — a *live* image: interrupt it, hold it, read it, fix it, let it go.
+   Much of it arrived with stage 2's editing work; what it does, and what is only believed
+   rather than checked, is in `docs/stage3-live-image.md`. Next: an edition per operating system
+   (Windows x64 first, `docs/handover-windows.md`, then macOS), then #47, many instances at once.
 
 ## Environment (on the Ubuntu box, `~/polyphemus`)
 
