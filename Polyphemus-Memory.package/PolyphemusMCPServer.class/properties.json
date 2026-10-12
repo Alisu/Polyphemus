@@ -1,0 +1,14 @@
+{
+	"commentStamp": "",
+	"super": "Object",
+	"category": "Polyphemus-Memory-MCP",
+	"classinstvars": [],
+	"pools": [],
+	"classvars": [],
+	"instvars": [
+		"images",
+		"opened"
+	],
+	"name": "PolyphemusMCPServer",
+	"type": "normal"
+}

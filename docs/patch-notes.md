@@ -53,6 +53,10 @@ Changes to every edition at once, after `edition/pharo14`.
   class's package is read from the image: its PackageTag from Pharo 12, the longest RPackage name
   its category starts with before. Packages own 20.6 MB of Pharo 10's 57.5 MB; the 242–264 test
   packages own 6.3 MB on Pharo 11 and 6.6 MB on Pharo 14, ~11% of each image.
+- **An MCP server (#71, first slice).** `bin/polyphemus-mcp.sh`, started by an agent through ssh:
+  `open_image`, `census`, `packages` on image files, all read-only, in the observer image only
+  (`docs/mcp.md`). Standard output is kept for the protocol: VMMaker v10.3+ traces `Spur Image
+  Format detected` there on every load, now sent to standard error.
 - **A frame being built (#17).** A core whose newest frame's method field still held stale stack
   contents (below the heap, outside the code zone) raised an MNU; that frame is now refused. The
   code zone of a VM 9 dump is codeBase to limitAddress, where it was anything below the heap.

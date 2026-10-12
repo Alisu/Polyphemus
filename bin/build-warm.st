@@ -17,6 +17,8 @@ warm value: 'heap census' value: [
 	HeapCensusResource availableFor: HeapCensusTest new ].
 warm value: 'package footprint' value: [
 	PackageFootprintResource availableFor: PackageFootprintTest new ].
+warm value: 'mcp server' value: [
+	PolyphemusMCPServerResource availableFor: PolyphemusMCPImageToolsTest new ].
 warm value: 'target snapshot' value: [
 	TargetSnapshotResource availableFor: TemporariesOnTheTargetImageTest new ].
 warm value: 'target image' value: [
