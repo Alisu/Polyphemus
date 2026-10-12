@@ -12,7 +12,9 @@ call: someParams
 		            ('packages' -> #packages:).
 		            ('open_core' -> #openCore:).
 		            ('processes' -> #processes:).
-		            ('stack' -> #stack:) } asDictionary
+		            ('stack' -> #stack:).
+		            ('inspect' -> #inspect:).
+		            ('where_stuck' -> #whereStuck:) } asDictionary
 		            at: name
 		            ifAbsent: [ ^ PolyphemusMCPError signal: 'Unknown tool: ' , name printString code: -32602 ].
 	^ [ self perform: selector with: arguments ]

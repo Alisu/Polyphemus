@@ -35,4 +35,16 @@ tools
 					    at: 'process' put: (self schema: 'integer' saying: 'Its number, as processes answers it.');
 					    at: 'depth' put: (self schema: 'integer' saying: 'How many frames, 20 if not given.');
 					    yourself)
-			   required: #( 'handle' 'process' )) }
+			   required: #( 'handle' 'process' )).
+		  (self tool: 'inspect'
+			   description: 'An object of an opened image or core, by its address (processes and stack give addresses): its class, format, named slots with their values, the first indexable ones, a string''s characters. Each slot that holds an object gives its address, to inspect in turn.'
+			   properties: (Dictionary new
+					    at: 'handle' put: (self schema: 'string' saying: 'As answered by open_image or open_core.');
+					    at: 'address' put: (self schema: 'integer' saying: 'The object''s address.');
+					    at: 'limit' put: (self schema: 'integer' saying: 'How many indexable slots, 20 if not given.');
+					    yourself)
+			   required: #( 'handle' 'address' )).
+		  (self tool: 'where_stuck'
+			   description: 'Where a running Pharo VM is, on Linux, from /proc: for each thread the system call it waits in, or where its pc is (machine code, a library and its function), and the signals the VM catches. A process that is running rather than waiting is stopped for a moment to look, then let go; nothing in it is changed. Needs permission to read that process (an ancestor, or bin/pharo-debuggable).'
+			   properties: (Dictionary new at: 'pid' put: (self schema: 'integer' saying: 'The process id of the Pharo VM.'); yourself)
+			   required: #( 'pid' )) }

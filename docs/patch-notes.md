@@ -58,7 +58,8 @@ Changes to every edition at once, after `edition/pharo14`.
   (`docs/mcp.md`). Standard output is kept for the protocol: VMMaker v10.3+ traces `Spur Image
   Format detected` there on every load, now sent to standard error. Second slice: `open_core`,
   `processes`, `stack` (temporaries by name, or by number with the reason where the host cannot
-  compile the image's method as it did).
+  compile the image's method as it did). Then `inspect`, following addresses from slot to slot, and
+  `where_stuck(pid)` (`StuckReport`).
 - **A frame being built (#17).** A core whose newest frame's method field still held stale stack
   contents (below the heap, outside the code zone) raised an MNU; that frame is now refused. The
   code zone of a VM 9 dump is codeBase to limitAddress, where it was anything below the heap.

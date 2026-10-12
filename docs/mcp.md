@@ -32,6 +32,14 @@ claude mcp add polyphemus -- ssh worker-box '~/polyphemus/Polyphemus/bin/polyphe
 | `open_core(path)` | A handle on a core dump of a VM (up to a minute to read), for `processes` and `stack` |
 | `processes(handle)` | Each Smalltalk process, numbered: state, priority, name, depth, the method on top |
 | `stack(handle, process, depth)` | Its frames: method, the statement it was in, receiver, temporaries and values |
+| `inspect(handle, address, limit)` | An object: class, format, named slots and the first indexable ones, a string's characters |
+| `where_stuck(pid)` | Where a running VM is, from `/proc`: each thread's system call or pc, the signals it catches |
+
+`processes` and `stack` give the address of each process, receiver and temporary value, and
+`inspect` the address of each slot that holds an object, so an agent follows references from one
+to the next. `where_stuck` reads a live process: one that is running rather than waiting is
+stopped for a moment to look, then let go, and nothing in it changes; it needs permission to read
+that process (an ancestor, or `bin/pharo-debuggable`).
 
 `census` and `packages` read image files; on a core they say so. A frame's temporaries are named
 only where this host compiles its method as the image did (#6): on another version's image their
@@ -51,5 +59,5 @@ Pharo 10 to 14 before writing it: Pharo itself writes nothing to stdout under
 
 ## Not yet
 
-Running images, `inspect` (an object's slots), `where_stuck`; tools that change a target (hold, step,
+Reading a running image's objects (`readProcess:`); tools that change a target (hold, step,
 edit), which will be annotated as such; HTTP, for several clients or other machines (#70).
