@@ -9,7 +9,10 @@ call: someParams
 	selector := {
 		            ('open_image' -> #openImage:).
 		            ('census' -> #census:).
-		            ('packages' -> #packages:) } asDictionary
+		            ('packages' -> #packages:).
+		            ('open_core' -> #openCore:).
+		            ('processes' -> #processes:).
+		            ('stack' -> #stack:) } asDictionary
 		            at: name
 		            ifAbsent: [ ^ PolyphemusMCPError signal: 'Unknown tool: ' , name printString code: -32602 ].
 	^ [ self perform: selector with: arguments ]

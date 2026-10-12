@@ -12,6 +12,7 @@ openImage: someArguments
 			 at: #path put: path;
 			 at: #memory put: memory;
 			 at: #census put: census;
+			 at: #reified put: nil;
 			 yourself).
 	^ self
 		  text: 'Opened ' , path , ' as ' , handle , ': ' , census objectCount printString , ' objects, '

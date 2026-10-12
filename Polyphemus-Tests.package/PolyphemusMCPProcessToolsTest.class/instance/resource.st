@@ -1,0 +1,4 @@
+running
+resource
+
+	^ PolyphemusMCPProcessResource current

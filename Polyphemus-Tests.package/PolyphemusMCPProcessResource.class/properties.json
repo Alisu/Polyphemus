@@ -1,0 +1,16 @@
+{
+	"commentStamp": "",
+	"super": "TestResource",
+	"category": "Polyphemus-Tests",
+	"classinstvars": [],
+	"pools": [],
+	"classvars": [],
+	"instvars": [
+		"server",
+		"target",
+		"pharo10",
+		"core"
+	],
+	"name": "PolyphemusMCPProcessResource",
+	"type": "normal"
+}

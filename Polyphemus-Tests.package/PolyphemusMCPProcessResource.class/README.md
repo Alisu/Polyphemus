@@ -1,0 +1,1 @@
+An MCP server that opened, through its own tools and outside any test's time limit: the edition's own target image (its temporaries can be named), the pinned Pharo 10 image (on Pharo 12 and later they cannot), and the setup's core dump when there is one. It lists each one's processes once, which reads them.

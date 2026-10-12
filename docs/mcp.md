@@ -29,6 +29,13 @@ claude mcp add polyphemus -- ssh worker-box '~/polyphemus/Polyphemus/bin/polyphe
 | `open_image(path)` | A handle, and how many objects and bytes the image's old space holds. Reads the file; nothing runs in it |
 | `census(handle, top)` | Instances and bytes of each class, the heaviest first (`HeapCensus`) |
 | `packages(handle, top)` | What each package owns, the heaviest first (`PackageFootprint`) |
+| `open_core(path)` | A handle on a core dump of a VM (up to a minute to read), for `processes` and `stack` |
+| `processes(handle)` | Each Smalltalk process, numbered: state, priority, name, depth, the method on top |
+| `stack(handle, process, depth)` | Its frames: method, the statement it was in, receiver, temporaries and values |
+
+`census` and `packages` read image files; on a core they say so. A frame's temporaries are named
+only where this host compiles its method as the image did (#6): on another version's image their
+values come by number, with a note saying why, and the edition made for that image names them.
 
 Every tool is annotated read-only. A tool that fails says so in its result (`isError`, with the
 reason), for the agent to read; JSON-RPC errors are kept for the protocol's own (unknown method,
@@ -44,5 +51,5 @@ Pharo 10 to 14 before writing it: Pharo itself writes nothing to stdout under
 
 ## Not yet
 
-Cores and running images, processes and stacks, objects; tools that change a target (hold, step,
+Running images, `inspect` (an object's slots), `where_stuck`; tools that change a target (hold, step,
 edit), which will be annotated as such; HTTP, for several clients or other machines (#70).

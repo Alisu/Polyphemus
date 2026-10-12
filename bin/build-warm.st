@@ -19,6 +19,8 @@ warm value: 'package footprint' value: [
 	PackageFootprintResource availableFor: PackageFootprintTest new ].
 warm value: 'mcp server' value: [
 	PolyphemusMCPServerResource availableFor: PolyphemusMCPImageToolsTest new ].
+warm value: 'mcp processes' value: [
+	PolyphemusMCPProcessResource availableFor: PolyphemusMCPProcessToolsTest new ].
 warm value: 'target snapshot' value: [
 	TargetSnapshotResource availableFor: TemporariesOnTheTargetImageTest new ].
 warm value: 'target image' value: [
