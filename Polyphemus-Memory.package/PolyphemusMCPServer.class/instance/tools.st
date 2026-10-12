@@ -47,4 +47,8 @@ tools
 		  (self tool: 'where_stuck'
 			   description: 'Where a running Pharo VM is, on Linux, from /proc: for each thread the system call it waits in, or where its pc is (machine code, a library and its function), and the signals the VM catches. A process that is running rather than waiting is stopped for a moment to look, then let go; nothing in it is changed. Needs permission to read that process (an ancestor, or bin/pharo-debuggable).'
 			   properties: (Dictionary new at: 'pid' put: (self schema: 'integer' saying: 'The process id of the Pharo VM.'); yourself)
+			   required: #( 'pid' )).
+		  (self tool: 'open_process'
+			   description: 'Read a running Pharo VM''s memory on Linux, from /proc: it is held still while it is copied, at a moment it is quiet, then let go, and nothing in it is changed. Answers a handle for processes, stack and inspect, on that moment: the image runs on after it. Refused, with the reason, if the process is not a Pharo VM, cannot be read (an ancestor, or bin/pharo-debuggable, may read it) or never goes quiet.'
+			   properties: (Dictionary new at: 'pid' put: (self schema: 'integer' saying: 'The process id of the Pharo VM.'); yourself)
 			   required: #( 'pid' )) }
