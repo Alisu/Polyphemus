@@ -6,7 +6,7 @@ testAnIdleImageIsSaidToWaitForEvents
 	| pid report |
 	pid := self launchObservableTarget.
 	[
-	report := Polyphemus whereIsStuck: pid.
+	report := self idleReportOf: pid.
 
 	self assert: report mainThread isWaitingForEvents.
 	self assert: (#( 'pselect6' 'epoll_wait' ) includes: report mainThread systemCallName).
