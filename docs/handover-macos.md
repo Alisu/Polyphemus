@@ -114,7 +114,8 @@ while read.
    port as an ELF core (`ElfCoreWriter`, shared with Linux; e_machine AArch64), and
    `readCoreDump:` reads it back with its processes, as root. It leaves out what lies in
    submaps: macOS maps the shared libraries cache there, 4.7 of 5.5 GB readable in a Pharo
-   process. Still to add: each thread's registers as notes (for item 1). Then the hold,
+   process. Each thread's registers go in as `NT_PRSTATUS` notes (aarch64 layout; read back by
+   `ElfCoreDump>>threadRegisters`, every stack pointer inside the core, as root). Then the hold,
    stepping and editing.
 
 Measured on this VM (v10.3.11, Darwin arm64): `value:value:value:value:value:`'s primitive

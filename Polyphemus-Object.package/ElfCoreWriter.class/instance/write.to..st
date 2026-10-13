@@ -6,7 +6,7 @@ write: someSegments to: aFileReference
 	| headerSize offset readable note |
 	readable := someSegments select: [ :each |
 		            (memory bytesAt: each address count: 8) notNil ].
-	note := self fileNote.
+	note := self fileNote , self threadNotes.
 	headerSize := 64 + (readable size + 1 * 56).
 	aFileReference ensureDelete.
 	aFileReference binaryWriteStreamDo: [ :out |

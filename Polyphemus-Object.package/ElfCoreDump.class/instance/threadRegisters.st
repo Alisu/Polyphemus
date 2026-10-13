@@ -1,15 +1,18 @@
 accessing
 threadRegisters
 
-	"The registers of each thread, from the NT_PRSTATUS notes: name -> value, in the order
-	of x86-64's user_regs_struct, which starts 112 bytes into the note. Empty for another
-	machine."
+	"Each thread's registers from the NT_PRSTATUS notes, name -> value, laid out from 112 bytes
+	in: x86-64's user_regs_struct, or aarch64's user_pt_regs. Empty for another machine."
 
-	| names threads |
-	(ElfNote unsignedFrom: (self bytesAtOffset: 0 count: 20) at: 19 size: 2) = 62 ifFalse: [
-		^ #(  ) ].
-	names := #( #r15 #r14 #r13 #r12 #rbp #rbx #r11 #r10 #r9 #r8 #rax #rcx #rdx #rsi #rdi
-	            #orig_rax #rip #cs #eflags #rsp #ss ).
+	| machine names threads |
+	machine := ElfNote unsignedFrom: (self bytesAtOffset: 0 count: 20) at: 19 size: 2.
+	names := machine = 62
+		         ifTrue: [
+			         #( #r15 #r14 #r13 #r12 #rbp #rbx #r11 #r10 #r9 #r8 #rax #rcx #rdx #rsi #rdi
+			            #orig_rax #rip #cs #eflags #rsp #ss ) ]
+		         ifFalse: [
+			         machine = 183 ifFalse: [ ^ #(  ) ].
+			         ((0 to: 28) collect: [ :i | ('x' , i printString) asSymbol ]) , #( #fp #lr #sp #pc #pstate ) ].
 	threads := OrderedCollection new.
 	(segments select: [ :each | each kind = 4 ]) do: [ :notes |
 		ElfNote
