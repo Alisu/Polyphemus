@@ -5,7 +5,7 @@ readProcess: aPid
 	quiet (#66). Refused, with the reason, if missing, not Pharo, unreadable, or never quiet."
 
 	| reader dumped |
-	reader := LinuxProcessMemory on: aPid.
+	reader := PolyphemusMadeFor current processMemoryClass on: aPid.
 	[ reader whileStoppedWhenQuiet: [
 		  dumped := SpurDumpedMemory on: reader.
 		  dumped raw bytes ] ] ensure: [ reader close ].

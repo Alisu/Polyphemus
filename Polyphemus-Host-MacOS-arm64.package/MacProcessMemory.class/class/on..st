@@ -1,12 +1,16 @@
 instance creation
 on: aPid
 
-	"Its task port, which macOS gives a root observer when the target is not hardened."
+	"A reader through its task port, or CannotReadProcess saying why, as on Linux: no such
+	process, the system refused (not root, or a hardened VM), or not a Pharo VM."
 
-	| port result |
+	| reader port |
+	reader := self new setTask: nil pid: aPid.
+	reader exists ifFalse: [ ^ (CannotReadProcess new pid: aPid reason: #noSuchProcess) signal ].
 	port := self pinned: 4.
-	result := self taskForPid: aPid from: self selfTask into: port.
-	result = 0 ifFalse: [
-		self error: 'macOS refused the task port of process ' , aPid printString , ' (kern_return '
-			, result printString , '): run the observer as root; a hardened VM refuses even root' ].
-	^ self new setTask: (port unsignedLongAt: 1) pid: aPid
+	(self taskForPid: aPid from: self selfTask into: port) = 0 ifFalse: [
+		^ (CannotReadProcess new pid: aPid reason: #theOperatingSystemRefused) signal ].
+	reader setTask: (port unsignedLongAt: 1) pid: aPid.
+	reader isPharoVirtualMachine ifFalse: [
+		^ (CannotReadProcess new pid: aPid reason: #notAPharoVirtualMachine) signal ].
+	^ reader
