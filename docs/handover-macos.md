@@ -110,5 +110,12 @@ while read.
    Whether a VM is quiet when stopped is not measured on macOS yet. Measured: macOS refuses
    even root the task port of its own binaries (`/bin/sleep`).
 3. `where_stuck` on macOS: each thread's state and pc (`task_threads`, `thread_get_state`).
-4. A core of a stock VM (Polyphemus writing one from the task port, as `writeDumpTo:` does on
-   Linux), then the hold, stepping and editing.
+4. ~~A core of a stock VM~~ **Done**: `Polyphemus dumpProcess:to:` writes one through the task
+   port as an ELF core (`ElfCoreWriter`, shared with Linux; e_machine AArch64), and
+   `readCoreDump:` reads it back with its processes, as root. It leaves out what lies in
+   submaps: macOS maps the shared libraries cache there, 4.7 of 5.5 GB readable in a Pharo
+   process. Still to add: each thread's registers as notes (for item 1). Then the hold,
+   stepping and editing.
+
+Measured on this VM (v10.3.11, Darwin arm64): `value:value:value:value:value:`'s primitive
+fails, as on Pharo 14's VM 12.0.5-beta: pass five values with `valueWithArguments:`.

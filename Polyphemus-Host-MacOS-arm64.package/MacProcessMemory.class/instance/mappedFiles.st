@@ -6,7 +6,7 @@ mappedFiles
 	| found path |
 	found := OrderedCollection new.
 	path := self class pinned: 1024.
-	self regionsDo: [ :from :bytes :protection :offset |
+	self regionsDo: [ :from :bytes :protection :offset :depth |
 		| length |
 		length := self class fileOf: pid at: from into: path size: 1024.
 		length > 0 ifTrue: [

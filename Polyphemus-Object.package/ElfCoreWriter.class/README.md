@@ -1,0 +1,1 @@
+Writes what a process memory reader can read (its regions, and the files it maps as an NT_FILE note) as an ELF core that ElfCoreDump reads back: for LinuxProcessMemory through /proc, for MacProcessMemory through the task port. The machine field is the observer's processor, which is the target's.

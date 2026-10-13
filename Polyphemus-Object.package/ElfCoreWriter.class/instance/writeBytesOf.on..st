@@ -10,6 +10,6 @@ writeBytesOf: aSegment on: aStream
 	[ written < aSegment sizeInFile ] whileTrue: [
 		| want got |
 		want := 4194304 min: aSegment sizeInFile - written.
-		got := self bytesAt: aSegment address + written count: want.
+		got := memory bytesAt: aSegment address + written count: want.
 		aStream nextPutAll: (got ifNil: [ ByteArray new: want ]).
 		written := written + want ]

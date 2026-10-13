@@ -5,7 +5,7 @@ fileNote
 	a reader finds the VM's library, and through it the VM's variables (#66)."
 
 	| files description |
-	files := self mappedFiles.
+	files := memory mappedFiles.
 	description := ByteArray streamContents: [ :stream |
 		               self write: files size bytes: 8 on: stream.
 		               self write: 4096 bytes: 8 on: stream.

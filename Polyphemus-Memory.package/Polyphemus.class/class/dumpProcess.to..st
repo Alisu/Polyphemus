@@ -5,6 +5,6 @@ dumpProcess: aPid to: aPath
 	readCoreDump: reads it back as it was (#66). Refused as readProcess: refuses."
 
 	| reader |
-	reader := LinuxProcessMemory on: aPid.
+	reader := PolyphemusMadeFor current processMemoryClass on: aPid.
 	^ [ reader whileStoppedWhenQuiet: [ reader writeDumpTo: aPath asFileReference ] ]
 		  ensure: [ reader close ]
