@@ -12,6 +12,6 @@ testACoreKeepsEachThreadsRegisters
 	self assert: read threadRegisters size equals: memory threadRegisters size.
 	read threadRegisters do: [ :each |
 		self assert: (each at: #pc) > 0.
-		self assert: (memory hasAddress: (each at: #sp)) ].
+		self assert: (memory hasAddress: (each at: #sp)) description: [ self whereIsTheStackOf: each ] ].
 	read close.
 	file ensureDelete

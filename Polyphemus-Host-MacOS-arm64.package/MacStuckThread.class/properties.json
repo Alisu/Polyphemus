@@ -1,0 +1,13 @@
+{
+	"commentStamp" : "",
+	"super" : "StuckThread",
+	"category" : "Polyphemus-Host-MacOS-arm64",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [
+		"callName"
+	],
+	"name" : "MacStuckThread",
+	"type" : "normal"
+}

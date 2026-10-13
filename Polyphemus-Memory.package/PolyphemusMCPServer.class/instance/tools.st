@@ -45,7 +45,7 @@ tools
 					    yourself)
 			   required: #( 'handle' 'address' )).
 		  (self tool: 'where_stuck'
-			   description: 'Where a running Pharo VM is, on Linux, from /proc: for each thread the system call it waits in, or where its pc is (machine code, a library and its function), and the signals the VM catches. A process that is running rather than waiting is stopped for a moment to look, then let go; nothing in it is changed. Needs permission to read that process (an ancestor, or bin/pharo-debuggable).'
+			   description: 'Where a running Pharo VM is, from /proc on Linux or its task port on macOS (the observer run as root): for each thread the system call it waits in, or where its pc is (machine code, a library and its function), and the signals the VM catches. A process that is running rather than waiting is stopped for a moment to look, then let go; nothing in it is changed. Needs permission to read that process (on Linux an ancestor, or bin/pharo-debuggable; on macOS root).'
 			   properties: (Dictionary new at: 'pid' put: (self schema: 'integer' saying: 'The process id of the Pharo VM.'); yourself)
 			   required: #( 'pid' )).
 		  (self tool: 'open_process'

@@ -115,7 +115,15 @@ while read.
    (`PolyphemusMadeFor current processMemoryClass`; held still with `SIGSTOP` while read).
    Whether a VM is quiet when stopped is not measured on macOS yet. Measured: macOS refuses
    even root the task port of its own binaries (`/bin/sleep`).
-3. `where_stuck` on macOS: each thread's state and pc (`task_threads`, `thread_get_state`).
+3. ~~`where_stuck` on macOS~~ **Done** (`MacStuckReport`, as root): each thread's run state
+   (`thread_info`), and its pc: waiting in the kernel, the pc is just after `svc #0x80` in a
+   `libsystem_kernel` stub, named by `dladdr` in the observer, since the system's shared
+   libraries lie at the same addresses in every process. Signals caught from `sysctl`'s
+   `kinfo_proc` (648 bytes, `p_sigcatch` at 236, measured against a process trapping SIGUSR1).
+   An idle VM's main thread waits in `kevent`, its heartbeat in `semaphore_wait_trap`.
+   Seen once and not again in 13 runs: `testItReadsEachThreadsRegisters` and
+   `testACoreKeepsEachThreadsRegisters` failed together in one image; their failure now
+   names the thread's sp and pc.
 4. ~~A core of a stock VM~~ **Done**: `Polyphemus dumpProcess:to:` writes one through the task
    port as an ELF core (`ElfCoreWriter`, shared with Linux; e_machine AArch64), and
    `readCoreDump:` reads it back with its processes, as root. It leaves out what lies in

@@ -12,4 +12,4 @@ testItReadsEachThreadsRegisters
 		self assert: (each includesKey: #fp).
 		self assert: (each includesKey: #lr).
 		self assert: (each at: #pc) > 0.
-		self assert: (memory hasAddress: (each at: #sp)) ]
+		self assert: (memory hasAddress: (each at: #sp)) description: [ self whereIsTheStackOf: each ] ]

@@ -33,14 +33,14 @@ claude mcp add polyphemus -- ssh worker-box '~/polyphemus/Polyphemus/bin/polyphe
 | `processes(handle)` | Each Smalltalk process, numbered: state, priority, name, depth, the method on top |
 | `stack(handle, process, depth)` | Its frames: method, the statement it was in, receiver, temporaries and values |
 | `inspect(handle, address, limit)` | An object: class, format, named slots and the first indexable ones, a string's characters |
-| `where_stuck(pid)` | Where a running VM is, from `/proc`: each thread's system call or pc, the signals it catches |
+| `where_stuck(pid)` | Where a running VM is, from `/proc` (on macOS its task port, as root): each thread's system call or pc, the signals it catches |
 | `open_process(pid)` | A handle on a running VM's memory, copied while it was held still (at a quiet moment, on Linux), then let go, for `processes`, `stack` and `inspect`. On macOS through the VM's task port, which needs the server run as root (`docs/handover-macos.md`) |
 
 `processes` and `stack` give the address of each process, receiver and temporary value, and
 `inspect` the address of each slot that holds an object, so an agent follows references from one
 to the next. A handle from `open_process` is the moment it was copied: the image runs on after it. `where_stuck` and `open_process` read a live process: one that is running rather than waiting is
 stopped for a moment to look, then let go, and nothing in it changes; it needs permission to read
-that process (an ancestor, or `bin/pharo-debuggable`).
+that process (on Linux an ancestor, or `bin/pharo-debuggable`; on macOS root).
 
 `census` and `packages` read image files; on a core they say so. A frame's temporaries are named
 only where this host compiles its method as the image did (#6): on another version's image their

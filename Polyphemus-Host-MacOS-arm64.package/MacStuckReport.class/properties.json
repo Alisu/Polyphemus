@@ -1,0 +1,11 @@
+{
+	"commentStamp" : "",
+	"super" : "StuckReport",
+	"category" : "Polyphemus-Host-MacOS-arm64",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [ ],
+	"name" : "MacStuckReport",
+	"type" : "normal"
+}

@@ -1,0 +1,1 @@
+Where a process is stuck on macOS, through its task port (the observer run as root): each thread's state, the call it waits in, where its pc is, and the signals it catches (sysctl). A running process is stopped a moment to look, as on Linux.

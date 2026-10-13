@@ -1,7 +1,7 @@
 reading
 whereIsStuck: aPid
 
-	"Where each thread of that process is, from /proc: the system call it waits in, where its
-	pc is, the signals its VM catches (#36). A running process is stopped a moment to look."
+	"Where each thread of that process is: the system call it waits in, where its pc is, the
+	signals its VM catches (#36), by this host's report. A running process is stopped a moment."
 
-	^ StuckReport of: aPid
+	^ PolyphemusMadeFor current stuckReportClass of: aPid
