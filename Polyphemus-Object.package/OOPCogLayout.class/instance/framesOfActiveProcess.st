@@ -18,7 +18,7 @@ framesOfActiveProcess
 	registers := variables registersOfTheThreadInMachineCode ifNil: [
 		             ^ self refuse: #itWasRunningMachineCodeWhoseFramesAreInRegisters ].
 	^ self
-		  framesFrom: (registers at: #rbp)
-		  stackPointer: (registers at: #rsp)
-		  instructionPointer: (registers at: #rip)
+		  framesFrom: (registers at: #framePointer)
+		  stackPointer: (registers at: #stackPointer)
+		  instructionPointer: (registers at: #instructionPointer)
 		  strictly: true

@@ -5,11 +5,8 @@ wasRunningMachineCode
 	registers, and the variables the VM saves on leaving for C are stale. nil when that
 	cannot be told: no registers kept, or a thread that gives none."
 
-	| threads low high |
+	| threads |
 	(memory respondsTo: #threadRegisters) ifFalse: [ ^ nil ].
-	threads := memory threadRegisters.
-	(threads isEmpty or: [ threads anySatisfy: [ :each | (each includesKey: #rip) not ] ])
-		ifTrue: [ ^ nil ].
-	low := self at: 'codeBase'.
-	high := self at: 'mzFreeStart'.
-	^ threads anySatisfy: [ :each | (each at: #rip) between: low and: high - 1 ]
+	threads := memory threadRegisters collect: [ :each | self class cogPointersIn: each ].
+	(threads isEmpty or: [ threads anySatisfy: [ :each | each isNil ] ]) ifTrue: [ ^ nil ].
+	^ threads anySatisfy: [ :each | self isMachineCodeAddress: (each at: #instructionPointer) ]

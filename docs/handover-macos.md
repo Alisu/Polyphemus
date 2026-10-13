@@ -103,8 +103,14 @@ while read.
 
 ## Next, in order
 
-1. The running process's newest frames, from its thread's registers (`thread_get_state`), as
-   #17 does from a core's on Linux.
+1. ~~The running process's newest frames, from its thread's registers~~ **Done**: Cog keeps
+   its frame pointer in x29 and its Smalltalk stack pointer in x28 on arm64 (sp is C's;
+   `CogARMv8Compiler class>>initializeAbstractRegisters`), so `VMVariables cogPointersIn:` names
+   them by processor. A spinning stock VM stopped in machine code reads its running process
+   from them, as root. Found on the way: the cogit was x86-64's, whose map counts bytes; arm64's
+   counts four-byte instructions, so every machine code pc mapped wrong. Each reader now says
+   its `processor` and the cogit takes that back end (`OOPCogLayout backEndFor:`); the tests
+   failed with x86-64's, measured. An idle VM's processes hold no machine code frame.
 2. ~~`Polyphemus readProcess:` and the MCP's `open_process` choosing the reader by host~~ **Done**
    (`PolyphemusMadeFor current processMemoryClass`; held still with `SIGSTOP` while read).
    Whether a VM is quiet when stopped is not measured on macOS yet. Measured: macOS refuses

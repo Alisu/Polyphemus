@@ -1,9 +1,9 @@
 reading
 cogit
 
-	"VMMaker's Cogit as the Pharo VM is built (StackToRegisterMappingCogit, SistaV1, x64),
-	reading the dump, for its map from machine code pcs to bytecode pcs. Initializing its
-	class sets only Cog's own pools, which the StackInterpreter does not use."
+	"VMMaker's Cogit as the Pharo VM is built (StackToRegisterMappingCogit, SistaV1), reading
+	the dump, for its map from machine code pcs to bytecode pcs, in the processor's back end.
+	Initializing its class sets only Cog's own pools, which the StackInterpreter does not use."
 
 	^ cogit ifNil: [
 		  (Cogit classPool at: #AnnotationShift) ifNil: [
@@ -19,7 +19,7 @@ cogit
 		  cogit
 			  instVarNamed: #coInterpreter
 			  put: (OOPCogInterpreterStandIn on: self interpreter: memory interpreter).
-		  cogit instVarNamed: #backEnd put: CogInLineLiteralsX64Compiler basicNew.
+		  cogit instVarNamed: #backEnd put: (self class backEndFor: raw vmVariables processor).
 		  cogit instVarNamed: #generatorTable put: StackToRegisterMappingCogit generatorTable.
 		  cogit instVarNamed: #cogMethodSurrogateClass put: self cogMethodSurrogateClass.
 		  "VMMaker v10.3 has no block surrogate: its block methods read as methods."
