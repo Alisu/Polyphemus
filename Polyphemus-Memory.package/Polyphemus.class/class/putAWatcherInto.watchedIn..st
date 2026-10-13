@@ -5,5 +5,5 @@ putAWatcherInto: aPid watchedIn: aDirectory
 	waiting on its interrupt semaphore. Refused if something waits there already."
 
 	| reader |
-	reader := LinuxProcessMemory on: aPid.
+	reader := PolyphemusMadeFor current processMemoryClass on: aPid.
 	^ [ (WatcherInjection into: reader watchedIn: aDirectory) inject ] ensure: [ reader close ]

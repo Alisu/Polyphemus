@@ -134,8 +134,15 @@ while read.
 5. **Writing, done**: `MacProcessMemory>>storeBytes:at:` through `mach_vm_write`, refused unless
    the VM is stopped, as on Linux; the blocks read before are forgotten. As root, a word set in a
    stopped stock VM reads back, and `SpurWritableProcess` signals an external semaphore of a
-   running one, which the VM then signals (nothing injected). Next: the hold, stepping and
-   editing (stage 3) on macOS, which on Linux rely on a watcher injected into the target.
+   running one, which the VM then signals (nothing injected).
+6. **The hold, done**: `Polyphemus putAWatcherInto:watchedIn:` and `holdProcess:watchedIn:` take
+   the host's reader, so a stock VM spinning at a user's priority is held on its busy process
+   through its task port and let go, as root (#27, `MacHoldTest`). The VM is untouched; only
+   the image gains our watcher. The macOS VM names no `eden` (`_pastSpace`, `_futureSpace`,
+   `_freeStart`, `_scavengeThreshold` it does): allocating from outside is now bounded by
+   `scavengeThreshold`, as the VM bounds its own (stricter than eden's limit, on Linux too:
+   to gate there), and `SpurRawHeap>>liveYoungRanges` answers nil on macOS, as it did. Next:
+   stepping and editing a held VM (`LiveEditingTest` on Linux).
 
 Measured on this VM (v10.3.11, Darwin arm64): `value:value:value:value:value:`'s primitive
 fails, as on Pharo 14's VM 12.0.5-beta: pass five values with `valueWithArguments:`.
