@@ -56,23 +56,32 @@ naming the image.
   `VMVariables` can find them as it does from ELF. `codeZoneStart` is not under that name: to
   look up.
 
-So the macOS counterpart of `bin/pharo-debuggable` is a **debuggable copy of the VM**: the same
-binary, ad-hoc re-signed with `get-task-allow`, used to launch targets. It is also what an
-attaching reader will need (below).
+**The target stays stock** (Théo, 2026-10-13): Polyphemus is used on the VM people run, as
+downloaded, so nothing may depend on re-signing or otherwise instrumenting it. What reading one
+needs falls on the observer: the person using Polyphemus grants it the right to look, as on
+Linux, where reading another user's VM with `ptrace_scope` at 1 also takes privilege
+(`bin/pharo-debuggable` is the tests' way round that, not the users').
 
-## Live processes: to measure
+## Live processes and cores of a stock VM: to measure, with Théo's password
 
-The Mach interface (`docs/reading-a-live-process.md`): `task_for_pid`, `mach_vm_read_overwrite`,
-`mach_vm_region_recurse`, `thread_get_state`, `task_suspend`, through Pharo's FFI. Not measured
-yet: whether a same-user reader may take the task port of a `get-task-allow` VM without root.
-**Developer mode is off** on this Mac (`DevToolsSecurity -status`), so lldb asks for an admin
-password to attach; enabling it is Théo's decision, not the tool's.
+`ptrace` exists on macOS but cannot read memory or registers: those go through Mach, behind the
+task port (`task_for_pid`, `mach_vm_read_overwrite`, `mach_vm_region_recurse`,
+`thread_get_state`, `task_suspend`; `docs/reading-a-live-process.md`). `ptrace` attach is gated
+the same way, and a process may refuse it (`PT_DENY_ATTACH`). Two ways to a stock VM, both to
+measure, both needing Théo:
+
+- **An observer run as root.** macOS gives root the task port of a process that is not hardened,
+  which the downloaded VM is not. If it holds, a live reader (through FFI) and a core written by
+  Polyphemus itself follow from it.
+- **Apple's lldb** (it carries the debugger entitlement) attaching once Théo authorizes it (an
+  admin password; developer mode is off on this Mac, `DevToolsSecurity -status`), then
+  `process save-core`: a Mach-O core of a stock VM for Polyphemus to read.
 
 ## Next, in order
 
-1. A debuggable copy of the VM (re-signed with `get-task-allow`) to launch targets, and a core of
-   one: what it holds, how long it takes, how big.
-2. `MachOCoreDump`, answering the memory protocol, and `VMVariables` from Mach-O symbols: the
+1. The `bin/` runner without `timeout`, `/proc` or `flock`, so a Mac runs the suite with the same
+   tools as the box.
+2. With Théo: whether root gets a stock VM's task port, and whether lldb saves a core of one.
+3. `MachOCoreDump`, answering the memory protocol, and `VMVariables` from Mach-O symbols: the
    dump classes green on macOS.
-3. Live reading through the Mach interface, after measuring what it needs.
-4. The `bin/` runner without `timeout` and `/proc`.
+4. Live reading through the Mach interface.
