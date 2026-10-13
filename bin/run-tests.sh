@@ -19,6 +19,7 @@ JOBS="${JOBS:-6}"
 TMO="${TMO:-400}"
 SLOW_THRESHOLD="${SLOW_THRESHOLD:-8}"
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+. "$HERE/portable.sh"
 cd "$WORK"
 # What this host's setup says about its targets (POLYPHEMUS_TARGET_VM, POLYPHEMUS_CORE): see
 # docs/editions.md. Absent, targets run on the host's own VM and the dump is next to its image.
@@ -199,9 +200,9 @@ if [ -f "$LOCK" ]; then
     fi
     echo "== stopping the run already going (pid $PREV) =="
     kill -TERM "$PREV" 2>/dev/null || true
-    pkill -x pharo 2>/dev/null || true
+    pkill -x pharo 2>/dev/null || true; pkill -x Pharo 2>/dev/null || true   # Pharo: the VM on macOS
     sleep 2
-    pkill -9 -x pharo 2>/dev/null || true
+    pkill -9 -x pharo 2>/dev/null || true; pkill -9 -x Pharo 2>/dev/null || true
   fi
 fi
 echo $$ > "$LOCK"
@@ -224,7 +225,7 @@ fi
 if [ ${#SELECTED[@]} -gt 0 ]; then
   run_set "selected" "${SELECTED[@]}"
 else
-  mapfile -t ALL < <(all_classes)
+  ALL=(); while IFS= read -r c; do ALL+=("$c"); done < <(all_classes)   # no mapfile in bash 3.2 (macOS)
   FAST=(); SLOW=()
   for c in "${ALL[@]}"; do
     if is_slow "$c"; then SLOW+=("$c"); else FAST+=("$c"); fi

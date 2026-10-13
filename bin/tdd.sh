@@ -13,6 +13,7 @@ set -uo pipefail
 WORK="${WORK:-$HOME/polyphemus}"
 cd "$WORK"
 HERE="$WORK/Polyphemus/bin"
+. "$HERE/portable.sh"
 # The setup's environment (its target Pharo, its core), for warm.image too: its resources may
 # open the target's image, which is this edition's own, not Pharo 10's.
 [ -f "$WORK/polyphemus.env" ] && { set -a; . "$WORK/polyphemus.env"; set +a; }
