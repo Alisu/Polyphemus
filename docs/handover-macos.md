@@ -130,8 +130,12 @@ while read.
    `readCoreDump:` reads it back with its processes, as root. It leaves out what lies in
    submaps: macOS maps the shared libraries cache there, 4.7 of 5.5 GB readable in a Pharo
    process. Each thread's registers go in as `NT_PRSTATUS` notes (aarch64 layout; read back by
-   `ElfCoreDump>>threadRegisters`, every stack pointer inside the core, as root). Then the hold,
-   stepping and editing.
+   `ElfCoreDump>>threadRegisters`, every stack pointer inside the core, as root).
+5. **Writing, done**: `MacProcessMemory>>storeBytes:at:` through `mach_vm_write`, refused unless
+   the VM is stopped, as on Linux; the blocks read before are forgotten. As root, a word set in a
+   stopped stock VM reads back, and `SpurWritableProcess` signals an external semaphore of a
+   running one, which the VM then signals (nothing injected). Next: the hold, stepping and
+   editing (stage 3) on macOS, which on Linux rely on a watcher injected into the target.
 
 Measured on this VM (v10.3.11, Darwin arm64): `value:value:value:value:value:`'s primitive
 fails, as on Pharo 14's VM 12.0.5-beta: pass five values with `valueWithArguments:`.
