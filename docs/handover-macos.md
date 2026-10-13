@@ -70,18 +70,29 @@ task port (`task_for_pid`, `mach_vm_read_overwrite`, `mach_vm_region_recurse`,
 the same way, and a process may refuse it (`PT_DENY_ATTACH`). Two ways to a stock VM, both to
 measure, both needing Théo:
 
-- **An observer run as root.** macOS gives root the task port of a process that is not hardened,
-  which the downloaded VM is not. If it holds, a live reader (through FFI) and a core written by
-  Polyphemus itself follow from it.
+- **An observer run as root: measured, it works** (2026-10-13). A small C probe, run with `sudo`
+  on a stock, idle Pharo 13 VM (the download, not re-signed): `task_for_pid` succeeded; 124
+  regions (112 readable; 390 GB mapped, most of it reserved address space); a word read from the
+  biggest writable region (128 MB at `0x110000000`); 3 threads. macOS's task policy grants the
+  port when the target is not hardened, has `get-task-allow`, or the caller is a declared
+  debugger; the downloaded VM is not hardened, so root suffices. The probe carried an ad-hoc
+  `com.apple.security.cs.debugger` entitlement, which AMFI says it does not honor ("adhoc signed
+  or signed by an unknown certificate chain"), so it is not what got the port. Two earlier runs
+  answered `(os/kern) failure (5)` only because their targets had already exited.
 - **Apple's lldb** (it carries the debugger entitlement) attaching once Théo authorizes it (an
   admin password; developer mode is off on this Mac, `DevToolsSecurity -status`), then
   `process save-core`: a Mach-O core of a stock VM for Polyphemus to read.
+- **Apple's `debugserver`**, the helper lldb attaches through, is Apple-signed as a debugger and
+  speaks GDB's remote protocol (memory, registers, threads): a live reader could ask it, with no
+  certificate of ours. To try after lldb.
 
 ## Next, in order
 
 1. The `bin/` runner without `timeout`, `/proc` or `flock`, so a Mac runs the suite with the same
    tools as the box.
-2. With Théo: whether root gets a stock VM's task port, and whether lldb saves a core of one.
+2. A live reader on macOS through the task port (FFI to libSystem: `task_for_pid`,
+   `mach_vm_region_recurse`, `mach_vm_read_overwrite`), answering the memory protocol; its tests
+   need the observer run as root. lldb's core, if wanted, can be measured later.
 3. `MachOCoreDump`, answering the memory protocol, and `VMVariables` from Mach-O symbols: the
    dump classes green on macOS.
 4. Live reading through the Mach interface.
