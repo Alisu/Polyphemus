@@ -1,0 +1,1 @@
+The VM library as a Mach-O file, read for its variables' addresses and its build's UUID, on the library this Pharo runs on: the pinned VM v10.3.11+0.a585304b1 for Darwin arm64, whose values nm and otool gave on 2026-10-13.

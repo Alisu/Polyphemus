@@ -1,0 +1,16 @@
+{
+	"commentStamp": "",
+	"super": "Object",
+	"category": "Polyphemus-Host-MacOS-arm64",
+	"classinstvars": [],
+	"pools": [],
+	"classvars": [],
+	"instvars": [
+		"task",
+		"pid",
+		"segments",
+		"blocks"
+	],
+	"name": "MacProcessMemory",
+	"type": "normal"
+}

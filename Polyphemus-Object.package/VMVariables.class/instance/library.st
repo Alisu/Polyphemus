@@ -6,4 +6,6 @@ library
 	^ library ifNil: [
 		  self mapping path asFileReference exists ifFalse: [
 			  ^ self refuse: #itsVMLibraryIsNotOnThisMachine ].
-		  library := ElfSharedObject on: self mapping path ]
+		  library := ((self mapping path endsWith: '.dylib')
+			             ifTrue: [ MachOSharedObject ]
+			             ifFalse: [ ElfSharedObject ]) on: self mapping path ]

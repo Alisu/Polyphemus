@@ -1,0 +1,1 @@
+A 64-bit Mach-O shared library (the VM's libPharoVMCore.dylib on macOS), read for what VMVariables asks of ElfSharedObject: where its variables are (LC_SYMTAB, symbols named without Mach-O's leading underscore) and which build it is (LC_UUID), in the file and in the header as loaded in a memory.

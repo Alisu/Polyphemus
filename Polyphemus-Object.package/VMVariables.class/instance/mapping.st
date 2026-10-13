@@ -6,5 +6,6 @@ mapping
 	^ mapping ifNil: [
 		  mapping := memory mappedFiles
 			             detect: [ :each |
-				             (each path endsWith: '/libPharoVMCore.so') and: [ each fileOffset = 0 ] ]
+				             ((each path endsWith: '/libPharoVMCore.so') or: [ each path endsWith: '/libPharoVMCore.dylib' ])
+				             and: [ each fileOffset = 0 ] ]
 			             ifNone: [ ^ self refuse: #theVMLibraryIsNotMappedInIt ] ]
