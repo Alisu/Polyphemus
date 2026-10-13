@@ -105,9 +105,10 @@ while read.
 
 1. The running process's newest frames, from its thread's registers (`thread_get_state`), as
    #17 does from a core's on Linux.
-2. `Polyphemus readProcess:` and the MCP's `open_process` choosing the reader by host (today
-   they name `LinuxProcessMemory`), and holding the target still while it is read (`SIGSTOP`
-   works on macOS too).
+2. ~~`Polyphemus readProcess:` and the MCP's `open_process` choosing the reader by host~~ **Done**
+   (`PolyphemusMadeFor current processMemoryClass`; held still with `SIGSTOP` while read).
+   Whether a VM is quiet when stopped is not measured on macOS yet. Measured: macOS refuses
+   even root the task port of its own binaries (`/bin/sleep`).
 3. `where_stuck` on macOS: each thread's state and pc (`task_threads`, `thread_get_state`).
 4. A core of a stock VM (Polyphemus writing one from the task port, as `writeDumpTo:` does on
    Linux), then the hold, stepping and editing.

@@ -34,7 +34,7 @@ claude mcp add polyphemus -- ssh worker-box '~/polyphemus/Polyphemus/bin/polyphe
 | `stack(handle, process, depth)` | Its frames: method, the statement it was in, receiver, temporaries and values |
 | `inspect(handle, address, limit)` | An object: class, format, named slots and the first indexable ones, a string's characters |
 | `where_stuck(pid)` | Where a running VM is, from `/proc`: each thread's system call or pc, the signals it catches |
-| `open_process(pid)` | A handle on a running VM's memory, copied while it was held still at a quiet moment, then let go, for `processes`, `stack` and `inspect` |
+| `open_process(pid)` | A handle on a running VM's memory, copied while it was held still (at a quiet moment, on Linux), then let go, for `processes`, `stack` and `inspect`. On macOS through the VM's task port, which needs the server run as root (`docs/handover-macos.md`) |
 
 `processes` and `stack` give the address of each process, receiver and temporary value, and
 `inspect` the address of each slot that holds an object, so an agent follows references from one
