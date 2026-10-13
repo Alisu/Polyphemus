@@ -6,7 +6,8 @@ memory from *outside*, reifying OOPs as Smalltalk objects in a healthy host imag
 **This file and the `docs/` notes are fork-only. Never include them in a PR to hogoww.**
 
 **Not on the Ubuntu box?** This file describes the box. Read `AGENTS.md` (Théo's rules, on any
-machine) and your machine's handover first: `docs/handover-windows.md` on the Windows laptop.
+machine) and your machine's handover first: `docs/handover-windows.md` on the Windows laptop,
+`docs/handover-macos.md` on a Mac.
 
 ## Goal of this fork
 
@@ -122,6 +123,7 @@ Fork-only, and the canonical record. `mistakes.md` first if a hunt is going long
 | `editions.md` | which host an edition runs on and which Pharo it reads, its name, what it refuses; one branch, editions as packages |
 | `patch-notes.md` | what changed from one edition to the next: what moved underneath, what we changed, what is not done yet |
 | `handover-windows.md` | for the agent porting to Windows x64 on the Helios laptop: where we stand, what is Linux-only, a plan in steps |
+| `handover-macos.md` | the macOS arm64 edition: measured on the MacBook, what is green, what skips and why, cores only for debuggable processes, next steps |
 
 ## Current state
 
