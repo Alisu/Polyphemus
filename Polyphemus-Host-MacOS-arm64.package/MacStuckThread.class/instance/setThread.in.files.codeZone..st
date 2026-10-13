@@ -15,6 +15,6 @@ setThread: aThreadPort in: aMacProcessMemory files: someMappedFiles codeZone: an
 	sp := registers at: #sp.
 	pc := registers at: #pc.
 	location := self class locationOf: pc codeZone: anAssociationOrNil files: someMappedFiles.
-	((aMacProcessMemory bytesAt: pc - 4 count: 4) ifNotNil: [ :bytes | bytes unsignedLongAt: 1 ]) = 16rD4001001 ifTrue: [
+	(aMacProcessMemory isInASystemCallAt: pc) ifTrue: [
 		number := registers at: #x16.
 		callName := (self class symbolAt: pc) ifNotNil: [ :symbol | symbol value ] ]

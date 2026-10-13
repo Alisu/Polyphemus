@@ -113,7 +113,8 @@ while read.
    failed with x86-64's, measured. An idle VM's processes hold no machine code frame.
 2. ~~`Polyphemus readProcess:` and the MCP's `open_process` choosing the reader by host~~ **Done**
    (`PolyphemusMadeFor current processMemoryClass`; held still with `SIGSTOP` while read).
-   Whether a VM is quiet when stopped is not measured on macOS yet. Measured: macOS refuses
+   Quiet, as on Linux, when its main thread waits in the kernel: its pc just after
+   `svc #0x80` (`MacProcessMemory>>isQuiet`); stopped in machine code, it is not. Measured: macOS refuses
    even root the task port of its own binaries (`/bin/sleep`).
 3. ~~`where_stuck` on macOS~~ **Done** (`MacStuckReport`, as root): each thread's run state
    (`thread_info`), and its pc: waiting in the kernel, the pc is just after `svc #0x80` in a

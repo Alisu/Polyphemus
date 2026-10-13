@@ -49,6 +49,6 @@ tools
 			   properties: (Dictionary new at: 'pid' put: (self schema: 'integer' saying: 'The process id of the Pharo VM.'); yourself)
 			   required: #( 'pid' )).
 		  (self tool: 'open_process'
-			   description: 'Read a running Pharo VM''s memory, from /proc on Linux or its task port on macOS (the observer run as root): it is held still while it is copied, at a moment it is quiet, then let go, and nothing in it is changed. Answers a handle for processes, stack and inspect, on that moment: the image runs on after it. Refused, with the reason, if the process is not a Pharo VM, cannot be read (an ancestor, or bin/pharo-debuggable, may read it) or never goes quiet (quietness is measured on Linux only).'
+			   description: 'Read a running Pharo VM''s memory, from /proc on Linux or its task port on macOS (the observer run as root): it is held still while it is copied, at a moment it is quiet, then let go, and nothing in it is changed. Answers a handle for processes, stack and inspect, on that moment: the image runs on after it. Refused, with the reason, if the process is not a Pharo VM, cannot be read (an ancestor, or bin/pharo-debuggable, may read it) or never goes quiet.'
 			   properties: (Dictionary new at: 'pid' put: (self schema: 'integer' saying: 'The process id of the Pharo VM.'); yourself)
 			   required: #( 'pid' )) }
