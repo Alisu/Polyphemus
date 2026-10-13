@@ -1,0 +1,11 @@
+{
+	"commentStamp": "",
+	"super": "PolyphemusMadeFor",
+	"category": "Polyphemus-Host-Linux-x64",
+	"classinstvars": [],
+	"pools": [],
+	"classvars": [],
+	"instvars": [],
+	"name": "PolyphemusMadeForLinuxX64",
+	"type": "normal"
+}

@@ -1,0 +1,4 @@
+accessing
+cpu
+
+	^ self subclassResponsibility

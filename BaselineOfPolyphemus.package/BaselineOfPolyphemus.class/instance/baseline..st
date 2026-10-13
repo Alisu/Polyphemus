@@ -48,6 +48,14 @@ baseline: spec
 			spec package: edition with: [ spec requires: #( 'Polyphemus-Object' ) ].
 			spec group: 'core' with: { edition } ] ].
 
+	"The host: one Polyphemus-Host package each, naming the operating system and processor every
+	edition is made for, picked by the attribute customProjectAttributes adds. A host with none
+	loads no edition that would run."
+	{ #'linux-x64' -> 'Polyphemus-Host-Linux-x64'. #'macos-arm64' -> 'Polyphemus-Host-MacOS-arm64' } do: [ :each |
+		spec for: each key do: [
+			spec package: each value with: [ spec requires: #( 'Polyphemus-Object' ) ].
+			spec group: 'core' with: { each value } ] ].
+
 	"What VMMaker v10.0.4 and later need -- the memory map, VM 10's split memory -- for the tool
 	and for its tests."
 	spec for: #( #'pharo11.x' #'pharo12.x' #'pharo13.x' #'pharo14.x' ) do: [

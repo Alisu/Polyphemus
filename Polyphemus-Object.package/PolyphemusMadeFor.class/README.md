@@ -1,0 +1,1 @@
+The host an edition is made for, as the Polyphemus-Host package the baseline loaded says: one subclass per host package (Linux x64, macOS arm64), so an edition names its host without each edition package hard-coding Linux.

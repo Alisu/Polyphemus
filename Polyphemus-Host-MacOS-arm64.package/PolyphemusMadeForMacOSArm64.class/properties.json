@@ -1,0 +1,11 @@
+{
+	"commentStamp": "",
+	"super": "PolyphemusMadeFor",
+	"category": "Polyphemus-Host-MacOS-arm64",
+	"classinstvars": [],
+	"pools": [],
+	"classvars": [],
+	"instvars": [],
+	"name": "PolyphemusMadeForMacOSArm64",
+	"type": "normal"
+}
