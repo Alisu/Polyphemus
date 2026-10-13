@@ -1,10 +1,9 @@
 tests
 testAFrameWhoseMethodFieldIsOutsideTheCodeZoneHoldsNoPc
 
-	"Caught while a frame is being built, its method field may still hold what the stack held
-	before: below the heap, so taken for a CogMethod, but outside the code zone. No pc lies in
-	such a method; reading its size asked the simulator for unsignedShortAt: (Pharo 13 gate,
-	2026-10-05). Here the field holds a zero found on a stack page."
+	"Caught while a frame is being built, its method field may hold what the stack held before,
+	below the heap but outside the code zone: no pc lies there (an MNU on Pharo 13, 2026-10-05).
+	Here the field holds a zero found on a stack page."
 
 	| core layout raw variables fp |
 	core := (self machineCodeCoreWhere: #inItsFrame) ifNil: [

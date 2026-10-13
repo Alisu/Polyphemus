@@ -1,10 +1,9 @@
 running
 requireAHostThatReproducesTheFixture
 
-	"Skip where this host compiles the method into bytes other than the file's. Temporaries
-	are only named in such code (#6), so there is nothing to check; highlighting does not
-	need this, since it matches sends when the bytes differ (#4). TemporariesOnTheTargetImageTest
-	checks the same on the target's own image, the build this host is made from."
+	"Skip where this host compiles the method into other bytes than the file's: temporaries are
+	only named in such code (#6). TemporariesOnTheTargetImageTest checks the same on the target's
+	own image, the build this host is made from."
 
 	(self frameDescribed: 'SessionManager>>snapshot:andQuit:') faithfulCompiledCode ifNil: [
 		self skip:

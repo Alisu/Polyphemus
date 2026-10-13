@@ -1,11 +1,9 @@
 reading
 isInstructionPointer: anAddress inMethodOf: aFramePointer
 
-	"Whether anAddress lies within the frame's method: its bytes when interpreted, its CogMethod
-	in the code zone when jitted. A jitted idle loop left for C in a primitive keeps its pc in
-	instructionPointer, a machine code address (#62). A frame caught while being built may hold
-	in its method field what the stack held before: no pc lies in a method outside the code zone,
-	or one whose size cannot be read."
+	"Whether anAddress lies within the frame's method: its bytes, or its CogMethod when jitted
+	(a machine code pc, #62). A method field outside the code zone, or whose size cannot be read,
+	holds no pc: a frame caught while being built may still hold what the stack held (#17)."
 
 	| method start size |
 	(self isMachineCodeFrame: aFramePointer) ifTrue: [

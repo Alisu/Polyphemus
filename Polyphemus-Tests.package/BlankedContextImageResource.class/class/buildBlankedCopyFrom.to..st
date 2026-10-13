@@ -1,10 +1,9 @@
 building the fixture
 buildBlankedCopyFrom: aCleanImage to: aTarget
 
-	"Copy aCleanImage with the running process's suspendedContext zeroed in the file bytes.
-	The file offset comes from the header and is checked on six objects first. Built beside
-	aTarget under a name of its own, then renamed onto it: another class reading or building it
-	at the same time only ever finds it whole and blanked."
+	"Copy aCleanImage with the running process's suspendedContext zeroed in the file's bytes, at
+	an offset checked on six objects first; built under a name of its own and renamed onto
+	aTarget, so a class reading or building it at the same time finds it whole and blanked."
 
 	| reader memory process slotAddress header delta offsetOf building |
 	reader := AbstractInspectorsTest new.
