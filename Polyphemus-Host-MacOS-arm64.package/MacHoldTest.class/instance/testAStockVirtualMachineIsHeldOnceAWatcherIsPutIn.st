@@ -6,9 +6,7 @@ testAStockVirtualMachineIsHeldOnceAWatcherIsPutIn
 
 	| pid dir session |
 	MacProcessMemory isRoot ifFalse: [ ^ self skip: 'reading another process on macOS needs the observer run as root (sudo)' ].
-	dir := PolyphemusEdition current scratch / 'mac-hold'.
-	dir ensureDeleteAll.
-	dir ensureCreateDirectory.
+	dir := self emptyDirectoryNamed: 'mac-hold'.
 	pid := self launchTargetRunning: '[ [ true ] whileTrue: [ (1 to: 1000) do: [ :each | 3 sqrt ] ] ] forkAt: 40.
 (Delay forSeconds: 120) wait.
 Smalltalk exitSuccess'.
@@ -19,7 +17,4 @@ Smalltalk exitSuccess'.
 		assert: (session heldProcess ask: WatcherInjectionTest new heldIsTheBusyProcess) = 'true'
 		description: [ 'held instead: ' , (session heldProcess ask: WatcherInjectionTest new theHeldProcess) ].
 	session resume.
-	self
-		assert: ((1 to: 100) anySatisfy: [ :each |
-				 (dir / 'released') exists or: [ (Delay forMilliseconds: 100) wait. false ] ])
-		description: 'it never let go' ] ensure: [ LibC system: 'kill -9 ' , pid printString ]
+	self assert: (self waitForFile: 'released' in: dir) description: 'it never let go' ] ensure: [ LibC system: 'kill -9 ' , pid printString ]

@@ -141,8 +141,10 @@ while read.
    the image gains our watcher. The macOS VM names no `eden` (`_pastSpace`, `_futureSpace`,
    `_freeStart`, `_scavengeThreshold` it does): allocating from outside is now bounded by
    `scavengeThreshold`, as the VM bounds its own (stricter than eden's limit, on Linux too:
-   to gate there), and `SpurRawHeap>>liveYoungRanges` answers nil on macOS, as it did. Next:
-   stepping and editing a held VM (`LiveEditingTest` on Linux).
+   to gate there), and `SpurRawHeap>>liveYoungRanges` answers nil on macOS, as it did.
+7. **Stepping and editing, done** (`MacHoldTest`, as root): on a stock VM holding a watcher put
+   in, Step Over steps it, and `SmallInteger>>#even`, which the machine compiled, run until and
+   recompiled as the debugger accepts it, ends a user's loop once let go (#20).
 
 Measured on this VM (v10.3.11, Darwin arm64): `value:value:value:value:value:`'s primitive
 fails, as on Pharo 14's VM 12.0.5-beta: pass five values with `valueWithArguments:`.
