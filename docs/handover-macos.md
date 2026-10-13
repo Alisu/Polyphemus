@@ -86,13 +86,28 @@ measure, both needing Théo:
   speaks GDB's remote protocol (memory, registers, threads): a live reader could ask it, with no
   certificate of ours. To try after lldb.
 
+## Reading a live VM: done (2026-10-13)
+
+`MacProcessMemory` (`Polyphemus-Host-MacOS-arm64`) answers the memory protocol through the task
+port; `VMVariables` reads the VM's variables from `libPharoVMCore.dylib`'s Mach-O symbols
+(`MachOSharedObject`), so the VM states where nil (`0x10000000000`) and new space
+(`0xF000000000`, not Linux's `0x360000000`) are. As root, a stock Pharo 13 VM is read as
+`Polyphemus readProcess:` reads one on Linux: everything reified in 7 s, 17 processes with their
+states and frames (`MacProcessMemoryTest`, all green as root, the root test skipped otherwise).
+
+Learned on the way: without the VM's variables the largest region was taken for the heap, and
+held a table that only looked like nil, false and true; one `mach_vm_read` per header took 12 s
+to find a 1.3 GB heap (now 64 KB blocks); listing processes needs everything reified first, as
+`readProcess:` does; reading Pharo's own memory is no test of a live reader, since it changes
+while read.
+
 ## Next, in order
 
-1. The `bin/` runner without `timeout`, `/proc` or `flock`, so a Mac runs the suite with the same
-   tools as the box.
-2. A live reader on macOS through the task port (FFI to libSystem: `task_for_pid`,
-   `mach_vm_region_recurse`, `mach_vm_read_overwrite`), answering the memory protocol; its tests
-   need the observer run as root. lldb's core, if wanted, can be measured later.
-3. `MachOCoreDump`, answering the memory protocol, and `VMVariables` from Mach-O symbols: the
-   dump classes green on macOS.
-4. Live reading through the Mach interface.
+1. The running process's newest frames, from its thread's registers (`thread_get_state`), as
+   #17 does from a core's on Linux.
+2. `Polyphemus readProcess:` and the MCP's `open_process` choosing the reader by host (today
+   they name `LinuxProcessMemory`), and holding the target still while it is read (`SIGSTOP`
+   works on macOS too).
+3. `where_stuck` on macOS: each thread's state and pc (`task_threads`, `thread_get_state`).
+4. A core of a stock VM (Polyphemus writing one from the task port, as `writeDumpTo:` does on
+   Linux), then the hold, stepping and editing.
