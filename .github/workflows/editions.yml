@@ -88,7 +88,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        edition: [ 10, 11, 12, 13, 14 ]
+        # Not 11: its VM, 10.0.5, dies at start on macOS 15, its stack pages wanted at a fixed
+        # address already taken (2026-10-14, #80).
+        edition: [ 10, 12, 13, 14 ]
     steps:
       - uses: actions/checkout@v4
         with:
