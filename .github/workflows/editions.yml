@@ -146,3 +146,60 @@ jobs:
             root.log
             ~/setup/load.log
             ~/setup/.class-logs
+
+  # Windows x64, Pharo 13 (docs/handover-windows.md), natively rather than in WSL. Git Bash runs
+  # the same scripts; the checkout is linked into the setup by a junction, not a symbolic link.
+  windows:
+    name: Windows Pharo ${{ matrix.edition }}
+    runs-on: windows-2022
+    timeout-minutes: 150
+    defaults:
+      run:
+        shell: bash
+    strategy:
+      fail-fast: false
+      matrix:
+        edition: [ 13 ]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup from cache
+        id: setup
+        uses: actions/cache@v4
+        with:
+          path: ~/setup
+          key: setup-windows-${{ matrix.edition }}-${{ hashFiles('bin/ci-setup.sh', 'BaselineOfPolyphemus.package/**') }}
+
+      - name: Build the setup
+        if: steps.setup.outputs.cache-hit != 'true'
+        run: bin/ci-setup.sh ${{ matrix.edition }} ~/setup
+
+      - name: Test images from cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            resources/*.image
+            resources/*.changes
+            resources/*.sources
+            !resources/candle64Bit.image
+          key: images-windows-${{ hashFiles('Polyphemus-Helper.package/PharoImageAccessor.class/class/downloadNameForPharo..st', 'Polyphemus-Helper.package/PharoImageAccessor.class/class/sourcesNameForPharo..st') }}
+
+      - name: Suite
+        run: |
+          [ -e ~/setup/Polyphemus ] && cmd //c "rmdir $(cygpath -w ~/setup/Polyphemus)"
+          cmd //c "mklink /J $(cygpath -w ~/setup/Polyphemus) $(cygpath -w "$GITHUB_WORKSPACE")" > /dev/null
+          WORK=~/setup TMO=1800 bin/tdd.sh --all -j 3 > suite.log 2>&1 || true
+          grep -aE "^RES|^    (FAIL|ERROR|NOTE|\|)|totals|BROKEN|TIMEOUT" suite.log || true
+          grep -q "totals: .* 0 failures, 0 errors, 0 broken" suite.log || { echo "== end of the log =="; tail -60 suite.log; exit 1; }
+
+      - name: Keep the log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: suite-windows-pharo-${{ matrix.edition }}
+          path: |
+            suite.log
+            ~/setup/load.log
+            ~/setup/.class-logs

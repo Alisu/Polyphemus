@@ -12,6 +12,10 @@ WORK="$2"
 CHECKOUT="$(cd "$(dirname "$0")/.." && pwd)"
 . "$CHECKOUT/bin/portable.sh"
 HOST="$(uname -s)"
+case "$HOST" in MINGW*|MSYS*) HOST=Windows ;; esac
+# Pharo reads paths as Windows writes them (D:/a/...), not as Git Bash does (/d/a/...).
+CHECKOUT_FOR_PHARO="$CHECKOUT"
+[ "$HOST" = Windows ] && CHECKOUT_FOR_PHARO="$(cd "$CHECKOUT" && pwd -W)"
 
 case "$EDITION" in
   10) IMAGE=100/Pharo10.0.1-0.build.527.sha.0542643.arch.64bit;      VM=PharoVM-9.0.22-421845e ;;
@@ -33,6 +37,14 @@ if [ "$HOST" = Darwin ]; then
   esac
   VM_URL="https://files.pharo.org/vm/pharo-spur64-headless/Darwin-arm64/$VM-Darwin-arm64-bin.zip"
   VM_BINARY=Pharo.app/Contents/MacOS/Pharo
+# Windows x64 (docs/handover-windows.md): Pharo 13 only so far.
+elif [ "$HOST" = Windows ]; then
+  case "$EDITION" in
+    13) VM=PharoVM-v10.3.11+0.a585304b1 ;;
+    *) echo "no Windows VM pinned for Pharo $EDITION"; exit 2 ;;
+  esac
+  VM_URL="https://files.pharo.org/vm/pharo-spur64-headless/Windows-x86_64/$VM-Windows-x86_64-bin.zip"
+  VM_BINARY=PharoConsole.exe
 else
   VM_URL="https://files.pharo.org/vm/pharo-spur64-headless/Linux-x86_64/$VM-Linux-x86_64-bin.zip"
   VM_BINARY=pharo
@@ -58,16 +70,22 @@ chmod +x pharo
 base="$(ls *.image | head -1)"
 cp "$base" dev.image
 cp "${base%.image}.changes" dev.changes
-ln -sfn "$CHECKOUT" Polyphemus
+# A junction on Windows: a symbolic link there needs Developer Mode or elevation.
+if [ "$HOST" = Windows ]; then
+  [ -e Polyphemus ] && cmd //c "rmdir Polyphemus"
+  cmd //c "mklink /J Polyphemus $(cygpath -w "$CHECKOUT")" > /dev/null
+else
+  ln -sfn "$CHECKOUT" Polyphemus
+fi
 
 echo "== Pharo $EDITION: loading Polyphemus and VMMaker =="
 cat > load.st <<ST
 [ Metacello new
 	baseline: #Polyphemus;
-	repository: 'filetree://$CHECKOUT';
+	repository: 'filetree://$CHECKOUT_FOR_PHARO';
 	onConflictUseIncoming;
 	load ] on: Error do: [ :e | ('LOAD_ERR ' , e class name , ' ' , e messageText asString) traceCr ].
-[ (IceRepositoryCreator new location: '$CHECKOUT' asFileReference; createRepository) register ]
+[ (IceRepositoryCreator new location: '$CHECKOUT_FOR_PHARO' asFileReference; createRepository) register ]
 	on: Error do: [ :e | ('REGISTER_ERR ' , e class name , ' ' , e messageText asString) traceCr ].
 ('LOADED ' , (Smalltalk globals includesKey: #PolyphemusEdition) printString) traceCr.
 Smalltalk snapshot: true andQuit: true
@@ -79,14 +97,14 @@ grep -q "LOADED true" load.log || { echo "!! Polyphemus did not load"; tail -40 
 cat > polyphemus.env <<ENV
 POLYPHEMUS_TARGET_PHARO=$EDITION
 ENV
-[ "$HOST" = Darwin ] || echo "POLYPHEMUS_CORE=$WORK/pharo.core" >> polyphemus.env
+[ "$HOST" = Darwin ] || [ "$HOST" = Windows ] || echo "POLYPHEMUS_CORE=$WORK/pharo.core" >> polyphemus.env
 cat > idle.st <<'ST'
 "Stay alive so something can take a dump of us."
 (Delay forSeconds: 240) wait.
 Smalltalk exitSuccess
 ST
 
-if [ "$HOST" != Darwin ]; then
+if [ "$HOST" != Darwin ] && [ "$HOST" != Windows ]; then
   echo "== Pharo $EDITION: a core for the dump tests =="
   WORK="$WORK" "$CHECKOUT/bin/take-dump.sh" "$WORK/pharo.core" "$WORK/dev.image"
 fi
