@@ -3,6 +3,26 @@
 Written 2026-09-28 on the Ubuntu box, for the agent that takes Polyphemus to Windows. Read
 `AGENTS.md` first (Théo's rules), then this, then `docs/editions.md` and `docs/patch-notes.md`.
 
+## On the laptop, 2026-10-14: where to pick up
+
+Steps 1 to 3 done, step 4 nearly (`docs/patch-notes.md`, Windows section, has the detail).
+
+- **Setup**: `D:\Projects\polyphemus-setup\pharo13` (junction `Polyphemus` to the checkout,
+  `PharoConsole.exe` launcher). Its `polyphemus.env` names `pharo.dmp` there as the dump: a full
+  minidump of an idle Pharo 13, taken from PowerShell with `MiniDumpWriteDump`. Without that line
+  the dump tests skip. `bin/ci-setup.sh 13 <dir>` builds a setup from nothing on Windows too.
+- **CI**: a Windows job runs Pharo 13 on each push, green. Linux jobs are sometimes stopped from
+  outside 6 to 9 minutes in (exit 143, no log): the suite step now posts the runner's memory as
+  annotations, readable through the public API (`check-runs/<job>/annotations`) when a log is not.
+- **Next**: `SpurImageFromDumpTest>>testAVirtualMachineRunsTheWrittenImage` watches the VM it
+  launches through `LinuxProcessMemory`: make it skip on Windows until `WindowsProcessMemory`
+  exists, as the two `PolyphemusEditionTest` tests do. That class wants about 5 minutes and much
+  of the laptop's 8 GB: run it with little else open. Then take a minidump from Pharo (FFI to
+  `MiniDumpWriteDump`), so CI has a dump; then step 5.
+- **Ways of working Théo asked for here**: no `gh` (read CI through the public API, 60 requests an
+  hour, or ask him for a given artifact); `windows` is the only branch pushed from here, the Mac
+  works on `stage2`.
+
 ## Where we stand
 
 - **Stages 1 to 3 are done on Linux x64.** Image files, dumps and live processes are read; a
