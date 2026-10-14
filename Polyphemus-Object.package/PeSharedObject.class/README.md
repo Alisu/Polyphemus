@@ -1,0 +1,1 @@
+A 64-bit PE shared library (the VM's PharoVMCore.dll on Windows), read for what VMVariables asks of ElfSharedObject: where its variables are (the COFF symbol table MinGW keeps, statics included) and which build it is (its header's timestamp, size of image and checksum), in the file and as loaded in a memory.
