@@ -96,11 +96,32 @@ natively (not WSL). Branch `windows`; stage 1 done 2026-10-14.
 - The bash runner works unchanged under Git Bash: `bin/tdd.sh --all`, 2 jobs, 785 tests in
   1123 s, 0 failures, 2 errors (those two tests), 142 skipped (dumps and live processes).
 
+### Dumps (step 4)
+
+- **Taking one** needs nothing installed: `MiniDumpWriteDump` (`dbghelp.dll`) with full memory,
+  as the same user, unelevated: 177 MB of an idle Pharo 13 in 1.7 s. The VM keeps its spaces where
+  it does on Linux (stack pages 0x300000000, code zone 0x320000000, new space 0x360000000).
+- **Old space comes in segments** with uncommitted memory between them (two in an idle Pharo 13,
+  1 MB apart): the heap is taken as every segment its bridges lead to, and the walk steps over a
+  bridge whose span the dump does not hold. The live end still takes in the bridge closing old
+  space: VMMaker plants its own in the segment's last 16 bytes (`5c5a1757`, after `632c43da`
+  broke it on Pharo 10).
+- **Reading one**: `WindowsMinidump` (Memory64List, ModuleList, ThreadList, SystemInfo);
+  `FileAddressSpace onDump:` opens a dump by what it is. `PharoVMCore.dll` keeps a COFF symbol
+  table and DWARF: `PeSharedObject` reads its symbols, and its header's timestamp, size of image
+  and checksum stand for a build id. GCC split `eden` into `eden.0` and `eden.1`.
+- On that dump: `VMVariablesTest` 10 of 10, `PolyphemusTest` 3 of 3, `SpurDumpedMemoryTest` 15 of
+  16, `StackOfADumpTest` 14 of 15, `SpurImageFromDumpTest` 6 of 7.
+
 ### Not yet
 
-- Dumps (minidumps), `VMVariables` on `PharoVMCore.dll`, live processes (`ReadProcessMemory` and
-  the rest): steps 4 and 5 of `docs/handover-windows.md`.
-- `bin/ci-setup.sh` has no Windows branch; the setup was made by hand.
+- Three dump tests: `SpurDumpedMemoryTest>>testItFindsTheObjectsInNewSpaceByTheirShape` (the
+  walk of new space stops on `#classIndexTooLarge`), `StackOfADumpTest>>testAnInterpretedFrameIsWithinItsBytecodes`,
+  and `SpurImageFromDumpTest>>testAVirtualMachineRunsTheWrittenImage` (it starts the VM with a
+  POSIX `& echo $!`, which cmd.exe does not run).
+- Taking a minidump from Pharo, as `#writeDumpTo:` does a core; the setup's `pharo.dmp` was taken
+  from PowerShell. Until then CI has no dump, and the dump tests skip there.
+- Live processes (`ReadProcessMemory` and the rest): step 5 of `docs/handover-windows.md`.
 - `warm.image` is 1.3 GB here, against ~524 MB measured on the box (Pharo 10): not yet compared
   with the box's Pharo 13 warm image.
 - No Python here: the box runs `bin/long-comments.py` before the merge.
