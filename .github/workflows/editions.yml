@@ -78,7 +78,7 @@ jobs:
             ~/setup/load.log
             ~/setup/.class-logs
 
-  # macOS on Apple silicon, Pharo 13 (docs/handover-macos.md): the suite, then the tests that
+  # macOS on Apple silicon, every edition (docs/handover-macos.md): the suite, then the tests that
   # read another process through its task port, which macOS grants a stock VM's observer only
   # as root. The runner gives sudo without a password.
   macos:
@@ -88,7 +88,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        edition: [ 13 ]
+        edition: [ 10, 11, 12, 13, 14 ]
     steps:
       - uses: actions/checkout@v4
         with:
