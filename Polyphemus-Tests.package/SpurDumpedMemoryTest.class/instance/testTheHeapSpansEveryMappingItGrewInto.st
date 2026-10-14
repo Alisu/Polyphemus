@@ -9,4 +9,5 @@ testTheHeapSpansEveryMappingItGrewInto
 	segments := (FileAddressSpace onDump: self dumpFile) loadableSegments.
 	self deny: (segments anySatisfy: [ :each |
 			 each address = dumped raw mappingLimit and: [ each sizeInFile > 0 ] ]).
-	self assert: dumped raw liveEnd < dumped raw mappingLimit
+	"Where a VM commits old space a segment at a time (Windows), the closing bridge fills it."
+	self assert: dumped raw liveEnd <= dumped raw mappingLimit

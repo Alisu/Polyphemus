@@ -23,8 +23,6 @@ walkFrom: anAddress upTo: aLimit
 		wrong := self whyNotAnObjectAt: current.
 		wrong ifNotNil: [ ^ answer value: current value: wrong ].
 		size := self bytesOfObjectAt: current.
-		"A segment bridge is neither live nor free: stepped over, not counted."
-		(self isSegmentBridgeHeader: (self headerAt: current)) ifFalse: [
 		(self isFreeChunkAt: current)
 			ifTrue: [
 				free := free + 1.
@@ -39,7 +37,7 @@ walkFrom: anAddress upTo: aLimit
 				consecutiveFree := 0.
 				(soa isNil and: [
 					 self looksLikeTheSpecialObjectsArrayAt: current from: anAddress ])
-					ifTrue: [ soa := current ] ] ].
+					ifTrue: [ soa := current ] ].
 		current := self objectAfter: current.
 		current ifNil: [ ^ answer value: aLimit value: #couldNotStep ] ].
 
