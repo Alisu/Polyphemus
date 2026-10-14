@@ -9,7 +9,7 @@ liveYoungRanges
 	  variables := self vmVariables.
 	  ranges := {
 		            ((variables boundsOf: 'pastSpace') key -> (variables at: 'pastSpaceStart')).
-		            ((variables boundsOf: 'eden') key -> (variables at: 'freeStart')) }.
+		            (variables edenStart -> (variables at: 'freeStart')) }.
 	  (ranges allSatisfy: [ :each |
 		   self newSpaceStart <= each key and: [
 			   each key <= each value and: [ each value <= self newSpaceLimit ] ] ])
