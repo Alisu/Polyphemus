@@ -60,6 +60,14 @@ jobs:
           grep -aE "^RES|^    (FAIL|ERROR|NOTE|\|)|totals|BROKEN|TIMEOUT" suite.log || true
           grep -q "totals: .* 0 failures, 0 errors, 0 broken" suite.log || { echo "== end of the log =="; tail -60 suite.log; exit 1; }
 
+      # A VM someone else started, not through bin/pharo-debuggable: Yama refuses it to the
+      # runner's user, and root reads it, as on macOS. The runner gives sudo without a password.
+      - name: As root, a VM started by someone else
+        run: |
+          sudo WORK="$HOME/setup" TMO=1800 bin/run-tests.sh -c LinuxRootObserverTest 2>&1 | tee root.log | grep -aE "^RES|^    (FAIL|ERROR)" || true
+          [ "$(grep -ac "^RES " root.log)" -eq 1 ] || { echo "!! the class did not answer"; exit 1; }
+          ! grep -aE "^RES .*(BROKEN| [1-9][0-9]* (failures|errors))" root.log
+
       - name: Keep the core when the suite fails
         if: failure()
         uses: actions/upload-artifact@v4
@@ -75,6 +83,7 @@ jobs:
           name: suite-pharo-${{ matrix.edition }}
           path: |
             suite.log
+            root.log
             ~/setup/load.log
             ~/setup/.class-logs
 

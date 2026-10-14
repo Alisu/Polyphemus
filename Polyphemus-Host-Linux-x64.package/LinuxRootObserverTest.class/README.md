@@ -1,0 +1,1 @@
+A stock Pharo VM someone else started, not through bin/pharo-debuggable and not our descendant: Yama (ptrace_scope 1) refuses it to an observer of the same user, and root reads it, says where it is stuck and holds it, as on macOS. Its root tests run under sudo in CI.
