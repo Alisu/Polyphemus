@@ -5,6 +5,7 @@ testTwoRunsFetchingOneImageAtOnceBothLeaveItWhole
 	image at once (#74): from a file, twice at once, the image arrives once and whole."
 
 	| directory resources zip script |
+	OSPlatform current isWindows ifTrue: [ ^ self skip: 'Windows fetches with Zinc, not this shell command' ].
 	directory := PolyphemusEdition current scratch / 'polyphemus-fetch-test'.
 	directory ensureDeleteAll.
 	resources := (directory / 'resources') ensureCreateDirectory.

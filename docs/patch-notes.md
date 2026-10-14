@@ -65,6 +65,46 @@ Changes to every edition at once, after `edition/pharo14`.
   contents (below the heap, outside the code zone) raised an MNU; that frame is now refused. The
   code zone of a VM 9 dump is codeBase to limitAddress, where it was anything below the heap.
 
+## Windows x64: Polyphemus-Pharo13-Windows-x64-for-Pharo13
+
+Host Pharo 13 (build 749), VMMaker v10.3.11, VM 10.3.11 for Windows x86_64, on the Windows laptop,
+natively (not WSL). Branch `windows`; stage 1 done 2026-10-14.
+
+### What moved underneath
+
+- **No shell.** `LibC system:` runs `cmd.exe`: the POSIX line that fetched test images (`curl`,
+  `unzip`, `flock`, `mktemp`) and the `ln -s` that gave sources their own name did nothing, and
+  upstream had answered by skipping every image resource on Win32.
+- **Links need rights.** A symbolic link needs Developer Mode or elevation; a directory
+  junction (`mklink /J`) does not, and is what links a setup to the checkout.
+- **The VM says it failed when it did not.** Every start prints
+  `[ERROR] … sqMakeMemoryNotExecutableFromTo … VirtualProtect(x,y,PAGE_EXECUTE_READWRITE): No error`
+  to stderr. The VM goes on and works.
+
+### What we changed
+
+- `Polyphemus-Host-Windows-x64`, picked by the baseline as `#'windows-x64'`.
+- On Windows, test images are fetched with Zinc and unpacked with `ZipArchive`
+  (`PharoImageAccessor>>fetchWithoutShellFrom:named:into:`, `class>>unpack:named:into:`): renamed,
+  the image moved in last, as the shell line does. Sources are copied where Linux links them.
+  Linux and macOS keep the shell line.
+- The two Win32 guards are gone (`ImageInterpretedSetup class>>currentImage`,
+  `AbstractPharoImageResource>>setUp`).
+- `evaluate:in:` drops the VM's `No error` line from what an image answers.
+- The process-reader and stuck-report tests name each host's class; on Windows,
+  `WindowsProcessMemory` and `WindowsStuckReport`, which do not exist yet.
+- The bash runner works unchanged under Git Bash: `bin/tdd.sh --all`, 2 jobs, 785 tests in
+  1123 s, 0 failures, 2 errors (those two tests), 142 skipped (dumps and live processes).
+
+### Not yet
+
+- Dumps (minidumps), `VMVariables` on `PharoVMCore.dll`, live processes (`ReadProcessMemory` and
+  the rest): steps 4 and 5 of `docs/handover-windows.md`.
+- `bin/ci-setup.sh` has no Windows branch; the setup was made by hand.
+- `warm.image` is 1.3 GB here, against ~524 MB measured on the box (Pharo 10): not yet compared
+  with the box's Pharo 13 warm image.
+- No Python here: the box runs `bin/long-comments.py` before the merge.
+
 ## Pharo 14: Polyphemus-Pharo14-Linux-x64-for-Pharo14
 
 Host Pharo 14 (build 771, not yet released), VMMaker v12.0.5-beta, VM 12.0.5-beta. Done

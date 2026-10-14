@@ -46,6 +46,7 @@ An image file's Pharo version is not checked: its format is, and the test fixtur
 | Polyphemus-Pharo12-Linux-x64-for-Pharo12 | `~/polyphemus/pharo12` (Pharo 12 build 1519, VM 10.3.2) | v10.3.2 | image files; processes and dumps of **VM 10.3**, running Pharo 12 | full, green |
 | Polyphemus-Pharo13-Linux-x64-for-Pharo13 | `~/polyphemus/pharo13` (Pharo 13 build 749, VM 10.3.11) | v10.3.11 | image files; processes and dumps of **VM 10.3**, running Pharo 13 | full, green |
 | Polyphemus-Pharo14-Linux-x64-for-Pharo14 | `~/polyphemus/pharo14` (Pharo 14 build 771, VM 12.0.5-beta) | v12.0.5-beta | image files; processes and dumps of **VM 12**, running Pharo 14 | full, green |
+| Polyphemus-Pharo13-Windows-x64-for-Pharo13 | the Windows laptop, `D:\Projects\polyphemus-setup\pharo13` (Pharo 13 build 749, VM 10.3.11) | v10.3.11 | image files only, so far | stage 1 green; dumps and live processes skip (`docs/handover-windows.md`) |
 
 ## Which edition for which image
 

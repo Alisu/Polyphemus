@@ -11,5 +11,5 @@ evaluate: anExpression in: anImage
 	LibC system: PharoImageAccessor pathToTargetVM , ' --headless ' , anImage fullName , ' --no-default-preferences eval "'
 		, anExpression , '" > ' , out fullName , ' 2>&1'.
 	^ out exists
-		  ifTrue: [ out contents trimBoth ]
+		  ifTrue: [ (self withoutStartupNoise: out contents) trimBoth ]
 		  ifFalse: [ '' ]
