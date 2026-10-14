@@ -1,13 +1,12 @@
 helpers
 idleReportOf: aPid
 
-	"An idle image is idle most of the time, not every instant: just launched it may still be
-	starting, or awake for a timer, and a report then stops it to look (CI, Pharo 13,
-	2026-10-12). Look again, up to 5 s, until it is caught waiting."
+	"Idle most of the time, not every instant: look again, up to 15 s, until caught waiting
+	without having been stopped to look, which a thread caught running makes it do (#31)."
 
 	| report |
-	20 timesRepeat: [
+	60 timesRepeat: [
 		report := Polyphemus whereIsStuck: aPid.
-		report mainThread isWaitingForEvents ifTrue: [ ^ report ].
+		(report mainThread isWaitingForEvents and: [ report stoppedToLook not ]) ifTrue: [ ^ report ].
 		(Delay forMilliseconds: 250) wait ].
 	^ report
