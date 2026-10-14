@@ -23,6 +23,12 @@ what they do on Linux; the real interface is Mach ports, which is why a debugger
 also why lldb can attach to a process it did not start, where gdb on Linux cannot: the gate is a
 signed entitlement rather than a parent-child rule.
 
+What Polyphemus does there (`MacProcessMemory`, since 2026-10-14): the observer runs as **root**,
+which macOS grants the task port of a stock Pharo VM, not being hardened; it reads, maps and
+writes through `mach_vm_*`, reads each thread through `thread_get_state` and `thread_info`, and
+holds the VM still with `SIGSTOP`, as on Linux, not `task_suspend`. The rest of this note is
+Linux's; macOS's is `docs/handover-macos.md`.
+
 ## On Linux this needs no FFI at all
 
 `/proc/<pid>/maps` is a text file listing every mapped region with its addresses, permissions and
