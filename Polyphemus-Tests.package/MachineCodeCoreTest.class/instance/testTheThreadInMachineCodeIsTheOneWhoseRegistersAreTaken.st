@@ -6,4 +6,4 @@ testTheThreadInMachineCodeIsTheOneWhoseRegistersAreTaken
 	variables := VMVariables on: (ElfCoreDump on: core).
 	registers := variables registersOfTheThreadInMachineCode.
 
-	self assert: ((registers at: #rip) between: (variables at: 'codeBase') and: (variables at: 'mzFreeStart') - 1)
+	self assert: ((registers at: #instructionPointer) between: (variables at: 'codeBase') and: (variables at: 'mzFreeStart') - 1)
