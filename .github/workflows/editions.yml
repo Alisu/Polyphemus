@@ -124,6 +124,7 @@ jobs:
 
       - name: As root, reading other processes
         run: |
+          csrutil status || true
           for class in MacProcessMemoryTest MacStuckReportTest MacHoldTest; do
             sudo WORK="$HOME/setup" TMO=1800 bin/run-tests.sh -c "$class" 2>&1 | tee -a root.log | grep -aE "^RES|^    (FAIL|ERROR)" || true
           done
