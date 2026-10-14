@@ -55,6 +55,9 @@ jobs:
       - name: Suite
         run: |
           ln -sfn "$GITHUB_WORKSPACE" ~/setup/Polyphemus
+          # Some runs are stopped from outside 6 to 9 minutes in (exit 143, no log kept). The
+          # runner's memory, as annotations: they are kept, and public, even when the job is not.
+          ( while sleep 45; do echo "::notice title=memory::$(free -m | awk 'NR==2 {print $3 " of " $2 " MB used, " $7 " available"}'), $(pgrep -c -x pharo || true) pharo"; done ) &
           # No timings yet on a fresh runner: a class gets TMO seconds, not three times its last run.
           WORK=~/setup TMO=1800 bin/tdd.sh --all -j 4 > suite.log 2>&1 || true
           grep -aE "^RES|^    (FAIL|ERROR|NOTE|\|)|totals|BROKEN|TIMEOUT" suite.log || true
