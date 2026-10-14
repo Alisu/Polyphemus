@@ -9,6 +9,6 @@ testItFindsTheVirtualMachinesVariables
 	memory := MacProcessMemory onSelf.
 	base := (self vmLibraryOf: memory) start.
 	self assert: (library addressOf: 'stackPage') notNil.
-	self assert: (library addressOf: 'memoryMap') notNil.
+	self assert: (library addressOf: 'specialObjectsOop') notNil.
 	self assert: (library addressOf: 'noSuchVariable') isNil.
 	self assertNilOf: memory isAt: (memory unsignedAt: base + (library addressOf: 'nilObj') size: 8)
