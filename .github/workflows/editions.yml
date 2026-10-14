@@ -77,3 +77,66 @@ jobs:
             suite.log
             ~/setup/load.log
             ~/setup/.class-logs
+
+  # macOS on Apple silicon, Pharo 13 (docs/handover-macos.md): the suite, then the tests that
+  # read another process through its task port, which macOS grants a stock VM's observer only
+  # as root. The runner gives sudo without a password.
+  macos:
+    name: macOS Pharo ${{ matrix.edition }}
+    runs-on: macos-15
+    timeout-minutes: 150
+    strategy:
+      fail-fast: false
+      matrix:
+        edition: [ 13 ]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup from cache
+        id: setup
+        uses: actions/cache@v4
+        with:
+          path: ~/setup
+          key: setup-macos-${{ matrix.edition }}-${{ hashFiles('bin/ci-setup.sh', 'BaselineOfPolyphemus.package/**') }}
+
+      - name: Build the setup
+        if: steps.setup.outputs.cache-hit != 'true'
+        run: bin/ci-setup.sh ${{ matrix.edition }} ~/setup
+
+      - name: Test images from cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            resources/*.image
+            resources/*.changes
+            resources/*.sources
+            !resources/candle64Bit.image
+          key: images-macos-${{ hashFiles('Polyphemus-Helper.package/PharoImageAccessor.class/class/downloadNameForPharo..st', 'Polyphemus-Helper.package/PharoImageAccessor.class/class/sourcesNameForPharo..st') }}
+
+      - name: Suite
+        run: |
+          ln -sfn "$GITHUB_WORKSPACE" ~/setup/Polyphemus
+          WORK=~/setup TMO=1800 bin/tdd.sh --all -j 3 > suite.log 2>&1 || true
+          grep -aE "^RES|^    (FAIL|ERROR|NOTE|\|)|totals|BROKEN|TIMEOUT" suite.log || true
+          grep -q "totals: .* 0 failures, 0 errors, 0 broken" suite.log || { echo "== end of the log =="; tail -60 suite.log; exit 1; }
+
+      - name: As root, reading other processes
+        run: |
+          for class in MacProcessMemoryTest MacStuckReportTest MacHoldTest; do
+            sudo WORK="$HOME/setup" TMO=1800 bin/run-tests.sh -c "$class" 2>&1 | tee -a root.log | grep -aE "^RES|^    (FAIL|ERROR)" || true
+          done
+          [ "$(grep -ac "^RES " root.log)" -eq 3 ] || { echo "!! not every class answered"; exit 1; }
+          ! grep -aE "^RES .*(BROKEN| [1-9][0-9]* (failures|errors))" root.log
+
+      - name: Keep the log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: suite-macos-pharo-${{ matrix.edition }}
+          path: |
+            suite.log
+            root.log
+            ~/setup/load.log
+            ~/setup/.class-logs

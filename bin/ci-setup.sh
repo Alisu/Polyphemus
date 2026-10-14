@@ -10,6 +10,8 @@ set -euo pipefail
 EDITION="$1"
 WORK="$2"
 CHECKOUT="$(cd "$(dirname "$0")/.." && pwd)"
+. "$CHECKOUT/bin/portable.sh"
+HOST="$(uname -s)"
 
 case "$EDITION" in
   10) IMAGE=100/Pharo10.0.1-0.build.527.sha.0542643.arch.64bit;      VM=PharoVM-9.0.22-421845e ;;
@@ -19,6 +21,19 @@ case "$EDITION" in
   14) IMAGE=140/Pharo14.0-SNAPSHOT.build.771.sha.bf1210affa.arch.64bit; VM=PharoVM-v12.0.5-beta+0.7884d28 ;;
   *) echo "no edition $EDITION"; exit 2 ;;
 esac
+# macOS (Apple silicon) is measured on Pharo 13 only (docs/handover-macos.md): its VM build has
+# a longer name, lives in Pharo.app, and a stock VM leaves no core, so the dump tests skip.
+if [ "$HOST" = Darwin ]; then
+  case "$EDITION" in
+    13) VM=PharoVM-v10.3.11+0.a585304b1 ;;
+    *) echo "no macOS VM pinned for Pharo $EDITION"; exit 2 ;;
+  esac
+  VM_URL="https://files.pharo.org/vm/pharo-spur64-headless/Darwin-arm64/$VM-Darwin-arm64-bin.zip"
+  VM_BINARY=Pharo.app/Contents/MacOS/Pharo
+else
+  VM_URL="https://files.pharo.org/vm/pharo-spur64-headless/Linux-x86_64/$VM-Linux-x86_64-bin.zip"
+  VM_BINARY=pharo
+fi
 
 mkdir -p "$WORK"
 cd "$WORK"
@@ -26,15 +41,15 @@ cd "$WORK"
 echo "== Pharo $EDITION: image and VM =="
 curl -fsSL -o image.zip "https://files.pharo.org/image/$IMAGE.zip"
 unzip -q -o image.zip
-curl -fsSL -o vm.zip "https://files.pharo.org/vm/pharo-spur64-headless/Linux-x86_64/$VM-Linux-x86_64-bin.zip"
+curl -fsSL -o vm.zip "$VM_URL"
 mkdir -p pharo-vm
 unzip -q -o vm.zip -d pharo-vm
 rm image.zip vm.zip
-cat > pharo <<'LAUNCHER'
+cat > pharo <<LAUNCHER
 #!/usr/bin/env bash
-DIR="$(cd "$(dirname "$0")" && pwd)"
+DIR="\$(cd "\$(dirname "\$0")" && pwd)"
 set -f
-exec "$DIR/pharo-vm/pharo" --headless "$@"
+exec "\$DIR/pharo-vm/$VM_BINARY" --headless "\$@"
 LAUNCHER
 chmod +x pharo
 base="$(ls *.image | head -1)"
@@ -60,15 +75,17 @@ grep -q "LOADED true" load.log || { echo "!! Polyphemus did not load"; tail -40 
 
 cat > polyphemus.env <<ENV
 POLYPHEMUS_TARGET_PHARO=$EDITION
-POLYPHEMUS_CORE=$WORK/pharo.core
 ENV
+[ "$HOST" = Darwin ] || echo "POLYPHEMUS_CORE=$WORK/pharo.core" >> polyphemus.env
 cat > idle.st <<'ST'
 "Stay alive so something can take a dump of us."
 (Delay forSeconds: 240) wait.
 Smalltalk exitSuccess
 ST
 
-echo "== Pharo $EDITION: a core for the dump tests =="
-WORK="$WORK" "$CHECKOUT/bin/take-dump.sh" "$WORK/pharo.core" "$WORK/dev.image"
+if [ "$HOST" != Darwin ]; then
+  echo "== Pharo $EDITION: a core for the dump tests =="
+  WORK="$WORK" "$CHECKOUT/bin/take-dump.sh" "$WORK/pharo.core" "$WORK/dev.image"
+fi
 
 echo "== Pharo $EDITION: ready =="
