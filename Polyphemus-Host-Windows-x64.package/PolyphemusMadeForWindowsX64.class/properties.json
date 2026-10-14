@@ -1,0 +1,11 @@
+{
+	"commentStamp": "",
+	"super": "PolyphemusMadeFor",
+	"category": "Polyphemus-Host-Windows-x64",
+	"classinstvars": [],
+	"pools": [],
+	"classvars": [],
+	"instvars": [],
+	"name": "PolyphemusMadeForWindowsX64",
+	"type": "normal"
+}

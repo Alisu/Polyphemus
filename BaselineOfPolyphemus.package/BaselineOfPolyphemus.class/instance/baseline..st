@@ -51,7 +51,8 @@ baseline: spec
 	"The host: one Polyphemus-Host package each, naming the operating system and processor every
 	edition is made for, picked by the attribute customProjectAttributes adds. A host with none
 	loads no edition that would run."
-	{ #'linux-x64' -> 'Polyphemus-Host-Linux-x64'. #'macos-arm64' -> 'Polyphemus-Host-MacOS-arm64' } do: [ :each |
+	{ #'linux-x64' -> 'Polyphemus-Host-Linux-x64'. #'macos-arm64' -> 'Polyphemus-Host-MacOS-arm64'.
+	  #'windows-x64' -> 'Polyphemus-Host-Windows-x64' } do: [ :each |
 		spec for: each key do: [
 			spec package: each value with: [ spec requires: #( 'Polyphemus-Object' ) ].
 			spec group: 'core' with: { each value } ] ].
