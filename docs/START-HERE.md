@@ -10,7 +10,7 @@ It reads three kinds of thing, and holds the third:
 |---|---|---|
 | an **image file** | a snapshot on disk, possibly damaged | nothing |
 | a **core dump** | the memory of a VM that died, or of one we dumped | nothing: it is a file (ELF; macOS's own Mach-O cores are not read yet, #81) |
-| a **running process** | a VM that is still going: read it, or hold it and debug it | the right to look into it: on Linux an ancestor of it, or the target started with `bin/pharo-debuggable`; on macOS the observer run as root. The target stays as downloaded. |
+| a **running process** | a VM that is still going: read it, or hold it and debug it | the right to look into it: on Linux an ancestor of it, the target started with `bin/pharo-debuggable`, or, for a VM someone else started, the observer run as root; on macOS the observer run as root. The target stays as downloaded. |
 
 ## What changed since stage 2
 
@@ -63,7 +63,8 @@ cc -O2 -o bin/pharo-debuggable bin/pharo-debuggable.c
 ```
 
 It lets a sibling process read the target without changing anything on the machine (Yama's
-`ptrace_scope` stays as it is, normally 1).
+`ptrace_scope` stays as it is, normally 1). A VM already running, started without it by anyone,
+is refused to you by Yama; run the observer as root (`sudo`) to read it, hold it and debug it.
 
 ## 2. An image file
 
