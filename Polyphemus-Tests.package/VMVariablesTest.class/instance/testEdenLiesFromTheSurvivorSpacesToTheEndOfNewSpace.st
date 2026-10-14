@@ -12,4 +12,5 @@ testEdenLiesFromTheSurvivorSpacesToTheEndOfNewSpace
 
 	self assert: (past value max: future value) equals: eden key.
 	self assert: newSpaceEnd equals: eden value.
-	self assert: variables edenBounds equals: eden
+	self assert: variables edenBounds equals: eden.
+	self assert: variables newSpaceEnd equals: newSpaceEnd

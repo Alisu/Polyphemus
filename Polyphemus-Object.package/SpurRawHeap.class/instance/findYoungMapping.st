@@ -9,4 +9,4 @@ findYoungMapping
 	(start between: mappingStart and: mappingLimit - 1) ifTrue: [ ^ self ].
 	(space hasAddress: start) ifFalse: [ ^ self ].
 	youngMappingStart := start.
-	youngMappingLimit := vmVariables at: 'newSpaceEnd'
+	youngMappingLimit := vmVariables newSpaceEnd

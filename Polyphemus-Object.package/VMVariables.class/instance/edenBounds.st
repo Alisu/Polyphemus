@@ -9,4 +9,4 @@ edenBounds
 		  do: [ :e |
 			  e reason = #theVMLibraryHasNoSuchSymbol ifFalse: [ e pass ].
 			  ((self boundsOf: 'pastSpace') value max: (self boundsOf: 'futureSpace') value)
-			  -> ([ self at: 'newSpaceEnd' ] on: SpurCannotRead do: [ :f | self at: 'newSpaceLimit' ]) ]
+			  -> self newSpaceEnd ]
