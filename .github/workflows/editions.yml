@@ -130,10 +130,10 @@ jobs:
         if: matrix.edition != 10
         run: |
           csrutil status || true
-          for class in MacProcessMemoryTest MacStuckReportTest MacHoldTest; do
+          for class in MacProcessMemoryTest MacStuckReportTest MacHoldTest MacMCPToolsTest; do
             sudo WORK="$HOME/setup" TMO=1800 bin/run-tests.sh -c "$class" 2>&1 | tee -a root.log | grep -aE "^RES|^    (FAIL|ERROR)" || true
           done
-          [ "$(grep -ac "^RES " root.log)" -eq 3 ] || { echo "!! not every class answered"; exit 1; }
+          [ "$(grep -ac "^RES " root.log)" -eq 4 ] || { echo "!! not every class answered"; exit 1; }
           ! grep -aE "^RES .*(BROKEN| [1-9][0-9]* (failures|errors))" root.log
 
       - name: Keep the log

@@ -1,0 +1,1 @@
+The MCP server's tools that read a running VM, open_process and where_stuck, on macOS: through the task port, the server run as root, as Polyphemus readProcess: and whereIsStuck: are (docs/mcp.md, #82).
