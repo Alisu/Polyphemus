@@ -6,7 +6,7 @@ testTheHeapSpansEveryMappingItGrewInto
 	mapping starts where ours stops: it would have been one the heap grew into."
 
 	| segments |
-	segments := (ElfCoreDump on: self dumpFile) loadableSegments.
+	segments := (FileAddressSpace onDump: self dumpFile) loadableSegments.
 	self deny: (segments anySatisfy: [ :each |
 			 each address = dumped raw mappingLimit and: [ each sizeInFile > 0 ] ]).
 	self assert: dumped raw liveEnd < dumped raw mappingLimit

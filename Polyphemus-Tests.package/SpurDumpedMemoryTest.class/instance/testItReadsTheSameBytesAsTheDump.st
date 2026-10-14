@@ -5,7 +5,7 @@ testItReadsTheSameBytesAsTheDump
 	is the word the dump holds at that same address -- no relocation in between."
 
 	| memory dump |
-	dump := ElfCoreDump on: self dumpFile.
+	dump := FileAddressSpace onDump: self dumpFile.
 	memory := dumped memory.
 
 	#( 0 16 32 ) do: [ :offset |

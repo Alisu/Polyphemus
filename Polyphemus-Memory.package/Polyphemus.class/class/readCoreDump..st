@@ -6,5 +6,5 @@ readCoreDump: aPath
 	permission: it is a file."
 
 	| dumped |
-	dumped := SpurDumpedMemory on: (ElfCoreDump on: aPath asFileReference).
+	dumped := SpurDumpedMemory on: (FileAddressSpace onDump: aPath asFileReference).
 	^ dumped reifyEverything: dumped reifiedMemory
