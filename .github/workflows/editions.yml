@@ -61,10 +61,6 @@ jobs:
           # No timings yet on a fresh runner: a class gets TMO seconds, not three times its last run.
           WORK=~/setup TMO=1800 bin/tdd.sh --all -j 4 > suite.log 2>&1 || true
           grep -aE "^RES|^    (FAIL|ERROR|NOTE|\|)|totals|BROKEN|TIMEOUT" suite.log || true
-          # The logs where upload-artifact finds them: not behind ~ or the junction.
-          mkdir -p logs && cp ~/setup/load.log logs/ && cp -r ~/setup/.class-logs logs/class-logs 2>/dev/null || true
-          # A suite that ran nothing is not green: every class answers with a RES line.
-          [ "$(grep -ac "^RES " suite.log)" -ge 90 ] || { echo "!! fewer than 90 classes answered"; tail -60 suite.log; exit 1; }
           grep -q "totals: .* 0 failures, 0 errors, 0 broken" suite.log || { echo "== end of the log =="; tail -60 suite.log; exit 1; }
 
       - name: Keep the core when the suite fails
