@@ -3,12 +3,13 @@ testItRefusesALibraryOfAnotherBuild
 
 	"A symbol of another build names some other word. Nothing is read through it."
 
-	| other |
-	other := variables library file parent files detect: [ :each |
-		         (each basename beginsWith: 'lib')
-			         and: [ (each basename includesSubstring: '.so')
-			         and: [ (each basename includesSubstring: 'PharoVMCore') not ] ] ].
+	| vm other |
+	vm := variables library file asFileReference.
+	other := vm parent files detect: [ :each |
+		         each basename ~= vm basename and: [
+			         (each basename beginsWith: 'lib') & (each basename includesSubstring: '.so')
+			         | (each extension asLowercase = vm extension asLowercase) ] ].
 
 	self
-		should: [ (VMVariables on: dump library: (ElfSharedObject on: other)) at: 'numStackPages' ]
+		should: [ (VMVariables on: dump library: (variables library class on: other fullName)) at: 'numStackPages' ]
 		raise: SpurCannotRead

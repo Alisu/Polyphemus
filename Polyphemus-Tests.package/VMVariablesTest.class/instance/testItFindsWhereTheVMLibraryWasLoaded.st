@@ -6,7 +6,7 @@ testItFindsWhereTheVMLibraryWasLoaded
 
 	| library |
 	library := dump mappedFiles detect: [ :each |
-		           (each path endsWith: '/libPharoVMCore.so') and: [ each fileOffset = 0 ] ].
+		           (VMVariables isTheVMLibrary: each path) and: [ each fileOffset = 0 ] ].
 
 	self assert: variables base equals: library start.
 	self assert: variables base \\ 4096 equals: 0
