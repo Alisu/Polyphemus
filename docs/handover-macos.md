@@ -1,9 +1,15 @@
 # The macOS edition: where it stands
 
 Measured on Théo's MacBook (Apple silicon, macOS 15.7, System Integrity Protection on) on
-2026-10-13, branch `macos`. The setup was removed at the end of the day; everything learned is
-here. Like Windows (`docs/handover-windows.md`): commit on `macos`, gated on the Mac's suite;
-before `macos` reaches `stage2`, every Linux edition passes on the box.
+2026-10-13; on `stage2` since 2026-10-14. The Mac setup was removed at the end of that day:
+**CI is where macOS runs now**, job `macos` in `.github/workflows/editions.yml` (macos-15, Apple
+silicon): `bin/ci-setup.sh` builds the setup, the suite runs, then `MacProcessMemoryTest`,
+`MacStuckReportTest` and `MacHoldTest` run under `sudo`. The runner has System Integrity
+Protection **off** (`csrutil status`, printed by the job), unlike Théo's Mac: root reads even
+`/bin/sleep` there, and `testASystemProcessIsRefusedEvenToRoot` expects the refusal each case gives.
+
+Open: #79 (the hold-and-fix test on CI), #80 (the other Pharo editions on macOS), #81 (macOS's
+own Mach-O cores), #82 (the MCP server on a Mac, eden's start, Intel Macs).
 
 ## The edition
 
