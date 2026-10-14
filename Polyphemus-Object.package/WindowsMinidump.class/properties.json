@@ -1,0 +1,11 @@
+{
+	"commentStamp": "",
+	"super": "FileAddressSpace",
+	"category": "Polyphemus-Object-dump",
+	"classinstvars": [],
+	"pools": [],
+	"classvars": [],
+	"instvars": [],
+	"name": "WindowsMinidump",
+	"type": "normal"
+}
