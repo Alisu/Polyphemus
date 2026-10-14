@@ -2,8 +2,8 @@ instance creation
 on: aDump
 
 	"A reader on aDump's heap: the mapping holding where old space is stated to start (an
-	image header's oldBaseAddress, the VM's nilObj) and every mapping contiguous after it.
-	The largest mapping when nothing is stated: not the heap once a host has grown (#13)."
+	image header's oldBaseAddress, the VM's nilObj) and every mapping after it, touching or across
+	a segment's bridge. The largest mapping when nothing is stated: not the heap once a host has grown (#13)."
 
 	| variables stated first limit following |
 	aDump loadableSegments ifEmpty: [ ^ self on: aDump from: 0 to: 0 ].
@@ -18,9 +18,10 @@ on: aDump
 	[
 	following := aDump loadableSegments
 		             detect: [ :each |
-			             each address = limit and: [ each sizeInFile > 0 ] ]
+			             (each address = limit or: [ each address = (self segmentAfterBridgeEndingAt: limit in: aDump) ])
+				             and: [ each sizeInFile > 0 ] ]
 		             ifNone: [ nil ].
-	following notNil ] whileTrue: [ limit := limit + following sizeInFile ].
+	following notNil ] whileTrue: [ limit := following address + following sizeInFile ].
 	^ (self on: aDump from: first address to: limit)
 		  setVMVariables: variables;
 		  findYoungMapping;

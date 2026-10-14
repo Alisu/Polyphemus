@@ -10,7 +10,7 @@ testItStepsOverTheBridgeBetweenTwoSegments
 		         stream nextPutAll: (self heapBytesFor: self aFewObjects).
 		         self putWord: (255 bitShift: 56) + (gap // 8) on: stream.
 		         self putWord: (self headerForClass: 3 format: 9 slots: 255) on: stream ].
-	second := self heapBytesFor: #( #( 22 1 1 ) #( 23 2 2 ) ).
+	second := self heapBytesFor: #( #( 22 1 1 ) #( 23 2 2 ) #( 3 9 0 ) ).
 	space := SplitAddressSpace withAll: {
 			         (ByteArrayAddressSpace on: first at: self baseAddress).
 			         (ByteArrayAddressSpace on: second at: self baseAddress + first size + gap) }.
@@ -19,5 +19,8 @@ testItStepsOverTheBridgeBetweenTwoSegments
 		        walkFrom: self baseAddress
 		        upTo: self baseAddress + first size + gap + second size.
 
+	"A bridge is no object: VMMaker's walks skip it, so the live objects end before it."
+	self assert: walk objectCount equals: self aFewObjects size + 2.
+	self assert: walk lastLiveEnd equals: self baseAddress + first size + gap + second size - 16.
 	self assert: walk reachedTheLimit.
 	self assert: walk stoppedAt equals: self baseAddress + first size + gap + second size
