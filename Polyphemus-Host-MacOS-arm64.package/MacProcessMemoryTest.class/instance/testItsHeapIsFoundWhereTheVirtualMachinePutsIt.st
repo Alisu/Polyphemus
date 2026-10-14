@@ -6,5 +6,6 @@ testItsHeapIsFoundWhereTheVirtualMachinePutsIt
 
 	| memory |
 	memory := MacProcessMemory onSelf.
-	self assertTheHeapOfThisVirtualMachineStartsAt:
-		(SpurRawHeap statedHeapStartIn: memory variables: (VMVariables on: memory))
+	self
+		assertNilOf: memory
+		isAt: (SpurRawHeap statedHeapStartIn: memory variables: (VMVariables on: memory))
