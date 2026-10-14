@@ -1,6 +1,6 @@
 helpers
 launchIdleTarget
 
-	"The edition's target image, as downloaded, idle for a minute on this VM; its pid."
+	"The edition's target image, as downloaded, idle for ten minutes on this VM (the test kills it); its pid."
 
-	^ self launchTargetRunning: '(Delay forSeconds: 60) wait. Smalltalk exitSuccess'
+	^ self launchTargetRunning: '(Delay forSeconds: 600) wait. Smalltalk exitSuccess'

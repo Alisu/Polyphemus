@@ -15,7 +15,7 @@ semaphore := Semaphore new.
 (dir / ''index'') writeStreamDo: [ :stream | stream print: (Smalltalk registerExternalObject: semaphore) ].
 [ semaphore wait. (dir / ''signalled'') ensureCreateFile ] forkAt: 70.
 [ [ true ] whileTrue: [ (1 to: 1000) do: [ :each | 3 sqrt ] ] ] forkAt: 30.
-(Delay forSeconds: 60) wait.
+(Delay forSeconds: 600) wait.
 Smalltalk exitSuccess'.
 	[
 	reader := MacProcessMemory on: pid.
