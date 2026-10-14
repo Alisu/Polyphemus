@@ -21,12 +21,15 @@ case "$EDITION" in
   14) IMAGE=140/Pharo14.0-SNAPSHOT.build.771.sha.bf1210affa.arch.64bit; VM=PharoVM-v12.0.5-beta+0.7884d28 ;;
   *) echo "no edition $EDITION"; exit 2 ;;
 esac
-# macOS (Apple silicon) is measured on Pharo 13 only (docs/handover-macos.md): its VM build has
-# a longer name, lives in Pharo.app, and a stock VM leaves no core, so the dump tests skip.
+# macOS (Apple silicon, docs/handover-macos.md): the same VM builds as Linux's under longer
+# names, in Pharo.app; a stock VM leaves no core, so the dump tests skip.
 if [ "$HOST" = Darwin ]; then
   case "$EDITION" in
+    10) VM=PharoVM-9.0.22-421845e1 ;;
+    11) VM=PharoVM-10.0.5-2757766f ;;
+    12) VM=PharoVM-10.3.2-b8793dd2 ;;
     13) VM=PharoVM-v10.3.11+0.a585304b1 ;;
-    *) echo "no macOS VM pinned for Pharo $EDITION"; exit 2 ;;
+    14) VM=PharoVM-v12.0.5-beta+0.7884d2853 ;;
   esac
   VM_URL="https://files.pharo.org/vm/pharo-spur64-headless/Darwin-arm64/$VM-Darwin-arm64-bin.zip"
   VM_BINARY=Pharo.app/Contents/MacOS/Pharo

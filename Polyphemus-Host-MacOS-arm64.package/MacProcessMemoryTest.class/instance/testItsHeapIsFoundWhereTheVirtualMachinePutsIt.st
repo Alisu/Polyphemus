@@ -7,5 +7,5 @@ testItsHeapIsFoundWhereTheVirtualMachinePutsIt
 	| memory |
 	memory := MacProcessMemory onSelf.
 	self
-		assert: (SpurRawHeap statedHeapStartIn: memory variables: (VMVariables on: memory))
-		equals: 16r10000000000
+		assertNilOf: memory
+		isAt: (SpurRawHeap statedHeapStartIn: memory variables: (VMVariables on: memory))

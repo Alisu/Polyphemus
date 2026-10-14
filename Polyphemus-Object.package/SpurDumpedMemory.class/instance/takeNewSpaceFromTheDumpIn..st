@@ -8,10 +8,10 @@ takeNewSpaceFromTheDumpIn: aMemory
 	raw liveYoungRanges ifNil: [ ^ self ].
 	variables := raw vmVariables.
 	scavenger := aMemory scavenger.
-	#( 'eden' 'pastSpace' 'futureSpace' ) do: [ :each |
-		| bounds |
-		bounds := variables boundsOf: each.
-		(scavenger perform: each asSymbol) start: bounds key; limit: bounds value ].
+	{ 'eden' -> variables edenBounds.
+	  'pastSpace' -> (variables boundsOf: 'pastSpace').
+	  'futureSpace' -> (variables boundsOf: 'futureSpace') } do: [ :each |
+		(scavenger perform: each key asSymbol) start: each value key; limit: each value value ].
 	scavenger instVarNamed: #futureSurvivorStart put: (variables boundsOf: 'futureSpace') key.
 	"No setters for these (setWhatVMMakerHasNoSetterFor:freeLists:)."
 	aMemory

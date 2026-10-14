@@ -78,7 +78,7 @@ jobs:
             ~/setup/load.log
             ~/setup/.class-logs
 
-  # macOS on Apple silicon, Pharo 13 (docs/handover-macos.md): the suite, then the tests that
+  # macOS on Apple silicon, every edition (docs/handover-macos.md): the suite, then the tests that
   # read another process through its task port, which macOS grants a stock VM's observer only
   # as root. The runner gives sudo without a password.
   macos:
@@ -88,7 +88,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        edition: [ 13 ]
+        # Not 11: its VM, 10.0.5, dies at start on macOS 15, its stack pages wanted at a fixed
+        # address already taken (2026-10-14, #80).
+        edition: [ 10, 12, 13, 14 ]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -122,7 +124,10 @@ jobs:
           grep -aE "^RES|^    (FAIL|ERROR|NOTE|\|)|totals|BROKEN|TIMEOUT" suite.log || true
           grep -q "totals: .* 0 failures, 0 errors, 0 broken" suite.log || { echo "== end of the log =="; tail -60 suite.log; exit 1; }
 
+      # Not on Pharo 10 for now: macOS's VM 9 keeps new space apart from old space and its
+      # heap does not read as Linux's VM 9 does (#80). Its suite runs.
       - name: As root, reading other processes
+        if: matrix.edition != 10
         run: |
           csrutil status || true
           for class in MacProcessMemoryTest MacStuckReportTest MacHoldTest; do

@@ -20,8 +20,9 @@ Three stages, in order:
    A dump *has* frames, which is the whole reason for it: they are what a snapshot throws away.
 3. **Stage 3 (done)** — a *live* image: interrupt it, hold it, read it, fix it, let it go.
    Much of it arrived with stage 2's editing work; what it does, and what is only believed
-   rather than checked, is in `docs/stage3-live-image.md`. Next: an edition per operating system
-   (Windows x64 first, `docs/handover-windows.md`, then macOS), then #47, many instances at once.
+   rather than checked, is in `docs/stage3-live-image.md`. Then an edition per operating system:
+   macOS arm64 done 2026-10-14 (`docs/handover-macos.md`, in CI); Windows x64 under way on branch
+   `windows` (`docs/handover-windows.md`). #47, many instances at once, is parked.
 
 ## Environment (on the Ubuntu box, `~/polyphemus`)
 
@@ -129,7 +130,7 @@ Fork-only, and the canonical record. `mistakes.md` first if a hunt is going long
 
 Green: **each of Pharo 10 to 14, 0 failures** (`bin/run-tests.sh --all -j 6` ~4 min
 alone on a cool box; `bin/gate.sh` every edition in turn). Stage 3 done 2026-09-26; editions for Pharo 10 to 14 done 2026-09-28
-(`docs/editions.md`, what each changed in `docs/patch-notes.md`); next, other OSes (Pharo 14 is not released yet: its pin will move). The two defects this
+(`docs/editions.md`, what each changed in `docs/patch-notes.md`); macOS arm64 since 2026-10-14, Windows under way (Pharo 14 is not released yet: its pin will move). The two defects this
 fork started with — the load-time simulator crash and `computeOperandStack:` — are fixed.
 
 ### Stage 1 — a corrupted image file. Done.

@@ -7,5 +7,5 @@ testItReadsItsOwnVirtualMachinesVariables
 	| memory variables |
 	memory := MacProcessMemory onSelf.
 	variables := VMVariables on: memory.
-	self assert: (variables at: 'nilObj') equals: 16r10000000000.
+	self assertNilOf: memory isAt: (variables at: 'nilObj').
 	self assert: (memory hasAddress: (variables at: 'newSpaceStart'))

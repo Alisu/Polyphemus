@@ -8,7 +8,7 @@ testACoreLeavesOutTheSystemsSharedLibraries
 	memory := MacProcessMemory onSelf.
 	all := memory segments inject: 0 into: [ :sum :each | sum + each sizeInMemory ].
 	dumped := memory dumpableSegments inject: 0 into: [ :sum :each | sum + each sizeInMemory ].
-	library := memory mappedFiles detect: [ :each | (each path endsWith: '/libPharoVMCore.dylib') and: [ each fileOffset = 0 ] ].
+	library := self vmLibraryOf: memory.
 	self assert: dumped < (all / 2).
-	self assert: (memory dumpableSegments anySatisfy: [ :each | each holdsAddress: 16r10000000000 ]).
+	self assert: (memory dumpableSegments anySatisfy: [ :each | each holdsAddress: ((VMVariables on: memory) at: 'nilObj') ]).
 	self assert: (memory dumpableSegments anySatisfy: [ :each | each holdsAddress: library start ])

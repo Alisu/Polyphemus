@@ -8,7 +8,7 @@ testStepOverInTheDebuggerStepsAStockVirtualMachine
 	MacProcessMemory isRoot ifFalse: [ ^ self skip: 'reading another process on macOS needs the observer run as root (sudo)' ].
 	dir := self emptyDirectoryNamed: 'mac-step'.
 	pid := self launchTargetRunning: '[ [ true ] whileTrue: [ (1 to: 1000) do: [ :each | 3 sqrt ] ] ] forkAt: 40.
-(Delay forSeconds: 120) wait.
+(Delay forSeconds: 600) wait.
 Smalltalk exitSuccess'.
 	[
 	Polyphemus putAWatcherInto: pid watchedIn: dir.

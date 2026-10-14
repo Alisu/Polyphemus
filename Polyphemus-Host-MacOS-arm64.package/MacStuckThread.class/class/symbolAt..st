@@ -7,6 +7,6 @@ symbolAt: anAddress
 	| info |
 	info := MacProcessMemory pinned: 32.
 	(MacProcessMemory dladdr: anAddress into: info) = 0 ifTrue: [ ^ nil ].
-	^ (ExternalAddress fromAddress: (info unsignedLongLongAt: 1)) utf8StringFromCString asFileReference basename
+	^ (MacProcessMemory cStringAt: (info unsignedLongLongAt: 1)) asFileReference basename
 	  -> ((info unsignedLongLongAt: 17) = 0 ifFalse: [
-			   (ExternalAddress fromAddress: (info unsignedLongLongAt: 17)) utf8StringFromCString ])
+			   MacProcessMemory cStringAt: (info unsignedLongLongAt: 17) ])
