@@ -1,11 +1,11 @@
 
-[![CI Status](https://img.shields.io/github/actions/workflow/status/hogoww/Polyphemus/CI.yml?branch=main)](https://github.com/hogoww/Polyphemus/actions/workflows/CI.yml)
+[![Editions](https://img.shields.io/github/actions/workflow/status/Alisu/Polyphemus/editions.yml?branch=stage2&label=editions)](https://github.com/Alisu/Polyphemus/actions/workflows/editions.yml)
 
 # Polyphemus
 
-> **This fork** (branch `stage2`) extends Polyphemus to core dumps and running processes, and
-> gives it one entry point, `Polyphemus`. New here? Start with
-> [docs/START-HERE.md](docs/START-HERE.md).
+> **This fork** (branch `stage2`) extends Polyphemus to core dumps and running processes, on
+> Pharo 10 to 14, Linux x64 and macOS arm64, and gives it one entry point, `Polyphemus`, and an
+> MCP server for agents. New here? Start with [docs/START-HERE.md](docs/START-HERE.md).
 
 Polyphemus is a tool that gives a higher level representation of the object ordinary pointers (OOP) for the Pharo VM.
 It also proposes a visualization of the memory.
