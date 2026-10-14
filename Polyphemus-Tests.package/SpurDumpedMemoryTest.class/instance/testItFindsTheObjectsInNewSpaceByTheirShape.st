@@ -2,7 +2,8 @@ tests
 testItFindsTheObjectsInNewSpaceByTheirShape
 
 	"New space has no landmark and a dump no allocation mark, so its objects are found by
-	walking. The walk stopping on free space is not a failure: it is the allocation mark."
+	walking, past every survivor the VM kept. It stops on free space, or on stale bytes where
+	the VM does not clear what it scavenged (Windows)."
 
 	| walk |
 	self assert: dumped raw youngSpaceStart isNotNil.
@@ -11,4 +12,5 @@ testItFindsTheObjectsInNewSpaceByTheirShape
 	walk := dumped raw youngObjectsWalk.
 	self assert: walk objectCount > 100.
 	self assert: walk stoppedAt < dumped raw heapStart.
-	self assert: walk reason equals: #nothingButFreeSpace
+	self assert: walk stoppedAt >= (dumped raw vmVariables at: 'pastSpaceStart').
+	self assert: (#( #nothingButFreeSpace #classIndexTooLarge #unusedFormat ) includes: walk reason)
