@@ -14,7 +14,12 @@ assertEachPcFollowsTheSendAbove: aStack in: aMemory
 			self assert: frame pc notNil.
 			frame isMachineCodeFrame ifTrue: [ checked := checked + 1 ].
 			sent := MachineCodeCoreTest new selectorSentJustBefore: frame in: aMemory.
-			self assert: (callee isBlockContext
-					 ifTrue: [ sent beginsWith: 'value' ]
-					 ifFalse: [ sent = callee selector or: [ sent beginsWith: 'perform' ] ]) ] ].
+			self
+				assert: (callee isBlockContext
+						 ifTrue: [ sent notNil and: [ sent beginsWith: 'value' ] ]
+						 ifFalse: [ sent = callee selector or: [ sent notNil and: [ sent beginsWith: 'perform' ] ] ])
+				description: [
+					frame printString , ' (pc ' , frame pc printString , ', machine code '
+					, frame isMachineCodeFrame printString , ') sent ' , sent printString , ', above it '
+					, callee printString ] ] ].
 	^ checked
