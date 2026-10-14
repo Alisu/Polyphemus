@@ -91,6 +91,10 @@ Here: commit on `windows`, gated on the Windows suite. Before `windows` is merge
 the box runs every Linux edition's suite on it, since shared code changes reach them too. Push
 `windows` to the fork freely; `stage2` only after both gates. Théo decides when to merge.
 
+**For the box, before that merge: the comment-length pass.** The laptop has no Python, so
+`bin/long-comments.py` has not run on anything written here. Run it on `windows` and cut what it
+flags to one to three lines (Théo, 2026-10-14).
+
 ## Things learned the hard way on Linux
 
 - A test that passes on its retry in the same image is not a flake until it has run alone, in
