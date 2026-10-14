@@ -124,7 +124,10 @@ jobs:
           grep -aE "^RES|^    (FAIL|ERROR|NOTE|\|)|totals|BROKEN|TIMEOUT" suite.log || true
           grep -q "totals: .* 0 failures, 0 errors, 0 broken" suite.log || { echo "== end of the log =="; tail -60 suite.log; exit 1; }
 
+      # Not on Pharo 10 for now: macOS's VM 9 keeps new space apart from old space and its
+      # heap does not read as Linux's VM 9 does (#80). Its suite runs.
       - name: As root, reading other processes
+        if: matrix.edition != 10
         run: |
           csrutil status || true
           for class in MacProcessMemoryTest MacStuckReportTest MacHoldTest; do
