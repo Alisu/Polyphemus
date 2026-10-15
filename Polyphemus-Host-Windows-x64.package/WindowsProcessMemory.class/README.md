@@ -1,0 +1,1 @@
+Another process's memory on Windows through its process handle (OpenProcess, VirtualQueryEx, ReadProcessMemory, the module list and each thread's context), answering the memory protocol every reader answers, as a minidump does.
