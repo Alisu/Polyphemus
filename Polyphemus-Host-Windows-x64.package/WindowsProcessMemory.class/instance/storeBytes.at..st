@@ -11,6 +11,6 @@ storeBytes: aByteArray at: anAddress
 	bytes replaceFrom: 1 to: aByteArray size with: aByteArray startingAt: 1.
 	done := self class pinned: 8.
 	blocks := nil.
-	(self class write: handle at: anAddress from: bytes count: aByteArray size done: done) = 0 ifTrue: [
+	(self class write: self handle at: anAddress from: bytes count: aByteArray size done: done) = 0 ifTrue: [
 		^ self error: 'WriteProcessMemory refused' ].
 	^ aByteArray size

@@ -1,5 +1,5 @@
 holding it still
 resume
 
-	self class resumeProcess: handle.
+	self class resumeProcess: self handle.
 	^ self isStopped not

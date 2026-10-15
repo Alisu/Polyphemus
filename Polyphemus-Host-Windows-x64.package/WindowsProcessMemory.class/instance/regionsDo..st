@@ -7,7 +7,7 @@ regionsDo: aBlock
 	| info address |
 	info := self class pinned: 48.
 	address := 0.
-	[ address < 16r7FFFFFFF0000 and: [ (self class query: handle at: address into: info size: 48) = 48 ] ]
+	[ address < 16r7FFFFFFF0000 and: [ (self class query: self handle at: address into: info size: 48) = 48 ] ]
 		whileTrue: [
 			| from bytes |
 			from := info unsignedLongLongAt: 1.
