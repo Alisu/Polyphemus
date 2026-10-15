@@ -2,9 +2,7 @@ instance creation
 onWithFlagFreeTree: aMemory 
 	"we always clean up on creation"
 	self cleanupCache.
-	^ MemoryCache detect: [ :aReifiedMemory | aReifiedMemory simulator = aMemory ]
-		ifFound:[ :aReifiedMemory | aReifiedMemory ]
-		ifNone: [ | newMemory |
+	^ (self cachedFor: aMemory) ifNil: [ | newMemory |
 			newMemory := self new
 				memory: aMemory;
 				flagErrorFreeTree: true;
