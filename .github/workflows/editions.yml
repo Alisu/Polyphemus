@@ -56,9 +56,9 @@ jobs:
         run: |
           ln -sfn "$GITHUB_WORKSPACE" ~/setup/Polyphemus
           # No timings yet on a fresh runner: a class gets TMO seconds, not three times its last run.
-          # Three classes at once, not four: with their targets, four took 14 of the runner's 16 GB
-          # and the step was killed from outside, leaving no log (exit 143, windows branch).
-          WORK=~/setup TMO=1800 bin/tdd.sh --all -j 3 > suite.log 2>&1 || true
+          # Two classes at once: with their targets, four took 14 of the runner's 16 GB and three
+          # 15.9, and the step was killed from outside, leaving no log (exit 143, windows branch).
+          WORK=~/setup TMO=1800 bin/tdd.sh --all -j 2 > suite.log 2>&1 || true
           grep -aE "^RES|^    (FAIL|ERROR|NOTE|\|)|totals|BROKEN|TIMEOUT" suite.log || true
           grep -q "totals: .* 0 failures, 0 errors, 0 broken" suite.log || { echo "== end of the log =="; tail -60 suite.log; exit 1; }
 
