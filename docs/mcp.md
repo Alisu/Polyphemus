@@ -14,7 +14,8 @@ ssh worker-box '~/polyphemus/Polyphemus/bin/polyphemus-mcp.sh'
 ```
 
 `WORK` picks the setup (default `~/polyphemus/pharo13`), as for `bin/tdd.sh`; the server runs that
-setup's `warm.image`, which `bin/tdd.sh` keeps at the working copy, and never saves it.
+setup's `warm.image`, which `bin/tdd.sh` keeps at the working copy, and never saves it. The
+script is written for that box; a launcher on another machine, a Mac for one, is #82.
 
 Registered in an agent, for example Claude Code:
 

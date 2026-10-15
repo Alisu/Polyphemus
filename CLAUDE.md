@@ -166,96 +166,78 @@ What it does not do, and why:
 ### Stage 2 — a crashed or stale process. Done.
 
 Reading a dump or a live process, writing a loadable image from one, and editing either --
-in place, or by installing methods and the literals they name. `docs/editing-an-image.md`
-has the editing; `docs/stage3-live-image.md` carries what was learned about live images
-into stage 3. Left over rather than blocking: #27 (holding an image that carries no watcher
-of ours), #22 (a flaky test), #12 (waits for a newer VM), #35 (the tidy-up this work owes).
+in place, or by installing methods and the literals they name (`docs/editing-an-image.md`).
+What was learned about live images went on into stage 3 (`docs/stage3-live-image.md`). Left
+over rather than blocking: #22 (a flaky test), #12 (waits for a newer VM).
 
 A dump is memory that was already running, so it is put back at its original addresses and the
 `bytesToShift` an image needs is zero. Reading one is *simpler* than reading an image file — the
 hard part is that nothing in a dump says where anything is.
 
-What exists:
+What it is made of:
 
 - **Reading the bytes.** `ElfCoreDump` answers three messages — `hasAddress:`,
   `bytesAt:count:`, `unsignedAt:size:` — from a file, through one open stream and a 64 KB block
-  cache. `ByteArrayAddressSpace` answers the same three from bytes in hand. Nothing above them
-  learns which it is holding, which is where `/proc/pid/mem` and the Mach and Windows calls will
-  plug in.
+  cache. `ByteArrayAddressSpace` answers the same three from bytes in hand, `LinuxProcessMemory`
+  from `/proc/<pid>/mem` (no FFI), `MacProcessMemory` from a task port; Windows is under way.
+  Nothing above them learns which it is holding.
 - **Finding the heap.** `SpurHeapScanner` finds old space by its shape: the nil/false/true
   triple, then believed only if the walk from it runs. On a real 204 MB core it found the heap
   and walked **1,106,303 objects across 92 MB**. `SpurHeapWalk` counts live objects and free
   chunks apart, so the walk also measures the image: **76.9 MB live**, which is exactly the size
-  of that image's file on disk.
-- **The registers.** Heap start, the end, and now `specialObjectsOop` —
+  of that image's file on disk. Where the VM states where nil is (`VMVariables`), that is
+  believed first: on macOS the largest region held a table that only looked like the triple.
+- **The registers.** Heap start, the end, and `specialObjectsOop` —
   `#specialObjectsArrayFrom:upTo:` finds it by contents, since the VM keeps it in a variable and
   a dump has no image header. All three are obtainable from the dump alone.
+- **A reified memory.** `SpurDumpedMemory` takes the seat `SpurImageReader` sits in: on a real
+  219 MB core it reifies **1,106,398 objects** and finds the processes with their states, lazily
+  and without writing (the full reifier rebuilds the free lists of the memory it reads). New
+  space is read from the VM's own variables (#8, `VMVariables`): the running process lives there,
+  and processes found went from 11 to 17, one of them `#active`. `docs/reading-a-dump.md`.
+- **Live processes.** `#writeDumpTo:` writes an ELF core our own reader reads back, so a dump can
+  be taken from Pharo with no debugger; `#whileStopped:` holds the target with SIGSTOP and lets it
+  go with SIGCONT, which needs no permission beyond signalling. Being *allowed* to read was the
+  real work: on Linux `bin/pharo-debuggable` and `LinuxObservationPermission` let an image consent,
+  so one image reads another with `ptrace_scope` left at 1 (`docs/reading-a-live-process.md`); on
+  macOS the observer runs as root (`docs/handover-macos.md`).
 - **Frames as activations.** `OOPAbstractStackFrame` answers the Context protocol — `receiver`,
   `method`, `pc`, `stackp`, `tempAt:`, `sender` — so the debugger opens on a stack of frames the
   same way it opens on a stack of contexts, and a base frame's caller context is reached with
   `#oopPageCaller`.
+- **JIT frames**, through `OOPCogLayout`: 24 contexts became 77 activations on the real core,
+  #3 (jitted method headers) fixed on the way. Trampolines by name, each page's newest frame and
+  its pc (the page records), and the running process from the VM's saved registers, or from the
+  registers of the thread caught in machine code (#17: cores, and macOS live; Linux's `/proc`
+  gives a running thread no frame pointer). A machine code pc is mapped by VMMaker's own Cogit
+  over the dump, in the processor's instructions (four bytes on arm64).
+  `docs/frames-and-contexts.md`.
+- **Editing and writing back.** `SpurEdit` on a `SpurWritableImageFile` edits an image file's
+  objects in a copy of its bytes and writes the copy out: repairing the blanked-context fixture's
+  slot with the clean image's word gives back the clean file byte for byte. `SpurImageFromDump`
+  writes a dump as an image file a virtual machine starts: jitted method headers restored from
+  their CogMethods, frames divorced into contexts (JIT pcs through Cog's map), widowed contexts
+  bereaved, then VMMaker's own `garbageCollectForSnapshot` and `SpurImageWriter`. Read back it
+  climbs every rung of the ladder, each process has the stack it had in the dump, and a virtual
+  machine loads the file and runs it. The C stack (#18) and jitted code (#19) are shown, never
+  edited: the JIT regenerates machine code.
 
-The order of what remains, decided rather than assumed:
+## Open question: what if the damage is in the thing we read with? (2026-09-15)
 
-1. ~~The dump's heap into a reified memory.~~ **Done.** `SpurDumpedMemory` takes the seat
-   `SpurImageReader` sits in; on a real 219 MB core it reifies **1,106,398 objects** and finds
-   **11 processes with their states**. Lazily and without writing, because the full reifier
-   rebuilds the free lists of the memory it reads. New space is declared empty and that is a
-   stated limitation — the running process lives there, readable by address but absent from
-   enumerations. `docs/reading-a-dump.md` has the whole of it.
-   ~~Next, and small: walk eden by shape.~~ **Done.** `#youngObjectsWalk` finds new space's
-   objects by shape and stops where the allocation mark would be. The running process lives
-   there: processes found went from 11 to 17, one of them `#active` at last.
-2. ~~Live reading through `/proc/pid/mem`.~~ **Done, and it needs no FFI.** `LinuxProcessMemory`
-   answers the same three messages plus `loadableSegments`, so `SpurDumpedMemory` takes one where
-   it takes a core file. `#writeDumpTo:` writes an ELF core our own reader reads back, so a dump
-   can be taken from Pharo with no debugger.
-   Being *allowed* to read turned out to be the real work: `bin/pharo-debuggable` and
-   `LinuxObservationPermission` let an image consent, so one image reads another with
-   `ptrace_scope` left at 1. `docs/reading-a-live-process.md` has it.
-   ~~Still missing: stopping the target first.~~ **Done.** `#whileStopped:` sends SIGSTOP,
-   reads, and SIGCONT afterwards -- which needs no permission beyond being allowed to signal,
-   unlike reading. Held still, a live image reads with every rung of the ladder passing.
-3. **JIT frames properly.** ~~Detect and refuse.~~ ~~Read a dump's frames past the married
-   context, in Cog's layout.~~ **Done** through `OOPCogLayout`: 24 contexts became 77 activations
-   on the real core, and #3 (jitted method headers) is fixed on the way;
-   `docs/frames-and-contexts.md` has it. Eden (#8) is walked
-   from the VM's own variables (`VMVariables`, `docs/reading-a-dump.md`). Trampolines by name,
-   each page's newest frame and its pc (the page records), and the running process (the VM's
-   saved registers, checked against the threads' `rip`) are done. A machine code pc is
-   mapped by VMMaker's own Cogit over the dump. **Item 3 is done**, for cores and for
-   stopped live processes (`/proc/<pid>/task/*/syscall` gives each thread's pc). Item 4 is parked until these are done.
-4. **Editing and writing back** -- unparked 2026-09-19. **a. Done:** `SpurImageEdit` (since #35, `SpurEdit` on a
-   `SpurWritableImageFile`) edits an image file's objects in a copy of its bytes, addressed as its heap addresses them, and writes
-   the copy out. Repairing the blanked-context fixture's slot with the clean image's word gives
-   back the clean file byte for byte. **b. Done:** `SpurImageFromDump` writes a dump as an image file a virtual machine starts:
-   jitted method headers restored from their CogMethods, frames divorced into contexts (JIT pcs
-   through Cog's map), widowed contexts bereaved, then VMMaker's own `garbageCollectForSnapshot`
-   and `SpurImageWriter`. Read back it climbs every rung of the ladder, each of its processes
-   has the stack it had in the dump, and the machine running these tests loads the file and goes
-   on running it (`docs/reading-a-dump.md`). The C
-   stack (#18) and jitted code (#19) are shown, never edited: the JIT regenerates machine code.
+Everything here is reached through structures that could themselves be the corrupted ones: the
+special objects array, the class table, the class identity of the running process (which is how
+every other process is found), the method headers, the source pointers and the sources file. A
+stage-one tool is for images that are damaged, so the case where it cannot read is exactly the
+case it exists for.
 
-## Open question, raised 2026-09-15 - partly answered 2026-09-16
-
-**Answered for stage 2, in `SpurReadability`.** Reading is a ladder - bytes, heap, objects, free
+**Answered in part, in `SpurReadability`.** Reading is a ladder - bytes, heap, objects, free
 space, classes, special objects - each rung checked, each question declaring the rung it needs,
 and anything above the highest readable rung raising `SpurCannotRead` with the level and reason
-rather than answering. `docs/reading-a-dump.md` has the table. **Done 2026-09-19:** stage 1's
-image path climbs the same ladder (`SpurImageFile`, checked in `Polyphemus readImageFile:`), and
-the rung above, source, is `SourceReadability`.
+rather than answering. `docs/reading-a-dump.md` has the table. Stage 1's image path climbs the
+same ladder (`SpurImageFile`, checked in `Polyphemus readImageFile:`), and the rung above,
+source, is `SourceReadability`.
 
-The original note follows, because the reasoning still applies.
-
-## Open question, raised 2026-09-15
-
-**What if the damage is in the thing we read with?** Everything here is reached through
-structures that could themselves be the corrupted ones: the special objects array, the class
-table, the class identity of the running process (which is how every other process is found),
-the method headers, the source pointers and the sources file. A stage-one tool is for images
-that are damaged, so the case where it cannot read is exactly the case it exists for.
-
-Worth thinking about, not answered:
+Still worth thinking about:
 
 - Find objects by **shape** rather than by class identity, so a broken class table costs less.
 - Cross-check the paths that overlap — the scheduler's queues against a heap scan, a method's

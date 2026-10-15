@@ -1,158 +1,99 @@
-# The macOS edition: where it stands
+# The macOS edition
 
-Measured on Théo's MacBook (Apple silicon, macOS 15.7, System Integrity Protection on) on
-2026-10-13; on `stage2` since 2026-10-14. The Mac setup was removed at the end of that day:
-**CI is where macOS runs now**, job `macos` in `.github/workflows/editions.yml` (macos-15, Apple
-silicon), on Pharo 10, 12, 13 and 14: `bin/ci-setup.sh` builds each setup from the Darwin-arm64
-builds of the VMs Linux pins, the suite runs, then `MacProcessMemoryTest`, `MacStuckReportTest`
-and `MacHoldTest` run under `sudo`, from Pharo 12 (Pharo 10's VM 9 does not read yet as root,
-#80). Pharo 11's VM, 10.0.5, does not start on macOS 15 at all. The runner has System Integrity
-Protection **off** (`csrutil status`, printed by the job), unlike Théo's Mac: root reads even
-`/bin/sleep` there, and `testASystemProcessIsRefusedEvenToRoot` expects the refusal each case gives.
+Polyphemus on macOS, Apple silicon: measured on Théo's MacBook (macOS 15.7, System Integrity
+Protection on) on 2026-10-13, on `stage2` since 2026-10-14. No Mac setup is kept: **macOS runs in
+CI**, job `macos` of `.github/workflows/editions.yml` (macos-15). Open: #80 (Pharo 10's root
+reading), #81 (macOS's own cores), #82 (the MCP server on a Mac).
 
-Open: #79 (the hold-and-fix test on CI), #80 (the other Pharo editions on macOS), #81 (macOS's
-own Mach-O cores), #82 (the MCP server on a Mac, eden's start, Intel Macs).
+## Where it runs
 
-## The edition
+`bin/ci-setup.sh` builds each setup from the Darwin-arm64 builds of the VMs Linux pins
+(files.pharo.org/vm/pharo-spur64-headless/Darwin-arm64/), with Cog's arm64 JIT. The suite runs,
+then the classes that read another process, under `sudo`.
 
-`Polyphemus-Pharo13-MacOS-arm64-for-Pharo13`: Pharo 13 (build 749, the image Linux pins) on
-`PharoVM-v10.3.11+0.a585304b1-Darwin-arm64` (files.pharo.org/vm/pharo-spur64-headless/
-Darwin-arm64/), the same VM version as Linux, with Cog's arm64 JIT. Loading Polyphemus and
-VMMaker from a clone took 7 min 17 s.
+| Pharo | VM | Suite | Root tests (`MacProcessMemoryTest`, `MacStuckReportTest`, `MacHoldTest`, `MacMCPToolsTest`) |
+|---|---|---|---|
+| 10 | `PharoVM-9.0.22-421845e1` | yes | not yet: VM 9 keeps new space apart from old space here, and its heap does not read as on Linux (#80) |
+| 11 | `PharoVM-10.0.5-2757766f` | — | — : this VM does not start on macOS 15 (`allocateStackPages`: its stack wanted at `0x280000000`, taken) |
+| 12 | `PharoVM-10.3.2-b8793dd2` | yes | yes |
+| 13 | `PharoVM-v10.3.11+0.a585304b1` | yes | yes |
+| 14 | `PharoVM-v12.0.5-beta+0.7884d2853` | yes | yes |
 
-- **Metacello offers no attribute for the operating system** (`#squeakCommon #pharo #'pharo13.x'
-  #'pharo13.0.x'` on the Mac). The baseline adds one (`customProjectAttributes`: `#'macos-arm64'`,
-  `#'linux-x64'`) and picks a `Polyphemus-Host-*` package by it; each edition's `forThisHost` asks
-  `PolyphemusMadeFor` which host it is made for. Windows will need `Polyphemus-Host-Windows-x64`.
-- The VM is only ad-hoc signed (`flags=0x20002(adhoc,linker-signed)`, no hardened runtime, no
-  entitlements).
+The runner has System Integrity Protection **off** (`csrutil status`, printed by the job): root
+reads even `/bin/sleep` there, which a Mac with it on refuses to anyone, and
+`testASystemProcessIsRefusedEvenToRoot` expects the refusal each case gives.
 
-## The suite on macOS
+**The host package.** Metacello offers no attribute for the operating system, so the baseline
+adds one (`customProjectAttributes`: `#'macos-arm64'`, `#'linux-x64'`) and loads a
+`Polyphemus-Host-*` package by it. `PolyphemusMadeFor current` answers this host's process reader
+(`MacProcessMemory`) and stuck report (`MacStuckReport`).
 
-98 classes, 778 tests: **0 failures, 0 errors, 139 skipped**, in 6 minutes (one class at a time;
-a two-edition gate takes ~40 min on the box). Everything that reads image files works unchanged:
-stage 1, the debugger on image files, the census, packages, the MCP server's image tools.
+**The `bin/` scripts** run on macOS too: there is no `flock` (the pinned-image fetch does without)
+and no `timeout` (`bin/portable.sh` stands in, with perl), and bash is 3.2 (no `mapfile`).
 
-What skips, and why:
-
-| Classes | Skipped | Why |
-|---|---|---|
-| `LinuxProcessMemoryTest`, `StuckReportTest`, the `Live*` classes, `WatcherInjectionTest`, `LinuxObservationPermissionTest`, `PolyphemusMCPLiveToolsTest` | all | no `/proc` |
-| `SpurDumpedMemoryTest`, `StackOfADumpTest`, `SpurImageFromDumpTest`, `MachineCodeCoreTest`, one each of `PolyphemusTest` and `PolyphemusMCPProcessToolsTest` | all | no core; Linux cores are ELF |
-| `VMVariablesTest` | all | reads the VM's ELF symbols |
-| 5 of `SchedulerOnRealImageTest`, 2 of `ProcessStackOnRealImageTest` | 7 | as on Linux Pharo 12+: the host does not reproduce Pharo 10's code |
-
-Two things the first run found, fixed on `macos`: there is **no `flock`** (the pinned-image fetch
-of #74 died at once) and **no `timeout`** (the `bin/` scripts use it; a Mac runner bounded runs
-with `perl -e 'alarm N; exec @ARGV'`). A failed fetch also retried forever; it now fails once,
-naming the image.
-
-## Cores: only for debuggable processes, and big
-
-- **macOS writes a core only for a process signed with `com.apple.security.get-task-allow`.**
-  Measured with a three-line C program that aborts: built plain, no core; the same binary
-  ad-hoc re-signed with that entitlement, a core in `/cores/core.<pid>`
-  (`kern.coredump=1`, `kern.corefile=/cores/core.%P`, `/cores` writable by group admin,
-  `ulimit -c unlimited` in the target's shell). The downloaded Pharo VM has no entitlement: a
-  `SIGABRT` killed it and left nothing (no `crash.dmp`, no report).
-- **A core is about 5 GB even for that tiny program** (4,923,719,696 bytes): macOS includes the
-  shared libraries. A reader must seek in it, never load it.
-- The core is Mach-O (`MH_CORE`): `LC_SEGMENT_64` per region (the memory protocol's regions) and
-  `LC_THREAD` per thread (arm64 registers, for #17).
-- **The VM keeps its symbols**: `libPharoVMCore.dylib` has `_stackPage`, `_framePointer`,
-  `_stackPointer`, `_instructionPointer`, `_specialObjectsOop` in its symbol table, so
-  `VMVariables` can find them as it does from ELF. `codeZoneStart` is not under that name: to
-  look up.
+## What reading a stock VM takes
 
 **The target stays stock** (Théo, 2026-10-13): Polyphemus is used on the VM people run, as
-downloaded, so nothing may depend on re-signing or otherwise instrumenting it. What reading one
-needs falls on the observer: the person using Polyphemus grants it the right to look, as on
-Linux, where reading another user's VM with `ptrace_scope` at 1 also takes privilege
-(`bin/pharo-debuggable` is the tests' way round that, not the users').
+downloaded, so nothing may depend on re-signing or otherwise instrumenting it. The right to look
+falls on the observer, run as **root**. macOS grants a task port when the target is not hardened,
+has `get-task-allow`, or the caller is a declared debugger; the downloaded VM is only ad-hoc
+signed (`flags=0x20002(adhoc,linker-signed)`, no hardened runtime, no entitlements), so root
+suffices. An ad-hoc `com.apple.security.cs.debugger` entitlement is not honored by AMFI.
 
-## Live processes and cores of a stock VM: to measure, with Théo's password
+`ptrace` exists on macOS but reads neither memory nor registers; those go through Mach, behind
+the task port (`task_for_pid`, `mach_vm_read_overwrite`, `mach_vm_region_recurse`,
+`thread_get_state`, `thread_info`, `mach_vm_write`).
 
-`ptrace` exists on macOS but cannot read memory or registers: those go through Mach, behind the
-task port (`task_for_pid`, `mach_vm_read_overwrite`, `mach_vm_region_recurse`,
-`thread_get_state`, `task_suspend`; `docs/reading-a-live-process.md`). `ptrace` attach is gated
-the same way, and a process may refuse it (`PT_DENY_ATTACH`). Two ways to a stock VM, both to
-measure, both needing Théo:
+## What works, and how
 
-- **An observer run as root: measured, it works** (2026-10-13). A small C probe, run with `sudo`
-  on a stock, idle Pharo 13 VM (the download, not re-signed): `task_for_pid` succeeded; 124
-  regions (112 readable; 390 GB mapped, most of it reserved address space); a word read from the
-  biggest writable region (128 MB at `0x110000000`); 3 threads. macOS's task policy grants the
-  port when the target is not hardened, has `get-task-allow`, or the caller is a declared
-  debugger; the downloaded VM is not hardened, so root suffices. The probe carried an ad-hoc
-  `com.apple.security.cs.debugger` entitlement, which AMFI says it does not honor ("adhoc signed
-  or signed by an unknown certificate chain"), so it is not what got the port. Two earlier runs
-  answered `(os/kern) failure (5)` only because their targets had already exited.
-- **Apple's lldb** (it carries the debugger entitlement) attaching once Théo authorizes it (an
-  admin password; developer mode is off on this Mac, `DevToolsSecurity -status`), then
-  `process save-core`: a Mach-O core of a stock VM for Polyphemus to read.
-- **Apple's `debugserver`**, the helper lldb attaches through, is Apple-signed as a debugger and
-  speaks GDB's remote protocol (memory, registers, threads): a live reader could ask it, with no
-  certificate of ours. To try after lldb.
+- **Memory.** `MacProcessMemory` answers the memory protocol through the task port, in 64 KB
+  blocks (one `mach_vm_read` per object header took 12 s to find a 1.3 GB heap). The system's
+  shared libraries cache is mapped as submaps (4.7 of 5.5 GB readable in a Pharo process); a core
+  leaves it out. A process that ended while read answers no region at all and is refused as such.
+- **The VM's variables** come from `libPharoVMCore.dylib`'s Mach-O symbols (`MachOSharedObject`,
+  leading `_` stripped; its UUID as build id). The VM states where nil is (`0x10000000000` on
+  VM 10.3.11) and new space (`0xF000000000`, not Linux's `0x360000000`); without them the largest
+  region was taken for the heap, and held a table that only looked like nil, false and true.
+- **New space.** The macOS VM names no `eden` (it does name `pastSpace`, `futureSpace`,
+  `freeStart`, `scavengeThreshold`): `VMVariables>>edenBounds` takes eden from where the higher
+  survivor space ends to where new space ends (`newSpaceEnd`; VM 9's `newSpaceLimit`), as VMMaker
+  lays them out, checked against the stated eden on Linux. Allocating from outside stays below
+  `scavengeThreshold`, as the VM's own allocator does.
+- **The running process.** Cog on arm64 keeps its frame pointer in x29 and its Smalltalk stack
+  pointer in x28 (sp is C's; `CogARMv8Compiler class>>initializeAbstractRegisters`):
+  `VMVariables cogPointersIn:` names them by processor, so a VM stopped in machine code reads its
+  newest frames from that thread's registers. A machine code pc maps to a bytecode pc through
+  Cog's map counted in four-byte instructions (`OOPCogLayout backEndFor:`); with x86-64's bytes,
+  every one mapped wrong.
+- **Holding still, at a quiet moment.** `SIGSTOP` while read; quiet when the main thread waits in
+  the kernel, its pc just after `svc #0x80` (`MacProcessMemory>>isQuiet`); stopped in machine
+  code, it is not.
+- **Where it is stuck.** `MacStuckReport`: each thread's run state (`thread_info`) and pc; a thread
+  waiting in the kernel has its pc in a `libsystem_kernel` stub, named by `dladdr` in the
+  observer, since the shared libraries lie at the same addresses in every process. An idle VM's
+  main thread waits in `kevent`, its heartbeat in `semaphore_wait_trap`. Signals caught come from
+  `sysctl`'s `kinfo_proc` (648 bytes, `p_sigcatch` at 236): SIGHUP SIGQUIT SIGILL SIGTRAP SIGABRT
+  SIGEMT SIGFPE SIGBUS SIGSEGV SIGSYS SIGALRM SIGTERM SIGUSR1.
+- **Cores of a running VM.** `Polyphemus dumpProcess:to:` writes an ELF core (`ElfCoreWriter`,
+  shared with Linux; e_machine AArch64, each thread's registers as `NT_PRSTATUS` notes), which
+  `readCoreDump:` reads back.
+- **Writing, holding, stepping, fixing.** `mach_vm_write`, refused unless the VM is stopped;
+  signalling an external semaphore of a running VM; a watcher put into a stock VM's image (#27),
+  then held, stepped (Step Over) and a jitted method fixed as the debugger accepts it. The VM is
+  untouched; only the image gains the watcher.
 
-## Reading a live VM: done (2026-10-13)
+## macOS's own cores (not read, #81)
 
-`MacProcessMemory` (`Polyphemus-Host-MacOS-arm64`) answers the memory protocol through the task
-port; `VMVariables` reads the VM's variables from `libPharoVMCore.dylib`'s Mach-O symbols
-(`MachOSharedObject`), so the VM states where nil (`0x10000000000`) and new space
-(`0xF000000000`, not Linux's `0x360000000`) are. As root, a stock Pharo 13 VM is read as
-`Polyphemus readProcess:` reads one on Linux: everything reified in 7 s, 17 processes with their
-states and frames (`MacProcessMemoryTest`, all green as root, the root test skipped otherwise).
+macOS writes a core only for a process signed with `com.apple.security.get-task-allow`: a stock
+Pharo VM killed by `SIGABRT` leaves nothing. A core is about 5 GB even for a tiny program (the
+shared libraries are in it), Mach-O (`MH_CORE`: `LC_SEGMENT_64` per region, `LC_THREAD` per
+thread). lldb's `process save-core`, after an admin authorizes attaching, would give one of a
+stock VM; Apple's `debugserver` speaks GDB's remote protocol and could serve a live reader.
 
-Learned on the way: without the VM's variables the largest region was taken for the heap, and
-held a table that only looked like nil, false and true; one `mach_vm_read` per header took 12 s
-to find a 1.3 GB heap (now 64 KB blocks); listing processes needs everything reified first, as
-`readProcess:` does; reading Pharo's own memory is no test of a live reader, since it changes
-while read.
+## Measured on these VMs
 
-## Next, in order
-
-1. ~~The running process's newest frames, from its thread's registers~~ **Done**: Cog keeps
-   its frame pointer in x29 and its Smalltalk stack pointer in x28 on arm64 (sp is C's;
-   `CogARMv8Compiler class>>initializeAbstractRegisters`), so `VMVariables cogPointersIn:` names
-   them by processor. A spinning stock VM stopped in machine code reads its running process
-   from them, as root. Found on the way: the cogit was x86-64's, whose map counts bytes; arm64's
-   counts four-byte instructions, so every machine code pc mapped wrong. Each reader now says
-   its `processor` and the cogit takes that back end (`OOPCogLayout backEndFor:`); the tests
-   failed with x86-64's, measured. An idle VM's processes hold no machine code frame.
-2. ~~`Polyphemus readProcess:` and the MCP's `open_process` choosing the reader by host~~ **Done**
-   (`PolyphemusMadeFor current processMemoryClass`; held still with `SIGSTOP` while read).
-   Quiet, as on Linux, when its main thread waits in the kernel: its pc just after
-   `svc #0x80` (`MacProcessMemory>>isQuiet`); stopped in machine code, it is not. Measured: macOS refuses
-   even root the task port of its own binaries (`/bin/sleep`).
-3. ~~`where_stuck` on macOS~~ **Done** (`MacStuckReport`, as root): each thread's run state
-   (`thread_info`), and its pc: waiting in the kernel, the pc is just after `svc #0x80` in a
-   `libsystem_kernel` stub, named by `dladdr` in the observer, since the system's shared
-   libraries lie at the same addresses in every process. Signals caught from `sysctl`'s
-   `kinfo_proc` (648 bytes, `p_sigcatch` at 236, measured against a process trapping SIGUSR1).
-   An idle VM's main thread waits in `kevent`, its heartbeat in `semaphore_wait_trap`.
-   Seen once and not again in 13 runs: `testItReadsEachThreadsRegisters` and
-   `testACoreKeepsEachThreadsRegisters` failed together in one image; their failure now
-   names the thread's sp and pc.
-4. ~~A core of a stock VM~~ **Done**: `Polyphemus dumpProcess:to:` writes one through the task
-   port as an ELF core (`ElfCoreWriter`, shared with Linux; e_machine AArch64), and
-   `readCoreDump:` reads it back with its processes, as root. It leaves out what lies in
-   submaps: macOS maps the shared libraries cache there, 4.7 of 5.5 GB readable in a Pharo
-   process. Each thread's registers go in as `NT_PRSTATUS` notes (aarch64 layout; read back by
-   `ElfCoreDump>>threadRegisters`, every stack pointer inside the core, as root).
-5. **Writing, done**: `MacProcessMemory>>storeBytes:at:` through `mach_vm_write`, refused unless
-   the VM is stopped, as on Linux; the blocks read before are forgotten. As root, a word set in a
-   stopped stock VM reads back, and `SpurWritableProcess` signals an external semaphore of a
-   running one, which the VM then signals (nothing injected).
-6. **The hold, done**: `Polyphemus putAWatcherInto:watchedIn:` and `holdProcess:watchedIn:` take
-   the host's reader, so a stock VM spinning at a user's priority is held on its busy process
-   through its task port and let go, as root (#27, `MacHoldTest`). The VM is untouched; only
-   the image gains our watcher. The macOS VM names no `eden` (`_pastSpace`, `_futureSpace`,
-   `_freeStart`, `_scavengeThreshold` it does): allocating from outside is now bounded by
-   `scavengeThreshold`, as the VM bounds its own (stricter than eden's limit, on Linux too:
-   to gate there), and `SpurRawHeap>>liveYoungRanges` answers nil on macOS, as it did.
-7. **Stepping and editing, done** (`MacHoldTest`, as root): on a stock VM holding a watcher put
-   in, Step Over steps it, and `SmallInteger>>#even`, which the machine compiled, run until and
-   recompiled as the debugger accepts it, ends a user's loop once let go (#20).
-
-Measured on this VM (v10.3.11, Darwin arm64): `value:value:value:value:value:`'s primitive
-fails, as on Pharo 14's VM 12.0.5-beta: pass five values with `valueWithArguments:`.
+`value:value:value:value:value:`'s primitive fails on VM 10.3.11 (as on Pharo 14's 12.0.5-beta):
+pass five values with `valueWithArguments:`. Calling the VM's own `getOldSpaceStart` through FFI
+crashed Pharo 12 to 14, and Pharo 10's `PointerUtils` gives no pinned object's address: the tests
+check nil as the special objects array's first slot instead. Pharo 14's macOS VM has no libgit2
+and says so before an evaluated answer.
