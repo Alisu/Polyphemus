@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Build an edition's setup from nothing, as the box's were built by hand (docs/editions.md):
 # its pinned Pharo image and VM, Polyphemus loaded from this checkout, a core of it for the
-# dump tests, and the launcher the live tests need. For CI (.github/workflows/editions.yml).
+# dump tests (a minidump on Windows, none on macOS), and the launcher the live tests need. For CI (.github/workflows/editions.yml).
 #
 #   bin/ci-setup.sh 13 ~/setup
 #
@@ -104,7 +104,13 @@ cat > idle.st <<'ST'
 Smalltalk exitSuccess
 ST
 
-if [ "$HOST" != Darwin ] && [ "$HOST" != Windows ]; then
+if [ "$HOST" = Windows ]; then
+  echo "== Pharo $EDITION: a minidump for the dump tests =="
+  powershell -NoProfile -ExecutionPolicy Bypass -File "$(cygpath -w "$CHECKOUT/bin/take-minidump.ps1")" \
+    -Vm "$(cygpath -w "$WORK/pharo-vm/$VM_BINARY")" -Image "$(cygpath -w "$WORK/dev.image")" \
+    -Script "$(cygpath -w "$WORK/idle.st")" -Out "$(cygpath -w "$WORK/pharo.dmp")"
+  [ -s "$WORK/pharo.dmp" ] && echo "POLYPHEMUS_CORE=$(cygpath -m "$WORK/pharo.dmp")" >> polyphemus.env
+elif [ "$HOST" != Darwin ]; then
   echo "== Pharo $EDITION: a core for the dump tests =="
   WORK="$WORK" "$CHECKOUT/bin/take-dump.sh" "$WORK/pharo.core" "$WORK/dev.image"
 fi

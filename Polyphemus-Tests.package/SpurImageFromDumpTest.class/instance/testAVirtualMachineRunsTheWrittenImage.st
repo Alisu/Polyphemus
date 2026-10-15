@@ -5,6 +5,8 @@ testAVirtualMachineRunsTheWrittenImage
 	answers nothing, being where the dumped machine was -- a process waiting."
 
 	| copy pid |
+	(PolyphemusHost current os = 'Windows' and: [ (Smalltalk hasClassNamed: #WindowsProcessMemory) not ])
+		ifTrue: [ ^ self skip: 'watching the machine it starts needs a reader of Windows processes (docs/handover-windows.md, step 5)' ].
 	copy := self runDirectory / 'from-dump.image'.
 	copy ensureDelete.
 	(self runDirectory / 'crash.dmp') ensureDelete.
