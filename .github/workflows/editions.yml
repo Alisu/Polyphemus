@@ -57,7 +57,8 @@ jobs:
           ln -sfn "$GITHUB_WORKSPACE" ~/setup/Polyphemus
           # Some runs are stopped from outside 6 to 9 minutes in (exit 143, no log kept). The
           # runner's memory, as annotations: they are kept, and public, even when the job is not.
-          ( while sleep 45; do echo "::notice title=memory::$(free -m | awk 'NR==2 {print $3 " of " $2 " MB used, " $7 " available"}'), $(pgrep -c -x pharo || true) pharo"; done ) &
+          # Above 8 GB, which class each Pharo runs and how big it is (GitHub keeps ten notices a step).
+          ( while sleep 20; do used=$(free -m | awk 'NR==2 {print $3}'); [ "$used" -gt 8000 ] && echo "::notice title=memory::$used MB used: $(ps -C pharo -o rss=,args= | sed -nE 's/^ *([0-9]+) .*polyphemus-run-[a-z0-9]+-([A-Za-z0-9]+)\.st.*/\2 \1/p' | awk '{printf "%s %d MB, ", $1, $2/1024}')"; done ) &
           # No timings yet on a fresh runner: a class gets TMO seconds, not three times its last run.
           # Two classes at once: with their targets, four took 14 of the runner's 16 GB and three
           # 15.9, and the step was killed from outside, leaving no log (exit 143, windows branch).
