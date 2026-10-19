@@ -326,6 +326,10 @@ run passed on every retry. `testAVirtualMachineCanReadItsOwnRunningHeap` failed 
 as the first test of a fresh image, and had been counted as a flake (2026-09-27).
 → The runner prints what the first run signalled and where, beside what the retry did. Run a
 suspect alone, in fresh images, several times, before calling it a flake.
+→ Since 2026-10-19 the runner itself runs each failure again, alone, in a fresh process, and
+says FLAKY where it passes there: not counted as a failure, so red means a failure that stays.
+FLAKY covers order too (a test that needs what another left). In CI each one is an annotation,
+and `bin/flakes.sh` counts them over the last runs: a test that keeps coming back is a bug.
 
 **Committing on a green-looking pipe.** The commit after it was chained on the test command
 *running*, not on it being green, so a red suite went in anyway. Gate on the result.

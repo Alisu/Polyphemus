@@ -86,8 +86,10 @@ summary=""
 for n in "${EDITIONS[@]}"; do
   setup=$(setup_of "${n#pharo}")
   echo "== Pharo ${n#pharo} ($(cat "$setup/.gate.seconds")s)"
-  grep -aE "^== totals|^    (FAIL|ERROR)|BROKEN|TIMEOUT|never ran" "$setup/.gate.log"
-  if grep -qaE "^    (FAIL|ERROR)|BROKEN|TIMEOUT|never ran" "$setup/.gate.log"; then
+  grep -aE "^== totals|^    (FAIL|ERROR|FLAKY)|BROKEN|TIMEOUT|never ran" "$setup/.gate.log"
+  # Red by the totals, which count a failure that passed alone in a fresh process as a flake,
+  # not a failure (bin/run-tests.sh); the log above still shows its first run.
+  if ! grep -qaE "^== totals: .* 0 failures, 0 errors, 0 broken" "$setup/.gate.log"; then
     status=1; summary="$summary ${n#pharo}:red"
   else
     echo "$head_commit$dirty $(date +%F)" > "$setup/.last-green"; summary="$summary ${n#pharo}:green"

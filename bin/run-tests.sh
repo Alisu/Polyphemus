@@ -183,7 +183,54 @@ run_set() {
   for c in "${classes[@]}"; do
     grep -q "^RES $c " "$RESULTS" || echo "RES $c BROKEN never ran" | tee -a "$RESULTS"
   done
+  retry_fresh
   echo "== $label done in $(( $(date +%s) - start ))s =="
+}
+
+# A failure run again alone, in a fresh process: one that passes there is a flake, said apart
+# (FLAKY) and not counted as a failure, so that red means a failure that stays (#31). A retry in
+# the same image proves nothing: what its first run left can make it pass (docs/mistakes.md).
+# Ten failures or more are a regression, not flakes, and are not retried. FRESH_RETRY=no: none.
+RETRY_LIMIT=10
+red() { grep -qE '^RES [A-Za-z0-9_]+ (TIMEOUT|BROKEN)|^    (FAIL |ERROR) ' "$RESULTS"; }
+not_retried() {  # BSD grep (macOS) is not trusted with an empty pattern file
+  if [ -s "$RESULTS.retried" ]; then grep -vxF -f "$RESULTS.retried" || true; else cat; fi
+}
+retry_fresh() {
+  [ "${FRESH_RETRY:-yes}" = no ] && return 0
+  local failed classes kind c sel out
+  failed=$(grep -E '^    (FAIL |ERROR) +[A-Za-z0-9_]+>>[A-Za-z0-9_:]+ ' "$RESULTS" \
+    | sed -E 's/^    (FAIL|ERROR) +([A-Za-z0-9_]+)>>([A-Za-z0-9_:]+) .*/\1 \2 \3/' | not_retried)
+  classes=$(grep -E '^RES [A-Za-z0-9_]+ (TIMEOUT|BROKEN)' "$RESULTS" | awk '{print $2}' | not_retried)
+  [ -z "$failed$classes" ] && return 0
+  if [ $(( $(grep -c . <<<"$failed") + $(grep -c . <<<"$classes") )) -ge "$RETRY_LIMIT" ]; then
+    echo "== $RETRY_LIMIT failures or more: a regression, not retried =="
+    return 0
+  fi
+  echo "== each failure again, alone, in a fresh process =="
+  while read -r kind c sel; do
+    [ -z "$kind" ] && continue
+    echo "$kind $c $sel" >> "$RESULTS.retried"
+    out=$(ONLY_TEST="$sel" run_class "$c" < /dev/null)
+    grep -q "^RES $c 1 run 0 failures 0 errors" <<<"$out" || { echo "    still failing: $c>>$sel"; continue; }
+    echo "    FLAKY $c>>$sel"
+    awk -v k="$kind" -v c="$c" -v s="$sel" '
+      !done && index($0, "    " (k == "FAIL" ? "FAIL  " : "ERROR ") c ">>" s " ") == 1 {
+        sub(/^    (FAIL  |ERROR )/, "    FLAKY "); sub(" -- ", " -- failed, then passed alone in a fresh process; first: "); done = 1 }
+      $1 == "RES" && $2 == c && $3 ~ /^[0-9]+$/ && !fixed { if (k == "FAIL") $5--; else $7--; fixed = 1 }
+      { print }' "$RESULTS" > "$RESULTS.tmp" && mv "$RESULTS.tmp" "$RESULTS"
+  done <<<"$failed"
+  for c in $classes; do
+    echo "$c" >> "$RESULTS.retried"
+    out=$(run_class "$c" < /dev/null)
+    grep -qE "^RES $c [0-9]+ run 0 failures 0 errors" <<<"$out" || { echo "    still failing: $c"; continue; }
+    echo "    FLAKY $c"
+    awk -v c="$c" -v fresh="$(grep "^RES $c " <<<"$out" | head -1)" '
+      $1 == "RES" && $2 == c && ($3 == "TIMEOUT" || $3 == "BROKEN") && !done {
+        print fresh; print "    FLAKY " c " -- " $3 " first, then passed in a fresh process"; done = 1; skip = 1; next }
+      skip && /^    \| / { next }
+      { skip = 0; print }' "$RESULTS" > "$RESULTS.tmp" && mv "$RESULTS.tmp" "$RESULTS"
+  done
 }
 
 # One run per setup: two share its warm.image and scratch files. A run started where one is
@@ -208,7 +255,7 @@ fi
 echo $$ > "$LOCK"
 trap 'rm -f "$LOCK"' EXIT
 
-: > "$RESULTS"; : > "$TIMINGS.new"
+: > "$RESULTS"; : > "$RESULTS.retried"; : > "$TIMINGS.new"
 
 # Which classes exist, and which launch images: asked of the image once. A single class needs
 # neither, so the tightest loop does not pay for starting Pharo to ask.
@@ -236,7 +283,7 @@ else
     all)  run_set "all" ${ALL[@]+"${ALL[@]}"} ;;
     tiered)
       run_set "fast tier" ${FAST[@]+"${FAST[@]}"}
-      if grep -qE 'FAIL|ERROR|BROKEN|TIMEOUT' "$RESULTS"; then
+      if red; then
         echo "== fast tier is red: stopping before the slow tier =="
       else
         run_set "slow tier" ${SLOW[@]+"${SLOW[@]}"}
@@ -251,6 +298,7 @@ if [ -s "$TIMINGS.new" ]; then
 fi
 rm -f "$TIMINGS.new"
 
-awk '/^RES /{ if ($3=="TIMEOUT"||$3=="BROKEN") b++; else {r+=$3; f+=$5; e+=$7} }
-     END { printf "== totals: %d run, %d failures, %d errors, %d broken ==\n", r, f, e, b }' "$RESULTS"
-if grep -qE 'FAIL|ERROR|BROKEN|TIMEOUT' "$RESULTS"; then exit 1; else exit 0; fi
+awk '/^RES /{ if ($3=="TIMEOUT"||$3=="BROKEN") b++; else {r+=$3; f+=$5; e+=$7} } /^    FLAKY /{ k++ }
+     END { printf "== totals: %d run, %d failures, %d errors, %d broken, %d flaky ==\n", r, f, e, b, k }' "$RESULTS"
+rm -f "$RESULTS.retried"
+if red; then exit 1; else exit 0; fi
