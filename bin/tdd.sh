@@ -7,6 +7,9 @@
 #   PREPARE_ONLY=1 bin/tdd.sh   compile the working copy and rebuild warm.image, run nothing
 #   SKIP_PREPARE=1 bin/tdd.sh   run from the images as they are (bin/gate.sh prepares first)
 #
+# Classes named with -c run on dev.image once compiled, building only the fixtures they use; a
+# tier or the whole suite runs on warm.image, rebuilt only when the working copy changed.
+#
 # There is a single image on disk, shared read-only by every test process, so the
 # edits are compiled once here rather than per process.
 set -uo pipefail
@@ -52,12 +55,22 @@ fi
 # Method comments are one to three lines (CLAUDE.md, Working agreement).
 command -v python3 >/dev/null && python3 "$HERE/long-comments.py" "$HERE/.."
 
+# The TDD loop, classes named with -c and no tier: they run on the image just compiled, each
+# building only the fixtures it uses, rather than waiting two minutes for all of warm.image's.
+only_classes=
+case " $* " in *" -c "*) only_classes=yes ;; esac
+case " $* " in *" --fast "*|*" --slow "*|*" --all "*) only_classes= ;; esac
+if [ -n "$only_classes" ] && [ -z "${PREPARE_ONLY:-}" ]; then
+  echo "== classes named: run on dev.image as just compiled, warm.image left to the next tier run =="
+  export IMAGE=dev.image
+else
 echo "== rebuilding warm.image =="
 cp -f dev.image warm.image
 cp -f dev.changes warm.changes
 timeout 600 ./pharo warm.image --no-default-preferences st "$HERE/build-warm.st" 2>/dev/null \
   | tr -d '\033' | grep -E 'fixture ready|WARM ERR' || true
 echo "$fingerprint" > .warm-fingerprint
+fi
 fi
 [ -n "${PREPARE_ONLY:-}" ] && exit 0
 
