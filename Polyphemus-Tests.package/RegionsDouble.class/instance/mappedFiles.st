@@ -1,0 +1,4 @@
+reading
+mappedFiles
+
+	^ files ifNil: [ #(  ) ]

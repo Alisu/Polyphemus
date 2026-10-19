@@ -1,0 +1,4 @@
+accessing
+threadRegisters
+
+	^ threadRegisters

@@ -10,6 +10,7 @@ pieces
 		  found := OrderedCollection new.
 		  self stretchesDo: [ :from :upTo :parts |
 			  | buffer end |
+			  (self heldPieceFrom: from upTo: upTo) ifNotNil: [ :held | found add: held ] ifNil: [
 			  buffer := ByteArray new: upTo - from.
 			  end := from.
 			  parts do: [ :each |
@@ -20,5 +21,5 @@ pieces
 						   at: from) ].
 			  end < upTo ifTrue: [
 				  mappingLimit := end.
-				  ^ pieces := found asArray ] ].
+				  ^ pieces := found asArray ] ] ].
 		  pieces := found asArray ]

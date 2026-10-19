@@ -1,0 +1,15 @@
+{
+	"commentStamp": "",
+	"super": "Object",
+	"category": "Polyphemus-Tests",
+	"classinstvars": [],
+	"pools": [],
+	"classvars": [],
+	"instvars": [
+		"regions",
+		"writable",
+		"files"
+	],
+	"name": "RegionsDouble",
+	"type": "normal"
+}

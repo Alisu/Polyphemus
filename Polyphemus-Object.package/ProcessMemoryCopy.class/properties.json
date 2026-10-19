@@ -1,0 +1,18 @@
+{
+	"commentStamp": "",
+	"super": "Object",
+	"category": "Polyphemus-Object-process",
+	"classinstvars": [],
+	"pools": [],
+	"classvars": [],
+	"instvars": [
+		"pid",
+		"processor",
+		"mappedFiles",
+		"threadRegisters",
+		"listed",
+		"pieces"
+	],
+	"name": "ProcessMemoryCopy",
+	"type": "normal"
+}

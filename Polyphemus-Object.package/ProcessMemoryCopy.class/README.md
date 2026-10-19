@@ -1,0 +1,1 @@
+What a reading can need of a running process, copied while it is held still (#85): its writable regions, the VM library's own mappings, its map and its threads' registers. Read afterwards as a core is, so a reading never mixes two moments; memory the process had that the copy left out is refused by name rather than read as missing.
