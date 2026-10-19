@@ -5,6 +5,15 @@ name: Editions
 on:
   push:
   workflow_dispatch:
+    inputs:
+      fresh:
+        description: 'No cache: build every setup and fetch every image, as a new checkout does'
+        type: boolean
+        default: false
+  # Every Monday, with no cache: caches kept from green runs hid three fresh-checkout bugs once
+  # (docs/mistakes.md, 2026-10-05).
+  schedule:
+    - cron: '0 2 * * 1'
 
 jobs:
   suite:
@@ -31,6 +40,7 @@ jobs:
       # The built setup: VMMaker's load is most of the time. Rebuilt when the recipe or the
       # baseline changes; the suite compiles the working copy into it anyway.
       - name: Setup from cache
+        if: ${{ github.event_name != 'schedule' && !inputs.fresh }}
         id: setup
         uses: actions/cache@v4
         with:
@@ -43,6 +53,7 @@ jobs:
 
       # The pinned images the tests download into resources/ on first use.
       - name: Test images from cache
+        if: ${{ github.event_name != 'schedule' && !inputs.fresh }}
         uses: actions/cache@v4
         with:
           path: |
@@ -114,6 +125,7 @@ jobs:
           fetch-depth: 0
 
       - name: Setup from cache
+        if: ${{ github.event_name != 'schedule' && !inputs.fresh }}
         id: setup
         uses: actions/cache@v4
         with:
@@ -125,6 +137,7 @@ jobs:
         run: bin/ci-setup.sh ${{ matrix.edition }} ~/setup
 
       - name: Test images from cache
+        if: ${{ github.event_name != 'schedule' && !inputs.fresh }}
         uses: actions/cache@v4
         with:
           path: |
@@ -185,6 +198,7 @@ jobs:
           fetch-depth: 0
 
       - name: Setup from cache
+        if: ${{ github.event_name != 'schedule' && !inputs.fresh }}
         id: setup
         uses: actions/cache@v4
         with:
@@ -196,6 +210,7 @@ jobs:
         run: bin/ci-setup.sh ${{ matrix.edition }} ~/setup
 
       - name: Test images from cache
+        if: ${{ github.event_name != 'schedule' && !inputs.fresh }}
         uses: actions/cache@v4
         with:
           path: |
