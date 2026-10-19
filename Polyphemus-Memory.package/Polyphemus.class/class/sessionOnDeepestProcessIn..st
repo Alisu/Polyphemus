@@ -1,12 +1,6 @@
 tools
 sessionOnDeepestProcessIn: aReifiedMemory
 
-	"A post mortem session on the deepest stack: `on: nil`, there being no process to resume."
+	"A post mortem session on the deepest stack (deepestProcessIn:)."
 
-	^ (ReifiedDebugSession
-		   named: 'Polyphemus'
-		   on: nil
-		   startedAt: (aReifiedMemory contextsOfProcess: (self deepestProcessIn: aReifiedMemory)) first
-		   fixing: nil)
-		  stoppedBy: PolyphemusStop readFromMemory;
-		  yourself
+	^ self sessionOn: (self deepestProcessIn: aReifiedMemory) in: aReifiedMemory
