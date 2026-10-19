@@ -20,9 +20,13 @@ Smalltalk exitSuccess' ].
 	user := self observeeUser.
 	user ifNotNil: [
 		LibC system: 'chown -R ' , user , ' ' , self directory fullName.
-		command := 'sudo -u ' , user , ' sh -c ''' , command , '''' ].
+		command := 'sudo -H -u ' , user , ' sh -c ''' , command , '''' ].
 	LibC system: command.
 	started := (1 to: 300) anySatisfy: [ :each |
 		           (self directory / 'started') exists or: [ (Delay forMilliseconds: 100) wait. false ] ].
-	started ifFalse: [ self fail: 'the target never started' ].
+	started ifFalse: [
+		self fail: 'the target never started' , (user ifNil: [ '' ] ifNotNil: [ ' as ' , user ]) , '; its log ends: '
+			, ([ | log | log := (self directory / 'target.log') contents. log last: (400 min: log size) ]
+					 on: Error
+					 do: [ :e | 'none' ]) ].
 	^ (self directory / 'pid') contents trimBoth asNumber

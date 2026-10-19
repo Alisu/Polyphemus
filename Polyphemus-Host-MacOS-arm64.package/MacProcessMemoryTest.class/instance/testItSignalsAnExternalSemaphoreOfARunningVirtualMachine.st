@@ -9,6 +9,7 @@ testItSignalsAnExternalSemaphoreOfARunningVirtualMachine
 	dir := PolyphemusEdition current scratch / 'mac-semaphore'.
 	dir ensureDeleteAll.
 	dir ensureCreateDirectory.
+	self giveToTheObservee: dir.
 	pid := self launchTargetRunning: '| dir semaphore |
 dir := ' , dir fullName printString , ' asFileReference.
 semaphore := Semaphore new.

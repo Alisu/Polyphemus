@@ -7,7 +7,7 @@ observeeUser
 
 	| user |
 	self isRoot ifFalse: [ ^ nil ].
-	user := Smalltalk os environment at: 'SUDO_USER' ifAbsent: [ nil ].
+	user := OSEnvironment current at: 'SUDO_USER' ifAbsent: [ nil ].
 	^ (user isNil or: [ user isEmpty or: [ user = 'root' ] ])
 		  ifTrue: [ nil ]
 		  ifFalse: [ user ]
