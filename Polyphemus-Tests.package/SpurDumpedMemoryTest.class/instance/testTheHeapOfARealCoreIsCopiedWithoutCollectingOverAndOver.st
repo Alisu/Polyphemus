@@ -6,7 +6,7 @@ testTheHeapOfARealCoreIsCopiedWithoutCollectingOverAndOver
 
 	| raw collections |
 	self dumpFile exists ifFalse: [ ^ self skip: 'no core of a real VM here (bin/take-dump.sh)' ].
-	raw := SpurRawHeap on: (ElfCoreDump on: self dumpFile).
+	raw := SpurRawHeap on: (FileAddressSpace onDump: self dumpFile).
 	collections := Smalltalk vm parameterAt: 7.
 	[ raw pieces ] ensure: [ raw space close ].
 	collections := (Smalltalk vm parameterAt: 7) - collections.
