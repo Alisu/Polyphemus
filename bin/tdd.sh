@@ -25,7 +25,20 @@ if [ -z "${GATE_OWNED:-}${FORCE:-}" ] && [ -n "$held" ] && kill -0 "$held" 2>/de
   exit 3
 fi
 
+# What the images are built from: every package file, the scripts that build them, the setup's
+# environment. The same as when warm.image was last built: kept, its two minutes saved.
+# FORCE_PREPARE=1 builds it anyway.
+fingerprint=$( { ( cd "$HERE/.." && find . -path ./.git -prune -o -type f \( -path '*.package/*' \
+    -o -name build-warm.st -o -name sync-from-working-copy.st \) -print | LC_ALL=C sort | xargs cksum );
+  cat "$WORK/polyphemus.env" 2>/dev/null; } | cksum | awk '{print $1}')
+if [ -z "${SKIP_PREPARE:-}${FORCE_PREPARE:-}" ] && [ -f warm.image ] &&
+   [ "$fingerprint" = "$(cat .warm-fingerprint 2>/dev/null)" ]; then
+  echo "== the working copy is as warm.image was built from: kept =="
+  SKIP_PREPARE=1
+fi
+
 if [ -z "${SKIP_PREPARE:-}" ]; then
+rm -f .warm-fingerprint
 echo "== compiling working copy into dev.image =="
 sync=$(timeout 600 ./pharo dev.image --no-default-preferences st "$HERE/sync-from-working-copy.st" 2>&1 | tr -d '\033')
 grep -E '^SYNC|^CREATED|^REMOVED|^REDEFINED|^IVAR|^COMPILE ERR|^SKIP|^NO COMMENT|^RETAGGED' <<<"$sync"
@@ -44,6 +57,7 @@ cp -f dev.image warm.image
 cp -f dev.changes warm.changes
 timeout 600 ./pharo warm.image --no-default-preferences st "$HERE/build-warm.st" 2>/dev/null \
   | tr -d '\033' | grep -E 'fixture ready|WARM ERR' || true
+echo "$fingerprint" > .warm-fingerprint
 fi
 [ -n "${PREPARE_ONLY:-}" ] && exit 0
 

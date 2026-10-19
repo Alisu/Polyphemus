@@ -77,12 +77,16 @@ echo 0 > "$peak_file"
   done ) &
 
 start=$(date +%s)
-# Every edition's images first: once they hold the working copy, it can change again.
+# Every edition's images first: once they hold the working copy, it can change again. Side by
+# side: each compiles and builds on one core, and in turn they took 187 s of a 297 s gate.
+preparing=()
 for n in "${EDITIONS[@]}"; do
   setup=$(setup_of "$n")
-  ( cd "$setup" && WORK="$setup" GATE_OWNED=1 PREPARE_ONLY=1 "$setup/Polyphemus/bin/tdd.sh" > "$setup/.gate.log" 2>&1 ) ||
-    echo "RES prepare BROKEN: the working copy was not compiled into this edition" >> "$setup/.gate.log"
+  ( ( cd "$setup" && WORK="$setup" GATE_OWNED=1 PREPARE_ONLY=1 "$setup/Polyphemus/bin/tdd.sh" > "$setup/.gate.log" 2>&1 ) ||
+    echo "RES prepare BROKEN: the working copy was not compiled into this edition" >> "$setup/.gate.log" ) &
+  preparing+=($!)
 done
+wait "${preparing[@]}"   # these only: the temperature watch above runs until the end
 echo "== working copy free after $(( $(date +%s) - start ))s: edit on, but run bin/tdd.sh only on setups not in this gate"
 for n in "${EDITIONS[@]}"; do
   setup=$(setup_of "$n")
