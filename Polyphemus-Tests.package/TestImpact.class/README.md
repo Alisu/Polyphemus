@@ -1,0 +1,1 @@
+Which test classes a change calls for (bin/gate.sh --commit), as the image knows it: from each method that changed, its senders, theirs, up to the test methods they reach; from a class that changed, the methods referring to it. Senders are by selector, so a selector many classes implement would reach everything: it is called wide and left to CI, which runs the whole suite.

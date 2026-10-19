@@ -6,7 +6,8 @@
 #   bin/gate.sh 13           the edition being worked on: before a commit
 #   bin/gate.sh 10 13        ...and Pharo 10 as well, when the change touches shared code
 #   bin/gate.sh --commit 13 10   before a commit: the fast tier, and the slow classes the
-#                            change calls for (bin/commit-selection.sh); a change to a core class
+#                            change reaches, as the image finds its senders (bin/select-tests.st,
+#                            TestImpact); a change to a core class
 #                            (bin/core-classes) is pushed and waits for CI before anything is
 #                            built on it
 #   bin/gate.sh --status     each edition's last green commit, against HEAD
@@ -45,10 +46,10 @@ fi
 COMMIT_GATE=
 if [ "${1:-}" = --commit ]; then
   COMMIT_GATE=yes; shift
+  CHANGES=$(mktemp)
   SELECTION=$("$REPO/bin/commit-selection.sh")
-  SELECTED_CLASSES=$(grep '^CLASS ' <<<"$SELECTION" | awk '{print $2}' | tr '\n' ' ')
+  grep '^CHANGE ' <<<"$SELECTION" | cut -c8- > "$CHANGES"
   CORE_CHANGED=$(grep '^CORE ' <<<"$SELECTION" | awk '{print $2}' | tr '\n' ' ')
-  echo "== commit gate: the fast tier, and ${SELECTED_CLASSES:-no slow class}"
 fi
 EDITIONS=("$@")
 [ ${#EDITIONS[@]} -eq 0 ] && EDITIONS=("${ALL[@]}")
@@ -87,6 +88,17 @@ for n in "${EDITIONS[@]}"; do
   preparing+=($!)
 done
 wait "${preparing[@]}"   # these only: the temperature watch above runs until the end
+# Which tests the changes reach, asked of the first edition's image once it holds them: the
+# senders of what changed, followed up to the tests (bin/select-tests.st, TestImpact).
+if [ -n "$COMMIT_GATE" ]; then
+  first=$(setup_of "${EDITIONS[0]}")
+  SELECTION=$( cd "$first" && POLYPHEMUS_CHANGES="$CHANGES" timeout 300 ./pharo dev.image --no-default-preferences \
+    st "$REPO/bin/select-tests.st" 2>/dev/null | tr -d '\033' | grep -aE '^(CLASS|WIDE) ' )
+  SELECTED_CLASSES=$(grep '^CLASS ' <<<"$SELECTION" | awk '{print $2}' | sort | tr '\n' ' ')
+  WIDE_CHANGED=$(grep '^WIDE ' <<<"$SELECTION" | awk '{print $2}' | tr '\n' ' ')
+  rm -f "$CHANGES"
+  echo "== commit gate: the fast tier, and ${SELECTED_CLASSES:-no slow class}"
+fi
 echo "== working copy free after $(( $(date +%s) - start ))s: edit on, but run bin/tdd.sh only on setups not in this gate"
 for n in "${EDITIONS[@]}"; do
   setup=$(setup_of "$n")
@@ -129,5 +141,7 @@ took=$(( $(date +%s) - start ))
 echo "== gate done in ${took}s, CPU peak ${peak}C"
 [ -n "$COMMIT_GATE" ] && [ -n "$CORE_CHANGED" ] &&
   echo "== core classes changed ($CORE_CHANGED): the whole suite tests them; push, and wait for CI before building on this"
+[ -n "$COMMIT_GATE" ] && [ -n "${WIDE_CHANGED:-}" ] &&
+  echo "== selectors many classes implement changed ($WIDE_CHANGED): not followed; push, and wait for CI before building on this"
 echo "$(date '+%F %T') $head_commit$dirty${summary} ${took}s peak ${peak}C${COMMIT_GATE:+ commit}" >> "$HISTORY"
 exit $status

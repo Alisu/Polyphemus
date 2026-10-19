@@ -1,23 +1,17 @@
 #!/usr/bin/env bash
-# The test classes a change in the working copy calls for (bin/gate.sh --commit): each changed
-# class's own test, every test class whose source names a changed class (by name, so perform:
-# and shared fixtures are caught where senders would miss them), and changed test classes.
+# What changed in the working copy, for the commit gate (bin/gate.sh --commit), which asks the
+# image which tests reach it (bin/select-tests.st, TestImpact):
 #
-#   bin/commit-selection.sh        CLASS lines, then CORE lines for changed classes listed in
-#                                  bin/core-classes: those the whole suite tests (CI)
+#   bin/commit-selection.sh        CHANGE <Class> <selector> for a method (its file names it, a
+#                                  colon written as a dot), CHANGE <Class> for a class's definition,
+#                                  then CORE <Class> for changed classes in bin/core-classes: those
+#                                  the whole suite tests (CI)
 set -uo pipefail
 cd "$(dirname "$0")/.."
-changed=$( { git diff --name-only HEAD; git ls-files --others --exclude-standard; } \
-  | sed -nE 's#^[^/]+\.package/([A-Za-z0-9_]+)\.(class|trait|extension)/.*#\1#p' | sort -u)
-tests=$(ls -d *.package/*Test.class 2>/dev/null)
-{
-  for c in $changed; do
-    case "$c" in *Test) echo "$c"; continue ;; esac
-    ls -d *.package/"${c}Test.class" >/dev/null 2>&1 && echo "${c}Test"
-    for t in $tests; do grep -rqw "$c" "$t" && basename "$t" .class; done
-  done
-} | sort -u | while read -r t; do
-  ls -d *.package/"$t.class" >/dev/null 2>&1 && echo "CLASS $t"
-done
+paths=$( { git diff --name-only HEAD; git ls-files --others --exclude-standard; } | sort -u)
+sed -nE 's#^[^/]+\.package/([A-Za-z0-9_]+)\.(class|extension)/(instance|class)/(.+)\.st$#CHANGE \1 \4#p' <<<"$paths" \
+  | awk '{ gsub(/\./, ":", $3); print }'
+sed -nE 's#^[^/]+\.package/([A-Za-z0-9_]+)\.(class|trait)/properties\.json$#CHANGE \1#p' <<<"$paths"
+changed=$(sed -nE 's#^[^/]+\.package/([A-Za-z0-9_]+)\.(class|trait|extension)/.*#\1#p' <<<"$paths" | sort -u)
 for c in $changed; do grep -qx "$c" bin/core-classes && echo "CORE $c"; done
 exit 0
