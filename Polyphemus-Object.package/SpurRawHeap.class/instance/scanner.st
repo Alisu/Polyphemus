@@ -6,11 +6,10 @@ scanner
 	when it has one, is held too."
 
 	^ scanner ifNil: [
-		  | main |
-		  main := ByteArrayAddressSpace on: self bytes at: mappingStart.
-		  scanner := SpurHeapScanner on: (youngMappingStart
-				              ifNil: [ main ]
-				              ifNotNil: [ :start |
-					              SplitAddressSpace withAll: {
-							              main.
-							              (ByteArrayAddressSpace on: self youngBytes at: start) } ]) ]
+		  | held |
+		  held := youngMappingStart
+			          ifNil: [ self pieces ]
+			          ifNotNil: [ :start | self pieces , { (ByteArrayAddressSpace on: self youngBytes at: start) } ].
+		  scanner := SpurHeapScanner on: (held size = 1
+				              ifTrue: [ held first ]
+				              ifFalse: [ SplitAddressSpace withAll: held ]) ]

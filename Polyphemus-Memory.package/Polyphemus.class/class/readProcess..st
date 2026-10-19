@@ -9,5 +9,5 @@ readProcess: aPid
 	reader := PolyphemusMadeFor current processMemoryClass on: aPid.
 	[ reader whileStoppedWhenQuiet: [
 		  dumped := SpurDumpedMemory on: reader.
-		  dumped raw bytes ] ] ensure: [ reader close ].
+		  dumped raw pieces ] ] ensure: [ reader close ].
 	^ dumped reifyEverything: dumped reifiedMemory

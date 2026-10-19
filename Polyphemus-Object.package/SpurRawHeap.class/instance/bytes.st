@@ -1,15 +1,18 @@
 building the memory
 bytes
 
-	"The whole mapping as one ByteArray, fetched once, segment by segment. Where the memory
-	stops handing bytes over -- a live region gone since its map was read (#15) -- the
-	mapping stops too, and the readability ladder says what that costs."
+	"The whole mapping as one ByteArray, any gap between its pieces as zeros: a copy to break
+	on purpose. Walking reads the pieces themselves."
 
-	^ bytes ifNil: [
-		  | buffer end |
-		  buffer := ByteArray new: mappingLimit - mappingStart.
-		  end := self copyInto: buffer.
-		  end < mappingLimit ifTrue: [
-			  mappingLimit := end.
-			  buffer := buffer copyFrom: 1 to: end - mappingStart ].
-		  bytes := buffer ]
+	| buffer |
+	(self pieces size = 1 and: [
+		 self pieces first baseAddress = mappingStart and: [
+			 self pieces first size = (mappingLimit - mappingStart) ] ]) ifTrue: [ ^ self pieces first bytes ].
+	buffer := ByteArray new: mappingLimit - mappingStart.
+	self pieces do: [ :each |
+		buffer
+			replaceFrom: each baseAddress - mappingStart + 1
+			to: each baseAddress - mappingStart + each size
+			with: each bytes
+			startingAt: 1 ].
+	^ buffer

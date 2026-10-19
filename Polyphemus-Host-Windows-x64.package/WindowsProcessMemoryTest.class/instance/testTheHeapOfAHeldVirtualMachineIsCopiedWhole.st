@@ -12,7 +12,7 @@ testTheHeapOfAHeldVirtualMachineIsCopiedWhole
 		raw := (SpurDumpedMemory on: reader) raw.
 		start := raw mappingStart.
 		limit := raw mappingLimit.
-		raw bytes ].
+		raw pieces ].
 	self
 		assert: raw mappingLimit = limit
 		description: [
