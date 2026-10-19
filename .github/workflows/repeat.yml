@@ -1,0 +1,83 @@
+# One test run many times, alone, beside a CPU load, to make a rare failure show itself (#31):
+# bin/repeat-test.sh does the runs, this gives it a Linux runner and the suite's caches. By hand
+# only: Actions, Repeat, Run workflow (or gh workflow run repeat.yml -f class=... -f test=...).
+name: Repeat
+
+on:
+  workflow_dispatch:
+    inputs:
+      edition:
+        description: 'Pharo edition'
+        type: choice
+        options: [ '10', '11', '12', '13', '14' ]
+        default: '13'
+      class:
+        description: 'Test class'
+        type: string
+        required: true
+      test:
+        description: 'Test selector (empty: the whole class)'
+        type: string
+        default: ''
+      times:
+        description: 'How many runs'
+        type: number
+        default: 30
+      load:
+        description: 'CPU workers of stress-ng beside it (0: none)'
+        type: number
+        default: 2
+
+jobs:
+  repeat:
+    name: ${{ inputs.class }} ${{ inputs.test }} x${{ inputs.times }}, Pharo ${{ inputs.edition }}, load ${{ inputs.load }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Tools
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq gdb stress-ng
+
+      - name: The launcher for live targets
+        run: cc -O2 -o bin/pharo-debuggable bin/pharo-debuggable.c
+
+      # The suite's own caches (editions.yml), by the same keys.
+      - name: Setup from cache
+        id: setup
+        uses: actions/cache@v4
+        with:
+          path: ~/setup
+          key: setup-${{ inputs.edition }}-${{ hashFiles('bin/ci-setup.sh', 'BaselineOfPolyphemus.package/**') }}
+
+      - name: Build the setup
+        if: steps.setup.outputs.cache-hit != 'true'
+        run: bin/ci-setup.sh ${{ inputs.edition }} ~/setup
+
+      - name: Test images from cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            resources/*.image
+            resources/*.changes
+            resources/*.sources
+            !resources/candle64Bit.image
+          key: images-${{ hashFiles('Polyphemus-Helper.package/PharoImageAccessor.class/class/downloadNameForPharo..st', 'Polyphemus-Helper.package/PharoImageAccessor.class/class/sourcesNameForPharo..st') }}
+
+      - name: Repeat
+        run: |
+          ln -sfn "$GITHUB_WORKSPACE" ~/setup/Polyphemus
+          WORK=~/setup PREPARE_ONLY=1 bin/tdd.sh > prepare.log 2>&1 || { tail -40 prepare.log; exit 1; }
+          LOAD=${{ inputs.load }} WORK=~/setup TMO=1800 bin/repeat-test.sh "${{ inputs.class }}" "${{ inputs.test }}" ${{ inputs.times }} | tee repeat.log
+          summary=$(grep -a "^== .* runs failed" repeat.log)
+          echo "::notice title=repeat::$summary"
+
+      - name: Logs of the failing runs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: repeat-logs
+          path: ~/setup/repeat/
+          if-no-files-found: ignore
