@@ -285,16 +285,22 @@ worth its cost; #23 holds what that would take.
 - **Gate in tiers** (since 2026-09-28; a gate of every edition took up to 52 min, and a commit
   build should stay near ten minutes -- Beck's XP guideline, and the most common "maximum
   acceptable" CI build time in Hilton et al., FSE 2017):
-  - before a commit: the edition being worked on, plus Pharo 10 when shared code changed
-    (`bin/gate.sh 13`, `bin/gate.sh 10 13`);
+  - before a commit (since 2026-10-19; the gate of two editions had grown to 50 min): the
+    commit gate, `bin/gate.sh --commit 13 10` -- the fast tier of the working edition and of
+    Pharo 10, and the slow classes the change names (`bin/commit-selection.sh`), about 5 min.
+    A change to a core class (`bin/core-classes`: memory, heap, layout, reification) is tested
+    by the whole suite: push it and wait for CI before building on it. A failure that passes
+    alone in a fresh process is FLAKY, not red (`bin/run-tests.sh`; `bin/flakes.sh` counts
+    them over CI's runs, #31);
   - every edition, on each push: GitHub Actions runs all five side by side
     (`.github/workflows/editions.yml`, since 2026-09-30), so a push follows the commit gate and
-    CI follows the push. A red CI is the next thing fixed. `bin/gate.sh` alone still runs every
-    edition on the box (about an hour, the box at 113 C): kept for a tag, or when CI cannot run.
+    CI follows the push. A red CI is the next thing fixed. `bin/gate.sh` without `--commit`
+    runs whole suites on the box (`bin/gate.sh 13 10`, 50 min; every edition, about two hours at
+    113 C): kept for a tag, or when CI cannot run.
     `bin/gate.sh --status` says which editions are behind HEAD, `~/polyphemus/gate-history.log`
     keeps every gate's time and CPU peak.
   - the box is shared (2026-10-05): its other services stay up; gates run light
-    (`JOBS=2 nice -n 10 bin/gate.sh 13 10`).
+    (`JOBS=2 nice -n 10 bin/gate.sh --commit 13 10`).
   - A gate compiles the working copy into its editions first, then says `working copy free`:
     edit on, but leave `bin/` alone until it ends, and run `bin/tdd.sh` only on setups the gate
     is not using.

@@ -5,6 +5,10 @@
 #   bin/gate.sh              every edition: before a push, and before tagging an edition
 #   bin/gate.sh 13           the edition being worked on: before a commit
 #   bin/gate.sh 10 13        ...and Pharo 10 as well, when the change touches shared code
+#   bin/gate.sh --commit 13 10   before a commit: the fast tier, and the slow classes the
+#                            change calls for (bin/commit-selection.sh); a change to a core class
+#                            (bin/core-classes) is pushed and waits for CI before anything is
+#                            built on it
 #   bin/gate.sh --status     each edition's last green commit, against HEAD
 #   JOBS=5 bin/gate.sh 13
 #
@@ -38,6 +42,14 @@ if [ "${1:-}" = "--status" ]; then
   exit 0
 fi
 
+COMMIT_GATE=
+if [ "${1:-}" = --commit ]; then
+  COMMIT_GATE=yes; shift
+  SELECTION=$("$REPO/bin/commit-selection.sh")
+  SELECTED_CLASSES=$(grep '^CLASS ' <<<"$SELECTION" | awk '{print $2}' | tr '\n' ' ')
+  CORE_CHANGED=$(grep '^CORE ' <<<"$SELECTION" | awk '{print $2}' | tr '\n' ' ')
+  echo "== commit gate: the fast tier, and ${SELECTED_CLASSES:-no slow class}"
+fi
 EDITIONS=("$@")
 [ ${#EDITIONS[@]} -eq 0 ] && EDITIONS=("${ALL[@]}")
 for n in "${EDITIONS[@]}"; do
@@ -76,7 +88,18 @@ for n in "${EDITIONS[@]}"; do
   setup=$(setup_of "$n")
   began=$(date +%s)
   grep -q "^RES prepare BROKEN" "$setup/.gate.log" && { echo 0 > "$setup/.gate.seconds"; continue; }
-  ( cd "$setup" && WORK="$setup" GATE_OWNED=1 SKIP_PREPARE=1 "$setup/Polyphemus/bin/tdd.sh" --all -j "$JOBS" >> "$setup/.gate.log" 2>&1 )
+  if [ -n "$COMMIT_GATE" ]; then
+    ( cd "$setup" && WORK="$setup" GATE_OWNED=1 SKIP_PREPARE=1 "$setup/Polyphemus/bin/tdd.sh" --fast -j "$JOBS" >> "$setup/.gate.log" 2>&1 )
+    # Only the slow ones: the fast tier has run every other. A class never timed counts as slow.
+    slow=()
+    for c in $SELECTED_CLASSES; do
+      t=$(awk -v c="$c" '$1==c {print $2}' "$setup/.test-timings" 2>/dev/null | tail -1)
+      { [ -z "$t" ] || [ "$t" -ge "${SLOW_THRESHOLD:-8}" ]; } && slow+=(-c "$c")
+    done
+    [ ${#slow[@]} -gt 0 ] && ( cd "$setup" && WORK="$setup" GATE_OWNED=1 SKIP_PREPARE=1 "$setup/Polyphemus/bin/tdd.sh" "${slow[@]}" -j "$JOBS" >> "$setup/.gate.log" 2>&1 )
+  else
+    ( cd "$setup" && WORK="$setup" GATE_OWNED=1 SKIP_PREPARE=1 "$setup/Polyphemus/bin/tdd.sh" --all -j "$JOBS" >> "$setup/.gate.log" 2>&1 )
+  fi
   echo "$(( $(date +%s) - began ))" > "$setup/.gate.seconds"
 done
 peak=$(cat "$peak_file"); rm -f "$peak_file"
@@ -89,7 +112,10 @@ for n in "${EDITIONS[@]}"; do
   grep -aE "^== totals|^    (FAIL|ERROR|FLAKY)|BROKEN|TIMEOUT|never ran" "$setup/.gate.log"
   # Red by the totals, which count a failure that passed alone in a fresh process as a flake,
   # not a failure (bin/run-tests.sh); the log above still shows its first run.
-  if ! grep -qaE "^== totals: .* 0 failures, 0 errors, 0 broken" "$setup/.gate.log"; then
+  # Every run's totals green, and at least one: a commit gate makes two runs, the fast tier and
+  # the slow classes it selected.
+  if ! grep -qa "^== totals" "$setup/.gate.log" ||
+     grep -a "^== totals" "$setup/.gate.log" | grep -qv " 0 failures, 0 errors, 0 broken"; then
     status=1; summary="$summary ${n#pharo}:red"
   else
     echo "$head_commit$dirty $(date +%F)" > "$setup/.last-green"; summary="$summary ${n#pharo}:green"
@@ -97,5 +123,7 @@ for n in "${EDITIONS[@]}"; do
 done
 took=$(( $(date +%s) - start ))
 echo "== gate done in ${took}s, CPU peak ${peak}C"
-echo "$(date '+%F %T') $head_commit$dirty${summary} ${took}s peak ${peak}C" >> "$HISTORY"
+[ -n "$COMMIT_GATE" ] && [ -n "$CORE_CHANGED" ] &&
+  echo "== core classes changed ($CORE_CHANGED): the whole suite tests them; push, and wait for CI before building on this"
+echo "$(date '+%F %T') $head_commit$dirty${summary} ${took}s peak ${peak}C${COMMIT_GATE:+ commit}" >> "$HISTORY"
 exit $status

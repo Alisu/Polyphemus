@@ -269,6 +269,14 @@ fi
 # green -- the lanes cost more than the flakes they were meant to prevent (#31).
 [ "${SERIAL_LANE:-yes}" = no ] && LANE=
 
+# Asked for classes this image does not hold (another host's, another edition's): said and
+# skipped, not run as broken. Asked of the image only for two classes or more.
+if [ ${#SELECTED[@]} -gt 1 ] && [ -n "$COLLECTED" ]; then
+  HELD=(); for c in "${SELECTED[@]}"; do
+    if all_classes | grep -qx "$c"; then HELD+=("$c"); else echo "== not in this image, skipped: $c"; fi
+  done
+  SELECTED=(${HELD[@]+"${HELD[@]}"})
+fi
 if [ ${#SELECTED[@]} -gt 0 ]; then
   run_set "selected" "${SELECTED[@]}"
 else

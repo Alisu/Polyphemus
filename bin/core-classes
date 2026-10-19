@@ -1,0 +1,33 @@
+# Classes most of the suite stands on: reading memory, the heap, the VM's layout and variables,
+# reification. A change to one is tested by the whole suite, which the commit gate does not run:
+# bin/gate.sh --commit says so, and the change waits for CI before anything is built on it.
+ByteArrayAddressSpace
+SplitAddressSpace
+FileAddressSpace
+VMMakerAddressSpace
+ElfCoreDump
+ElfCoreSegment
+WindowsMinidump
+LinuxProcessMemory
+MacProcessMemory
+WindowsProcessMemory
+ProcessMemoryCopy
+ElfSharedObject
+MachOSharedObject
+PeSharedObject
+VMVariables
+SpurRawHeap
+SpurHeapScanner
+SpurHeapWalk
+SpurFreeListWalk
+SpurReadability
+SpurDumpedMemory
+SpurImageFile
+OOPVMLayout
+OOPCogLayout
+OOPStackInterpreterLayout
+AbstractReifiedMemory
+FullyReifiedMemory
+LazyReifiedMemory
+PolyphemusMadeFor
+PolyphemusEdition

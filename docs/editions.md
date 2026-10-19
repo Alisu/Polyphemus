@@ -80,8 +80,9 @@ so v10.0.5 cannot read a VM 9 heap where it lies, and v10.0.0 does not know VM 1
 Image files are relocated when loaded, and both read them.
 
 `bin/gate.sh` runs every edition's suite in turn, about 5 to 15 minutes each depending on how hot
-the box runs (side by side was slower: four performance cores). A commit gates only the edition
-being worked on, and Pharo 10 when shared code changed; every edition is run by CI on each push
+the box runs (side by side was slower: four performance cores). A commit is gated by
+`bin/gate.sh --commit 13 10`: the fast tiers and the slow classes the change names, about 5
+minutes (CLAUDE.md, Working agreement); every edition is run by CI on each push
 (`.github/workflows/editions.yml`, `bin/ci-setup.sh`, five runners side by side, 10 to 20
 minutes; CLAUDE.md, Working agreement).
 
