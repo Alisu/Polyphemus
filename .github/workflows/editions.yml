@@ -63,6 +63,18 @@ jobs:
             !resources/candle64Bit.image
           key: images-${{ hashFiles('Polyphemus-Helper.package/PharoImageAccessor.class/class/downloadNameForPharo..st', 'Polyphemus-Helper.package/PharoImageAccessor.class/class/sourcesNameForPharo..st') }}
 
+      # The image SpurImageFromDumpTest writes from the setup's core: VMMaker's simulated snapshot,
+      # some six minutes, the longest thing a run does. The latest kept is restored; the class's
+      # own key (cacheKey: the core and the code the image depends on) says whether it holds, and
+      # one that does not is written again.
+      - name: Image written from the core, from cache
+        if: ${{ github.event_name != 'schedule' && !inputs.fresh }}
+        uses: actions/cache@v4
+        with:
+          path: /tmp/polyphemus/*/cache/image-from-dump
+          key: image-from-dump-${{ matrix.edition }}-${{ hashFiles('Polyphemus-Object.package/**', 'Polyphemus-Edition-Pharo*.package/**', 'Polyphemus-VMMaker-MemoryMap.package/**', 'Polyphemus-Tests.package/SpurImageFromDumpTest.class/**', 'Polyphemus-Tests.package/StackOfADumpTest.class/**', 'bin/ci-setup.sh') }}
+          restore-keys: image-from-dump-${{ matrix.edition }}-
+
       - name: Suite
         run: |
           ln -sfn "$GITHUB_WORKSPACE" ~/setup/Polyphemus
