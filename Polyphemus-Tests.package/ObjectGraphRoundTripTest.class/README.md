@@ -1,0 +1,1 @@
+A property test: object graphs made from seeds by a running VM, read back by Polyphemus from that VM, and compared with the same graphs made here -- classes, sizes, values, and which objects are shared or cyclic. The VM writes the memory; nothing is a fixture. A failure names the seed and the path to what differs.
