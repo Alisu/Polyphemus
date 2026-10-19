@@ -1,17 +1,21 @@
 helpers
 launchTargetRunning: aScript
 
-	"The edition's target image, as downloaded, running aScript on this VM; its pid."
+	"The edition's target image, as downloaded, running aScript on this VM, as the observee user
+	under sudo (observeeUser), from a directory of its own; its pid."
 
-	| scratch script pidFile |
-	scratch := PolyphemusEdition current scratch.
-	script := scratch / 'mac-target.st'.
-	script ensureDelete.
+	| directory script pidFile command |
+	directory := PolyphemusEdition current scratch / 'mac-target'.
+	directory ensureDeleteAll; ensureCreateDirectory.
+	script := directory / 'target.st'.
 	script writeStreamDo: [ :s | s nextPutAll: aScript ].
-	pidFile := scratch / 'mac-target.pid'.
-	pidFile ensureDelete.
-	LibC system: 'sh -c ''"' , Smalltalk vm fullPath , '" --headless "' , PharoImageAccessor pathToTargetImage
-		, '" --no-default-preferences st "' , script fullName , '" >/dev/null 2>&1 & echo $! > "' , pidFile fullName , '"'''.
+	pidFile := directory / 'pid'.
+	self giveToTheObservee: directory.
+	command := '"' , Smalltalk vm fullPath , '" --headless "' , PharoImageAccessor pathToTargetImage
+		, '" --no-default-preferences st "' , script fullName , '" >/dev/null 2>&1 & echo $! > "' , pidFile fullName , '"'.
+	LibC system: (self observeeUser
+			 ifNil: [ 'sh -c ''' , command , '''' ]
+			 ifNotNil: [ :user | 'sudo -u ' , user , ' sh -c ''' , command , '''' ]).
 	50 timesRepeat: [ pidFile exists ifFalse: [ (Delay forMilliseconds: 100) wait ] ].
 	(Delay forSeconds: 3) wait.
 	^ pidFile contents trimBoth asNumber

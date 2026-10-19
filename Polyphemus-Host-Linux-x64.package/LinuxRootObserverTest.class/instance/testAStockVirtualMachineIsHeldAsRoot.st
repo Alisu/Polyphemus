@@ -2,7 +2,8 @@ tests
 testAStockVirtualMachineIsHeldAsRoot
 
 	"Busy at a user's priority, nothing of ours in it: a watcher put in, held on what it is
-	busy with, and let go (#27), the observer run as root."
+	busy with, and let go (#27), the observer run as root and the target as the user who
+	called sudo, its watch directory that user's (#90)."
 
 	| pid session |
 	self isRoot ifFalse: [ ^ self skip: 'holding a process we did not start needs root (sudo)' ].
