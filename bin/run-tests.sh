@@ -43,7 +43,7 @@ while [ $# -gt 0 ]; do
   shift
 done
 
-noise() { tr -d '\033' | grep -vE 'Simd|addMapped|extensionBytecode|CleanBlockChecker|^\[' ; }
+noise() { tr -d '\033' | grep -avE 'Simd|addMapped|extensionBytecode|CleanBlockChecker|^\[' ; }
 export -f noise
 
 collect() {
@@ -67,38 +67,46 @@ run_class() {
   script="/tmp/polyphemus-run-$(basename "$WORK")-$c.st"   # one per host setup (#50)
   if [ -n "${ONLY_TEST:-}" ]; then
     cat > "$script" <<INNER
-| run |
+| run ascii |
+"A line holding a wide character is a WideString, which traceCr writes four bytes a character:
+ the runner then sees binary, not the line. Anything past ASCII prints as a question mark
+ (written by its code: this text goes through a heredoc, where a dollar sign is the shell's)."
+ascii := [ :text | String streamContents: [ :s | text do: [ :ch | s nextPut: (ch asInteger < 128 ifTrue: [ ch ] ifFalse: [ Character value: 63 ]) ] ] ].
 [ run := (PolyphemusTestRun of: (TestSuite new addTest: ($c selector: #$ONLY_TEST); yourself)) run.
   '' traceCr. "a line of its own: the simulator leaves its output unfinished (#51)"
   ('RES $c ', run runCount printString, ' run ', run failureCount printString, ' failures ', run errorCount printString, ' errors', (run skippedCount > 0 ifTrue: [ ' ', run skippedCount printString, ' skipped' ] ifFalse: [ '' ])) traceCr.
   "What each problem signalled the first time, then what it did when run again (#31)."
   run problems do: [ :each | | again |
     again := run againOf: each key selector.
-    (((run isFailure: each value) ifTrue: [ '    FAIL  ' ] ifFalse: [ '    ERROR ' ]), '$c>>', each key selector, ' -- ',
+    (ascii value: (((run isFailure: each value) ifTrue: [ '    FAIL  ' ] ifFalse: [ '    ERROR ' ]), '$c>>', each key selector, ' -- ',
       (run describe: each value),
       (again = #passed
         ifTrue: [ ' (passed when run again in the same image: a flake, or state its first run left, #31)' ]
-        ifFalse: [ ' (again: ', (run describe: again), ')' ])) traceCr ] ]
+        ifFalse: [ ' (again: ', (run describe: again), ')' ]))) traceCr ] ]
   on: Error, Warning
-  do: [ :e | ('RES $c BROKEN ', e class name, ' ', e messageText asString) traceCr ].
+  do: [ :e | (ascii value: 'RES $c BROKEN ', e class name, ' ', e messageText asString) traceCr ].
 Smalltalk exitSuccess
 INNER
   else
     cat > "$script" <<INNER
-| run |
+| run ascii |
+"A line holding a wide character is a WideString, which traceCr writes four bytes a character:
+ the runner then sees binary, not the line. Anything past ASCII prints as a question mark
+ (written by its code: this text goes through a heredoc, where a dollar sign is the shell's)."
+ascii := [ :text | String streamContents: [ :s | text do: [ :ch | s nextPut: (ch asInteger < 128 ifTrue: [ ch ] ifFalse: [ Character value: 63 ]) ] ] ].
 [ run := (PolyphemusTestRun of: $c buildSuite) run.
   '' traceCr. "a line of its own: the simulator leaves its output unfinished (#51)"
   ('RES $c ', run runCount printString, ' run ', run failureCount printString, ' failures ', run errorCount printString, ' errors', (run skippedCount > 0 ifTrue: [ ' ', run skippedCount printString, ' skipped' ] ifFalse: [ '' ])) traceCr.
   "What each problem signalled the first time, then what it did when run again (#31)."
   run problems do: [ :each | | again |
     again := run againOf: each key selector.
-    (((run isFailure: each value) ifTrue: [ '    FAIL  ' ] ifFalse: [ '    ERROR ' ]), '$c>>', each key selector, ' -- ',
+    (ascii value: (((run isFailure: each value) ifTrue: [ '    FAIL  ' ] ifFalse: [ '    ERROR ' ]), '$c>>', each key selector, ' -- ',
       (run describe: each value),
       (again = #passed
         ifTrue: [ ' (passed when run again in the same image: a flake, or state its first run left, #31)' ]
-        ifFalse: [ ' (again: ', (run describe: again), ')' ])) traceCr ] ]
+        ifFalse: [ ' (again: ', (run describe: again), ')' ]))) traceCr ] ]
   on: Error, Warning
-  do: [ :e | ('RES $c BROKEN ', e class name, ' ', e messageText asString) traceCr ].
+  do: [ :e | (ascii value: 'RES $c BROKEN ', e class name, ' ', e messageText asString) traceCr ].
 Smalltalk exitSuccess
 INNER
   fi
@@ -116,12 +124,12 @@ INNER
   # The whole output, stderr too, stays in .class-logs: a class that dies says why there (#31).
   mkdir -p "$WORK/.class-logs"
   local log="$WORK/.class-logs/$c.log"
-  out=$(timeout "$limit" ./pharo "$IMAGE" --no-default-preferences st "$script" 2>&1 | tee "$log" | noise | grep -E '^RES |^    (FAIL|ERROR|NOTE)'; exit ${PIPESTATUS[0]})
+  out=$(timeout "$limit" ./pharo "$IMAGE" --no-default-preferences st "$script" 2>&1 | tee "$log" | noise | grep -aE '^RES |^    (FAIL|ERROR|NOTE)'; exit ${PIPESTATUS[0]})
   rc=$?
   # VM 9 may refuse to start when mmap offers its heap below the image's base (#31): the class's
   # own image, like a live target, gets one more start, and says so.
-  if [ $rc -ne 124 ] && ! grep -q "^RES $c " <<< "$out" && grep -q 'cannot find a good memory address' "$log"; then
-    out=$(timeout "$limit" ./pharo "$IMAGE" --no-default-preferences st "$script" 2>&1 | tee "$log" | noise | grep -E '^RES |^    (FAIL|ERROR|NOTE)'; exit ${PIPESTATUS[0]})
+  if [ $rc -ne 124 ] && ! grep -a -q "^RES $c " <<< "$out" && grep -a -q 'cannot find a good memory address' "$log"; then
+    out=$(timeout "$limit" ./pharo "$IMAGE" --no-default-preferences st "$script" 2>&1 | tee "$log" | noise | grep -aE '^RES |^    (FAIL|ERROR|NOTE)'; exit ${PIPESTATUS[0]})
     rc=$?
     out="$out"$'\n''    NOTE its image did not start (VM 9 found no memory at its base, #31) and was started again'
   fi
@@ -129,16 +137,16 @@ INNER
   rm -f "$script"
   if [ $rc -eq 124 ]; then
     echo "RES $c TIMEOUT ${limit}s"
-  elif ! grep -q "^RES $c " <<< "$out"; then
+  elif ! grep -a -q "^RES $c " <<< "$out"; then
     # The image died, or printed nothing: a class that did not report is broken, not absent.
     echo "RES $c BROKEN no result (exit $rc)"
     tail -n 5 "$log" | tr -d '\033' | sed 's/^/    | /'
   else
     # NOTE lines (a target started again, #31) come after the class's result line.
-    grep -v '^    NOTE' <<< "$out" | sed "1s/\$/ (${el}s)/"
-    grep '^    NOTE' <<< "$out" || true
+    grep -a -v '^    NOTE' <<< "$out" | sed "1s/\$/ (${el}s)/"
+    grep -a '^    NOTE' <<< "$out" || true
     # Only a class that passed says what it costs: a failing one can hang for its whole budget.
-    [ -z "${ONLY_TEST:-}" ] && grep -q " 0 failures 0 errors" <<< "$out" && echo "$c $el" >> "$TIMINGS.new"
+    [ -z "${ONLY_TEST:-}" ] && grep -a -q " 0 failures 0 errors" <<< "$out" && echo "$c $el" >> "$TIMINGS.new"
   fi
 }
 export -f run_class
@@ -181,7 +189,7 @@ run_set() {
   wait
   # Every class given must have said something: one that never ran is broken, not green (#45).
   for c in "${classes[@]}"; do
-    grep -q "^RES $c " "$RESULTS" || echo "RES $c BROKEN never ran" | tee -a "$RESULTS"
+    grep -a -q "^RES $c " "$RESULTS" || echo "RES $c BROKEN never ran" | tee -a "$RESULTS"
   done
   retry_fresh
   echo "== $label done in $(( $(date +%s) - start ))s =="
@@ -192,16 +200,16 @@ run_set() {
 # the same image proves nothing: what its first run left can make it pass (docs/mistakes.md).
 # Ten failures or more are a regression, not flakes, and are not retried. FRESH_RETRY=no: none.
 RETRY_LIMIT=10
-red() { grep -qE '^RES [A-Za-z0-9_]+ (TIMEOUT|BROKEN)|^    (FAIL |ERROR) ' "$RESULTS"; }
+red() { grep -a -qE '^RES [A-Za-z0-9_]+ (TIMEOUT|BROKEN)|^    (FAIL |ERROR) ' "$RESULTS"; }
 not_retried() {  # BSD grep (macOS) is not trusted with an empty pattern file
   if [ -s "$RESULTS.retried" ]; then grep -vxF -f "$RESULTS.retried" || true; else cat; fi
 }
 retry_fresh() {
   [ "${FRESH_RETRY:-yes}" = no ] && return 0
   local failed classes kind c sel out
-  failed=$(grep -E '^    (FAIL |ERROR) +[A-Za-z0-9_]+>>[A-Za-z0-9_:]+ ' "$RESULTS" \
+  failed=$(grep -a -E '^    (FAIL |ERROR) +[A-Za-z0-9_]+>>[A-Za-z0-9_:]+ ' "$RESULTS" \
     | sed -E 's/^    (FAIL|ERROR) +([A-Za-z0-9_]+)>>([A-Za-z0-9_:]+) .*/\1 \2 \3/' | not_retried)
-  classes=$(grep -E '^RES [A-Za-z0-9_]+ (TIMEOUT|BROKEN)' "$RESULTS" | awk '{print $2}' | not_retried)
+  classes=$(grep -a -E '^RES [A-Za-z0-9_]+ (TIMEOUT|BROKEN)' "$RESULTS" | awk '{print $2}' | not_retried)
   [ -z "$failed$classes" ] && return 0
   if [ $(( $(grep -c . <<<"$failed") + $(grep -c . <<<"$classes") )) -ge "$RETRY_LIMIT" ]; then
     echo "== $RETRY_LIMIT failures or more: a regression, not retried =="
@@ -212,7 +220,7 @@ retry_fresh() {
     [ -z "$kind" ] && continue
     echo "$kind $c $sel" >> "$RESULTS.retried"
     out=$(ONLY_TEST="$sel" run_class "$c" < /dev/null)
-    grep -q "^RES $c 1 run 0 failures 0 errors" <<<"$out" || { echo "    still failing: $c>>$sel"; continue; }
+    grep -a -q "^RES $c 1 run 0 failures 0 errors" <<<"$out" || { echo "    still failing: $c>>$sel"; continue; }
     echo "    FLAKY $c>>$sel"
     awk -v k="$kind" -v c="$c" -v s="$sel" '
       !done && index($0, "    " (k == "FAIL" ? "FAIL  " : "ERROR ") c ">>" s " ") == 1 {
@@ -223,9 +231,9 @@ retry_fresh() {
   for c in $classes; do
     echo "$c" >> "$RESULTS.retried"
     out=$(run_class "$c" < /dev/null)
-    grep -qE "^RES $c [0-9]+ run 0 failures 0 errors" <<<"$out" || { echo "    still failing: $c"; continue; }
+    grep -a -qE "^RES $c [0-9]+ run 0 failures 0 errors" <<<"$out" || { echo "    still failing: $c"; continue; }
     echo "    FLAKY $c"
-    awk -v c="$c" -v fresh="$(grep "^RES $c " <<<"$out" | head -1)" '
+    awk -v c="$c" -v fresh="$(grep -a "^RES $c " <<<"$out" | head -1)" '
       $1 == "RES" && $2 == c && ($3 == "TIMEOUT" || $3 == "BROKEN") && !done {
         print fresh; print "    FLAKY " c " -- " $3 " first, then passed in a fresh process"; done = 1; skip = 1; next }
       skip && /^    \| / { next }
