@@ -8,3 +8,5 @@ latest-*.zip*
 
 # built, not committed
 bin/pharo-debuggable
+# What the pinned images write beside themselves when a test runs them (Epicea logs).
+resources/pharo-local/

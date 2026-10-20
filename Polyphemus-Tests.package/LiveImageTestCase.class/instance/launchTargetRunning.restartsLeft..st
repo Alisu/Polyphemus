@@ -11,12 +11,13 @@ launchTargetRunning: aScript restartsLeft: aCount
 	target exists ifFalse: [ ^ self skip: 'the pinned target image has not been downloaded' ].
 	self spikeDirectory ensureDeleteAll.
 	self spikeDirectory ensureCreateDirectory.
+	(self spikeDirectory / 'quiet.st') writeStreamDo: [ :stream | stream nextPutAll: self quietTargetSource ].
 	(self spikeDirectory / 'target.st') writeStreamDo: [ :stream |
 		stream nextPutAll: aScript ].
 	bang := String with: (Character value: 33).
 	pidFile := self spikeDirectory / 'pid'.
 	LibC system: 'POLYPHEMUS_OBSERVER=any ' , shim fullName , ' ' , PharoImageAccessor pathToTargetVM
-		, ' --headless ' , target fullName , ' --no-default-preferences st ' , (self spikeDirectory / 'target.st') fullName
+		, ' --headless ' , target fullName , ' --no-default-preferences st ' , (self spikeDirectory / 'quiet.st') fullName , ' ' , (self spikeDirectory / 'target.st') fullName
 		, ' > ' , (self spikeDirectory / 'target.log') fullName , ' 2>&1 & echo $' , bang , ' > ' , pidFile fullName.
 	self waitFor: [
 		(self spikeDirectory / 'started') exists or: [
