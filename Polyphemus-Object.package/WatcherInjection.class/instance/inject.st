@@ -1,14 +1,14 @@
 injecting
 inject
 
-	"In one stop, unless a watcher already waits on that directory's semaphore: a semaphore in a
-	free slot of the external objects table, and the watcher's method, a context and a process
-	holding it, queued there. Answers the process's address. The folder is made if missing."
+	"In one stop at a safe moment (#91), unless a watcher already waits on that directory's semaphore:
+	a semaphore in a free slot of the external objects table, and the watcher's method, a context
+	and a process holding it, queued there. Answers the process's address; makes the folder."
 
 	directory ensureCreateDirectory.
-	^ reader whileStopped: [
+	^ self whileStoppedAtASafeMoment: [ :dumped |
 		  | index semaphore process |
-		  reading := (SpurDumpedMemory on: reader) reifiedMemory.
+		  reading := dumped reifiedMemory.
 		  installer := SpurMethodInstall on: reading into: (SpurWritableProcess on: reader).
 		  self refuseAWatchedImage.
 		  index := self freeExternalSlot.
