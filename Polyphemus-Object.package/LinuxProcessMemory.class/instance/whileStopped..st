@@ -7,4 +7,4 @@ whileStopped: aBlock
 	| wasStopped |
 	wasStopped := self isStopped.
 	wasStopped ifFalse: [ self stop ].
-	^ aBlock ensure: [ wasStopped ifFalse: [ self resume ] ]
+	^ aBlock valueThenLetGo: [ wasStopped ifFalse: [ self resume ] ]

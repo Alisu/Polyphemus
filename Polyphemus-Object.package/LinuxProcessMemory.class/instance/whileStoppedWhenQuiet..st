@@ -12,4 +12,4 @@ whileStoppedWhenQuiet: aBlock
 		(tries := tries + 1) > 100 ifTrue: [
 			^ (SpurCannotRead new level: #bytes reason: #itWasNeverQuietWhenStopped) signal ].
 		(Delay forMilliseconds: 50) wait ].
-	^ aBlock ensure: [ self resume ]
+	^ aBlock valueThenLetGo: [ self resume ]
