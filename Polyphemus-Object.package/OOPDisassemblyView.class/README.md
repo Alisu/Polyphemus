@@ -1,0 +1,1 @@
+A method or block of another image as the bytecode printer can read it: its literals given as ours (a selector as a symbol, a variable as one named the same), everything else asked of the code itself.
