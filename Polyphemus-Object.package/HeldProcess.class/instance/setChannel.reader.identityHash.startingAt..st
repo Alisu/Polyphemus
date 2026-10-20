@@ -17,4 +17,4 @@ start := found first suspendedContext.
 	 ifNotNil: [ :source | 'method := ' , source , '.
 start := (start findContextSuchThat: [ :each | each method selector == method selector and: [ each method methodClass == method methodClass ] ]) ifNil: [ start ].
 ' ]) , 'self at: #session put: (DebugSession named: ''Polyphemus'' on: found first startedAt: start).
-nil'
+' , (aMethodSourceOrNil ifNil: [ '' ] ifNotNil: [ :source | self untrapSource ]) , 'nil'
