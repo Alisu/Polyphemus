@@ -6,6 +6,11 @@ testAnIdleVirtualMachineIsSaidToWaitForEvents
 	pid := self launchIdleTarget.
 	[
 	report := Polyphemus whereIsStuck: pid.
+	"An idle VM still wakes now and then (its heartbeat, its delays): one look in ten finds it waiting."
+	9 timesRepeat: [
+		report stoppedToLook ifTrue: [
+			(Delay forMilliseconds: 100) wait.
+			report := Polyphemus whereIsStuck: pid ] ].
 
 	self deny: report stoppedToLook.
 	self assert: report mainThread isWaitingForEvents description: [ report printString ].
