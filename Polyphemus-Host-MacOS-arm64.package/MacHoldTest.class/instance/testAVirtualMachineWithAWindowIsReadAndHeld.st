@@ -17,9 +17,8 @@ Smalltalk exitSuccess'
 		       withAWindow: true.
 	[
 	self assert: (self waitForFile: 'display' in: dir) description: 'the target never started'.
-	self
-		assert: (dir / 'display') contents = 'window'
-		description: 'the target opened no window: this says nothing of #91'.
+	(dir / 'display') contents = 'window' ifFalse: [
+		^ self skip: 'the target found no graphical session here (macOS CI) and runs headless (#101): nothing to say of #91' ].
 	self assert: (Polyphemus readProcess: pid) allReifiedProcesses notEmpty.
 	Polyphemus putAWatcherInto: pid watchedIn: dir.
 	session := Polyphemus holdProcess: pid watchedIn: dir.
