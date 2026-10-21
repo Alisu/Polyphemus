@@ -28,6 +28,21 @@ do instead, and the issue that tracks it. When one is lifted, its entry goes.
   if it fetched meanwhile). Before working again as yourself:
   `sudo chown -R "$USER" <the folder>`.
 
+## An image that does not answer, or is damaged
+
+| The image... | Reading it | Holding and debugging it |
+|---|---|---|
+| idle, or every process waiting (a deadlock) | yes | yes |
+| looping at a priority below 70 (the usual frozen image) | **refused**: reading waits for a quiet moment it never gets; `where_stuck` answers (#113) | yes: the watcher goes in at a safe moment and holds it |
+| looping at priority 70 or above | refused, as above | **no**: the watcher, at 70, never runs |
+| stuck in C (an FFI call, a primitive) | yes if it waits in the kernel, else refused | **no**: nothing is interpreted, so the watcher never runs; `where_stuck` shows its threads, not the C frames (#18) |
+| allocating without pause | rarely quiet | sometimes (#98) |
+
+**A damaged heap** is read level by level, each saying whether it reads (bytes, heap, objects, free
+space, classes, special objects); the watcher is not put in unless the classes and special objects
+read whole. Holding a damaged image runs our agent's code in it, which can crash the VM: take a
+core first (`Polyphemus dumpProcess:to:`), read and repair that, and act live only after.
+
 ## While an image is held
 
 - **The whole image stands still**, not only the process the debugger shows: the watcher's agent
@@ -70,6 +85,8 @@ in its run queue, it ran behind the debugger, or the VM dropped it as a zombie).
 - **A change to a method's pragmas is refused**: they are kept as the image had them.
 - **After Proceed, a save does nothing and says nothing**: the image was let go. Hold it again to
   change it (#107).
+- **A save that does not compile, or is refused, says nothing**: no highlight at the error, no
+  message (#108). If Cmd+S seems to do nothing, check the code compiles.
 
 ## Reading
 
