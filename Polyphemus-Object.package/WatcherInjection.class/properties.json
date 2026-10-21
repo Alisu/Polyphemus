@@ -5,7 +5,7 @@
 	"classinstvars" : [ ],
 	"pools" : [ ],
 	"classvars" : [ ],
-	"instvars" : [ "reader", "directory", "reading", "installer" ],
+	"instvars" : [ "reader", "directory", "reading", "installer", "lastSeen" ],
 	"name" : "WatcherInjection",
 	"type" : "normal"
 }
