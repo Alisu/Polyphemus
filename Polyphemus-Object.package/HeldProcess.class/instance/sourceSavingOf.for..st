@@ -6,7 +6,7 @@ sourceSavingOf: aSource for: aReifiedMethod
 	becomeForward:, whose forwarders a full collection takes out, before the next read (#105)."
 
 	| method preamble |
-	method := aReifiedMethod oopMethodClass oopName , ' >> #' , aReifiedMethod oopSelector asString.
+	method := self methodNameOf: aReifiedMethod.
 	preamble := aReifiedMethod oopMethodClass oopName , ' methodsFor: ''polyphemus'' stamp: ''Polyphemus''!'.
 	^ '| method |
 method := ' , method , '.

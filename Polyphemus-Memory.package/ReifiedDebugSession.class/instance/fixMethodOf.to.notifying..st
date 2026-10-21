@@ -10,7 +10,7 @@ fixMethodOf: aContext to: aString notifying: aNotifier
 	  held
 		  ifNil: [ fix apply: aString to: aContext homeMethod ]
 		  ifNotNil: [
-			  held fix: aContext homeMethod to: aString.
+			  held fix: aContext homeMethod to: aString restartingAt: (self depthOf: aContext).
 			  self updateContextTo: held context ].
 	  true ]
 		  on: Error
