@@ -8,7 +8,5 @@ contexts
 	| process |
 	channel ask: 'Smalltalk vm voidCogVMState. nil'.
 	self readAgain.
-	process := reading runnableProcesses
-		           detect: [ :each | each oopHash = hash ]
-		           ifNone: [ self processIn: reading of: dumped ].
+	process := self heldIn: reading.
 	^ reading contextsOfProcess: process

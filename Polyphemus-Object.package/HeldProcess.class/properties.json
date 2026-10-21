@@ -5,7 +5,7 @@
 	"classinstvars" : [ ],
 	"pools" : [ ],
 	"classvars" : [ ],
-	"instvars" : [ "channel", "reader", "hash", "dumped", "reading", "collections" ],
+	"instvars" : [ "channel", "reader", "hash", "dumped", "reading", "collections", "address" ],
 	"name" : "HeldProcess",
 	"type" : "normal"
 }
