@@ -49,9 +49,13 @@ the task port (`task_for_pid`, `mach_vm_read_overwrite`, `mach_vm_region_recurse
 - **Memory.** `MacProcessMemory` answers the memory protocol through the task port, in 64 KB
   blocks (one `mach_vm_read` per object header took 12 s to find a 1.3 GB heap). The system's
   shared libraries cache is mapped as submaps (4.7 of 5.5 GB readable in a Pharo process); a core
-  leaves it out. A process that ended while read answers no region at all and is refused as such.
+  leaves it out. A process that ended while read answers no region at all and is refused as such. The blocks
+  and the map a reader read are forgotten at each stop: kept, a hold read the image as it was
+  before the step it had just made (#102).
 - **The VM's variables** come from `libPharoVMCore.dylib`'s Mach-O symbols (`MachOSharedObject`,
-  leading `_` stripped; its UUID as build id). The VM states where nil is (`0x10000000000` on
+  leading `_` stripped; its UUID as build id). Its start is the region named as it at file offset 0
+  that **starts with a header**: macOS names several so, and on most launches the lowest is a page
+  of zeros before its code (8 of 10 launches; read there, the build looked like another's, #104). The VM states where nil is (`0x10000000000` on
   VM 10.3.11) and new space (`0xF000000000`, not Linux's `0x360000000`); without them the largest
   region was taken for the heap, and held a table that only looked like nil, false and true.
 - **New space.** The macOS VM names no `eden` (it does name `pastSpace`, `futureSpace`,

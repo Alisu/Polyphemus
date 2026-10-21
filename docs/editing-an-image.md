@@ -103,6 +103,12 @@ installing it is there. A machine running the written image answers `#(42 true t
 The last of those is the one that matters: the image interned the name itself and found **ours**,
 not a second symbol beside it.
 
+**Recent symbols live in a second set.** Every edition keeps the symbols it made lately in
+`Symbol`'s `NewSymbols` until it merges them into `SymbolTable`, and looks in both. Scanning only
+the table, a selector made moments before (a method just compiled) was not found, a second symbol
+of that name was made, and the image then found that one while its method dictionary, keyed by the
+first, no longer answered `Counter >> #tick:` (#106). The new set is scanned too.
+
 ## The literals a real edit wants
 
 An edit almost never keeps the literal frame. Putting `nil == nil ifTrue: [ ]` into
@@ -196,6 +202,16 @@ itself answered `4 even` with **false**, where the same test without the patch a
 Six seconds, end to end: nothing heavy is read, the reified memory being lazy.
 
 A method the machine has already compiled needs one thing more, which the next section is.
+
+**The source a saved method keeps (#105).** Written from outside, a method carried no source: made
+anew it showed as bytecodes, written over the old code it showed the old source, and a second save
+was refused (the fix checks what it writes over by compiling the method's own source). After
+writing it, the held image is asked to keep the source as any save does, into its own changes file
+with the method pointing there: `putSource:withPreamble:` on Pharo 10 to 13,
+`putSource:withFooter:protocol:timestamp:priorSourcePointer:` on 14. On 10 and 11 a variable trailer
+grows by `becomeForward:`, whose forwarders a full collection then takes out, before the next read.
+The request is built before anything is written: named from a lazy reading after the image ran, it
+once asked for `#itor`.
 
 ### A method the running image never had
 

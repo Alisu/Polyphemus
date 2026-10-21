@@ -101,12 +101,22 @@ target's, so holding, stepping and letting go are the tested paths. B also refus
 a watcher of ours already waits on the semaphore left in that directory, it writes nothing (since 2026-09-26 the watcher has a semaphore of its own, registered in the external objects table) (`WatcherInjection`, `Polyphemus
 putAWatcherInto:watchedIn:`, tested by `WatcherInjectionTest`).
 
-**What B risks, stated rather than hidden:** it is written in one SIGSTOP at a moment we did not
-choose -- an image with no watcher has no safe moment to offer. If the VM was stopped in the
-middle of allocating (eden's `freeStart` loaded but not yet stored back) or of changing the
-semaphore's queue, one of our writes can be lost or undone when it resumes. The window is a few
-instructions wide and has not been seen in the tests; reading the VM thread's registers and
-program counter before writing would close it, and is left until a failure asks for it.
+**What B risks, stated rather than hidden.** It writes into a heap from outside, so the moment
+matters: stopped half way through a collection, the heap is not whole (measured on an image that
+allocates without pause: one stop in four lands in a scavenge, one in fifty in a compaction).
+Since #91 the watcher is put in at a safe moment (`WatcherInjection>>whileStoppedAtASafeMoment:`):
+a quiet stop if one comes within about two seconds, else -- a spinning image is never quiet -- one
+with no collection going (`gcPhaseInProgress`), and either way the classes and special objects
+reading whole; each try through a reader of its own, and a refusal says what the last try saw.
+Left: its objects are written in eden, which a busy image could write over if stopped inside an
+allocation of its own (#99, not seen); and the hold itself still stops at any moment (#98).
+
+**What a user sees while an image is held.** The whole image stands still, not only the process
+the debugger shows: the agent spins at priority 70 without yielding, so nothing below it runs --
+its window is not redrawn until it is let go, and the spinning keeps a core busy. A step runs the
+held process's code (a label's contents change), but the screen catches up only on Proceed. An
+error while the image is stopped lets it go before the error is shown, and nothing more is
+written if that error is proceeded from (#96).
 
 ### B. A channel with answers in it (#34)
 

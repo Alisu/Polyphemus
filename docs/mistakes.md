@@ -130,6 +130,16 @@ in is not one of them, so the nearest exported symbol below was some other funct
 → Name a function only when the address lies within its size (an ELF symbol has one); else
 name the file alone.
 
+**A reader of a running process kept what it read across stops.** The macOS reader kept its 64 KB
+blocks and its map for its life, the Linux one its map: a hold, which keeps one reader, read the
+image as it was before the step it had just made, and the debugger froze (#102). What was read
+while a process was stopped is good until it runs again: forget it at each stop, as the Windows
+reader did from the start.
+
+**A lazy reading read after the image ran reads what moved there.** Saving a method named it from
+the reading after the write and the image's own run: once it asked the image for `#itor` instead
+of `#tick:`. Take from a reading what is needed while it is still the image's.
+
 ## Reusing what already exists
 
 **Re-deriving the method trailer.** Several probes went into working out how to decode a
@@ -193,6 +203,15 @@ One run that tallied why each of the 20 block frames failed found it immediately
 **Answering nil for "I could not read it".** nil is a value a temporary genuinely holds, so a
 debugger cannot tell the two apart.
 → **Raise.** The inspector already catches it and shows `cannot read <name>`.
+
+**An API checked on two editions out of five.** `putSource:withPreamble:` was looked at on Pharo 10 and
+13 and used; Pharo 14 no longer has it, and CI went red there. Check a method's presence on every
+edition before relying on it (`pharo-vm`'s host-api reference lists what changed).
+
+**`pass` from a handler resumes where the error was raised** when the handler above resumes it, as
+a debugger's Proceed does: a block that let its process go and passed the error on went on writing
+into a running image. Signal a copy instead: proceeded, it returns into the handler, which gives
+the block up (`valueThenLetGo:`).
 
 ## Pharo, headless
 
@@ -358,6 +377,10 @@ existed, empty or header only: left by earlier starts of those images without th
 refuses an empty `.changes` (2026-09-28).
 → Put fresh files beside a written image every time; "if absent" is only for files nothing else
 makes.
+
+**`nice -n 10 WORK=x cmd` runs `WORK=x` as the command.** The assignment must come first
+(`WORK=x JOBS=2 nice -n 10 cmd`); a gate written the other way ran nothing, and a filter on its output
+hid the error. Print how many lines a filtered run left, so that nothing reads as a pass.
 
 ## The machine, not the code
 
