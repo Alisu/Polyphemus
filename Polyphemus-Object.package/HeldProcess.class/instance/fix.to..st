@@ -10,4 +10,5 @@ fix: aReifiedMethod to: aSource
 	how := self whileStillWhereRead: current do: [ :memory |
 		       (SpurMethodFix on: reading into: memory) apply: aSource to: current ].
 	channel ask: 'Smalltalk vm voidCogVMState. nil'.
+	channel ask: (self sourceSavingOf: aSource for: aReifiedMethod).
 	^ how
