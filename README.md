@@ -5,7 +5,8 @@
 
 > **This fork** (branch `stage2`) extends Polyphemus to core dumps and running processes, on
 > Pharo 10 to 14, Linux x64 and macOS arm64, and gives it one entry point, `Polyphemus`, and an
-> MCP server for agents. New here? Start with [docs/START-HERE.md](docs/START-HERE.md).
+> MCP server for agents. New here? Start with [docs/START-HERE.md](docs/START-HERE.md); what it
+> does not do yet is in [docs/limitations.md](docs/limitations.md).
 
 Polyphemus is a tool that gives a higher level representation of the object ordinary pointers (OOP) for the Pharo VM.
 It also proposes a visualization of the memory.
