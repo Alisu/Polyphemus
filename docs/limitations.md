@@ -47,18 +47,18 @@ do instead, and the issue that tracks it. When one is lifted, its entry goes.
 
 ## Stepping in the debugger
 
-Pharo's debugger steps by simulating the process, and the simulator runs some primitives for
-real, in the process doing the simulation:
+Pharo's debugger steps by simulating the process, and runs a step over a call for real, in the
+process doing the stepping -- here the agent holding the image. The held process itself is kept
+suspended while held and after each step, as Pharo's debugger keeps the one it debugs (#103: left
+in its run queue, it ran behind the debugger, or the VM dropped it as a zombie). What remains:
 
-- **Stepping through code that waits** -- `Delay>>wait`, `Semaphore>>wait`, `Mutex>>critical:`,
-  `SharedQueue>>next`, a socket or file waiting for data -- can put the debugged process in a
-  real queue while the debugger holds it, and the VM may then drop it ("evicted zombie process
-  from run queue" in the image's terminal: the process is lost) or run it outside the debugger.
-  It depends on timing, so it happens only sometimes. **Do not step into or over such calls**:
-  hold the image again further on with `runUntil:` instead (#103, being fixed by running such
-  calls for real).
+- **A step over a call that waits really waits** -- `Delay>>wait`, `Semaphore>>wait`,
+  `Mutex>>critical:` on a lock someone holds, a socket or file waiting for data. Meanwhile the
+  image's other processes run: its window may redraw, and objects may move (the debugger reads
+  the image again after each step). A wait that never ends leaves the debugger waiting with it:
+  hold the image again further on with `runUntil:` instead.
 - **Stepping over `fork`, `resume`, `yield` or `terminate`** acts on real processes: a forked
-  process exists for real and runs once the image is let go.
+  process exists for real and runs once the image is let go, or during a step that waits.
 - **Stepping over code with effects outside the image** (files, sockets, FFI,
   `Smalltalk snapshot:`) does them, as in any Pharo debugger.
 
