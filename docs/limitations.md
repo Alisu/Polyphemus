@@ -6,6 +6,8 @@ do instead, and the issue that tracks it. When one is lifted, its entry goes.
 ## Where it runs
 
 - **Linux x64 and macOS on Apple silicon**, Pharo 10 to 14. Intel Macs are not supported (#82).
+- **An observer reads the Pharo versions of its own edition only**: load Polyphemus in an image of
+  the same Pharo as the one you look into; another is refused, saying so.
 - **Windows x64: Pharo 13 only**, a preview: images and minidumps are read, live work is partial (#32).
 - **Pharo 14 is pinned to a beta build** and its VM 12 beta; it is re-pinned when they are released
   (#63).
@@ -50,6 +52,10 @@ core first (`Polyphemus dumpProcess:to:`), read and repair that, and act live on
   spinning keeps a CPU core busy. A step does run the code (a label's contents change); the
   screen catches up on Proceed.
 - **Processes above priority 70 still run**, the delay timer at 80 among them.
+- **Closing the debugger's window without Proceed leaves the image held** -- still, and a core busy.
+  Proceed before closing (#116).
+- **A request to a held image waits one minute at most**: a step over a call that takes longer ends
+  with "the image did not answer within 1:00".
 - **An image that allocates without ever pausing is sometimes not held** (the hold reads it at a
   bad moment): try again, or hold it at a method with `runUntil:` (#98).
 - **If the observer itself crashes during a hold, the image stays stopped** (`SIGSTOP`). Let it go
@@ -74,6 +80,10 @@ in its run queue, it ran behind the debugger, or the VM dropped it as a zombie).
   hold the image again further on with `runUntil:` instead.
 - **Stepping over `fork`, `resume`, `yield` or `terminate`** acts on real processes: a forked
   process exists for real and runs once the image is let go, or during a step that waits.
+- **Breakpoints:** Pharo's own ("Add breakpoint" in the debugger) are installed in the image the
+  debugger runs in, the observer, not the one you look into; do not use them on a held image, it
+  could stop the observer itself. To stop the image at a method, hold it there with `runUntil:`
+  (#115). A `halt` already in its code opens its own debugger, not ours.
 - **Stepping over code with effects outside the image** (files, sockets, FFI,
   `Smalltalk snapshot:`) does them, as in any Pharo debugger.
 
@@ -87,6 +97,19 @@ in its run queue, it ran behind the debugger, or the VM dropped it as a zombie).
   change it (#107).
 - **A save that does not compile, or is refused, says nothing**: no highlight at the error, no
   message (#108). If Cmd+S seems to do nothing, check the code compiles.
+
+## Not tried yet
+
+The debugger shown on a held image is Pharo's, and some of its commands assume the code they show
+lives in their own image. Not tried yet, so unknown rather than broken:
+
+- **Browse, senders and implementors** from a frame: they may open the observer's class of that
+  name, not the one you look into.
+- **Evaluating code in a frame** (Do it, Print it, in the code pane or the inspector): it runs in
+  the observer, on stand-ins for the image's objects, not in the image.
+- **Restart, Return entered value, Run to here**, and creating a missing method.
+- **Two holds of one image at once**, and **saving the observer** while a held image's debugger is
+  open.
 
 ## Reading
 
