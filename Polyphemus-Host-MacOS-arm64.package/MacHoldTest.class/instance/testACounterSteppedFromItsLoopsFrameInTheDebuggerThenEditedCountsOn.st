@@ -50,7 +50,9 @@ Smalltalk exitSuccess'.
 			"The loop's frame as the stack list shows it, the one the user selects."
 			loop := debugger stackTable items detect: [ :each | each selector = #DoIt ] ifNone: [ nil ].
 			model stepInto: (loop ifNil: [ debugger session interruptedContext ]).
-			PolyphemusTestCase drawWindowOf: debugger ] ].
+			PolyphemusTestCase drawWindowOf: debugger.
+			"Spec's tab bar breaks when steps come with no pause (index out of range on P13), as P10's did."
+			(Delay forMilliseconds: 50) wait ] ].
 	self assert: debugger session interruptedContext selector = #tick: description: 'stepping never came round to tick: again'.
 	debugger
 		acceptCodeChanges: 'tick: n
