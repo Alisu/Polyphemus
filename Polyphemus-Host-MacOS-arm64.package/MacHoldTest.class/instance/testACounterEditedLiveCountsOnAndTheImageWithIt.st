@@ -4,7 +4,7 @@ testACounterEditedLiveCountsOnAndTheImageWithIt
 	"The Mac trial's counter, held, stepped, run to tick: again and tick: edited there, then let go:
 	it counts on with the new code, and another process of its priority runs on with it (#103)."
 
-	| pid dir session read count beat |
+	| pid dir session read count beat later |
 	MacProcessMemory isRoot ifFalse: [ ^ self skip: 'reading another process on macOS needs the observer run as root (sudo)' ].
 	dir := self emptyDirectoryNamed: 'mac-counter'.
 	pid := self launchTargetRunning: '| dir cls |
@@ -27,7 +27,14 @@ cls compile: ''tick: n
     (Delay forMilliseconds: 50) wait ] repeat ] forkAt: 40.
 (Delay forSeconds: 600) wait.
 Smalltalk exitSuccess'.
-	read := [ :name | [ (dir / name) contents trimBoth asNumber ] on: Error do: [ :e | nil ] ].
+	read := [ :name |
+	        | value |
+	        "Replaced every few ms: between two versions, there is none for an instant."
+	        10 timesRepeat: [
+		        value ifNil: [
+			        value := [ (dir / name) contents trimBoth asNumber ] on: Error do: [ :e | nil ].
+			        value ifNil: [ (Delay forMilliseconds: 20) wait ] ] ].
+	        value ].
 	[
 	self assert: (self waitForFile: 'count' in: dir) description: 'the counter never started'.
 	Polyphemus putAWatcherInto: pid watchedIn: dir.
@@ -48,11 +55,12 @@ Smalltalk exitSuccess'.
 	count := read value: 'count'.
 	beat := read value: 'beat'.
 	(Delay forSeconds: 2) wait.
+	later := read value: 'count'.
 	self
-		assert: ((read value: 'count') notNil and: [ (read value: 'count') ~= count and: [ (read value: 'count') <= 1010 ] ])
-		description: [ 'the counter did not count on with the new code: ' , count printString , ' then '
-			, (read value: 'count') printString ].
+		assert: (later notNil and: [ later ~= count and: [ later <= 1010 ] ])
+		description: [ 'the counter did not count on with the new code: ' , count printString , ' then ' , later printString ].
+	later := read value: 'beat'.
 	self
-		assert: ((read value: 'beat') notNil and: [ (read value: 'beat') > beat ])
-		description: [ 'the other process stopped: ' , beat printString , ' then ' , (read value: 'beat') printString ] ]
+		assert: (later notNil and: [ beat notNil and: [ later > beat ] ])
+		description: [ 'the other process stopped: ' , beat printString , ' then ' , later printString ] ]
 		ensure: [ LibC system: 'kill -9 ' , pid printString ]
