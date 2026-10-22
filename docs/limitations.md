@@ -52,8 +52,6 @@ core first (`Polyphemus dumpProcess:to:`), read and repair that, and act live on
   spinning keeps a CPU core busy. A step does run the code (a label's contents change); the
   screen catches up on Proceed.
 - **Processes above priority 70 still run**, the delay timer at 80 among them.
-- **Closing the debugger's window without Proceed leaves the image held** -- still, and a core busy.
-  Proceed before closing (#116).
 - **A request to a held image waits one minute at most**: a step over a call that takes longer ends
   with "the image did not answer within 1:00".
 - **An image that allocates without ever pausing is sometimes not held** (the hold reads it at a
