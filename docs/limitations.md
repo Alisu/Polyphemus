@@ -8,6 +8,10 @@ do instead, and the issue that tracks it. When one is lifted, its entry goes.
 - **Linux x64 and macOS on Apple silicon**, Pharo 10 to 14. Intel Macs are not supported (#82).
 - **An observer reads the Pharo versions of its own edition only**: load Polyphemus in an image of
   the same Pharo as the one you look into; another is refused, saying so.
+- **Pharo 10 on its first VM (VM 9) is the weakest edition.** That VM sometimes cannot grow the
+  observer's memory even with RAM free (an `OutOfMemory` during a hold), and it crashes now and then
+  (#31, #119). A Pharo 10 image runs on VM 10 too: run it there and observe it with the Pharo 11
+  edition, which reads Pharo 10 on VM 10.
 - **Windows x64: Pharo 13 only**, a preview: images and minidumps are read, live work is partial (#32).
 - **Pharo 14 is pinned to a beta build** and its VM 12 beta; it is re-pinned when they are released
   (#63).
