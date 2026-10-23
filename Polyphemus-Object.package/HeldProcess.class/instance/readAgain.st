@@ -1,9 +1,9 @@
 private
 readAgain
 
-	"A new copy of the image, read taking the last reading's classes over when it can -- the
-	seconds of a reading -- and whole when a GC moved them. The last reading is left as it
-	was: the debugger still holds contexts of it."
+	"A new copy of the image, read taking the last reading's classes over when it can, whole when
+	a GC moved them. The last reading is left as it was, the debugger holding contexts of it, but
+	for the ASTs Pharo cached of it (#110)."
 
 	| fresh |
 	reader whileStopped: [
@@ -11,6 +11,7 @@ readAgain
 		fresh raw bytes.
 		collections := self collectionsSoFar.
 		dumped ifNotNil: [ fresh raw assumeTheHeapOf: dumped raw ] ].
+	reading ifNotNil: [ reading forgetItsASTs ].
 	reading := (dumped notNil and: [ fresh holdsTheClassesOf: dumped ])
 		           ifTrue: [ fresh reifiedMemorySharingClassesOf: reading ]
 		           ifFalse: [ fresh reifiedMemory ].

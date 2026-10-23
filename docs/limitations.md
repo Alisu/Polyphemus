@@ -108,10 +108,13 @@ lives in their own image.
   image's objects, not in the image. Reading a frame's variables works where this host reproduces
   the frame's code; elsewhere (a script's own frames, #6) Pharo asks about an "Unknown variable".
 
+- **Browse, senders, implementors and references** from a frame's menu look in the observer, not
+  in the image you look into: senders and implementors are the observer's, and browsing a class
+  opens Polyphemus's own stand-in class (`OOPRegularObject`, `OOPCompiledMethod`). Harmless, but
+  not what they say; a browser on the held image's code is not there yet.
+
 Not tried yet, so unknown rather than broken:
 
-- **Browse, senders and implementors** from a frame: they may open the observer's class of that
-  name, not the one you look into.
 - **Creating a missing method** from the debugger.
 - **Two holds of one image at once**, and **saving the observer** while a held image's debugger is
   open.

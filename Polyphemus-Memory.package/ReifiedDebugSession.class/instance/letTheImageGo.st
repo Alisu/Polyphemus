@@ -1,11 +1,13 @@
 accessing
 letTheImageGo
 
-	"Release the held image, once. Answers whether there was anything to release."
+	"Release the held image, once, and forget it with its reading: Pharo's theme may keep the last
+	debugger, and its session with it (#110). Answers whether there was anything to release."
 
-	| held |
-	held := release.
+	| letGo |
+	letGo := release.
 	release := nil.
-	held ifNil: [ ^ false ].
-	held value.
+	letGo ifNil: [ ^ false ].
+	held := image := nil.
+	letGo value.
 	^ true
