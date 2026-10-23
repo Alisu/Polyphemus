@@ -1,0 +1,4 @@
+testing
+isQuiet
+
+	^ self subclassResponsibility

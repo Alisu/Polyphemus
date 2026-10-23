@@ -1,0 +1,4 @@
+testing
+isPharoVirtualMachine
+
+	^ self subclassResponsibility

@@ -1,0 +1,4 @@
+accessing
+ownPid
+
+	^ self getpid

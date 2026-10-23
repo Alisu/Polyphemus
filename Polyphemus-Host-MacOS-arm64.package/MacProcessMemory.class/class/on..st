@@ -5,7 +5,7 @@ on: aPid
 	process, the system refused (not root, or a hardened VM), or not a Pharo VM."
 
 	| reader port |
-	aPid = self getpid ifTrue: [ ^ (CannotReadProcess new pid: aPid reason: #itIsThisVeryImage) signal ].
+	self refuseItsOwn: aPid.
 	reader := self new setTask: nil pid: aPid.
 	reader exists ifFalse: [ ^ (CannotReadProcess new pid: aPid reason: #noSuchProcess) signal ].
 	port := self pinned: 4.

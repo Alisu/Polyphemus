@@ -1,0 +1,4 @@
+accessing
+mappedFiles
+
+	^ self subclassResponsibility
