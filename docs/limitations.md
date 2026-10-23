@@ -78,10 +78,11 @@ in its run queue, it ran behind the debugger, or the VM dropped it as a zombie).
   hold the image again further on with `runUntil:` instead.
 - **Stepping over `fork`, `resume`, `yield` or `terminate`** acts on real processes: a forked
   process exists for real and runs once the image is let go, or during a step that waits.
-- **Breakpoints:** Pharo's own ("Add breakpoint" in the debugger) are installed in the image the
-  debugger runs in, the observer, not the one you look into; do not use them on a held image, it
-  could stop the observer itself. To stop the image at a method, hold it there with `runUntil:`
-  (#115). A `halt` already in its code opens its own debugger, not ours.
+- **Breakpoints are not supported on a held image yet** (#115). Pharo's own go in the image the
+  debugger runs in, the observer, not the one you look into. On Pharo 13 and 14, "Break on stack"
+  is refused, saying so. Pharo 10 to 12 have other breakpoint menus, not tried yet: do not use them
+  on a held image, they could stop the observer itself. To stop the image at a method, hold it there
+  with `runUntil:`. A `halt` already in its code opens its own debugger, not ours.
 - **Stepping over code with effects outside the image** (files, sockets, FFI,
   `Smalltalk snapshot:`) does them, as in any Pharo debugger.
 
