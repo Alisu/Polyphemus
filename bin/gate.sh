@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # The gate (docs/editions.md). Each edition has a setup directory with its own image, timings and
-# polyphemus.env, run with WORK set to it; editions run one after another.
+# polyphemus.env, run with WORK set to it.
 #
 #   bin/gate.sh              every edition: before a push, and before tagging an edition
 #   bin/gate.sh 13           the edition being worked on: before a commit
@@ -10,8 +10,13 @@
 #                            TestImpact); a change to a core class
 #                            (bin/core-classes) is pushed and waits for CI before anything is
 #                            built on it
+#   bin/gate.sh --commit --classes "ATest BTest" 13 10
+#                            the fast tier and those classes, named rather than looked for: when
+#                            the selection comes out wide (a core class, a common selector)
 #   bin/gate.sh --status     each edition's last green commit, against HEAD
-#   JOBS=5 bin/gate.sh 13
+#   JOBS=5 bin/gate.sh 13    JOBS_10=1 for one edition only (Pharo 10 runs short of memory, #110)
+#
+# The editions' tests run side by side, each on its own setup.
 #
 # A commit gate should stay under about ten minutes (Beck's ten-minute build; the most common
 # "maximum acceptable" CI build time in Hilton et al., FSE 2017). Every run is logged, with its
@@ -25,6 +30,11 @@ HISTORY="$ROOT/gate-history.log"
 setup_of() {  # 10 or pharo10 -> its setup directory
   local n="${1#pharo}"
   if [ "$n" = 10 ]; then echo "$ROOT"; else echo "$ROOT/pharo$n"; fi
+}
+
+jobs_of() {  # the jobs an edition runs: JOBS_<n>, or JOBS
+  local var="JOBS_${1#pharo}"
+  echo "${!var:-$JOBS}"
 }
 
 ALL=(10)
@@ -44,8 +54,10 @@ if [ "${1:-}" = "--status" ]; then
 fi
 
 COMMIT_GATE=
+NAMED_CLASSES=
 if [ "${1:-}" = --commit ]; then
   COMMIT_GATE=yes; shift
+  if [ "${1:-}" = --classes ]; then NAMED_CLASSES="$2"; shift 2; fi
   CHANGES=$(mktemp)
   SELECTION=$("$REPO/bin/commit-selection.sh")
   grep '^CHANGE ' <<<"$SELECTION" | cut -c8- > "$CHANGES"
@@ -90,7 +102,11 @@ done
 wait "${preparing[@]}"   # these only: the temperature watch above runs until the end
 # Which tests the changes reach, asked of the first edition's image once it holds them: the
 # senders of what changed, followed up to the tests (bin/select-tests.st, TestImpact).
-if [ -n "$COMMIT_GATE" ]; then
+if [ -n "$NAMED_CLASSES" ]; then
+  SELECTED_CLASSES="$NAMED_CLASSES"
+  rm -f "$CHANGES"
+  echo "== commit gate: the fast tier, and $NAMED_CLASSES (named)"
+elif [ -n "$COMMIT_GATE" ]; then
   first=$(setup_of "${EDITIONS[0]}")
   SELECTION=$( cd "$first" && POLYPHEMUS_CHANGES="$CHANGES" timeout 300 ./pharo dev.image --no-default-preferences \
     st "$REPO/bin/select-tests.st" 2>/dev/null | tr -d '\033' | grep -aE '^(CLASS|WIDE) ' )
@@ -100,24 +116,29 @@ if [ -n "$COMMIT_GATE" ]; then
   echo "== commit gate: the fast tier, and ${SELECTED_CLASSES:-no slow class}"
 fi
 echo "== working copy free after $(( $(date +%s) - start ))s: edit on, but run bin/tdd.sh only on setups not in this gate"
+testing=()
 for n in "${EDITIONS[@]}"; do
   setup=$(setup_of "$n")
-  began=$(date +%s)
+  jobs=$(jobs_of "$n")
   grep -q "^RES prepare BROKEN" "$setup/.gate.log" && { echo 0 > "$setup/.gate.seconds"; continue; }
-  if [ -n "$COMMIT_GATE" ]; then
-    ( cd "$setup" && WORK="$setup" GATE_OWNED=1 SKIP_PREPARE=1 "$setup/Polyphemus/bin/tdd.sh" --fast -j "$JOBS" >> "$setup/.gate.log" 2>&1 )
-    # Only the slow ones: the fast tier has run every other. A class never timed counts as slow.
-    slow=()
-    for c in $SELECTED_CLASSES; do
-      t=$(awk -v c="$c" '$1==c {print $2}' "$setup/.test-timings" 2>/dev/null | tail -1)
-      { [ -z "$t" ] || [ "$t" -ge "${SLOW_THRESHOLD:-8}" ]; } && slow+=(-c "$c")
-    done
-    [ ${#slow[@]} -gt 0 ] && ( cd "$setup" && WORK="$setup" GATE_OWNED=1 SKIP_PREPARE=1 "$setup/Polyphemus/bin/tdd.sh" "${slow[@]}" -j "$JOBS" >> "$setup/.gate.log" 2>&1 )
-  else
-    ( cd "$setup" && WORK="$setup" GATE_OWNED=1 SKIP_PREPARE=1 "$setup/Polyphemus/bin/tdd.sh" --all -j "$JOBS" >> "$setup/.gate.log" 2>&1 )
-  fi
-  echo "$(( $(date +%s) - began ))" > "$setup/.gate.seconds"
+  ( began=$(date +%s)
+    if [ -n "$COMMIT_GATE" ]; then
+      ( cd "$setup" && WORK="$setup" GATE_OWNED=1 SKIP_PREPARE=1 "$setup/Polyphemus/bin/tdd.sh" --fast -j "$jobs" >> "$setup/.gate.log" 2>&1 )
+      # Only the slow ones: the fast tier has run every other. A class never timed counts as slow;
+      # a class named runs whatever its time.
+      slow=()
+      for c in $SELECTED_CLASSES; do
+        t=$(awk -v c="$c" '$1==c {print $2}' "$setup/.test-timings" 2>/dev/null | tail -1)
+        { [ -n "$NAMED_CLASSES" ] || [ -z "$t" ] || [ "$t" -ge "${SLOW_THRESHOLD:-8}" ]; } && slow+=(-c "$c")
+      done
+      [ ${#slow[@]} -gt 0 ] && ( cd "$setup" && WORK="$setup" GATE_OWNED=1 SKIP_PREPARE=1 "$setup/Polyphemus/bin/tdd.sh" "${slow[@]}" -j "$jobs" >> "$setup/.gate.log" 2>&1 )
+    else
+      ( cd "$setup" && WORK="$setup" GATE_OWNED=1 SKIP_PREPARE=1 "$setup/Polyphemus/bin/tdd.sh" --all -j "$jobs" >> "$setup/.gate.log" 2>&1 )
+    fi
+    echo "$(( $(date +%s) - began ))" > "$setup/.gate.seconds" ) &
+  testing+=($!)
 done
+[ ${#testing[@]} -gt 0 ] && wait "${testing[@]}"
 peak=$(cat "$peak_file"); rm -f "$peak_file"
 
 status=0
