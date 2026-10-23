@@ -146,12 +146,13 @@ summary=""
 for n in "${EDITIONS[@]}"; do
   setup=$(setup_of "${n#pharo}")
   echo "== Pharo ${n#pharo} ($(cat "$setup/.gate.seconds")s)"
-  grep -aE "^== totals|^    (FAIL|ERROR|FLAKY)|BROKEN|TIMEOUT|never ran" "$setup/.gate.log"
+  grep -aE "^== totals|^    (FAIL|ERROR|FLAKY)|BROKEN|TIMEOUT|never ran|^NO COMMENT" "$setup/.gate.log"
   # Red by the totals, which count a failure that passed alone in a fresh process as a flake,
   # not a failure (bin/run-tests.sh); the log above still shows its first run.
   # Every run's totals green, and at least one: a commit gate makes two runs, the fast tier and
   # the slow classes it selected.
-  if ! grep -qa "^== totals" "$setup/.gate.log" ||
+  # A class without its comment compiles here, but a user's Metacello load fails on it.
+  if ! grep -qa "^== totals" "$setup/.gate.log" || grep -qa "^NO COMMENT" "$setup/.gate.log" ||
      grep -a "^== totals" "$setup/.gate.log" | grep -qv " 0 failures, 0 errors, 0 broken"; then
     status=1; summary="$summary ${n#pharo}:red"
   else

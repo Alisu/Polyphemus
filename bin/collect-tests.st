@@ -16,4 +16,10 @@ names do: [ :n |
 	((c class canUnderstand: #launchesImages) and: [ c launchesImages ])
 		ifTrue: [ ('LANE ', n) traceCr ] ].
 
+"What each class may take before the runner calls it stuck: each test its own limit."
+names do: [ :n |
+	[ ('LIMIT ', n, ' ', (PolyphemusTestRun secondsAllowedFor: (Smalltalk at: n) atLeast: 0) printString) traceCr ]
+		on: Error
+		do: [ :e | ] ].
+
 Smalltalk exitSuccess

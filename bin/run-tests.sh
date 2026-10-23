@@ -113,13 +113,15 @@ INNER
   start=$(date +%s)
   # rc must be timeout's own status: $? after a pipeline is grep's, which hid every timeout (#14).
   # A flat limit makes the slow classes report TIMEOUT whenever the machine is busy, which is a
-  # red suite that means nothing. Give each class what it took last time, three times over (#31).
-  local limit known
+  # red suite that means nothing. Give each class what it took last time, three times over (#31),
+  # and at least what its tests may take, each its own limit: a class never timed is not cut off.
+  local limit known allowed
   known=$(awk -v c="$c" '$1==c {print $2}' "$TIMINGS" 2>/dev/null | tail -1)
+  allowed=$(awk -v c="$c" '$1=="LIMIT" && $2==c {print $3}' "$LIMITS" 2>/dev/null | tail -1)
   limit="$TMO"
-  if [ -n "$known" ] && [ "$known" -gt 0 ] 2>/dev/null; then
+  [ -n "$allowed" ] && [ "$allowed" -gt "$limit" ] 2>/dev/null && limit="$allowed"
+  if [ -n "$known" ] && [ "$known" -gt 0 ] 2>/dev/null && [ $(( known * 3 )) -gt "$limit" ]; then
     limit=$(( known * 3 ))
-    [ "$limit" -lt "$TMO" ] && limit="$TMO"
   fi
   # The whole output, stderr too, stays in .class-logs: a class that dies says why there (#31).
   mkdir -p "$WORK/.class-logs"
@@ -268,10 +270,15 @@ trap 'rm -f "$LOCK"' EXIT
 # Which classes exist, and which launch images: asked of the image once. A single class needs
 # neither, so the tightest loop does not pay for starting Pharo to ask.
 COLLECTED=; LANE=
+LIMITS="$WORK/.test-limits"; export LIMITS
 if [ ${#SELECTED[@]} -ne 1 ]; then
   COLLECTED=$(collect)
   LANE=$(grep '^LANE ' <<<"$COLLECTED" | awk '{print $2}')
+elif ! grep -qs "^LIMIT ${SELECTED[0]} " "$LIMITS" &&
+     ! awk -v c="${SELECTED[0]}" '$1==c {f=1} END {exit !f}' "$TIMINGS" 2>/dev/null; then
+  COLLECTED=$(collect)   # a class never run here: asked once what it may take
 fi
+[ -n "$COLLECTED" ] && grep '^LIMIT ' <<<"$COLLECTED" > "$LIMITS"
 # SERIAL_LANES=n runs the image-launching classes in n lanes of their own; by default there are
 # none. Measured at -j 5 with the dump cache warm: no lanes 418 s, two 483 s, one 573 s, all
 # green -- the lanes cost more than the flakes they were meant to prevent (#31).
