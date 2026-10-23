@@ -97,16 +97,24 @@ in its run queue, it ran behind the debugger, or the VM dropped it as a zombie).
 - **A save that does not compile, or is refused, says nothing**: no highlight at the error, no
   message (#108). If Cmd+S seems to do nothing, check the code compiles.
 
-## Not tried yet
+## The debugger's other commands
 
 The debugger shown on a held image is Pharo's, and some of its commands assume the code they show
-lives in their own image. Not tried yet, so unknown rather than broken:
+lives in their own image.
+
+- **Run to here** steps over until the selection, as in Pharo.
+- **Restart, Return entered value, Peel to first like this**, and **changing a frame's variable**
+  (an assignment evaluated in a frame) would rewrite the held image's stack: refused, saying so.
+  Nothing is written into the image.
+- **Evaluating code in a frame** (Do it, Print it) runs in the observer, on stand-ins for the
+  image's objects, not in the image. Reading a frame's variables works where this host reproduces
+  the frame's code; elsewhere (a script's own frames, #6) Pharo asks about an "Unknown variable".
+
+Not tried yet, so unknown rather than broken:
 
 - **Browse, senders and implementors** from a frame: they may open the observer's class of that
   name, not the one you look into.
-- **Evaluating code in a frame** (Do it, Print it, in the code pane or the inspector): it runs in
-  the observer, on stand-ins for the image's objects, not in the image.
-- **Restart, Return entered value, Run to here**, and creating a missing method.
+- **Creating a missing method** from the debugger.
 - **Two holds of one image at once**, and **saving the observer** while a held image's debugger is
   open.
 
