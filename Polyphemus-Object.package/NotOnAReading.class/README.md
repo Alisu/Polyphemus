@@ -1,0 +1,1 @@
+Refused, saying why: what a running image held by Polyphemus is not asked to do, because the debugger running in the observer would do it to the observer or to a reading (Break on stack, Restart, Return entered value, Peel, assigning a frame variable, #115). Unhandled in the UI process, it says so and abandons the command, without a debugger on the observer.

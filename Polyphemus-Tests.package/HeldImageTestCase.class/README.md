@@ -1,0 +1,1 @@
+Scenarios a user goes through with a running image held by Polyphemus, as tests on every edition: what the user does, checked as the user would see it. Grown from the first trials (2026-10-19 onwards); each subclass covers one part. It launches the targets and says what their processes are doing when a check fails.

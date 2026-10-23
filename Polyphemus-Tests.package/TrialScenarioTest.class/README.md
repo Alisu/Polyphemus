@@ -1,1 +1,0 @@
-The scenarios of the first trial by a user (2026-10-19), as tests on every edition: a recursion that waits half way down, read post mortem from the image it saved and debugged by its process's name; and a ping-pong of two methods with waits, held live, run until one of them, stepped and let go. What the user did, checked as the user saw it.
