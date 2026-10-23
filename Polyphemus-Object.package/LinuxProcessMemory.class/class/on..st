@@ -5,6 +5,7 @@ on: aPid
 	Pharo VM, or the system refused. Pharo reports a refused /proc/<pid>/mem as missing."
 
 	| reader |
+	aPid = self getpid ifTrue: [ ^ (CannotReadProcess new pid: aPid reason: #itIsThisVeryImage) signal ].
 	reader := self new setPid: aPid; yourself.
 	reader exists ifFalse: [
 		^ (CannotReadProcess new pid: aPid reason: #noSuchProcess) signal ].

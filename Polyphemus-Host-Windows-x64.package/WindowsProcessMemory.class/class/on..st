@@ -5,6 +5,7 @@ on: aPid
 	macOS: no such process, the system refused it, or not a Pharo VM."
 
 	| handle reader |
+	aPid = self currentProcessId ifTrue: [ ^ (CannotReadProcess new pid: aPid reason: #itIsThisVeryImage) signal ].
 	(self processExists: aPid) ifFalse: [ ^ (CannotReadProcess new pid: aPid reason: #noSuchProcess) signal ].
 	"QUERY_INFORMATION, VM_READ, VM_WRITE, VM_OPERATION, SUSPEND_RESUME."
 	handle := self openProcess: 16r0C38 inherit: 0 pid: aPid.

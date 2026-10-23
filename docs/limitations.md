@@ -59,6 +59,9 @@ core first (`Polyphemus dumpProcess:to:`), read and repair that, and act live on
 - **If the observer itself crashes during a hold, the image stays stopped** (`SIGSTOP`). Let it go
   with `kill -CONT <pid>` (#96). An error inside Polyphemus during a hold does not do this: the
   image is let go before the error is shown.
+- **An observer does not hold or read itself**: its own pid is refused, saying so. **Two observers
+  can still hold each other** (each run as root, or each the other's ancestor): both stop, and only
+  `kill -CONT` frees them. Hold from one observer at a time (#117).
 - **The watcher is written in eden**: an image busy allocating at the exact moment it is put in
   could overwrite it. Not seen; an idle image or one waiting on its window is not exposed (#99).
 - **macOS: two large copies of a held process at once can crash the observer** (Pharo 13, a full
