@@ -53,7 +53,7 @@ testACounterSteppedFromItsLoopsFrameOverAWaitCountsOn
 		description: [ 'the VM lost processes: ' , (self spikeDirectory / 'target.log') contents ].
 	self
 		assert: (later notNil and: [ beat notNil and: [ later > beat ] ])
-		description: [ 'the other process stopped: ' , beat printString , ' then ' , later printString ].
+		description: [ 'the other process stopped: ' , beat printString , ' then ' , later printString , ' -- ' , (self processesOf: pid) ].
 	processes := (Polyphemus readProcess: pid) allReifiedProcesses.
 	self
 		assert: (processes anySatisfy: [ :each | (Polyphemus nameOfProcess: each) = 'counter' ])

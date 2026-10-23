@@ -54,5 +54,5 @@ testACounterEditedLiveCountsOnAndTheImageWithIt
 	later := read value: 'beat'.
 	self
 		assert: (later notNil and: [ beat notNil and: [ later > beat ] ])
-		description: [ 'the other process stopped: ' , beat printString , ' then ' , later printString ] ]
+		description: [ 'the other process stopped: ' , beat printString , ' then ' , later printString , ' -- ' , (self processesOf: pid) ] ]
 		ensure: [ LibC system: 'kill -9 ' , pid printString ]
