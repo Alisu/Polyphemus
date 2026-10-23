@@ -94,8 +94,6 @@ in its run queue, it ran behind the debugger, or the VM dropped it as a zombie).
 - **A change to a method's pragmas is refused**: they are kept as the image had them.
 - **After Proceed, a save does nothing and says nothing**: the image was let go. Hold it again to
   change it (#107).
-- **A save that does not compile, or is refused, says nothing**: no highlight at the error, no
-  message (#108). If Cmd+S seems to do nothing, check the code compiles.
 
 ## The debugger's other commands
 
