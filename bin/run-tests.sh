@@ -51,11 +51,9 @@ collect() {
 }
 all_classes() { grep '^CLASS ' <<<"$COLLECTED" | awk '{print $2}' | sort -u; }
 
-is_slow() {
-  local c="$1" t
-  t=$(awk -v c="$c" '$1==c {print $2}' "$TIMINGS" 2>/dev/null | tail -1)
-  [ -n "$t" ] && [ "$t" -ge "$SLOW_THRESHOLD" ]
-}
+. "$HERE/timings.sh"
+export -f worst_time_of best_time_of
+is_slow() { is_slow_in "$TIMINGS" "$1" "$SLOW_THRESHOLD"; }
 
 longest_first() {
   awk -v timings="$TIMINGS" 'BEGIN { while ((getline line < timings) > 0) { split(line, f, " "); t[f[1]] = f[2] } }
@@ -116,7 +114,7 @@ INNER
   # red suite that means nothing. Give each class what it took last time, three times over (#31),
   # and at least what its tests may take, each its own limit: a class never timed is not cut off.
   local limit known allowed
-  known=$(awk -v c="$c" '$1==c {print $2}' "$TIMINGS" 2>/dev/null | tail -1)
+  known=$(worst_time_of "$c" "$TIMINGS")
   allowed=$(awk -v c="$c" '$1=="LIMIT" && $2==c {print $3}' "$LIMITS" 2>/dev/null | tail -1)
   limit="$TMO"
   [ -n "$allowed" ] && [ "$allowed" -gt "$limit" ] 2>/dev/null && limit="$allowed"
@@ -314,11 +312,7 @@ else
   esac
 fi
 
-if [ -s "$TIMINGS.new" ]; then
-  cat "$TIMINGS" "$TIMINGS.new" 2>/dev/null \
-    | awk '!($1 in t) || $2 > t[$1] {t[$1]=$2} END {for (c in t) print c, t[c]}' | sort > "$TIMINGS.tmp"   # worst, not last (#54)
-  mv "$TIMINGS.tmp" "$TIMINGS"
-fi
+[ -s "$TIMINGS.new" ] && merge_timings "$TIMINGS" "$TIMINGS.new"   # worst and best, not last (#54, #118)
 rm -f "$TIMINGS.new"
 
 awk '/^RES /{ if ($3=="TIMEOUT"||$3=="BROKEN") b++; else {r+=$3; f+=$5; e+=$7} } /^    FLAKY /{ k++ }

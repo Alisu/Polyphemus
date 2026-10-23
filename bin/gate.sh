@@ -32,6 +32,8 @@ setup_of() {  # 10 or pharo10 -> its setup directory
   if [ "$n" = 10 ]; then echo "$ROOT"; else echo "$ROOT/pharo$n"; fi
 }
 
+. "$(dirname "$0")/timings.sh"
+
 jobs_of() {  # the jobs an edition runs: JOBS_<n>, or JOBS
   local var="JOBS_${1#pharo}"
   echo "${!var:-$JOBS}"
@@ -128,7 +130,7 @@ for n in "${EDITIONS[@]}"; do
       # a class named runs whatever its time.
       slow=()
       for c in $SELECTED_CLASSES; do
-        t=$(awk -v c="$c" '$1==c {print $2}' "$setup/.test-timings" 2>/dev/null | tail -1)
+        t=$(best_time_of "$c" "$setup/.test-timings")
         { [ -n "$NAMED_CLASSES" ] || [ -z "$t" ] || [ "$t" -ge "${SLOW_THRESHOLD:-8}" ]; } && slow+=(-c "$c")
       done
       [ ${#slow[@]} -gt 0 ] && ( cd "$setup" && WORK="$setup" GATE_OWNED=1 SKIP_PREPARE=1 "$setup/Polyphemus/bin/tdd.sh" "${slow[@]}" -j "$jobs" >> "$setup/.gate.log" 2>&1 )
