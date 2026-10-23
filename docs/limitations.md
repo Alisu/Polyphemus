@@ -116,9 +116,11 @@ lives in their own image.
   opens Polyphemus's own stand-in class (`OOPRegularObject`, `OOPCompiledMethod`). Harmless, but
   not what they say; a browser on the held image's code is not there yet.
 
+- **Create (a missing method)** is not offered on a held image, even held on a
+  `MessageNotUnderstood`: nothing is compiled into the observer.
+
 Not tried yet, so unknown rather than broken:
 
-- **Creating a missing method** from the debugger.
 - **Two holds of one image at once**, and **saving the observer** while a held image's debugger is
   open.
 
