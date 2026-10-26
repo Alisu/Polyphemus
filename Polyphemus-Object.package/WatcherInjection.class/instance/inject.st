@@ -6,10 +6,10 @@ inject
 	and a process holding it, queued there. Answers the process's address; makes the folder."
 
 	directory ensureCreateDirectory.
-	^ self whileStoppedAtASafeMoment: [ :dumped |
+	^ reader whileStoppedAtASafeMoment: [ :dumped :stopped |
 		  | index semaphore process |
 		  reading := dumped reifiedMemory.
-		  installer := SpurMethodInstall on: reading into: (SpurWritableProcess on: reader).
+		  installer := SpurMethodInstall on: reading into: (SpurWritableProcess on: stopped).
 		  self refuseAWatchedImage.
 		  index := self freeExternalSlot.
 		  semaphore := self new: 'Semaphore' extra: 0 format: 1.

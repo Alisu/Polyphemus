@@ -2,16 +2,17 @@ tests
 testItWritesOnlyAtAMomentItsHeapReadsWhole
 
 	"Each moment the watcher would be written at, in an image that allocates without pause: no
-	collection going, its classes and special objects read whole. Written mid-collection, it was damaged (#91)."
+	collection going, its classes and special objects read whole, and the reader handed over holds
+	it still. Written mid-collection, it was damaged (#91); the reader finds the moment (#118)."
 
-	| pid reader injection moments |
+	| pid reader moments |
 	pid := self launchStockSpinningTargetLooping: self allocatingStatement.
 	[
 	reader := PolyphemusMadeFor current processMemoryClass on: pid.
-	injection := WatcherInjection into: reader watchedIn: self spikeDirectory.
 	moments := (1 to: 10) collect: [ :each |
-		injection whileStoppedAtASafeMoment: [ :dumped |
+		reader whileStoppedAtASafeMoment: [ :dumped :stopped |
 			| now |
+			self assert: stopped isStopped.
 			now := PolyphemusMadeFor current processMemoryClass on: pid.
 			[ ((VMVariables on: now) at: 'gcPhaseInProgress') -> ((#( #classes #specialObjects ) reject: [ :each |
 				    dumped raw readability canRead: each ]) collect: [ :each | dumped raw readability whyNot: each ]) ]
