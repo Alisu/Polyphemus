@@ -5,14 +5,11 @@ testRunToHereInAHeldFrameStepsUntilTheSelection
 	shows a new reading of it."
 
 	| pid session debugger source start n |
-	pid := self launchTargetDefining: 'Counter' thenRunning: 'cls compile: ''tick: n
+	pid := self launchTargetDefining: 'Counter' thenRunning: (self counterTicking: 'tick: n
 	| a b |
 	a := n + 1.
 	b := a * 2.
-	^ b - a''.
-[ | n | n := 0.
-  [ n := cls new tick: n.
-    (Delay forMilliseconds: 20) wait ] repeat ] forkNamed: ''counter''.'.
+	^ b - a').
 	[
 	Polyphemus putAWatcherInto: pid watchedIn: self spikeDirectory.
 	session := Polyphemus holdProcess: pid watchedIn: self spikeDirectory.

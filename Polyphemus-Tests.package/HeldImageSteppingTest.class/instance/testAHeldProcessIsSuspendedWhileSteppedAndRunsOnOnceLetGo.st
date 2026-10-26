@@ -6,13 +6,8 @@ testAHeldProcessIsSuspendedWhileSteppedAndRunsOnOnceLetGo
 	step made the agent wait (#103). Let go, it runs on."
 
 	| pid session state ticks before |
-	pid := self launchTargetDefining: 'Counter' thenRunning: 'cls compile: ''tick: n
-	^ n + 1''.
-Smalltalk at: #PolyphemusTicks put: 0.
-[ | n | n := 0.
-  [ n := cls new tick: n.
-    Smalltalk at: #PolyphemusTicks put: (Smalltalk at: #PolyphemusTicks) + 1.
-    (Delay forMilliseconds: 20) wait ] repeat ] forkNamed: ''counter''.'.
+	pid := self launchTargetDefining: 'Counter' thenRunning: 'Smalltalk at: #PolyphemusTicks put: 0.' , (self counterTicking: 'tick: n
+	^ n + 1' from: 0 after: 'Smalltalk at: #PolyphemusTicks put: (Smalltalk at: #PolyphemusTicks) + 1.').
 	state := [ session heldProcess ask: '(self at: #process) isSuspended printString' ].
 	ticks := [ (session heldProcess ask: '(Smalltalk at: #PolyphemusTicks) printString') ].
 	[

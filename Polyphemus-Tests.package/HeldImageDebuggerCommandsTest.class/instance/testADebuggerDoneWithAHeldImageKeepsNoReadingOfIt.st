@@ -5,11 +5,8 @@ testADebuggerDoneWithAHeldImageKeepsNoReadingOfIt
 	cache the methods compiled for a reading: each kept the reading, Pharo 10 ran out of memory (#110)."
 
 	| pid session debugger readings |
-	pid := self launchTargetDefining: 'Counter' thenRunning: 'cls compile: ''tick: n
-	^ n + 1''.
-[ | n | n := 0.
-  [ n := cls new tick: n.
-    (Delay forMilliseconds: 20) wait ] repeat ] forkNamed: ''counter''.'.
+	pid := self launchTargetDefining: 'Counter' thenRunning: (self counterTicking: 'tick: n
+	^ n + 1').
 	[
 	Polyphemus putAWatcherInto: pid watchedIn: self spikeDirectory.
 	#( #proceeded #closed ) do: [ :how |

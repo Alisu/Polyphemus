@@ -5,12 +5,8 @@ testTheFrameSavedInRunsTheNewCode
 	that source, as Pharo's debugger restarts it, not finish with the old bytecodes (#109)."
 
 	| pid session before after |
-	pid := self launchTargetDefining: 'Counter' thenRunning: 'cls compile: ''tick: n
-	^ n + 1''.
-[ | n | n := 0.
-  [ n := cls new tick: n.
-    Smalltalk at: #PolyphemusN put: n.
-    (Delay forMilliseconds: 20) wait ] repeat ] forkNamed: ''counter''.'.
+	pid := self launchTargetDefining: 'Counter' thenRunning: (self counterTicking: 'tick: n
+	^ n + 1' from: 0 after: 'Smalltalk at: #PolyphemusN put: n.').
 	[
 	Polyphemus putAWatcherInto: pid watchedIn: self spikeDirectory.
 	session := Polyphemus holdProcess: pid watchedIn: self spikeDirectory.

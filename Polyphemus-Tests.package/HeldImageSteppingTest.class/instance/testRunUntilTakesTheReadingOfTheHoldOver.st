@@ -5,11 +5,8 @@ testRunUntilTakesTheReadingOfTheHoldOver
 	itself (3.9 s against 3.6 s). Taking the hold's classes over, as a step does, it costs less (#114)."
 
 	| pid session holding running |
-	pid := self launchTargetDefining: 'Counter' thenRunning: 'cls compile: ''tick: n
-	^ n + 1''.
-[ | n | n := 0.
-  [ n := cls new tick: n.
-    (Delay forMilliseconds: 20) wait ] repeat ] forkNamed: ''counter''.'.
+	pid := self launchTargetDefining: 'Counter' thenRunning: (self counterTicking: 'tick: n
+	^ n + 1').
 	[
 	Polyphemus putAWatcherInto: pid watchedIn: self spikeDirectory.
 	holding := Time millisecondsToRun: [

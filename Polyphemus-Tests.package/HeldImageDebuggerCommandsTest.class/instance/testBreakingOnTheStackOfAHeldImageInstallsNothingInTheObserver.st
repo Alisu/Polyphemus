@@ -6,11 +6,8 @@ testBreakingOnTheStackOfAHeldImageInstallsNothingInTheObserver
 
 	| pid session debugger before refusal |
 	(StDebugger includesSelector: #breakOnStack) ifFalse: [ ^ self skip: 'no Break on stack here' ].
-	pid := self launchTargetDefining: 'Counter' thenRunning: 'cls compile: ''tick: n
-	^ n + 1''.
-[ | n | n := 0.
-  [ n := cls new tick: n.
-    (Delay forMilliseconds: 20) wait ] repeat ] forkNamed: ''counter''.'.
+	pid := self launchTargetDefining: 'Counter' thenRunning: (self counterTicking: 'tick: n
+	^ n + 1').
 	before := DebugPoint all copy.
 	[
 	Polyphemus putAWatcherInto: pid watchedIn: self spikeDirectory.

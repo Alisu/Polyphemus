@@ -4,27 +4,9 @@ testACounterSteppedFromItsLoopsFrameThenEditedCountsOn
 	"The whole Mac trial: stepped from the loop's frame round the loop into tick:, tick: edited in
 	the debugger's code pane, Proceed. Each half alone left the image whole there (#103)."
 
-	| pid session read beat later processes debugger model |
-	pid := self launchTargetDefining: 'Counter' thenRunning: 'cls compile: ''tick: n
-	^ n + 1''.
-[ | n label | n := 5000.
-  label := StringMorph contents: ''0''.
-  (label openInWindowLabeled: ''Counter'') extent: 360 @ 160.
-  [ n := cls new tick: n. label contents: n printString. (Delay forMilliseconds: 20) wait ] repeat ] forkNamed: ''counter''.
-[ | b | b := 0.
-  [ b := b + 1.
-    (dir / ''beat.part'') ensureDelete; writeStreamDo: [ :s | s print: b ].
-    (dir / ''beat'') ensureDelete.
-    (dir / ''beat.part'') renameTo: ''beat''.
-    (Delay forMilliseconds: 50) wait ] repeat ] forkAt: 40.'.
-	read := [ :name |
-	        | value |
-	        "Replaced every few ms: between two versions, there is none for an instant."
-	        10 timesRepeat: [
-		        value ifNil: [
-			        value := [ (self spikeDirectory / name) contents trimBoth asNumber ] on: Error do: [ :e | nil ].
-			        value ifNil: [ (Delay forMilliseconds: 20) wait ] ] ].
-	        value ].
+	| pid session pulse later processes debugger model |
+	pid := self launchTargetDefining: 'Counter' thenRunning: (self windowedCounterTicking: 'tick: n
+	^ n + 1' from: 5000) , self pulse.
 	[
 	Polyphemus putAWatcherInto: pid watchedIn: self spikeDirectory.
 	session := Polyphemus holdProcess: pid watchedIn: self spikeDirectory.
@@ -50,15 +32,15 @@ testACounterSteppedFromItsLoopsFrameThenEditedCountsOn
 	model proceedDebugSession ] ensure: [ debugger window ifNotNil: [ :window | window close ] ].
 	self assert: (self waitFor: [ (self spikeDirectory / 'released') exists ]) description: 'it was never let go'.
 	(Delay forSeconds: 2) wait.
-	beat := read value: 'beat'.
+	pulse := self valueIn: 'pulse'.
 	(Delay forSeconds: 2) wait.
-	later := read value: 'beat'.
+	later := self valueIn: 'pulse'.
 	self
 		deny: ((self spikeDirectory / 'target.log') contents includesSubstring: 'zombie')
 		description: [ 'the VM lost processes: ' , (self spikeDirectory / 'target.log') contents ].
 	self
-		assert: (later notNil and: [ beat notNil and: [ later > beat ] ])
-		description: [ 'the other process stopped: ' , beat printString , ' then ' , later printString , ' -- ' , (self processesOf: pid) ].
+		assert: (later notNil and: [ pulse notNil and: [ later > pulse ] ])
+		description: [ 'the image''s pulse stopped: ' , pulse printString , ' then ' , later printString , ' -- ' , (self processesOf: pid) ].
 	processes := (Polyphemus readProcess: pid) allReifiedProcesses.
 	self
 		assert: (processes anySatisfy: [ :each | (Polyphemus nameOfProcess: each) = 'counter' ])

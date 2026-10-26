@@ -5,9 +5,8 @@ testAMethodSavedInTheDebuggerKeepsItsSourceAndSavesAgain
 	or made anew, and can be saved again: the image keeps that source as any save does (#105)."
 
 	| pid session sourceNow |
-	pid := self launchTargetDefining: 'Counter' thenRunning: 'cls compile: ''tick: n
-	^ n + 1''.
-[ | n | n := 0. [ n := cls new tick: n. (Delay forMilliseconds: 20) wait ] repeat ] forkNamed: ''counter''.'.
+	pid := self launchTargetDefining: 'Counter' thenRunning: (self counterTicking: 'tick: n
+	^ n + 1').
 	sourceNow := [
 	             [ (session interruptedContext homeMethod oopMethodClass methodNamed: 'tick:') sourceCode ]
 		             on: Error

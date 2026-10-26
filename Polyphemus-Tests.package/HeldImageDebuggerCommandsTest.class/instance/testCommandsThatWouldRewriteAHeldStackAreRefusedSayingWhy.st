@@ -5,15 +5,10 @@ testCommandsThatWouldRewriteAHeldStackAreRefusedSayingWhy
 	observer; each is refused, saying so, and the held image is left as it was."
 
 	| pid session debugger refusals before after |
-	pid := self launchTargetDefining: 'Counter' thenRunning: 'cls compile: ''tick: n
+	pid := self launchTargetDefining: 'Counter' thenRunning: 'Smalltalk at: #PolyphemusN put: 0.' , (self counterTicking: 'tick: n
 	| step |
 	step := 1.
-	^ n + step''.
-Smalltalk at: #PolyphemusN put: 0.
-[ | n | n := 0.
-  [ n := cls new tick: n.
-    Smalltalk at: #PolyphemusN put: n.
-    (Delay forMilliseconds: 20) wait ] repeat ] forkNamed: ''counter''.'.
+	^ n + step' from: 0 after: 'Smalltalk at: #PolyphemusN put: n.').
 	[
 	Polyphemus putAWatcherInto: pid watchedIn: self spikeDirectory.
 	session := Polyphemus holdProcess: pid watchedIn: self spikeDirectory.

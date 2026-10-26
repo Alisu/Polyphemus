@@ -5,15 +5,8 @@ testAScriptsLoopIsSteppedLive
 	loop, a DoIt with no source, and on through it, each step drawn and moving it (the Mac trial)."
 
 	| pid session debugger trail |
-	pid := self launchTargetDefining: 'Counter' thenRunning: 'cls compile: ''tick: n
-	^ n + 1''.
-[ | n label |
-  n := 0.
-  label := StringMorph contents: ''0''.
-  (label openInWindowLabeled: ''Counter'') extent: 360 @ 160.
-  [ n := cls new tick: n.
-    label contents: n printString.
-    (Delay forMilliseconds: 20) wait ] repeat ] forkNamed: ''counter''.'.
+	pid := self launchTargetDefining: 'Counter' thenRunning: (self windowedCounterTicking: 'tick: n
+	^ n + 1' from: 0).
 	[
 	Polyphemus putAWatcherInto: pid watchedIn: self spikeDirectory.
 	session := Polyphemus holdProcess: pid watchedIn: self spikeDirectory.

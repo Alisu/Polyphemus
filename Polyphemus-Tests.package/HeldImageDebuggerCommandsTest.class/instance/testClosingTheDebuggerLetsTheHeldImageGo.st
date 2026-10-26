@@ -5,13 +5,8 @@ testClosingTheDebuggerLetsTheHeldImageGo
 	held, still and a core busy, until something let it go (#116)."
 
 	| pid session debugger |
-	pid := self launchTargetDefining: 'Counter' thenRunning: 'cls compile: ''tick: n
-	^ n + 1''.
-Smalltalk at: #PolyphemusTicks put: 0.
-[ | n | n := 0.
-  [ n := cls new tick: n.
-    Smalltalk at: #PolyphemusTicks put: (Smalltalk at: #PolyphemusTicks) + 1.
-    (Delay forMilliseconds: 20) wait ] repeat ] forkNamed: ''counter''.'.
+	pid := self launchTargetDefining: 'Counter' thenRunning: 'Smalltalk at: #PolyphemusTicks put: 0.' , (self counterTicking: 'tick: n
+	^ n + 1' from: 0 after: 'Smalltalk at: #PolyphemusTicks put: (Smalltalk at: #PolyphemusTicks) + 1.').
 	[
 	Polyphemus putAWatcherInto: pid watchedIn: self spikeDirectory.
 	session := Polyphemus holdProcess: pid watchedIn: self spikeDirectory.
