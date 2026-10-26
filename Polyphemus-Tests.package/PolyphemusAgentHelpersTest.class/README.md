@@ -1,0 +1,1 @@
+The agent's helpers (PolyphemusAgent helpersSource), installed in a workspace of this image and run on its own processes: what a held image runs when asked to keep a process still, step, restart or let go, tried without a held image (#118).
