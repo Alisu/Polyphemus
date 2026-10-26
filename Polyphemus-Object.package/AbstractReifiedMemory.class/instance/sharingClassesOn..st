@@ -16,5 +16,6 @@ sharingClassesOn: aMemory
 	rebound keysAndValuesDo: [ :old :new |
 		old == self ifFalse: [ new reboundThrough: rebound ] ].
 	other rebaseOn: aMemory keeping: kept.
+	other takesItsClassesOver.
 	self class cache add: other.
 	^ other

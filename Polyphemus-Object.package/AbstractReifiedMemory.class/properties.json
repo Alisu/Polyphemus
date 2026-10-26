@@ -26,7 +26,8 @@
 	 "wrappedVariables",
 	 "handlerCache",
 	 "vmLayout",
-	 "editor"
+	 "editor",
+	 "classesTakenOver"
 	],
 	"name": "AbstractReifiedMemory",
 	"type": "normal"

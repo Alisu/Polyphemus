@@ -1,0 +1,4 @@
+private
+takesItsClassesOver
+
+	classesTakenOver := true
