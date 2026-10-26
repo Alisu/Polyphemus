@@ -5,4 +5,4 @@ peelToFirstLike: aContext
 	from a file is left to Pharo's own answer."
 
 	held ifNil: [ ^ super peelToFirstLike: aContext ].
-	^ NotOnAReading signal: 'Peel to first like this is not supported on a held image yet'
+	^ NotOnAReading signalFor: #peel

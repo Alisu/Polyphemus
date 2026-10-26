@@ -5,4 +5,4 @@ returnValue: anObject from: aContext
 	here yet; a stack read from a file is left to Pharo's own answer."
 
 	held ifNil: [ ^ super returnValue: anObject from: aContext ].
-	^ NotOnAReading signal: 'Return entered value is not supported on a held image yet'
+	^ NotOnAReading signalFor: #returnValue

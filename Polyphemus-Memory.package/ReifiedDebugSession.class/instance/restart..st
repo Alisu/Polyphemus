@@ -5,4 +5,4 @@ restart: aContext
 	stack read from a file has nothing to restart, as Pharo says itself."
 
 	held ifNil: [ ^ super restart: aContext ].
-	^ NotOnAReading signal: 'Restart is not supported on a held image yet'
+	^ NotOnAReading signalFor: #restart
