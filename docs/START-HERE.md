@@ -216,6 +216,7 @@ What to expect on a first run:
 `docs/` holds the longer notes: `debugging-a-snapshot.md` first, then `reading-a-dump.md`,
 `reading-a-live-process.md`, `stage3-live-image.md`, `editions.md` and `patch-notes.md`.
 `docs/mistakes.md` is worth a look before any long hunt.
+`docs/guide.md` walks through debugging a running image, step by step.
 `docs/limitations.md` says what Polyphemus does not do yet, and what to do instead.
 
 `CLAUDE.md`, `AGENTS.md` and `bin/` (apart from `pharo-debuggable`) are this fork's working

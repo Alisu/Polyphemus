@@ -1,0 +1,1 @@
+Reproduces #119, outside the gate: a counter stepped round to tick:, saved there and let go, round after round, until its VM crashes (3 to 6 runs in 10 on 2026-10-26, cause unknown). For a run under a VM with its assertions on, or gdb, to find where the damage starts.

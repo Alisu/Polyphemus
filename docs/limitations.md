@@ -1,6 +1,6 @@
 # What Polyphemus does not do yet, and what to do instead
 
-Checked against the code and the issues on 2026-10-21. Each limit says what happens, why, what to
+Checked against the code and the issues on 2026-10-26. Each limit says what happens, why, what to
 do instead, and the issue that tracks it. When one is lifted, its entry goes.
 
 ## Where it runs
@@ -9,9 +9,9 @@ do instead, and the issue that tracks it. When one is lifted, its entry goes.
 - **An observer reads the Pharo versions of its own edition only**: load Polyphemus in an image of
   the same Pharo as the one you look into; another is refused, saying so.
 - **Pharo 10 on its first VM (VM 9) is the weakest edition.** That VM sometimes cannot grow the
-  observer's memory even with RAM free (an `OutOfMemory` during a hold), and it crashes now and then
-  (#31, #119). A Pharo 10 image runs on VM 10 too: run it there and observe it with the Pharo 11
-  edition, which reads Pharo 10 on VM 10.
+  observer's memory even with RAM free (an `OutOfMemory` during a hold, #31). A Pharo 10 image runs
+  on VM 10 too: run it there and observe it with the Pharo 11 edition, which reads Pharo 10 on
+  VM 10.
 - **Windows x64: Pharo 13 only**, a preview: images and minidumps are read, live work is partial (#32).
 - **Pharo 14 is pinned to a beta build** and its VM 12 beta; it is re-pinned when they are released
   (#63).
@@ -95,6 +95,11 @@ in its run queue, it ran behind the debugger, or the VM dropped it as a zombie).
 
 ## Saving methods
 
+- **A save into a held image can crash it**, later, in a process the save did not touch (#119).
+  Seen on every VM, most often after stepping: a counter stepped and saved round after round
+  crashed in 3 to 6 runs in 10. The cause is not known yet; an image left alone never crashed,
+  and its heap reads whole right after each save. Save a copy of the image (or take a core)
+  before changing a method in an image that matters.
 - **Kept as source only in a held image**: a method saved from the debugger of a held image keeps
   its source in that image's changes file. A method fixed in an image *file* (post mortem) is
   written without its source.

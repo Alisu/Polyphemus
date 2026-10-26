@@ -1,0 +1,11 @@
+{
+	"commentStamp": "",
+	"super": "HeldImageTestCase",
+	"category": "Polyphemus-Tests-Expensive",
+	"classinstvars": [],
+	"pools": [],
+	"classvars": [],
+	"instvars": [],
+	"name": "HeldImageSaveCrashTest",
+	"type": "normal"
+}
