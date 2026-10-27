@@ -1,0 +1,1 @@
+Tests of a held process over a channel made up (ChannelDouble), for what does not need an image: how it lets go.
