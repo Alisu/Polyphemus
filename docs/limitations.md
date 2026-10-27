@@ -60,12 +60,14 @@ core first (`Polyphemus dumpProcess:to:`), read and repair that, and act live on
   with "the image did not answer within 1:00".
 - **An image that allocates without ever pausing is sometimes not held** (the hold reads it at a
   bad moment): try again, or hold it at a method with `runUntil:` (#98).
-- **If the observer itself crashes during a hold, the image stays stopped** (`SIGSTOP`). Let it go
-  with `kill -CONT <pid>` (#96). An error inside Polyphemus during a hold does not do this: the
-  image is let go before the error is shown.
+- **If the observer itself crashes or is killed during a hold, the image stays frozen** (#96). In
+  the moments it is stopped to be read or written (`SIGSTOP`), `kill -CONT <pid>` lets it go. The
+  rest of the hold, the image runs but our agent spins in it waiting for a request that will not
+  come: `kill -CONT` does nothing, and the image has to be killed. An error inside Polyphemus
+  during a hold does not do this: the image is let go before the error is shown.
 - **An observer does not hold or read itself**: its own pid is refused, saying so. **Two observers
   can still hold each other** (each run as root, or each the other's ancestor): both stop, and only
-  `kill -CONT` frees them. Hold from one observer at a time (#117).
+  `kill -CONT` frees them, if they are stopped rather than holding (see above). Hold from one observer at a time (#117).
 - **The watcher is written in eden**: an image busy allocating at the exact moment it is put in
   could overwrite it. Not seen; an idle image or one waiting on its window is not exposed (#99).
 - **macOS: two large copies of a held process at once can crash the observer** (Pharo 13, a full
