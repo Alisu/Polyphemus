@@ -9,10 +9,9 @@ overrideClassOops
 	handlers add: OOPClassClassSideObject.
 	handlers add: OOPClassInstanceSideObject.
 
-	"An entry no handler claims is not a class, whatever the table says it is. That used to
-	raise here and take the whole memory down with it; it is left as it is instead, so that
-	the objects pointing at it come out with an OOPUnreadableClass and the rest of the heap
-	is read as normal."
+	"An entry no handler claims is not a class, whatever the table says: left as it is, so what
+	points at it reads as an OOPUnreadableClass and the rest of the heap as normal (raising here
+	took the whole memory down)."
 	self reifiedClassTable classOopsDo: [ :aClass |
 		handlers
 			detect: [ :anHandler | anHandler canHandle: aClass address memory: self ]
