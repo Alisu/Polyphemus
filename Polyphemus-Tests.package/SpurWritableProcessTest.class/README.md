@@ -1,1 +1,1 @@
-Tests of writing into a running image, on a memory made up of bytes: new space from 16r10100 to 16r10400, the remembered set at 16r10800, old space past it.
+Tests of writing into a running image, on 16 KB made up of bytes at 16r10000: the VM's variables at its start, the remembered set at 16r10100, new space from 16r11000 to 16r13000 (eden from 16r11000), old space past it.
