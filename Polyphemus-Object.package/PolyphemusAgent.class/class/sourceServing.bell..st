@@ -9,10 +9,10 @@ sourceServing: aDirectory bell: aSource
 dir := ' , aDirectory asFileReference fullName printString , ' asFileReference.
 [ dir exists ] whileFalse: [ [ dir ensureCreateDirectory ] on: DirectoryExists do: [ :e | ] ].
 count := 0.
-going := false.
 workspace := Dictionary new.
 bell := ' , aSource , '.
-(dir / ''serving'') ensureCreateFile.
+going := (dir / ''go'') exists.
+going ifFalse: [ (dir / ''serving'') ensureCreateFile ].
 [ going ] whileFalse: [
 	| request |
 	[ (bell instVarAt: 3) > 0 ] whileFalse: [ ].
