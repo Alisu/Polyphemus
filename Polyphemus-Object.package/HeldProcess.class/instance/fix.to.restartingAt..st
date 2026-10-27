@@ -10,9 +10,9 @@ fix: aReifiedMethod to: aSource restartingAt: aDepth
 	"Named while this reading is the image's: once it has run, what it is read from may have moved."
 	className := aReifiedMethod oopMethodClass oopName.
 	selector := aReifiedMethod oopSelector asSymbol.
-	collect := reading methodTrailerClass == OOPVariableMethodTrailer.
-	how := self whileStillWhereRead: current do: [ :memory |
-		       (SpurMethodFix on: reading into: memory) apply: aSource to: current ].
+	collect := self reading methodTrailerClass == OOPVariableMethodTrailer.
+	how := heldReading whileStillWhereRead: current do: [ :memory |
+		       (SpurMethodFix on: self reading into: memory) apply: aSource to: current ].
 	channel ask: 'Smalltalk vm voidCogVMState. nil'.
 	self call: #saveSource with: {
 			className.
