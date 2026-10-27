@@ -18,7 +18,8 @@ tree() {  # a fresh made-up ROOT, its stub tdd.sh logging to $ROOT/calls
 echo "$(basename "$WORK") start $(date +%s.%N) $*" >> "$(dirname "$0")/../../calls"
 sleep 1
 echo "$(basename "$WORK") end $(date +%s.%N)" >> "$(dirname "$0")/../../calls"
-echo "== totals: 1 run, 0 failures, 0 errors, 0 broken, 0 flaky =="
+if [ -n "${STUB_ZERO:-}" ]; then echo "== totals: 0 run, 0 failures, 0 errors, 0 broken, 0 flaky =="
+else echo "== totals: 1 run, 0 failures, 0 errors, 0 broken, 0 flaky =="; fi
 STUB
   printf '#!/usr/bin/env bash\nexit 0\n' > "$ROOT/Polyphemus/bin/commit-selection.sh"
   chmod +x "$ROOT/Polyphemus/bin/"*.sh
@@ -54,6 +55,21 @@ tree
 ROOT="$ROOT" JOBS=2 STUB_NO_COMMENT=1 "$GATE" --commit --classes "AlphaTest" 13 > "$ROOT/out" 2>&1
 rc=$?
 check "a class without its comment makes the gate red" "[ $rc -ne 0 ] && grep -q 'NO COMMENT Foo.class' $ROOT/out"
+rm -rf "$ROOT"
+
+# A run that ran no test is no green: an image that did not start reads as 0 run, 0 failures.
+tree
+ROOT="$ROOT" JOBS=2 STUB_ZERO=1 "$GATE" --commit --classes "AlphaTest" 13 > "$ROOT/out" 2>&1
+rc=$?
+check "a run of no test makes the gate red" "[ $rc -ne 0 ]"
+rm -rf "$ROOT"
+
+# The tests a change reaches, asked of the image: if it does not answer, the gate cannot say
+# which slow classes to run, and must not go on as if none were reached.
+tree
+ROOT="$ROOT" JOBS=2 "$GATE" --commit 13 > "$ROOT/out" 2>&1
+rc=$?
+check "a selection the image did not answer makes the gate red" "[ $rc -ne 0 ] && grep -q 'selection' $ROOT/out"
 rm -rf "$ROOT"
 
 echo "== gate-test: $failures failing"
