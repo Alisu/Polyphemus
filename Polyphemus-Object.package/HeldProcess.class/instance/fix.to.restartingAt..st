@@ -13,12 +13,17 @@ fix: aReifiedMethod to: aSource restartingAt: aDepth
 	collect := self reading methodTrailerClass == OOPVariableMethodTrailer.
 	how := heldReading whileStillWhereRead: current do: [ :memory |
 		       (SpurMethodFix on: self reading into: memory) apply: aSource to: current ].
+	[
 	channel ask: 'Smalltalk vm voidCogVMState. nil'.
 	self call: #saveSource with: {
 			className.
 			selector.
 			aSource.
 			className , ' methodsFor: ''polyphemus'' stamp: ''Polyphemus''!'.
-			collect }.
-	self call: #restart with: { className. selector. aDepth }.
+			collect } ]
+		on: Error
+		do: [ :error | ^ PartlySaved signal: 'saved into the image, but its source was not kept: ' , error messageText ].
+	[ self call: #restart with: { className. selector. aDepth } ]
+		on: Error
+		do: [ :error | ^ PartlySaved signal: 'saved, but its frame was not restarted: ' , error messageText ].
 	^ how

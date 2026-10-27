@@ -1,0 +1,1 @@
+A save into a held image that stopped after the method was in: its message says what was done and what was not (its source kept, its frame restarted).
