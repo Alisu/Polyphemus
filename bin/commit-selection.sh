@@ -9,7 +9,7 @@
 set -uo pipefail
 cd "$(dirname "$0")/.."
 paths=$( { git diff --name-only HEAD; git ls-files --others --exclude-standard; } | sort -u)
-sed -nE 's#^[^/]+\.package/([A-Za-z0-9_]+)\.(class|extension)/(instance|class)/(.+)\.st$#CHANGE \1 \4#p' <<<"$paths" \
+sed -nE 's#^[^/]+\.package/([A-Za-z0-9_]+)\.(class|trait|extension)/(instance|class)/(.+)\.st$#CHANGE \1 \4#p' <<<"$paths" \
   | awk '{ gsub(/\./, ":", $3); print }'
 sed -nE 's#^[^/]+\.package/([A-Za-z0-9_]+)\.(class|trait)/properties\.json$#CHANGE \1#p' <<<"$paths"
 changed=$(sed -nE 's#^[^/]+\.package/([A-Za-z0-9_]+)\.(class|trait|extension)/.*#\1#p' <<<"$paths" | sort -u)
