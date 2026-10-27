@@ -6,6 +6,7 @@ ask: aSource within: aDuration
 
 	| answer deadline text |
 	deadline := DateAndTime now + aDuration.
+	self hasExpired ifTrue: [ ^ PolyphemusChannelError signal: self whyExpired ].
 	(self isServingBefore: deadline) ifFalse: [
 		^ PolyphemusChannelError signal:
 			  'the image did not answer within ' , aDuration printString , ': nothing was serving in '
@@ -15,6 +16,7 @@ ask: aSource within: aDuration
 	self ring.
 	answer := directory / ('answer.' , count printString).
 	[ answer exists ] whileFalse: [
+		self hasExpired ifTrue: [ ^ PolyphemusChannelError signal: self whyExpired ].
 		DateAndTime now > deadline ifTrue: [
 			^ PolyphemusChannelError signal: 'the image did not answer within ' , aDuration printString ].
 		(Delay forMilliseconds: 10) wait ].
