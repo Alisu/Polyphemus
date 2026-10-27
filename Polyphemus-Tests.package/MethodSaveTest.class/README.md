@@ -1,0 +1,1 @@
+A source accepted in a code pane and saved into an image read from outside (MethodSave): parsed first, written by the block it is given, and what stopped it told to the pane where it shows, no image needed (#118, #108).
