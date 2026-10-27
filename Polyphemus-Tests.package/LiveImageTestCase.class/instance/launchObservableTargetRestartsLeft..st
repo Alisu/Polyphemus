@@ -6,10 +6,9 @@ launchObservableTargetRestartsLeft: aCount
 	while it still starts up, it is in machine code or changing its heap."
 
 	| shim target bang pidFile pid waited log |
-	"Nothing here is particular to one machine: the launcher is found in this repository, the
-	 virtual machine is the one running these tests, and the image launched is the pinned
-	 target the other live tests use (pathToTargetImage). It is told to wait rather than handed a
-	 script, so no file has to be anywhere in particular either."
+	"Nothing here is particular to one machine: the launcher is in this repository, the VM the
+	 one running these tests, the image the pinned target (pathToTargetImage), told to wait
+	 rather than handed a script."
 	shim := self repositoryDirectory / 'bin' / 'pharo-debuggable'.
 	shim exists ifFalse: [
 		^ self skip: 'build bin/pharo-debuggable first: cc -O2 -o bin/pharo-debuggable bin/pharo-debuggable.c' ].
@@ -25,20 +24,17 @@ launchObservableTargetRestartsLeft: aCount
 		, ' --headless ' , target fullName , ' --no-default-preferences'
 		, ' eval "(Delay forSeconds: ' , self targetLifetime printString , ') wait" > ' , log fullName , ' 2>&1 & echo $' , bang , ' > '
 		, pidFile fullName.
-	"Wait for it to be there and readable, rather than for a fixed number of seconds. A
-	 sixty megabyte image takes as long as the machine is busy, and a suite running six
-	 test images at once is a busy machine -- guessing twelve seconds passed here and
-	 failed under load, which is the sort of test that wastes an afternoon later."
+	"Waited for, not a fixed number of seconds: a sixty megabyte image loads as slowly as the
+	 machine is busy, and twelve seconds guessed here passed alone and failed under load."
 	waited := 0.
 	[ pidFile exists and: [ pidFile contents trimBoth notEmpty ] ] whileFalse: [
 		(waited := waited + 1) > 200 ifTrue: [ ^ self fail: 'nothing was started' ].
 		(Delay forMilliseconds: 100) wait ].
 	pid := pidFile contents trimBoth asNumber.
 	pidFile ensureDelete.
-	"Readable is not the same as ready. The permission is granted before the virtual machine
-	 even starts, so the process reads as readable while its image is still being loaded and
-	 there is no heap in it yet. What says the image is there is that the memory it was given
-	 has appeared -- sixty megabytes of it."
+	"Readable is not ready: the permission comes before the VM starts, while its image is still
+	 loading and it has no heap. The image is there once the memory it was given has appeared,
+	 sixty megabytes of it."
 	waited := 0.
 	[
 	(LinuxProcessMemory unchecked: pid) canBeRead and: [
