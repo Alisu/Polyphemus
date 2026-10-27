@@ -7,7 +7,7 @@ testActiveProcessBelongsToNoList
 	| active |
 	active := reifiedMemory reifiedActiveProcess.
 
-	self assert: (active reifiedSlotAt: reifiedMemory processMyListSlot)
+	self assert: (active reifiedSlotAt: reifiedMemory processes processMyListSlot)
 		equals: reifiedMemory reifiedNilObject.
-	self assert: (active reifiedSlotAt: reifiedMemory processNextLinkSlot)
+	self assert: (active reifiedSlotAt: reifiedMemory processes processNextLinkSlot)
 		equals: reifiedMemory reifiedNilObject

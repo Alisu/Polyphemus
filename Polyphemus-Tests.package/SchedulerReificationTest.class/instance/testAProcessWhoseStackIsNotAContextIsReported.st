@@ -7,7 +7,7 @@ testAProcessWhoseStackIsNotAContextIsReported
 	self withRunningProcessQueuedDo: [ :list :process |
 		process
 			slotAt: reifiedMemory processSuspendedContextSlot
-			put: reifiedMemory reifiedScheduler.
+			put: reifiedMemory processes reifiedScheduler.
 
 		self assert: (reifiedMemory processInconsistencies
 				 includes: process -> #suspendedContextIsNotAContext) ]

@@ -5,7 +5,7 @@ testAQueueEndingSomewhereElseIsReported
 
 	self withRunningProcessQueuedDo: [ :list :process |
 		list
-			slotAt: reifiedMemory listLastLinkSlot
+			slotAt: reifiedMemory processes listLastLinkSlot
 			put: reifiedMemory reifiedNilObject.
 
 		self assert: (reifiedMemory processInconsistencies

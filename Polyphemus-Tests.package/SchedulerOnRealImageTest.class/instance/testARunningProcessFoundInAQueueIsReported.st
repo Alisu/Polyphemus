@@ -6,19 +6,19 @@ testARunningProcessFoundInAQueueIsReported
 
 	| active list oldFirst oldLast oldMyList |
 	active := reifiedMemory reifiedActiveProcess.
-	list := reifiedMemory reifiedProcessLists
+	list := reifiedMemory processes reifiedProcessLists
 		        at: (active reifiedSlotAt: reifiedMemory processPrioritySlot) asInteger.
-	oldFirst := list reifiedSlotAt: reifiedMemory listFirstLinkSlot.
-	oldLast := list reifiedSlotAt: reifiedMemory listLastLinkSlot.
-	oldMyList := active reifiedSlotAt: reifiedMemory processMyListSlot.
+	oldFirst := list reifiedSlotAt: reifiedMemory processes listFirstLinkSlot.
+	oldLast := list reifiedSlotAt: reifiedMemory processes listLastLinkSlot.
+	oldMyList := active reifiedSlotAt: reifiedMemory processes processMyListSlot.
 
-	[ list slotAt: reifiedMemory listFirstLinkSlot put: active.
-	  list slotAt: reifiedMemory listLastLinkSlot put: active.
-	  active slotAt: reifiedMemory processMyListSlot put: list.
+	[ list slotAt: reifiedMemory processes listFirstLinkSlot put: active.
+	  list slotAt: reifiedMemory processes listLastLinkSlot put: active.
+	  active slotAt: reifiedMemory processes processMyListSlot put: list.
 
 	  self assert: (reifiedMemory processInconsistencies
 			   includes: active -> #activeProcessIsQueued) ]
 		ensure: [
-			list slotAt: reifiedMemory listFirstLinkSlot put: oldFirst.
-			list slotAt: reifiedMemory listLastLinkSlot put: oldLast.
-			active slotAt: reifiedMemory processMyListSlot put: oldMyList ]
+			list slotAt: reifiedMemory processes listFirstLinkSlot put: oldFirst.
+			list slotAt: reifiedMemory processes listLastLinkSlot put: oldLast.
+			active slotAt: reifiedMemory processes processMyListSlot put: oldMyList ]

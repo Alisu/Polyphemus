@@ -8,7 +8,7 @@ processesInList: aListOop
 	| processes seen current nilObject |
 	processes := OrderedCollection new.
 	seen := Set new.
-	nilObject := self reifiedNilObject.
+	nilObject := memory reifiedNilObject.
 	current := aListOop reifiedSlotAt: self listFirstLinkSlot.
 	[ current = nilObject or: [ seen includes: current ] ] whileFalse: [
 		seen add: current.

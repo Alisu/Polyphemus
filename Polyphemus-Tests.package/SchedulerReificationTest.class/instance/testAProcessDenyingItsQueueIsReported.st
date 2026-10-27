@@ -6,7 +6,7 @@ testAProcessDenyingItsQueueIsReported
 
 	self withRunningProcessQueuedDo: [ :list :process |
 		process
-			slotAt: reifiedMemory processMyListSlot
+			slotAt: reifiedMemory processes processMyListSlot
 			put: reifiedMemory reifiedNilObject.
 
 		self assert: (reifiedMemory processInconsistencies
