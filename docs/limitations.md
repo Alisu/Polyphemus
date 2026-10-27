@@ -12,7 +12,8 @@ do instead, and the issue that tracks it. When one is lifted, its entry goes.
   observer's memory even with RAM free (an `OutOfMemory` during a hold, #31). A Pharo 10 image runs
   on VM 10 too: run it there and observe it with the Pharo 11 edition, which reads Pharo 10 on
   VM 10.
-- **Windows x64: Pharo 13 only**, a preview: images and minidumps are read, live work is partial (#32).
+- **Windows x64: Pharo 13 only**, a preview: images and minidumps are read, live work is partial,
+  and `Polyphemus dumpProcess:to:` refuses, saying so: write a minidump with Windows' own tools (#32).
 - **Pharo 14 is pinned to a beta build** and its VM 12 beta; it is re-pinned when they are released
   (#63).
 - **Images in the composed format** (if Pharo makes it the default) are not read (#64).
