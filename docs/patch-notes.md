@@ -32,8 +32,13 @@ and a test. A user's guide is in `docs/guide.md`; what does not work yet is in `
   Restart, Return entered value, Peel, and assigning a frame's variable are refused, saying so,
   from one catalogue kept in step with `docs/limitations.md`. Closing the window lets the image
   go (#116). Create is not offered on a held image.
-- **Safety.** An observer does not hold or read itself (#117). A held process let go for an error
-  is written no more. A held image's reading is freed once it is let go (#110: Pharo 10 and 11's
+- **Safety.** An observer does not hold or read itself (#117). A held process let go for an error,
+  a halt or a warning is written no more, and a process that would not stop is not read. A held
+  image is let go by its agent an hour after the last request, so an observer that died does not
+  hold it for ever (`Polyphemus holdLimit:`, #96); letting go ends the agent whatever failed
+  before. Writing into a running image does as the VM does: no young object in the remembered set,
+  an old one given a young one remembered, an object of 255 slots or more with its overflow word.
+  A save that stopped after the method was in says what was not done (its source, its restart). A held image's reading is freed once it is let go (#110: Pharo 10 and 11's
   AST cache kept every reading, 6 GB over a test class).
 - **Inside (#118).** The three process readers share `ProcessMemory`; what is asked of a held
   image goes by name to its agent's helpers (`PolyphemusAgent helpersSource`) rather than as

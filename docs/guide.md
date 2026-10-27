@@ -101,8 +101,11 @@ there). After Proceed, a save in that debugger does nothing: the image is no lon
 
 - **The observee stays frozen** after the observer itself crashed or was killed during a hold
   (#96). If it was caught stopped, `kill -CONT <its pid>` lets it go; if our agent was waiting in
-  it, nothing will wake it, and it has to be killed. Save a copy before holding an image that
-  matters.
+  it, the agent lets it go by itself an hour after the last request (`Polyphemus holdLimit:`), or
+  kill it. Save a copy before holding an image that matters.
+- **"the hold ended after 60 minutes without a request"**: the debugger was left that long, and
+  the observee went on. Hold it again. For a longer hold, `Polyphemus holdLimit: 3 hours` before
+  holding; `Polyphemus holdLimit: nil` for no limit, at the cost of the line above.
 - **"the image did not answer within 1:00"**: a step over something that waits longer than a
   minute. The observee is still inside that step, waiting; next time, hold it further on with
   `runUntil:` rather than stepping over the wait ([limitations.md](limitations.md), "Stepping in
