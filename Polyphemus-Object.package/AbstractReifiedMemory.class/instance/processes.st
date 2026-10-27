@@ -3,4 +3,4 @@ processes
 
 	"What this reading says of the image's processes, by slot (ReifiedProcesses)."
 
-	^ ReifiedProcesses on: self
+	^ processes ifNil: [ processes := ReifiedProcesses on: self ]

@@ -7,5 +7,7 @@ rebaseOn: aMemory keeping: anObjectsArray
 	objectsArray := anObjectsArray.
 	lastKnownObject := nil.
 	vmLayout := nil.
+	processes := nil.
+	stacks := nil.
 	self forgetWhatWasRead.
 	self createCompressedVersion
