@@ -60,8 +60,8 @@ ensureClass := [ :props :packageName |
 			 in the code."
 			| cls wantedSuper wantedIvars |
 			cls := Smalltalk at: name.
-			"A class whose definition changed -- a new superclass, or instance variables it no
-			 longer has -- is defined again. Topping up the variables alone would leave it under
+			"A class whose definition changed -- a new superclass, instance variables it no longer
+			 has, or other class variables -- is defined again. Topping up the variables alone would leave it under
 			 the old superclass, with whatever it inherits shadowed, and nothing said so."
 			wantedSuper := (props at: 'super') asSymbol.
 			wantedIvars := (props at: 'instvars') collect: [ :each | each asString ].
@@ -71,7 +71,9 @@ ensureClass := [ :props :packageName |
 				ifFalse: [ nil ]
 				ifTrue: [
 					(cls superclass name asSymbol = wantedSuper and: [
-						 cls instVarNames asSet = wantedIvars asSet ]) ifFalse: [
+						 cls instVarNames asSet = wantedIvars asSet and: [
+							 (cls classVarNames collect: [ :each | each asString ]) asSet
+							 = ((props at: 'classvars') collect: [ :each | each asString ]) asSet ] ]) ifFalse: [
 						define value: (Smalltalk at: wantedSuper) value: props value: packageName.
 						cls := Smalltalk at: name.
 						('REDEFINED ', name, ' under ', wantedSuper) traceCr ].
