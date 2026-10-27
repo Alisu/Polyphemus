@@ -9,6 +9,6 @@ testTheCandleStackIsOneContextWithNoCaller
 
 	self assert: stack size equals: 1.
 	self assert: stack first isContextOop.
-	self deny: (reifiedMemory isMarriedContext: stack first).
-	self assert: reifiedMemory marriedContexts isEmpty.
-	self assert: reifiedMemory contextInconsistencies isEmpty
+	self deny: (reifiedMemory stacks isMarriedContext: stack first).
+	self assert: reifiedMemory stacks marriedContexts isEmpty.
+	self assert: reifiedMemory stacks contextInconsistencies isEmpty

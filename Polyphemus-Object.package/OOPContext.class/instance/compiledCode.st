@@ -1,3 +1,3 @@
 context protocol
 compiledCode
-	^ self reifiedSlotAt: memory contextMethodSlot
+	^ self reifiedSlotAt: memory stacks contextMethodSlot

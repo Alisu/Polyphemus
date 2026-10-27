@@ -10,8 +10,8 @@ testEveryMarriedFrameAgreesWithItsContext
 	self assert: married size >= 12.
 	married do: [ :each |
 		self
-			assert: (each oopContext reifiedSlotAt: memory contextMethodSlot)
+			assert: (each oopContext reifiedSlotAt: memory stacks contextMethodSlot)
 			equals: each compiledCode.
 		self
-			assert: (each oopContext reifiedSlotAt: memory contextReceiverSlot)
+			assert: (each oopContext reifiedSlotAt: memory stacks contextReceiverSlot)
 			equals: each oopReceiver ]

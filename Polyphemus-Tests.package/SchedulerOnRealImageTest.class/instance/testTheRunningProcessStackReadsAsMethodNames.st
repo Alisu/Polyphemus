@@ -5,7 +5,7 @@ testTheRunningProcessStackReadsAsMethodNames
 	above it are blocks, named after their home method: a block has no selector of its own."
 
 	| lines |
-	lines := reifiedMemory stackDescriptionOfProcess: reifiedMemory reifiedActiveProcess.
+	lines := reifiedMemory stacks stackDescriptionOfProcess: reifiedMemory reifiedActiveProcess.
 
 	self assert: lines size equals: 3.
 	self assert: lines first equals: 'SessionManager>>launchSnapshot:andQuit:'.

@@ -1,0 +1,1 @@
+What a reading says of the stacks of the image's processes: their contexts, the frames the VM still holds in its stack pages for a live image or a core, the contexts married to them, and each one described, disassembled or shown in its source.
