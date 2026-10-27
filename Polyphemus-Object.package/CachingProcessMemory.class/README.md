@@ -1,0 +1,1 @@
+A process reader whose every read is a system call (macOS, Windows): while it holds the process still it keeps what it read in 64 KB blocks, forgotten when it lets go or writes; a read while the process runs is read afresh, as on Linux (#26).
