@@ -151,14 +151,15 @@ summary=""
 for n in "${EDITIONS[@]}"; do
   setup=$(setup_of "${n#pharo}")
   echo "== Pharo ${n#pharo} ($(cat "$setup/.gate.seconds")s)"
-  grep -aE "^== totals|^    (FAIL|ERROR|FLAKY)|BROKEN|TIMEOUT|never ran|^NO COMMENT" "$setup/.gate.log"
+  grep -aE "^== totals|^    (FAIL|ERROR|FLAKY)|BROKEN|TIMEOUT|never ran|^NO COMMENT|^LONG COMMENT" "$setup/.gate.log"
   # Red by the totals, which count a failure that passed alone in a fresh process as a flake,
   # not a failure (bin/run-tests.sh); the log above still shows its first run.
   # Every run's totals green, and at least one: a commit gate makes two runs, the fast tier and
   # the slow classes it selected.
-  # A class without its comment compiles here, but a user's Metacello load fails on it.
+  # A class without its comment compiles here, but a user's Metacello load fails on it; a method
+  # comment over three lines breaks the working agreement (bin/long-comments.py).
   # A run of no test is no green: an image that did not start reads as 0 run, 0 failures.
-  if ! grep -qa "^== totals" "$setup/.gate.log" || grep -qa "^NO COMMENT" "$setup/.gate.log" ||
+  if ! grep -qa "^== totals" "$setup/.gate.log" || grep -qaE "^(NO|LONG) COMMENT" "$setup/.gate.log" ||
      grep -qa "^== totals: 0 run" "$setup/.gate.log" ||
      grep -a "^== totals" "$setup/.gate.log" | grep -qv " 0 failures, 0 errors, 0 broken"; then
     status=1; summary="$summary ${n#pharo}:red"
