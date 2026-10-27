@@ -1,8 +1,6 @@
 asking
 letGo
 
-	"End the agent, and with it the hold: the image goes on."
+	"End the agent, and with it the hold: the image goes on. Answers whether the agent was there."
 
-	(self isServingBefore: DateAndTime now + 1 minute) ifFalse: [ ^ self ].
-	self write: '' as: 'go'.
-	self ring
+	^ self letGoWithin: 1 minute
