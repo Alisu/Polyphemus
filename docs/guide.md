@@ -99,8 +99,10 @@ there). After Proceed, a save in that debugger does nothing: the image is no lon
 
 ## 7. When something goes wrong
 
-- **The observee stays frozen** after the observer itself crashed or was killed during a hold:
-  `kill -CONT <its pid>` lets it go.
+- **The observee stays frozen** after the observer itself crashed or was killed during a hold
+  (#96). If it was caught stopped, `kill -CONT <its pid>` lets it go; if our agent was waiting in
+  it, nothing will wake it, and it has to be killed. Save a copy before holding an image that
+  matters.
 - **"the image did not answer within 1:00"**: a step over something that waits longer than a
   minute. The observee is still inside that step, waiting; next time, hold it further on with
   `runUntil:` rather than stepping over the wait ([limitations.md](limitations.md), "Stepping in
