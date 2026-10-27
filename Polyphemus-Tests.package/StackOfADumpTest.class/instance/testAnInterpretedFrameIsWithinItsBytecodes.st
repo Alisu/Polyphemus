@@ -13,6 +13,6 @@ testAnInterpretedFrameIsWithinItsBytecodes
 	self assert: located size >= 10.
 	located do: [ :each |
 		self
-			assert: (each pc - (memory firstBytecodePCOf: each compiledCode)
+			assert: (each pc - (memory compilations firstBytecodePCOf: each compiledCode)
 				 between: 0
 				 and: each compiledCode endPC) ]

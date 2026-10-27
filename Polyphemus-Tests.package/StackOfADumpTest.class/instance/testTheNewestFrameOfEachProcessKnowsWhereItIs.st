@@ -14,6 +14,6 @@ testTheNewestFrameOfEachProcessKnowsWhereItIs
 	tops do: [ :each |
 		self assert: each pc notNil.
 		self
-			assert: (each pc - (memory firstBytecodePCOf: each compiledCode)
+			assert: (each pc - (memory compilations firstBytecodePCOf: each compiledCode)
 				 between: 0
 				 and: each compiledCode endPC) ]

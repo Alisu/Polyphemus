@@ -1,0 +1,1 @@
+The image's code compiled here as its own compiler would, and matched to the image's methods and blocks: what the debugger needs to show which part of a method's source a pc is at.
