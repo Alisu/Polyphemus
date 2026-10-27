@@ -6,7 +6,9 @@ whileStoppedIf: aCondition do: aBlock
 
 	| fresh answer |
 	fresh := self class on: pid.
-	fresh stop.
+	fresh stop ifFalse: [
+		fresh close.
+		^ 'it would not stop' ].
 	answer := [
 	          | why dumped readability |
 	          why := aCondition value: fresh.
