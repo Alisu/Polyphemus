@@ -1,0 +1,1 @@
+A process reader over bytes made up for a test that counts how often it asks the process (asked), as a system call would be counted; the rest is CachingProcessMemory's own.
