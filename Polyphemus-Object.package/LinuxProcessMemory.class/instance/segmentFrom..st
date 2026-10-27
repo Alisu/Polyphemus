@@ -13,10 +13,4 @@ segmentFrom: aLine
 	range size = 2 ifFalse: [ ^ nil ].
 	from := Number readFrom: (range at: 1) base: 16.
 	to := Number readFrom: (range at: 2) base: 16.
-	^ ElfCoreSegment new
-		  kind: 1
-		  address: from
-		  offset: from
-		  inFile: to - from
-		  inMemory: to - from;
-		  yourself
+	^ ElfCoreSegment ofProcessAt: from size: to - from
