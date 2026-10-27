@@ -2,7 +2,8 @@ private
 serveAndHold: aHash startingAt: aMethodSourceOrNil
 
 	"With the watcher holding: hand it an agent on a fresh channel, let it serve, and put that
-	process in the image's own debugger, read on from the last hold's reading when there was one."
+	process in the image's own debugger, read on from the last hold's reading when there was one.
+	A failure there lets the image go."
 
 	| channel ring previous |
 	channel := DirectoryChannel on: directory / 'channel'.
@@ -20,10 +21,15 @@ serveAndHold: aHash startingAt: aMethodSourceOrNil
 	channel ringing: ring.
 	ring value.
 	previous := process.
+	[
 	process := HeldProcess
 		           on: channel
 		           reader: reader
 		           identityHash: aHash
 		           startingAt: aMethodSourceOrNil.
 	"What the last hold read stays good for this one when nothing moved: as a step, not whole (#114)."
-	previous ifNotNil: [ process takeTheReadingOf: previous ]
+	previous ifNotNil: [ process takeTheReadingOf: previous ] ]
+		on: Error
+		do: [ :error |
+			self abandon: channel.
+			error pass ]
