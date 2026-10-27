@@ -1,1 +1,1 @@
-A process reader over bytes made up for a test, always stopped, that writes where it is told.
+A process reader over bytes made up for a test, stopped until told to run, that writes where it is told: only what a host does is made up, the rest is ProcessMemory's own.

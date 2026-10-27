@@ -1,4 +1,4 @@
 holding it still
 isStopped
 
-	^ true
+	^ running ~= true

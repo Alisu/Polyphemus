@@ -1,0 +1,1 @@
+Tests of what every process reader does when told to write, whatever its host: on bytes made up (ProcessMemoryOfBytes), 4 KB at 16r10000.

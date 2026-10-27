@@ -6,7 +6,8 @@
 	"pools": [],
 	"classvars": [],
 	"instvars": [
-		"space"
+		"space",
+		"running"
 	],
 	"name": "ProcessMemoryOfBytes",
 	"type": "normal"
