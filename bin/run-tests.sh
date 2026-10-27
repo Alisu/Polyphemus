@@ -20,7 +20,7 @@ TMO="${TMO:-400}"
 SLOW_THRESHOLD="${SLOW_THRESHOLD:-8}"
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 . "$HERE/portable.sh"
-cd "$WORK"
+cd "$WORK" || { echo "!! no setup at $WORK"; exit 2; }
 # What this host's setup says about its targets (POLYPHEMUS_TARGET_VM, POLYPHEMUS_CORE): see
 # docs/editions.md. Absent, targets run on the host's own VM and the dump is next to its image.
 [ -f "$WORK/polyphemus.env" ] && { set -a; . "$WORK/polyphemus.env"; set +a; }
