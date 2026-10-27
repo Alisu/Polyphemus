@@ -1,0 +1,14 @@
+{
+	"commentStamp": "",
+	"super": "ProcessMemory",
+	"category": "Polyphemus-Object-process",
+	"classinstvars": [],
+	"pools": [],
+	"classvars": [],
+	"instvars": [
+		"blocks",
+		"held"
+	],
+	"name": "CachingProcessMemory",
+	"type": "normal"
+}

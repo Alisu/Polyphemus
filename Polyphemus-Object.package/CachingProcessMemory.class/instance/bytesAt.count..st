@@ -1,8 +1,8 @@
 reading
 bytesAt: anAddress count: aCount
 
-	"All the bytes or nil, as a dump answers. Read in 64 KB blocks kept for the reader's life, as
-	ElfCoreDump does, else directly where a block is not all readable (a region's edge)."
+	"All the bytes or nil, as a dump answers: from the 64 KB block they are in, else directly
+	where they cross a block or a block is not all readable (a region's edge)."
 
 	| start |
 	(self hasAddress: anAddress) ifFalse: [ ^ nil ].

@@ -1,13 +1,12 @@
 {
 	"commentStamp": "",
-	"super": "ProcessMemory",
+	"super": "CachingProcessMemory",
 	"category": "Polyphemus-Host-MacOS-arm64",
 	"classinstvars": [],
 	"pools": [],
 	"classvars": [],
 	"instvars": [
-		"task",
-		"blocks"
+		"task"
 	],
 	"name": "MacProcessMemory",
 	"type": "normal"

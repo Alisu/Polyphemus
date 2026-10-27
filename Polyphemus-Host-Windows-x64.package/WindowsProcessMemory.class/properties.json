@@ -1,13 +1,12 @@
 {
 	"commentStamp" : "",
-	"super" : "ProcessMemory",
+	"super" : "CachingProcessMemory",
 	"category" : "Polyphemus-Host-Windows-x64",
 	"classinstvars" : [ ],
 	"pools" : [ ],
 	"classvars" : [ ],
 	"instvars" : [
-		"handle",
-		"blocks"
+		"handle"
 	],
 	"name" : "WindowsProcessMemory",
 	"type" : "normal"

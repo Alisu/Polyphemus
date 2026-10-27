@@ -1,4 +1,8 @@
 holding it still
 resume
 
-	^ self subclassResponsibility
+	"Let it run again, what was read forgotten. Answers whether it runs."
+
+	self forgetWhatWasRead.
+	self resumeItsThreads.
+	^ self isStopped not
