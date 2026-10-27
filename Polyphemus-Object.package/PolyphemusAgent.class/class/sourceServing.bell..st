@@ -1,32 +1,6 @@
 source
 sourceServing: aDirectory bell: aSource
 
-	"The agent: request.N in, answer.N out, go to end; see DirectoryChannel. Between requests it
-	allocates nothing, so nothing we read moves: it spins until the bell's third slot is set, and
-	consumes each ring before looking for the file it was rung for, so none is left behind (#49)."
+	"The agent, ending itself after the hold limit without a request."
 
-	^ '| dir count going workspace bell |
-dir := ' , aDirectory asFileReference fullName printString , ' asFileReference.
-[ dir exists ] whileFalse: [ [ dir ensureCreateDirectory ] on: DirectoryExists do: [ :e | ] ].
-count := 0.
-workspace := Dictionary new.
-bell := ' , aSource , '.
-going := (dir / ''go'') exists.
-going ifFalse: [ (dir / ''serving'') ensureCreateFile ].
-[ going ] whileFalse: [
-	| request |
-	[ (bell instVarAt: 3) > 0 ] whileFalse: [ ].
-	bell instVarAt: 3 put: 0.
-	request := dir / (''request.'' , (count + 1) printString).
-	request exists
-		ifTrue: [
-			| answer written |
-			count := count + 1.
-			answer := [ ''ok'' , String lf , (Smalltalk compiler receiver: workspace; evaluate: request contents) printString ]
-				on: Error , (Smalltalk globals at: #SyntaxErrorNotification ifAbsent: [ Error ])
-				do: [ :error | ''error'' , String lf , error class name , '': '' , error messageText asString ].
-			written := dir / ''answer.tmp''.
-			written ensureDelete.
-			written writeStreamDo: [ :stream | stream nextPutAll: answer ].
-			written renameTo: ''answer.'' , count printString ]
-		ifFalse: [ going := (dir / ''go'') exists ] ]'
+	^ self sourceServing: aDirectory bell: aSource limit: self holdLimit

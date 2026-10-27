@@ -5,6 +5,7 @@ letGoWithin: aDuration
 	looks for it first. Rung only if it serves, so no ring is left behind (#49); answers that."
 
 	| served |
+	self hasExpired ifTrue: [ ^ true ].
 	served := self isServingBefore: DateAndTime now + aDuration.
 	directory exists ifFalse: [ ^ false ].
 	self write: '' as: 'go'.
