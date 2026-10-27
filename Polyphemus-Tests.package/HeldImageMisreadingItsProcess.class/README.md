@@ -1,0 +1,1 @@
+A held image that names, as the process it caught running, one with a hash no process has: the agent serves, then fails to hold it, as a hold failing while it is taken does.
