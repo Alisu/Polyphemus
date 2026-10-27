@@ -6,6 +6,49 @@ so this is where the difference between them is written down. Newest first.
 Each edition has three parts: what moved underneath us (Pharo, VMMaker, the VM), what we changed
 in answer, and what the edition still does not do.
 
+## Toward the first release (2026-10-13 to 2026-10-27, all editions)
+
+The month of the first user trials, on a Mac and on Linux: every bug they found became an issue
+and a test. A user's guide is in `docs/guide.md`; what does not work yet is in `docs/limitations.md`.
+
+- **macOS on Apple silicon (#27, #79, #80, #82).** An observer run as root reads, holds, steps
+  and fixes a stock Pharo VM through its task port, writes cores, and says where a VM is stuck;
+  every edition runs in CI on macOS, its root tests under sudo (`docs/handover-macos.md`).
+- **Windows x64, a preview (Pharo 13).** Images and minidumps are read; a process is read, held
+  at a quiet moment and written into; live debugging is partial (#32, `docs/handover-windows.md`).
+- **Reading a running VM.** It is copied while held, 64 KB at a time, one piece per stretch of
+  memory; each stop forgets what was read before (#102). A VM someone else started is read, held
+  and debugged as root on Linux too.
+- **Debugging a running image, from the trials.** Pharo's debugger opens on a reading on every
+  edition; a process is debugged by name. The watcher goes in only at a safe moment, found by the
+  reader (#91); the held process is kept suspended while held and stepped (#103), and found again
+  where it was rather than by a walk each step. `runUntil:` shows the method itself, not its
+  trap's twin (#94), and takes the hold's reading over (#114). A script's own code shows its
+  bytecodes (#100). The VM library's start is found where its header is (#104).
+- **Saving a method into a held image.** The image keeps the saved source (#105, Pharo 14's API
+  too), the selector is looked for among its new symbols (#106), the frame restarts in the new
+  code (#109), and a source that does not compile is shown in the pane at the error (#108).
+- **The debugger's other commands (#115).** Run to here steps until the selection. Break on stack,
+  Restart, Return entered value, Peel, and assigning a frame's variable are refused, saying so,
+  from one catalogue kept in step with `docs/limitations.md`. Closing the window lets the image
+  go (#116). Create is not offered on a held image.
+- **Safety.** An observer does not hold or read itself (#117). A held process let go for an error
+  is written no more. A held image's reading is freed once it is let go (#110: Pharo 10 and 11's
+  AST cache kept every reading, 6 GB over a test class).
+- **Inside (#118).** The three process readers share `ProcessMemory`; what is asked of a held
+  image goes by name to its agent's helpers (`PolyphemusAgent helpersSource`) rather than as
+  source pasted together; `HeldProcess` talks to the image and `HeldReading` reads it back;
+  `MethodSave` saves a pane's source.
+- **Tests and gates.** The trial scenarios run on every edition (`HeldImage*Test`). The commit
+  gate asks the image which tests reach a change (TestImpact), takes named classes, and runs the
+  editions side by side; a class is given the time its tests may take; a test's tier follows its
+  best time and its time limit its worst; a class without its comment fails the gate. CI also
+  runs every Monday with no cache.
+
+Known, not fixed: **a save into a held image can crash it** later, most often after stepping,
+cause not found (#119, `HeldImageSaveCrashTest` reproduces it); Pharo 10 on VM 9 sometimes runs
+short of memory (#31). Both are in `docs/limitations.md`.
+
 ## Since the Pharo 14 edition (all editions)
 
 Changes to every edition at once, after `edition/pharo14`.
