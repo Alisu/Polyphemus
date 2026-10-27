@@ -1,0 +1,1 @@
+The variables of a VM made up for a test: each a word of a memory, at an address given by name.
