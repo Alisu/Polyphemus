@@ -1,1 +1,1 @@
-A channel to an agent made up for a test: it answers nil to everything asked, but fails a request naming what it was told to fail, and says whether it was let go.
+A channel to an agent made up for a test: it answers nil to everything asked, but fails a request naming what it was told to fail, may have ended after its limit (expire), and says whether it was let go.
