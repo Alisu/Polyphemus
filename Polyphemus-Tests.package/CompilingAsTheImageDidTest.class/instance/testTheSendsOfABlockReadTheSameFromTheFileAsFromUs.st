@@ -7,7 +7,7 @@ testTheSendsOfABlockReadTheSameFromTheFileAsFromUs
 	| memory frame host fileSends |
 	memory := self memory.
 	frame := self frameOf: memory described: 'TKTWorkerProcess>>workerLoop [block]'.
-	host := memory hostBlockFor: frame in: (memory hostCompilationOf: frame).
+	host := memory compilations hostBlockFor: frame in: (memory compilations hostCompilationOf: frame).
 	fileSends := (SendSequence of: frame compiledCode) selectors asArray.
 
 	self deny: fileSends isEmpty.

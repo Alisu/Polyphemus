@@ -29,7 +29,8 @@
 	 "editor",
 	 "classesTakenOver",
 	 "processes",
-	 "stacks"
+	 "stacks",
+	 "compilations"
 	],
 	"name": "AbstractReifiedMemory",
 	"type": "normal"

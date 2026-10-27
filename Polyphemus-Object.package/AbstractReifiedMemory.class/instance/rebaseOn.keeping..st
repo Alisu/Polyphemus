@@ -9,5 +9,6 @@ rebaseOn: aMemory keeping: anObjectsArray
 	vmLayout := nil.
 	processes := nil.
 	stacks := nil.
+	compilations := nil.
 	self forgetWhatWasRead.
 	self createCompressedVersion

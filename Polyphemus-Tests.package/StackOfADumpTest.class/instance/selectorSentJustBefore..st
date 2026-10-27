@@ -5,7 +5,7 @@ selectorSentJustBefore: aFrame
 
 	| sends offset |
 	sends := SendSequence new setCode: aFrame compiledCode; yourself.
-	offset := aFrame pc - (memory firstBytecodePCOf: aFrame compiledCode).
+	offset := aFrame pc - (memory compilations firstBytecodePCOf: aFrame compiledCode).
 	sends sendPCs doWithIndex: [ :each :index |
 		(sends endOfInstructionAt: each) = offset ifTrue: [ ^ sends selectors at: index ] ].
 	^ nil

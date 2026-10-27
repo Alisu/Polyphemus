@@ -14,6 +14,6 @@ testTheRunningProcessShowsItsStack
 		self assert: (each compiledCode isCompiledMethodOop or: [ each compiledCode isCompiledBlockOop ]) ].
 	self assert: newest pc notNil.
 	self
-		assert: (newest pc - (memory firstBytecodePCOf: newest compiledCode)
+		assert: (newest pc - (memory compilations firstBytecodePCOf: newest compiledCode)
 			 between: 0
 			 and: newest compiledCode endPC)
