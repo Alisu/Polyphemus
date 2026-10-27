@@ -1,0 +1,1 @@
+A process reader over bytes made up for a test, always stopped, that writes where it is told.
