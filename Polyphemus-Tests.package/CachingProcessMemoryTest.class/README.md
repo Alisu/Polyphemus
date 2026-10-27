@@ -1,0 +1,1 @@
+Tests of when a reader that reads in 64 KB blocks (macOS, Windows) asks its process again: on 128 KB made up at 16r100000 (ProcessMemoryReadInBlocks).

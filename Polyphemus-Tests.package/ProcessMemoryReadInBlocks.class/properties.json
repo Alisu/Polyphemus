@@ -1,0 +1,15 @@
+{
+	"commentStamp": "",
+	"super": "CachingProcessMemory",
+	"category": "Polyphemus-Tests",
+	"classinstvars": [],
+	"pools": [],
+	"classvars": [],
+	"instvars": [
+		"space",
+		"stopped",
+		"asked"
+	],
+	"name": "ProcessMemoryReadInBlocks",
+	"type": "normal"
+}
