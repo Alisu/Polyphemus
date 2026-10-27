@@ -5,8 +5,8 @@ testACircularQueueIsReported
 	and the walk still terminates."
 
 	self withRunningProcessQueuedDo: [ :list :process |
-		process slotAt: reifiedMemory processNextLinkSlot put: process.
+		process slotAt: reifiedMemory processes processNextLinkSlot put: process.
 
 		self assert: (reifiedMemory processInconsistencies
 				 includes: list -> #queueIsCircular).
-		self assert: (reifiedMemory processesInList: list) size equals: 1 ]
+		self assert: (reifiedMemory processes processesInList: list) size equals: 1 ]

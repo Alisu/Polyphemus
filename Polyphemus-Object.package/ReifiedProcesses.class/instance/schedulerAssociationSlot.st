@@ -1,4 +1,4 @@
-scheduler
+slots
 schedulerAssociationSlot
 
 	"VMMaker calls this one SchedulerAssociation and indexes it from zero."

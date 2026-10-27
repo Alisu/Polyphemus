@@ -5,5 +5,5 @@ reifiedScheduler
 	special objects array keeps for it. Navigate by slot rather than by class name:
 	a bootstrap image calls the class PCProcessorScheduler."
 
-	^ (self reifiedSpecialObjectArray reifiedSlotAt: self schedulerAssociationSlot)
+	^ (memory reifiedSpecialObjectArray reifiedSlotAt: self schedulerAssociationSlot)
 		  reifiedSlotAt: self associationValueSlot

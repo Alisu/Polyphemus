@@ -5,8 +5,8 @@ testQueuedProcessesPointBackAtTheirQueue
 	it sits in. A process where the two disagree is a corrupt one, which is exactly
 	what stage one has to be able to report."
 
-	reifiedMemory reifiedProcessLists do: [ :list |
-		(reifiedMemory processesInList: list) do: [ :process |
+	reifiedMemory processes reifiedProcessLists do: [ :list |
+		(reifiedMemory processes processesInList: list) do: [ :process |
 			self
-				assert: (process reifiedSlotAt: reifiedMemory processMyListSlot)
+				assert: (process reifiedSlotAt: reifiedMemory processes processMyListSlot)
 				equals: list ] ]

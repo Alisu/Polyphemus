@@ -1,0 +1,1 @@
+What a reading says of the image's processes: its scheduler, the run queues one per priority, every process and its state, and what in that graph a working VM could not have written. Navigated by slot, as VMMaker indexes them: a bootstrap image names the classes differently.

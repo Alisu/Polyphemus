@@ -6,7 +6,7 @@ listIsCircular: aListOop
 
 	| seen current nilObject |
 	seen := Set new.
-	nilObject := self reifiedNilObject.
+	nilObject := memory reifiedNilObject.
 	current := aListOop reifiedSlotAt: self listFirstLinkSlot.
 	[ current = nilObject ] whileFalse: [
 		(seen includes: current) ifTrue: [ ^ true ].

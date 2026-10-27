@@ -1,4 +1,4 @@
-scheduler
+slots
 processMyListSlot
 
 	"VMMaker calls this one MyListIndex and indexes it from zero: the queue holding

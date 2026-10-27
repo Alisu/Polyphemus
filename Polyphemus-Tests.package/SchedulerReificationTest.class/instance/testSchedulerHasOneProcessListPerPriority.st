@@ -5,8 +5,8 @@ testSchedulerHasOneProcessListPerPriority
 	image nothing is queued: the only process is the one that was running."
 
 	| lists |
-	lists := reifiedMemory reifiedProcessLists.
+	lists := reifiedMemory processes reifiedProcessLists.
 
 	self assert: lists size equals: 5.
 	lists do: [ :each |
-		self assert: (reifiedMemory processesInList: each) isEmpty ]
+		self assert: (reifiedMemory processes processesInList: each) isEmpty ]

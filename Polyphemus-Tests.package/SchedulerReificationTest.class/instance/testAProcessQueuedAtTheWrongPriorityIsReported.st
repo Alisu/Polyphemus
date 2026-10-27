@@ -7,18 +7,18 @@ testAProcessQueuedAtTheWrongPriorityIsReported
 	| process otherList oldFirst oldLast oldMyList priority |
 	process := reifiedMemory reifiedActiveProcess.
 	priority := (process reifiedSlotAt: reifiedMemory processPrioritySlot) asInteger.
-	otherList := reifiedMemory reifiedProcessLists at: priority + 1.
-	oldFirst := otherList reifiedSlotAt: reifiedMemory listFirstLinkSlot.
-	oldLast := otherList reifiedSlotAt: reifiedMemory listLastLinkSlot.
-	oldMyList := process reifiedSlotAt: reifiedMemory processMyListSlot.
+	otherList := reifiedMemory processes reifiedProcessLists at: priority + 1.
+	oldFirst := otherList reifiedSlotAt: reifiedMemory processes listFirstLinkSlot.
+	oldLast := otherList reifiedSlotAt: reifiedMemory processes listLastLinkSlot.
+	oldMyList := process reifiedSlotAt: reifiedMemory processes processMyListSlot.
 
-	[ otherList slotAt: reifiedMemory listFirstLinkSlot put: process.
-	  otherList slotAt: reifiedMemory listLastLinkSlot put: process.
-	  process slotAt: reifiedMemory processMyListSlot put: otherList.
+	[ otherList slotAt: reifiedMemory processes listFirstLinkSlot put: process.
+	  otherList slotAt: reifiedMemory processes listLastLinkSlot put: process.
+	  process slotAt: reifiedMemory processes processMyListSlot put: otherList.
 
 	  self assert: (reifiedMemory processInconsistencies
 			   includes: process -> #priorityDoesNotMatchItsQueue) ]
 		ensure: [
-			otherList slotAt: reifiedMemory listFirstLinkSlot put: oldFirst.
-			otherList slotAt: reifiedMemory listLastLinkSlot put: oldLast.
-			process slotAt: reifiedMemory processMyListSlot put: oldMyList ]
+			otherList slotAt: reifiedMemory processes listFirstLinkSlot put: oldFirst.
+			otherList slotAt: reifiedMemory processes listLastLinkSlot put: oldLast.
+			process slotAt: reifiedMemory processes processMyListSlot put: oldMyList ]

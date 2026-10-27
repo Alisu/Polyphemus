@@ -1,4 +1,4 @@
-scheduler
+slots
 associationValueSlot
 
 	"VMMaker calls this one ValueIndex and indexes it from zero."

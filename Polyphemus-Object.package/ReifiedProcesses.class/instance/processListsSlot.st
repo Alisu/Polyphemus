@@ -1,4 +1,4 @@
-scheduler
+slots
 processListsSlot
 
 	"VMMaker calls this one ProcessListsIndex and indexes it from zero: the array of
