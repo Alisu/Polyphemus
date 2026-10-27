@@ -1,0 +1,1 @@
+A source accepted in a code pane, to be saved into an image read from outside: parsed first, written by whoever knows where (a held image, an image file's fix), and what stopped it told to the pane where it shows -- at the error, as Pharo's own debugger tells it (#108, #118).
