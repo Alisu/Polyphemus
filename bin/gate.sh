@@ -111,7 +111,10 @@ if [ -n "$NAMED_CLASSES" ]; then
 elif [ -n "$COMMIT_GATE" ]; then
   first=$(setup_of "${EDITIONS[0]}")
   SELECTION=$( cd "$first" && POLYPHEMUS_CHANGES="$CHANGES" timeout 300 ./pharo dev.image --no-default-preferences \
-    st "$REPO/bin/select-tests.st" 2>/dev/null | tr -d '\033' | grep -aE '^(CLASS|WIDE) ' )
+    st "$REPO/bin/select-tests.st" 2>/dev/null | tr -d '\033' | grep -aE '^(CLASS|WIDE) |^SELECTED$' )
+  # No closing line: the image did not answer, and no class is not the same as none reached.
+  grep -q '^SELECTED$' <<<"$SELECTION" || {
+    echo "!! the test selection failed: the image did not say which tests the change reaches"; exit 4; }
   SELECTED_CLASSES=$(grep '^CLASS ' <<<"$SELECTION" | awk '{print $2}' | sort | tr '\n' ' ')
   WIDE_CHANGED=$(grep '^WIDE ' <<<"$SELECTION" | awk '{print $2}' | tr '\n' ' ')
   rm -f "$CHANGES"
@@ -154,7 +157,9 @@ for n in "${EDITIONS[@]}"; do
   # Every run's totals green, and at least one: a commit gate makes two runs, the fast tier and
   # the slow classes it selected.
   # A class without its comment compiles here, but a user's Metacello load fails on it.
+  # A run of no test is no green: an image that did not start reads as 0 run, 0 failures.
   if ! grep -qa "^== totals" "$setup/.gate.log" || grep -qa "^NO COMMENT" "$setup/.gate.log" ||
+     grep -qa "^== totals: 0 run" "$setup/.gate.log" ||
      grep -a "^== totals" "$setup/.gate.log" | grep -qv " 0 failures, 0 errors, 0 broken"; then
     status=1; summary="$summary ${n#pharo}:red"
   else

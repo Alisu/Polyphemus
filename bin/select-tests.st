@@ -6,4 +6,5 @@ lines := ((OSEnvironment current at: 'POLYPHEMUS_CHANGES') asFileReference conte
 impact := TestImpact fromLines: lines.
 impact testClasses do: [ :each | ('CLASS ' , each name) traceCr ].
 impact wideSelectors do: [ :each | ('WIDE ' , each) traceCr ].
+'SELECTED' traceCr.
 Smalltalk exitSuccess

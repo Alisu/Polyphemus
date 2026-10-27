@@ -14,7 +14,7 @@
 # edits are compiled once here rather than per process.
 set -uo pipefail
 WORK="${WORK:-$HOME/polyphemus}"
-cd "$WORK"
+cd "$WORK" || { echo "!! no setup at $WORK"; exit 2; }
 HERE="$WORK/Polyphemus/bin"
 . "$HERE/portable.sh"
 # The setup's environment (its target Pharo, its core), for warm.image too: its resources may
@@ -67,8 +67,14 @@ else
 echo "== rebuilding warm.image =="
 cp -f dev.image warm.image
 cp -f dev.changes warm.changes
-timeout 600 ./pharo warm.image --no-default-preferences st "$HERE/build-warm.st" 2>/dev/null \
-  | tr -d '\033' | grep -E 'fixture ready|WARM ERR' || true
+warm=$( { timeout 600 ./pharo warm.image --no-default-preferences st "$HERE/build-warm.st" 2>/dev/null;
+  echo "EXIT $?"; } | tr -d '\033')
+grep -E 'fixture ready|WARM ERR' <<<"$warm"
+# Kept as built from this working copy only if it was: a broken one would be reused by every run.
+if grep -q '^WARM ERR' <<<"$warm" || ! grep -q '^EXIT 0$' <<<"$warm"; then
+  echo "!! warm.image was not built from the working copy"
+  exit 1
+fi
 echo "$fingerprint" > .warm-fingerprint
 fi
 fi
