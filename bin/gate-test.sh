@@ -14,7 +14,8 @@ tree() {  # a fresh made-up ROOT, its stub tdd.sh logging to $ROOT/calls
   git -C "$ROOT/Polyphemus" init -q && git -C "$ROOT/Polyphemus" -c user.name=gate-test -c user.email=gate-test@invalid commit -q --allow-empty -m start
   cat > "$ROOT/Polyphemus/bin/tdd.sh" <<'STUB'
 #!/usr/bin/env bash
-[ -n "${PREPARE_ONLY:-}" ] && { [ -n "${STUB_NO_COMMENT:-}" ] && echo "NO COMMENT Foo.class -- a Metacello load will fail on it"; exit 0; }
+[ -n "${PREPARE_ONLY:-}" ] && { [ -n "${STUB_NO_COMMENT:-}" ] && echo "NO COMMENT Foo.class -- a Metacello load will fail on it"
+  [ -n "${STUB_LONG_COMMENT:-}" ] && echo "LONG COMMENT P.package/Foo.class/instance/bar.st (4 lines)"; exit 0; }
 echo "$(basename "$WORK") start $(date +%s.%N) $*" >> "$(dirname "$0")/../../calls"
 sleep 1
 echo "$(basename "$WORK") end $(date +%s.%N)" >> "$(dirname "$0")/../../calls"
@@ -55,6 +56,13 @@ tree
 ROOT="$ROOT" JOBS=2 STUB_NO_COMMENT=1 "$GATE" --commit --classes "AlphaTest" 13 > "$ROOT/out" 2>&1
 rc=$?
 check "a class without its comment makes the gate red" "[ $rc -ne 0 ] && grep -q 'NO COMMENT Foo.class' $ROOT/out"
+rm -rf "$ROOT"
+
+# A method comment over three lines is the working agreement broken: the gate is red.
+tree
+ROOT="$ROOT" JOBS=2 STUB_LONG_COMMENT=1 "$GATE" --commit --classes "AlphaTest" 13 > "$ROOT/out" 2>&1
+rc=$?
+check "a long method comment makes the gate red" "[ $rc -ne 0 ] && grep -q 'LONG COMMENT P.package/Foo.class' $ROOT/out"
 rm -rf "$ROOT"
 
 # A run that ran no test is no green: an image that did not start reads as 0 run, 0 failures.
