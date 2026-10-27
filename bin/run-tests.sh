@@ -60,17 +60,24 @@ longest_first() {
     { print ($1 in t ? t[$1] : 999999), $1 }' | sort -k1,1nr | awk '{print $2}'
 }
 
+run_script() {  # $1 limit, $2 script, $3 log: the lines the runner reads; status timeout's own (#14)
+  timeout "$1" ./pharo "$IMAGE" --no-default-preferences st "$2" 2>&1 | tee "$3" | noise | grep -aE '^RES |^    (FAIL|ERROR|NOTE)'
+  return ${PIPESTATUS[0]}
+}
+
 run_class() {
   local c="$1" script out rc start el
   script="/tmp/polyphemus-run-$(basename "$WORK")-$c.st"   # one per host setup (#50)
-  if [ -n "${ONLY_TEST:-}" ]; then
+  # The class's suite, or the one test ONLY_TEST names.
+  local suite="$c buildSuite"
+  [ -n "${ONLY_TEST:-}" ] && suite="(TestSuite new addTest: ($c selector: #$ONLY_TEST); yourself)"
     cat > "$script" <<INNER
 | run ascii |
 "A line holding a wide character is a WideString, which traceCr writes four bytes a character:
  the runner then sees binary, not the line. Anything past ASCII prints as a question mark
  (written by its code: this text goes through a heredoc, where a dollar sign is the shell's)."
 ascii := [ :text | String streamContents: [ :s | text do: [ :ch | s nextPut: (ch asInteger < 128 ifTrue: [ ch ] ifFalse: [ Character value: 63 ]) ] ] ].
-[ run := (PolyphemusTestRun of: (TestSuite new addTest: ($c selector: #$ONLY_TEST); yourself)) run.
+[ run := (PolyphemusTestRun of: $suite) run.
   '' traceCr. "a line of its own: the simulator leaves its output unfinished (#51)"
   ('RES $c ', run runCount printString, ' run ', run failureCount printString, ' failures ', run errorCount printString, ' errors', (run skippedCount > 0 ifTrue: [ ' ', run skippedCount printString, ' skipped' ] ifFalse: [ '' ])) traceCr.
   "What each problem signalled the first time, then what it did when run again (#31)."
@@ -85,29 +92,6 @@ ascii := [ :text | String streamContents: [ :s | text do: [ :ch | s nextPut: (ch
   do: [ :e | (ascii value: 'RES $c BROKEN ', e class name, ' ', e messageText asString) traceCr ].
 Smalltalk exitSuccess
 INNER
-  else
-    cat > "$script" <<INNER
-| run ascii |
-"A line holding a wide character is a WideString, which traceCr writes four bytes a character:
- the runner then sees binary, not the line. Anything past ASCII prints as a question mark
- (written by its code: this text goes through a heredoc, where a dollar sign is the shell's)."
-ascii := [ :text | String streamContents: [ :s | text do: [ :ch | s nextPut: (ch asInteger < 128 ifTrue: [ ch ] ifFalse: [ Character value: 63 ]) ] ] ].
-[ run := (PolyphemusTestRun of: $c buildSuite) run.
-  '' traceCr. "a line of its own: the simulator leaves its output unfinished (#51)"
-  ('RES $c ', run runCount printString, ' run ', run failureCount printString, ' failures ', run errorCount printString, ' errors', (run skippedCount > 0 ifTrue: [ ' ', run skippedCount printString, ' skipped' ] ifFalse: [ '' ])) traceCr.
-  "What each problem signalled the first time, then what it did when run again (#31)."
-  run problems do: [ :each | | again |
-    again := run againOf: each key selector.
-    (ascii value: (((run isFailure: each value) ifTrue: [ '    FAIL  ' ] ifFalse: [ '    ERROR ' ]), '$c>>', each key selector, ' -- ',
-      (run describe: each value),
-      (again = #passed
-        ifTrue: [ ' (passed when run again in the same image: a flake, or state its first run left, #31)' ]
-        ifFalse: [ ' (again: ', (run describe: again), ')' ]))) traceCr ] ]
-  on: Error, Warning
-  do: [ :e | (ascii value: 'RES $c BROKEN ', e class name, ' ', e messageText asString) traceCr ].
-Smalltalk exitSuccess
-INNER
-  fi
   start=$(date +%s)
   # rc must be timeout's own status: $? after a pipeline is grep's, which hid every timeout (#14).
   # A flat limit makes the slow classes report TIMEOUT whenever the machine is busy, which is a
@@ -124,12 +108,12 @@ INNER
   # The whole output, stderr too, stays in .class-logs: a class that dies says why there (#31).
   mkdir -p "$WORK/.class-logs"
   local log="$WORK/.class-logs/$c.log"
-  out=$(timeout "$limit" ./pharo "$IMAGE" --no-default-preferences st "$script" 2>&1 | tee "$log" | noise | grep -aE '^RES |^    (FAIL|ERROR|NOTE)'; exit ${PIPESTATUS[0]})
+  out=$(run_script "$limit" "$script" "$log")
   rc=$?
   # VM 9 may refuse to start when mmap offers its heap below the image's base (#31): the class's
   # own image, like a live target, gets one more start, and says so.
   if [ $rc -ne 124 ] && ! grep -a -q "^RES $c " <<< "$out" && grep -a -q 'cannot find a good memory address' "$log"; then
-    out=$(timeout "$limit" ./pharo "$IMAGE" --no-default-preferences st "$script" 2>&1 | tee "$log" | noise | grep -aE '^RES |^    (FAIL|ERROR|NOTE)'; exit ${PIPESTATUS[0]})
+    out=$(run_script "$limit" "$script" "$log")
     rc=$?
     out="$out"$'\n''    NOTE its image did not start (VM 9 found no memory at its base, #31) and was started again'
   fi
@@ -280,7 +264,6 @@ fi
 # SERIAL_LANES=n runs the image-launching classes in n lanes of their own; by default there are
 # none. Measured at -j 5 with the dump cache warm: no lanes 418 s, two 483 s, one 573 s, all
 # green -- the lanes cost more than the flakes they were meant to prevent (#31).
-[ "${SERIAL_LANE:-yes}" = no ] && LANE=
 
 # Asked for classes this image does not hold (another host's, another edition's): said and
 # skipped, not run as broken. Asked of the image only for two classes or more.
