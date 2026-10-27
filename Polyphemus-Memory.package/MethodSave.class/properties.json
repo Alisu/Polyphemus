@@ -5,7 +5,7 @@
 	"classinstvars" : [ ],
 	"pools" : [ ],
 	"classvars" : [ ],
-	"instvars" : [ "source", "notifier" ],
+	"instvars" : [ "source", "notifier", "told" ],
 	"name" : "MethodSave",
 	"type" : "normal"
 }
