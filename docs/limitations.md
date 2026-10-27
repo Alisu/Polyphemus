@@ -60,11 +60,17 @@ core first (`Polyphemus dumpProcess:to:`), read and repair that, and act live on
   with "the image did not answer within 1:00".
 - **An image that allocates without ever pausing is sometimes not held** (the hold reads it at a
   bad moment): try again, or hold it at a method with `runUntil:` (#98).
-- **If the observer itself crashes or is killed during a hold, the image stays frozen** (#96). In
-  the moments it is stopped to be read or written (`SIGSTOP`), `kill -CONT <pid>` lets it go. The
-  rest of the hold, the image runs but our agent spins in it waiting for a request that will not
-  come: `kill -CONT` does nothing, and the image has to be killed. An error inside Polyphemus
-  during a hold does not do this: the image is let go before the error is shown.
+- **If the observer itself crashes or is killed during a hold, the image stays frozen for up to
+  an hour** (#96). In the moments it is stopped to be read or written (`SIGSTOP`), `kill -CONT
+  <pid>` lets it go. The rest of the hold, the image runs but our agent spins in it waiting for a
+  request: `kill -CONT` does nothing, and the agent lets the image go by itself once the hold
+  limit has passed without a request (an hour; `Polyphemus holdLimit:`). With no limit
+  (`Polyphemus holdLimit: nil`), the image has to be killed. An error inside Polyphemus during a
+  hold does not do this: the image is let go before the error is shown.
+- **A hold left an hour without a request ends**: the debugger then says "the hold ended after 60
+  minutes without a request". Hold it again; set a longer limit, or none, with `Polyphemus
+  holdLimit:` before holding. The limit counts from the last request, so an hour of stepping
+  is not cut.
 - **An observer does not hold or read itself**: its own pid is refused, saying so. **Two observers
   can still hold each other** (each run as root, or each the other's ancestor): both stop, and only
   `kill -CONT` frees them, if they are stopped rather than holding (see above). Hold from one observer at a time (#117).
