@@ -1,0 +1,4 @@
+asking
+hasExpired
+
+	^ expired = true
