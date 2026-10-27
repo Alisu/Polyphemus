@@ -1,0 +1,4 @@
+accessing
+wasLetGo
+
+	^ letGo
