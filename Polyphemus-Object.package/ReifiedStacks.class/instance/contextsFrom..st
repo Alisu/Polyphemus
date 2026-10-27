@@ -7,7 +7,7 @@ contextsFrom: aContext
 	| contexts seen current nilObject |
 	contexts := OrderedCollection new.
 	seen := Set new.
-	nilObject := self reifiedNilObject.
+	nilObject := memory reifiedNilObject.
 	current := aContext.
 	[ current isNil
 		or: [ current = nilObject

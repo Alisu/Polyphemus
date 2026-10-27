@@ -14,5 +14,5 @@ testEveryProcessHasAStackOfContexts
 		deepest := deepest max: stack size ].
 
 	self assert: deepest > 5.
-	self assert: reifiedMemory marriedContexts isEmpty.
+	self assert: reifiedMemory stacks marriedContexts isEmpty.
 	self assert: (reifiedMemory contextsOfProcess: reifiedMemory reifiedActiveProcess) size > 1

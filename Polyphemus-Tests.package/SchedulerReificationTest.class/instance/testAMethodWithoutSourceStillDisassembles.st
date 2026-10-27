@@ -8,4 +8,4 @@ testAMethodWithoutSourceStillDisassembles
 	context := (reifiedMemory contextsOfProcess: reifiedMemory reifiedActiveProcess) first.
 
 	self assert: (reifiedMemory sourceOfContext: context) isNil.
-	self deny: (reifiedMemory disassemblyOfContext: context) isEmpty
+	self deny: (reifiedMemory stacks disassemblyOfContext: context) isEmpty

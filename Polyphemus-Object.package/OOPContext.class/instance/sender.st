@@ -5,5 +5,5 @@ sender
 	married context, which a snapshot should not contain anyway."
 
 	| caller |
-	caller := memory senderOf: self.
+	caller := memory stacks senderOf: self.
 	^ caller isNilOop ifTrue: [ nil ] ifFalse: [ caller ]

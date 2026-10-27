@@ -7,7 +7,7 @@ testTheRunningStackStartsAsFramesAndContinuesAsContexts
 	| stack descriptions |
 	stack := reifiedMemory activationsOfProcess: reifiedMemory reifiedActiveProcess.
 	descriptions := stack collect: [ :each |
-		                reifiedMemory descriptionOfActivation: each ].
+		                reifiedMemory stacks descriptionOfActivation: each ].
 
 	self assert: stack size equals: 3.
 	self assert: stack first isStackFrame.

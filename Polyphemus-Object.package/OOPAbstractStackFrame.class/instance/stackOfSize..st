@@ -1,4 +1,4 @@
 context protocol
 stackOfSize: anInteger
 
-	^ memory stackFrom: self ofSize: anInteger
+	^ memory stacks stackFrom: self ofSize: anInteger

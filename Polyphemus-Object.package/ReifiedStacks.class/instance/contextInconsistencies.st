@@ -6,9 +6,9 @@ contextInconsistencies
 
 	| problems nilObject |
 	problems := OrderedCollection new.
-	nilObject := self reifiedNilObject.
+	nilObject := memory reifiedNilObject.
 
-	self allReifiedProcesses do: [ :process |
+	memory allReifiedProcesses do: [ :process |
 		| stack last sender |
 		stack := self contextsOfProcess: process.
 		stack ifNotEmpty: [

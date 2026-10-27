@@ -7,4 +7,4 @@ showSourceOf: aContext
 	sourceText text: (source ifNil: [
 			 '"no source in this image, showing bytecodes"
 
-' , (reifiedMemory disassemblyOfContext: aContext) ])
+' , (reifiedMemory stacks disassemblyOfContext: aContext) ])

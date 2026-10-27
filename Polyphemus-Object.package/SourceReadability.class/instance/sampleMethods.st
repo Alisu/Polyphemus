@@ -10,6 +10,6 @@ sampleMethods
 		([ memory activationsOfProcess: process ] on: Error do: [ :e | #(  ) ]) do: [ :each |
 			methods size < 30 ifTrue: [
 				[ | home |
-				  home := memory homeMethodOf: each compiledCode.
+				  home := memory stacks homeMethodOf: each compiledCode.
 				  methods at: home address put: home ] on: Error do: [ :e | nil ] ] ] ].
 	^ methods values

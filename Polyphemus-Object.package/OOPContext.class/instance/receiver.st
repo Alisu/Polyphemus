@@ -1,3 +1,3 @@
 context protocol
 receiver
-	^ self reifiedSlotAt: memory contextReceiverSlot
+	^ self reifiedSlotAt: memory stacks contextReceiverSlot

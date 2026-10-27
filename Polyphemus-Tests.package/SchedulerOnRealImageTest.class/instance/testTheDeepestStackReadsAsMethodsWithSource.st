@@ -7,7 +7,7 @@ testTheDeepestStackReadsAsMethodsWithSource
 	deepest := reifiedMemory allReifiedProcesses
 		           detectMax: [ :each | (reifiedMemory contextsOfProcess: each) size ].
 	stack := reifiedMemory contextsOfProcess: deepest.
-	lines := reifiedMemory stackDescriptionOfProcess: deepest.
+	lines := reifiedMemory stacks stackDescriptionOfProcess: deepest.
 
 	self assert: stack size > 15.
 	self assert: (lines allSatisfy: [ :each | each includesSubstring: '>>' ]).
