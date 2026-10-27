@@ -1,0 +1,11 @@
+{
+	"commentStamp" : "",
+	"super" : "Object",
+	"category" : "Polyphemus-Object-process",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [ "reader", "hash", "dumped", "reading", "collections", "address" ],
+	"name" : "HeldReading",
+	"type" : "normal"
+}

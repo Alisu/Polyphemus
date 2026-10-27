@@ -6,7 +6,7 @@ setChannel: aChannel reader: aProcessMemory identityHash: anInteger startingAt: 
 	asked runUntil: -- the trap holds the same text."
 
 	channel := aChannel.
-	reader := aProcessMemory.
 	hash := anInteger.
+	heldReading := HeldReading on: aProcessMemory identityHash: anInteger.
 	channel ask: PolyphemusAgent helpersSource.
 	channel ask: '(self at: #hold) value: ' , hash printString , ' value: (' , (aMethodSourceOrNil ifNil: [ 'nil' ]) , '). nil'

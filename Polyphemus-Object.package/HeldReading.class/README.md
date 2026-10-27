@@ -1,0 +1,1 @@
+What is read of a held image: the copies taken of its memory, the reading made of the last one, and where the held process was found in it (HeldProcess talks to the image; this reads it, #118). It writes into the image only where the last reading still holds, and is that reading's editor for the inspector.

@@ -5,8 +5,5 @@ contexts
 	the heap we copy, so the image moves them into contexts first (voidCogVMState, which also
 	discards machine code the image will make again)."
 
-	| process |
 	channel ask: 'Smalltalk vm voidCogVMState. nil'.
-	self readAgain.
-	process := self heldIn: reading.
-	^ reading contextsOfProcess: process
+	^ heldReading contextsOfTheProcess
