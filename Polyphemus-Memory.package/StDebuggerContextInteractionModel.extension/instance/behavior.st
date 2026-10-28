@@ -1,12 +1,9 @@
 *Polyphemus-Memory
 behavior
 
-	"Which class the code pane reads the source against: the receiver's, as Pharo does,
-	but the receiver's class in the image being analysed rather than the class of the
-	reified object in ours, which is OOPRegularObject and explains nothing."
+	"The class the code pane completes and colours against: for a frame of the image being read,
+	the nearest class of that image this one has by name, as Pharo's tools need a real class (#120)."
 
 	self context class == OOPContext ifTrue: [
-		^ [ (self context receiver oopClass) ifNil: [ self context method methodClass ] ]
-			  on: Error
-			  do: [ :e | [ self context method methodClass ] on: Error do: [ :e2 | nil ] ] ].
+		^ [ self context receiver oopClass nearestClassHere ] on: Error do: [ :e | Object ] ].
 	^ self context receiver class
