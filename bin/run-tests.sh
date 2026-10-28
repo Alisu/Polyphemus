@@ -133,7 +133,7 @@ INNER
     [ -z "${ONLY_TEST:-}" ] && grep -a -q " 0 failures 0 errors" <<< "$out" && echo "$c $el" >> "$TIMINGS.new"
   fi
 }
-export -f run_class
+export -f run_script run_class
 export WORK IMAGE TMO TIMINGS ONLY_TEST
 
 run_set() {
