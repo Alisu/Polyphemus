@@ -8,11 +8,11 @@ testAReReadTakesTheHeapFromTheLastWithoutWalkingIt
 	self withTheRunawayHeldDo: [ :held :reader |
 		| seeded walked before |
 		held topContext.
-		before := held instVarNamed: #collections.
+		before := held heldReading instVarNamed: #collections.
 		held stepOver.
 		held topContext.
-		seeded := (held instVarNamed: #dumped) raw.
-		(held instVarNamed: #collections) = before ifTrue: [
+		seeded := held dumped raw.
+		(held heldReading instVarNamed: #collections) = before ifTrue: [
 			self assert: (seeded instVarNamed: #walk) isNil ].
 		reader whileStopped: [ walked := (SpurDumpedMemory on: reader) raw. walked bytes ].
 		self assert: seeded heapStart equals: walked heapStart.
