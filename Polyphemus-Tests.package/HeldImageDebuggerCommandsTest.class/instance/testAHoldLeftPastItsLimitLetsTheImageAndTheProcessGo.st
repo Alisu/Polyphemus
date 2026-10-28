@@ -10,7 +10,7 @@ testAHoldLeftPastItsLimitLetsTheImageAndTheProcessGo
 	before := Polyphemus holdLimit.
 	[
 	Polyphemus putAWatcherInto: pid watchedIn: self spikeDirectory.
-	Polyphemus holdLimit: 3 seconds.
+	Polyphemus holdLimit: 30 seconds. "longer than the observer takes between requests to hold it"
 	session := Polyphemus holdProcess: pid watchedIn: self spikeDirectory.
 	self assert: (session runUntil: 'Counter >> #tick:').
 	(self spikeDirectory / 'ticked') ensureDelete.
