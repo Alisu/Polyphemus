@@ -1,10 +1,12 @@
 highlighting
 sourceNodeExecutedBy: anActivation
 
-	"The piece of source an activation is in, as a syntax tree node; an OOPUnknownSourceNode
-	when its code could not be reproduced faithfully enough to say."
+	"The piece of source an activation is in, read through the tree its code was compiled from, as
+	the highlight is: a DoIt's code would parse its source again as a method. Else unknown."
 
 	| code |
 	code := self faithfulCodeOf: anActivation.
 	code ifNil: [ ^ OOPUnknownSourceNode new ].
-	^ [ code sourceNodeForPC: anActivation executedPC ] on: Error do: [ :e | OOPUnknownSourceNode new ]
+	^ [ (self nodeOf: code in: (self hostTreeOf: anActivation)) sourceNodeForPC: anActivation executedPC ]
+		  on: memory class syntaxErrors
+		  do: [ :e | OOPUnknownSourceNode new ]
