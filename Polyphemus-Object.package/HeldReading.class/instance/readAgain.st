@@ -7,7 +7,7 @@ readAgain
 
 	| fresh |
 	reader whileStopped: [
-		fresh := SpurDumpedMemory on: (ProcessMemoryCopy of: reader).
+		fresh := SpurDumpedMemory on: (ProcessMemoryCopy ofWhatAReadingReads: reader).
 		fresh raw bytes.
 		collections := self collectionsSoFar.
 		dumped ifNotNil: [ fresh raw assumeTheHeapOf: dumped raw ] ].
