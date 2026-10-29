@@ -10,8 +10,8 @@ copyFrom: aReader stretches: someStretches
 	threadRegisters := aReader threadRegisters.
 	listed := aReader segments.
 	live := aReader.
-	pieces := (((aReader writableSegments select: [ :segment |
-		              someStretches anySatisfy: [ :each |
-			              each key < (segment address + segment sizeInMemory) and: [ each value > segment address ] ] ])
-		            asSortedCollection: [ :a :b | a address <= b address ]) asArray
-		           collect: [ :each | self copyOf: each from: aReader ]) reject: [ :each | each isNil ]
+	pieces := self
+		          piecesOf: (aReader writableSegments select: [ :segment |
+				           someStretches anySatisfy: [ :each |
+					           each key < (segment address + segment sizeInMemory) and: [ each value > segment address ] ] ])
+		          from: aReader
