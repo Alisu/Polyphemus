@@ -7,7 +7,7 @@ ask: aSource within: aDuration
 	| answer deadline text checked |
 	deadline := DateAndTime now + aDuration.
 	self hasExpired ifTrue: [ ^ PolyphemusChannelError signal: self whyExpired ].
-	self whyGone ifNotNil: [ :why | ^ PolyphemusChannelError signal: 'the image is gone: ' , why ].
+	self whyGone ifNotNil: [ :why | ^ HeldImageGone signal: 'the image is gone: ' , why ].
 	(self isServingBefore: deadline) ifFalse: [
 		^ PolyphemusChannelError signal:
 			  'the image did not answer within ' , aDuration printString , ': nothing was serving in '
@@ -23,7 +23,7 @@ ask: aSource within: aDuration
 			^ PolyphemusChannelError signal: 'the image did not answer within ' , aDuration printString ].
 		Time millisecondClockValue - checked > 500 ifTrue: [
 			checked := Time millisecondClockValue.
-			self whyGone ifNotNil: [ :why | ^ PolyphemusChannelError signal: 'the image is gone: ' , why ] ].
+			self whyGone ifNotNil: [ :why | ^ HeldImageGone signal: 'the image is gone: ' , why ] ].
 		(Delay forMilliseconds: 10) wait ].
 	text := answer contents.
 	(text beginsWith: 'ok' , String lf) ifTrue: [ ^ text allButFirst: 3 ].
