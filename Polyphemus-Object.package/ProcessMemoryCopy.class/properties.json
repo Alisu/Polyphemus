@@ -11,7 +11,8 @@
 		"mappedFiles",
 		"threadRegisters",
 		"listed",
-		"pieces"
+		"pieces",
+		"live"
 	],
 	"name": "ProcessMemoryCopy",
 	"type": "normal"
