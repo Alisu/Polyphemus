@@ -80,7 +80,8 @@ for n in "${EDITIONS[@]}"; do
   fi
 done
 for n in "${EDITIONS[@]}"; do echo $$ > "$(setup_of "$n")/.gate.pid"; done
-trap 'for n in "${EDITIONS[@]}"; do rm -f "$(setup_of "$n")/.gate.pid"; done' EXIT
+# Removing the temperature's file stops its sampler, however the gate ends.
+trap 'for n in "${EDITIONS[@]}"; do rm -f "$(setup_of "$n")/.gate.pid"; done; rm -f "${peak_file:-}" "${CHANGES:-}"' EXIT
 
 # The CPU's peak temperature over the run: this box throttles near 110 C, which doubles a gate.
 peak_file=$(mktemp)

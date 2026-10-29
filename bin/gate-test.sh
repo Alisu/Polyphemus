@@ -80,5 +80,12 @@ rc=$?
 check "a selection the image did not answer makes the gate red" "[ $rc -ne 0 ] && grep -q 'selection' $ROOT/out"
 rm -rf "$ROOT"
 
+# A gate that stops early leaves nothing behind: its temperature sampler runs as long as its file
+# is there, which was for ever.
+tree; mkdir "$ROOT/tmp"
+TMPDIR="$ROOT/tmp" ROOT="$ROOT" JOBS=2 "$GATE" --commit 13 > "$ROOT/out" 2>&1
+check "a gate that stops early leaves no temporary file, so no sampler" "[ -z \"\$(ls $ROOT/tmp)\" ]"
+rm -rf "$ROOT"
+
 echo "== gate-test: $failures failing"
 exit $(( failures > 0 ))
