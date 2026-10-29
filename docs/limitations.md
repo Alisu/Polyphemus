@@ -84,8 +84,8 @@ core first (`Polyphemus dumpProcess:to:`), read and repair that, and act live on
   `kill -CONT` frees them, if they are stopped rather than holding (see above). Hold from one observer at a time (#117).
 - **The watcher is written in eden**: an image busy allocating at the exact moment it is put in
   could overwrite it. Not seen; an idle image or one waiting on its window is not exposed (#99).
-- **Putting the watcher in again keeps the one there.** While the image is held at a method by
-  `runUntil:`, it also does nothing, but without saying the image is held (#132).
+- **Putting the watcher in again keeps the one there**, and is refused while the image is held:
+  close its debugger, or let it go, first.
 - **macOS: two large copies of a held process at once can crash the observer** (Pharo 13, a full
   collection after two 1.4 GB copies). Read one copy at a time (#97).
 
