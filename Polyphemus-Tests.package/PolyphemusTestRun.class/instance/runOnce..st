@@ -2,7 +2,8 @@ running
 runOnce: aTest
 
 	"#passed, #skipped, or the exception it signalled, caught where TestResult catches it and
-	noted with where it was signalled, while that is still on the stack."
+	noted with where it was signalled, and how full the heap was if out of memory, while that is
+	still on the stack."
 
 	^ [
 	  aTest runCaseManaged.
@@ -12,5 +13,5 @@ runOnce: aTest
 			  (e isKindOf: TestResult skip)
 				  ifTrue: [ #skipped ]
 				  ifFalse: [
-					  places at: e put: (self placeOf: e).
+					  places at: e put: (self placeOf: e) , (self memoryOf: e).
 					  e ] ]
