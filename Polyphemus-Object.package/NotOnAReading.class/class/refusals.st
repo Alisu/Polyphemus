@@ -12,4 +12,6 @@ refusals
 		  at: #restart put: 'Restart' -> 'Restart is not supported on a held image yet';
 		  at: #returnValue put: 'Return entered value' -> 'Return entered value is not supported on a held image yet';
 		  at: #peel put: 'Peel to first like this' -> 'Peel to first like this is not supported on a held image yet';
+		  at: #watcherWhileHeld put: 'Putting the watcher in again'
+			  -> 'That image is held right now: close its debugger, or let it go, first';
 		  yourself
