@@ -55,7 +55,8 @@ StDebugger openOn: session withFullView: true.
 ```
 
 - `putAWatcherInto:watchedIn:` puts a small watcher into the observee, once per run of it, at a
-  moment its memory is safe to write (never during a garbage collection).
+  moment its memory is safe to write (never during a garbage collection). Asked again, it keeps
+  the one there; while that one holds the image, it refuses and says so.
 - `holdProcess:watchedIn:` holds the whole image still.
 - `runUntil:` lets it run until some process reaches that method, and holds it there. Leave it
   out to debug whatever the image was busy with; `Polyphemus debugProcess: pid watchedIn: dir`
@@ -94,8 +95,8 @@ edited restarts in the new code, as in Pharo.
 ## 6. Let it go
 
 **Proceed** lets the observee run again, with your changes. Closing the debugger's window does
-the same. To look again, hold it again (section 3, without `putAWatcherInto:`, which is already
-there). After Proceed, a save in that debugger does nothing: the image is no longer held.
+the same. To look again, hold it again (section 3; `putAWatcherInto:` again does nothing, the watcher
+is already there). After Proceed, a save in that debugger does nothing: the image is no longer held.
 
 ## 7. When something goes wrong
 
