@@ -2,7 +2,8 @@ saving
 writeWith: aBlock
 
 	"Save the source by aBlock if it parses; answers whether it was saved, telling what stopped it
-	at the error, at the method's start for anything aBlock signals, or what a partial save did."
+	at the error, where the compiler points or else at the method's start for anything aBlock
+	signals, or what a partial save did."
 
 	self parseError ifNotNil: [ :error | ^ self tell: error errorMessage at: error start ].
 	^ [
@@ -12,4 +13,7 @@ writeWith: aBlock
 		  on: PartlySaved
 		  do: [ :partly | self saved: partly messageText ] ]
 		  on: Error
-		  do: [ :error | self tell: error messageText at: 1 ]
+		  do: [ :error |
+			  self
+				  tell: error messageText
+				  at: ((error isKindOf: SourceDoesNotCompile) ifTrue: [ error position ] ifFalse: [ 1 ]) ]
