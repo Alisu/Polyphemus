@@ -16,5 +16,4 @@ copyFrom: aReader
 	listed do: [ :segment |
 		(library anySatisfy: [ :file | segment address between: file start and: file stop - 1 ]) ifTrue: [
 			kept at: segment address put: segment ] ].
-	pieces := (((kept values asSortedCollection: [ :a :b | a address <= b address ]) asArray
-		            collect: [ :each | self copyOf: each from: aReader ]) reject: [ :each | each isNil ])
+	pieces := self piecesOf: kept values from: aReader
