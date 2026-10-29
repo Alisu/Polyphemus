@@ -9,6 +9,8 @@ apply: aSource to: aReifiedMethod
 	class := aReifiedMethod oopMethodClass.
 	old := self compilationOf: aReifiedMethod for: class.
 	new := (reading compileHostSource: aSource for: class) ifNil: [
+		       (reading whyHostSourceDoesNotCompile: aSource for: class) ifNotNil: [ :why |
+			       ^ SourceDoesNotCompile new position: why value; signal: why key ].
 		       ^ self error: 'that source does not compile' ].
 	(self pragmasOf: old first) = (self pragmasOf: new first) ifFalse: [
 		^ self error:
