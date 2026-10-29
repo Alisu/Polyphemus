@@ -18,7 +18,9 @@ serveAndHold: aHash startingAt: aMethodSourceOrNil
 	        reader whileStopped: [
 		        (SpurWritableProcess on: reader) countOneSignalOnExternalSemaphore:
 			        self semaphoreIndex ] ].
-	channel ringing: ring.
+	channel
+		ringing: ring;
+		whyGone: [ reader hasEnded ifTrue: [ 'its process ' , reader pid printString , ' ended' ] ].
 	ring value.
 	previous := process.
 	[
