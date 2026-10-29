@@ -8,10 +8,10 @@ do instead, and the issue that tracks it. When one is lifted, its entry goes.
 - **Linux x64 and macOS on Apple silicon**, Pharo 10 to 14. Intel Macs are not supported (#82).
 - **An observer reads the Pharo versions of its own edition only**: load Polyphemus in an image of
   the same Pharo as the one you look into; another is refused, saying so.
-- **Pharo 10 on its first VM (VM 9) is the weakest edition.** That VM sometimes cannot grow the
-  observer's memory even with RAM free (an `OutOfMemory` during a hold, #31). A Pharo 10 image runs
-  on VM 10 too: run it there and observe it with the Pharo 11 edition, which reads Pharo 10 on
-  VM 10.
+- **Pharo 10 on its first VM (VM 9) is the weakest edition.** Its observer now and then stops on
+  an `OutOfMemory` during a hold, with RAM free: the one caught asked for a ByteArray of about
+  127 TB, an address taken as a length (#133). A Pharo 10 image runs on VM 10 too: run it there and
+  observe it with the Pharo 11 edition, which reads Pharo 10 on VM 10.
 - **Windows x64: Pharo 13 only**, a preview: images and minidumps are read, live work is partial,
   and `Polyphemus dumpProcess:to:` refuses, saying so: write a minidump with Windows' own tools (#32).
 - **Pharo 14 is pinned to a beta build** and its VM 12 beta; it is re-pinned when they are released
@@ -57,6 +57,10 @@ core first (`Polyphemus dumpProcess:to:`), read and repair that, and act live on
   spinning keeps a CPU core busy. A step does run the code (a label's contents change); the
   screen catches up on Proceed.
 - **Processes above priority 70 still run**, the delay timer at 80 among them.
+- **A step takes about half a second on Linux and about one on a Mac**, most of it reading the
+  image again (#135).
+- **If the image's process ends while it is held**, the next command says so at once ("the image
+  is gone"), and the debugger stays open on the last reading; close it as usual.
 - **A request to a held image waits one minute at most**: a step over a call that takes longer ends
   with "the image did not answer within 1:00".
 - **An image that allocates without ever pausing is sometimes not held** (the hold reads it at a
@@ -80,6 +84,8 @@ core first (`Polyphemus dumpProcess:to:`), read and repair that, and act live on
   `kill -CONT` frees them, if they are stopped rather than holding (see above). Hold from one observer at a time (#117).
 - **The watcher is written in eden**: an image busy allocating at the exact moment it is put in
   could overwrite it. Not seen; an idle image or one waiting on its window is not exposed (#99).
+- **Putting the watcher in again keeps the one there.** While the image is held at a method by
+  `runUntil:`, it also does nothing, but without saying the image is held (#132).
 - **macOS: two large copies of a held process at once can crash the observer** (Pharo 13, a full
   collection after two 1.4 GB copies). Read one copy at a time (#97).
 
@@ -129,8 +135,9 @@ lives in their own image.
   (an assignment evaluated in a frame) would rewrite the held image's stack: refused, saying so.
   Nothing is written into the image.
 - **Evaluating code in a frame** (Do it, Print it) runs in the observer, on stand-ins for the
-  image's objects, not in the image. Reading a frame's variables works where this host reproduces
-  the frame's code; elsewhere (a script's own frames, #6) Pharo asks about an "Unknown variable".
+  image's objects, not in the image (#126). Reading a frame's variables works where this host
+  reproduces the frame's code; elsewhere (a script's own frames, #6) Pharo asks about an "Unknown
+  variable".
 
 - **Browse, senders, implementors and references** from a frame's menu look in the observer, not
   in the image you look into: senders and implementors are the observer's, and browsing a class
@@ -147,8 +154,8 @@ Not tried yet, so unknown rather than broken:
 
 ## Reading
 
-- **Code without source shows as bytecodes**, not decompiled: a script's own code (a `DoIt`
-  frame; Pharo 13 keeps no source for it), or a method of an image shipped without sources.
+- **A method of an image shipped without sources shows as bytecodes**, not decompiled. A script's
+  own code (a `DoIt` frame) shows its source, but which statement runs is not highlighted yet.
 - **A frame in machine code** shows its bytecodes, not the machine code (#19), and no C frames
   under a primitive or an FFI call (#18).
 - **Reading a dump and an image file in the same observer image** breaks the image side (#12).

@@ -6,6 +6,34 @@ so this is where the difference between them is written down. Newest first.
 Each edition has three parts: what moved underneath us (Pharo, VMMaker, the VM), what we changed
 in answer, and what the edition still does not do.
 
+## Before the tag (2026-10-28 to 2026-10-29, all editions)
+
+The second trial on Linux and the fifth on a Mac.
+
+- **A reading is a copy of what it reads (#122, #123).** A save made the image drop its machine
+  code, and Pharo 12's debugger then read the saved frame's method again from a reading taken
+  before, whose code zone was read live. Each reading now copies old and new space, Cog's code
+  zone and the stack pages while the image is stopped, and reads the VM's own variables live as
+  before; touching regions are one piece, read in place (macOS lists a heap as many).
+- **Steps on macOS.** Finding the heap read the process twice per region, about 14,000 system
+  calls a step on a Mac; it reads it a few times now. The heap is no longer copied twice. A step
+  is about 0.9 s there, 0.5 s on Linux; what is left is #135.
+- **Putting the watcher in twice (#124)** keeps the one there instead of breaking the hold, and
+  refuses while it holds the image (not yet after `runUntil:`, #132).
+- **An image that ends while held (#127)** is said at once, in the observer, and closing the
+  debugger no longer waits; it waited a minute and a half.
+- **A script's own code** (a `DoIt` frame) shows its source, from the method's properties, instead
+  of its bytecodes.
+- **A save that parses but does not compile** (an argument assigned, an undeclared variable) is
+  told with the compiler's own reason, where it points, from Pharo 12 on; every message in a code
+  pane ends in ` ->`, as Pharo's do.
+- **Tests.** An `OutOfMemory` in a test says what was asked for, by which method, and how full the
+  heap was; the first one caught is #133. The gate's temperature sampler stops however the gate
+  ends.
+
+Known, not fixed: #133 (an address taken as a length, Pharo 10), #132, #134 (macOS explains a
+refused process with Linux's Yama), #135 (step speed).
+
 ## Toward the first release (2026-10-13 to 2026-10-27, all editions)
 
 The month of the first user trials, on a Mac and on Linux: every bug they found became an issue
