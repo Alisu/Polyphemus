@@ -11,5 +11,5 @@ testItSaysWhatWasAskedWhenMemoryRanOut
 	run := (PolyphemusTestRun of: suite) run.
 
 	description := run describe: (run outcomeOf: #runsOutOfMemory).
-	self assert: (description includesSubstring: 'asked PolyphemusTestRunExample new: 4096').
+	self assert: (description includesSubstring: 'asked PolyphemusTestRunExample new: 4096 by PolyphemusTestRunExample>>#runsOutOfMemory').
 	self assert: (description includesSubstring: 'MB free')
