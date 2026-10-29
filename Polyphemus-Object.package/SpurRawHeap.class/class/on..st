@@ -5,7 +5,7 @@ on: aDump
 	image header's oldBaseAddress, the VM's nilObj) and every mapping after it, touching or across
 	a segment's bridge. The largest mapping when nothing is stated: not the heap once a host has grown (#13)."
 
-	| variables stated first limit following |
+	| variables stated first limit following bridged |
 	aDump loadableSegments ifEmpty: [ ^ self on: aDump from: 0 to: 0 ].
 	variables := VMVariables on: aDump.
 	stated := self statedHeapStartIn: aDump variables: variables.
@@ -16,10 +16,9 @@ on: aDump
 		         aDump loadableSegments detectMax: [ :each | each sizeInFile ] ].
 	limit := first address + first sizeInFile.
 	[
+	bridged := self segmentAfterBridgeEndingAt: limit in: aDump.
 	following := aDump loadableSegments
-		             detect: [ :each |
-			             (each address = limit or: [ each address = (self segmentAfterBridgeEndingAt: limit in: aDump) ])
-				             and: [ each sizeInFile > 0 ] ]
+		             detect: [ :each | (each address = limit or: [ each address = bridged ]) and: [ each sizeInFile > 0 ] ]
 		             ifNone: [ nil ].
 	following notNil ] whileTrue: [ limit := following address + following sizeInFile ].
 	^ (self on: aDump from: first address to: limit)
