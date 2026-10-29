@@ -1,0 +1,13 @@
+{
+	"commentStamp": "",
+	"super": "LinuxProcessMemory",
+	"category": "Polyphemus-Tests",
+	"classinstvars": [],
+	"pools": [],
+	"classvars": [],
+	"instvars": [
+		"reads"
+	],
+	"name": "CountingProcessMemory",
+	"type": "normal"
+}
