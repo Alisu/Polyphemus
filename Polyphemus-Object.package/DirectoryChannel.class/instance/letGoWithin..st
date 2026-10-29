@@ -6,6 +6,7 @@ letGoWithin: aDuration
 
 	| served |
 	self hasExpired ifTrue: [ ^ true ].
+	self whyGone ifNotNil: [ ^ false ].
 	served := self isServingBefore: DateAndTime now + aDuration.
 	directory exists ifFalse: [ ^ false ].
 	self write: '' as: 'go'.

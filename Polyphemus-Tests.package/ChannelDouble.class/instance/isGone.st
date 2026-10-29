@@ -1,0 +1,4 @@
+asking
+isGone
+
+	^ false
