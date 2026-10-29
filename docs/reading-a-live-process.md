@@ -348,3 +348,22 @@ not arriving.
 knows nothing of Polyphemus reaches whatever *it* has on that semaphore, not us. For the
 instances we launch, that is no limitation: they load Polyphemus, as they already consent to
 being read through `bin/pharo-debuggable`.
+
+## What whereIsStuck says
+
+`Polyphemus whereIsStuck: pid` says where each of a VM's threads waits, from `/proc` on Linux and
+from its task port on macOS, before anything else touches it. Run on three Pharo 10 targets on
+2026-10-05, it printed (addresses shortened):
+
+```
+Process 254646: blocked in a C call, wait4 (no interrupt reaches it)
+  thread 254646 (S): blocked in a C call, wait4 (no interrupt reaches it), pc … in libc.so.6, first argument 254691
+  thread 254688 (S): waiting in clock_nanosleep, pc … in libc.so.6, first argument 0
+  catches SIGHUP SIGILL SIGTRAP SIGABRT SIGBUS SIGFPE SIGUSR1 SIGSEGV SIGALRM SIGTERM SIGIO SIGSYS SIGRT33
+```
+
+for one in `LibC system: 'sleep 600'`; "idle, waiting for events in pselect6" for an idle one
+(epoll_wait from VM 10.3); and for one spinning in a loop "running, in machine code, in Cog's
+code zone" or "in libPharoVMCore.so, in numSlotsOf", having stopped it for a moment and let it
+go, which it says. On macOS an idle VM waits for events in `kevent`, each call named after the
+`libsystem_kernel` stub its thread waits in, its heartbeat in `semaphore_wait_trap`.
