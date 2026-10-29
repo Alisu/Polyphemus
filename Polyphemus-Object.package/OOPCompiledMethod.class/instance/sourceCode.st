@@ -7,7 +7,7 @@ sourceCode
 	| trailer |
 	trailer := self trailer.
 	trailer sourceCode ifNotNil: [ :code | ^ code ].
-	(self propertyAt: #source ifAbsent: [ nil ]) ifNotNil: [ :code | (code isKindOf: OOPString) ifTrue: [ ^ code asString ] ].
+	self doItSource ifNotNil: [ :code | ^ code ].
 	trailer hasSourcePointer ifFalse: [ ^ self codeForNoSource ].
 
 	^ self getSourceFromFile ifEmpty: [ self codeForNoSource ]
