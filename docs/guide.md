@@ -24,7 +24,7 @@ Looking into another running process needs the right to:
 - **macOS**: run the observer as root, `sudo ./pharo-ui observer.image`. A root observer leaves
   files owned by root (the watch folder, Iceberg's clone); before working as yourself again,
   `sudo chown -R "$USER" <that folder>`.
-- **Linux**: start the observee through `bin/pharo-debuggable` (built once, START-HERE section 1),
+- **Linux**: start the observee through `bin/pharo-debuggable` (built once, START-HERE section 2),
   or run the observer as root for a VM someone else started.
 
 ## 2. Find the observee

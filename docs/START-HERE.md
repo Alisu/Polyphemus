@@ -2,7 +2,9 @@
 
 Polyphemus reads the memory of a Pharo virtual machine **from outside it**, from a healthy image,
 and turns what it finds back into objects you can ask questions: which processes there are, what
-each one's stack is, the source of each frame. Pharo's debugger opens on the result.
+each one's stack is, the source of each frame. Pharo's debugger opens on the result. It runs on
+Pharo 10 to 14, one **edition** per Pharo (`docs/editions.md`), on Linux x64 and macOS on Apple
+silicon; Windows is under way (`docs/handover-windows.md`).
 
 It reads three kinds of thing, and holds the third:
 
@@ -10,17 +12,16 @@ It reads three kinds of thing, and holds the third:
 |---|---|---|
 | an **image file** | a snapshot on disk, possibly damaged | nothing |
 | a **core dump** | the memory of a VM that died, or of one we dumped | nothing: it is a file (ELF; macOS's own Mach-O cores are not read yet, #81) |
-| a **running process** | a VM that is still going: read it, or hold it and debug it | the right to look into it: on Linux an ancestor of it, the target started with `bin/pharo-debuggable`, or, for a VM someone else started, the observer run as root; on macOS the observer run as root. The target stays as downloaded. |
+| a **running process** | a VM that is still going: read it, or hold it and debug it | the right to look into it (section 2) |
 
-## What changed since stage 2
+## Which page next
 
-Since the `stage2` you may remember: stages 1 to 3 are done, and Polyphemus runs on Pharo 10 to
-14, one **edition** per Pharo (`docs/editions.md`). There is no need to read the diff: what each
-version changed is written in `docs/patch-notes.md`, and each edition is a git tag
-(`git diff edition/pharo13 edition/pharo14`). It runs on Linux x64 and, since 2026-10-14, on
-macOS on Apple silicon (`docs/handover-macos.md`); Windows is under way. Everything below was run
-exactly as written on 2026-09-28 (Pharo 13, Linux x64), the numbers being what it answered then;
-the macOS notes were measured on 2026-10-13 and in CI.
+- To debug a running image, step it and fix it: `docs/guide.md`.
+- To read an image file, a dump or a process from code: section 3.
+- To ask it through an agent: section 4.
+- What it does not do yet: `docs/limitations.md`.
+- What changed from one version to the next: `docs/patch-notes.md`.
+- To work on Polyphemus itself: section 5.
 
 ## 1. Get it
 
@@ -52,21 +53,34 @@ PolyphemusEdition current name.   "'Polyphemus-Pharo13-Linux-x64-for-Pharo13' on
 
 On a Mac it answers `'Polyphemus-Pharo13-MacOS-arm64-for-Pharo13'`: the baseline loads the host
 package for the system it runs on (`Polyphemus-Host-Linux-x64` or `Polyphemus-Host-MacOS-arm64`).
+Each edition is also a git tag (`git diff edition/pharo13 edition/pharo14`).
 
-On macOS there is nothing to build for the running-process steps: run the observing Pharo as root
-(`sudo`), and macOS gives it the task port of a stock Pharo VM, which is not hardened. On Linux,
-build the launcher once, in the clone Iceberg made of the repository (Iceberg shows where; under
-the image's `pharo-local/iceberg` by default):
+## 2. The right to read a running process
+
+Image files and dumps need nothing. A running process does, and the target always stays as
+downloaded.
+
+**On macOS**, there is nothing to build: run the observing Pharo as root (`sudo`), and macOS gives
+it the task port of a stock Pharo VM, which is not hardened.
+
+**On Linux**, build the launcher once, in the clone Iceberg made of the repository (Iceberg shows
+where; under the image's `pharo-local/iceberg` by default):
 
 ```bash
 cc -O2 -o bin/pharo-debuggable bin/pharo-debuggable.c
 ```
 
-It lets a sibling process read the target without changing anything on the machine (Yama's
-`ptrace_scope` stays as it is, normally 1). A VM already running, started without it by anyone,
-is refused to you by Yama; run the observer as root (`sudo`) to read it, hold it and debug it.
+A target started through it can be read by a sibling process, without changing anything on the
+machine (Yama's `ptrace_scope` stays as it is, normally 1). A VM already running, started without
+it by anyone, is refused to you by Yama; run the observer as root (`sudo`) to read it, hold it and
+debug it.
 
-## 2. An image file
+## 3. From code
+
+The examples were run exactly as written on Pharo 13, Linux x64; the numbers in comments are what
+it answered then. Where macOS differs, it is said.
+
+### An image file
 
 Any image file works; a copy of a fresh Pharo image of the same version is the simplest target.
 The examples use `/tmp/target/target.image`, with its `.changes` and `.sources` beside it.
@@ -79,7 +93,7 @@ Polyphemus browse: memory.                        "every process, its stack, the
 Polyphemus debugDeepestProcessIn: memory.         "Pharo's debugger, on the deepest stack"
 ```
 
-## 3. A running process
+### A running process
 
 On Linux, start the target through the launcher, idle (on macOS, start it as you like and run the
 observer as root):
@@ -103,7 +117,7 @@ within a few seconds it is refused, saying so:
 SpurCannotRead: cannot read bytes: itWasNeverQuietWhenStopped
 ```
 
-Holding it works whatever it is doing (step 5).
+Holding it works whatever it is doing (below).
 
 To know where a process is stuck before touching it, from `/proc` on Linux, from its task port
 on macOS:
@@ -112,22 +126,10 @@ on macOS:
 Polyphemus whereIsStuck: 175398.
 ```
 
-Run on three Pharo 10 targets on 2026-10-05, it printed (addresses shortened):
+It says where each of its threads waits: blocked in a C call, idle waiting for events, or running
+in machine code. What it printed for three kinds of target is in `docs/reading-a-live-process.md`.
 
-```
-Process 254646: blocked in a C call, wait4 (no interrupt reaches it)
-  thread 254646 (S): blocked in a C call, wait4 (no interrupt reaches it), pc … in libc.so.6, first argument 254691
-  thread 254688 (S): waiting in clock_nanosleep, pc … in libc.so.6, first argument 0
-  catches SIGHUP SIGILL SIGTRAP SIGABRT SIGBUS SIGFPE SIGUSR1 SIGSEGV SIGALRM SIGTERM SIGIO SIGSYS SIGRT33
-```
-
-for one in `LibC system: 'sleep 600'`; "idle, waiting for events in pselect6" for an idle one
-(epoll_wait from VM 10.3); and for one spinning in a loop "running, in machine code, in Cog's
-code zone" or "in libPharoVMCore.so, in numSlotsOf", having stopped it for a moment and let it
-go, which it says. On macOS an idle VM waits for events in `kevent`, each call named after the
-`libsystem_kernel` stub its thread waits in, its heartbeat in `semaphore_wait_trap`.
-
-## 4. A dump
+### A dump
 
 ```smalltalk
 Polyphemus dumpProcess: 175398 to: '/tmp/target/target.core'.     "137 MB"
@@ -138,9 +140,10 @@ A core from the kernel, or from gdb, reads the same way. On macOS, as root, `dum
 writes the same kind of core (ELF), which `readCoreDump:` reads; macOS's own cores are Mach-O
 and are not read yet (#81).
 
-## 5. Hold a busy image, debug it, let it go
+### Hold a busy image, debug it, let it go
 
-Start a second target, busy in a loop (on macOS, any way, the observer as root):
+`docs/guide.md` walks through this step by step. In short, start a second target, busy in a loop
+(on macOS, any way, the observer as root):
 
 ```bash
 POLYPHEMUS_OBSERVER=any ./bin/pharo-debuggable /path/to/pharo-vm/pharo --headless /tmp/busy/target.image eval "[ true ] whileTrue: [ 100 factorial ]" &
@@ -165,22 +168,24 @@ session heldProcess ask: '(self at: #process) suspendedContext printString'.
 session resume.                                   "it runs on"
 ```
 
-## 6. Ask it through an agent
+## 4. Ask it through an agent
 
 An MCP server answers an agent (Claude Code, or any MCP client) with the same readings, one tool
 each: `open_image`, `open_core`, `open_process`, `processes`, `stack`, `inspect`, `census`,
 `packages`, `where_stuck`. All read only; a running process is held still only while it is copied.
-The debugger opens from Pharo, as in sections 2 and 5: holding an image, stepping it and saving a
-fix are done there, not through these tools (tools that act are #128).
+The debugger opens from Pharo, as in section 3: holding an image, stepping it and saving a fix are
+done there, not through these tools (tools that act are #128).
 How to start it and register it is in `docs/mcp.md`. On macOS, `open_process` and `where_stuck`
 need the server run as root, as the observer does.
 
-## 7. The tests
+## 5. Working on Polyphemus
 
-About 785 tests per edition on Linux, 826 on macOS (2026-10-14, CI, all green). They live in
-`Polyphemus-Tests` (and `Polyphemus-Tests-MemoryMap` from Pharo 11 on), and the macOS ones in
-`Polyphemus-Host-MacOS-arm64`. Run them from the Test Runner, one class at a time rather than all
-at once: some classes launch target images and take minutes. A good first set, by stage:
+### The tests
+
+They live in `Polyphemus-Tests` (and `Polyphemus-Tests-MemoryMap` from Pharo 11 on), and the
+macOS ones in `Polyphemus-Host-MacOS-arm64`. Run them from the Test Runner, one class at a time
+rather than all at once: some classes launch target images and take minutes. A good first set,
+by stage:
 
 | stage | classes |
 |---|---|
@@ -193,12 +198,12 @@ What to expect on a first run:
 - The tests download the pinned image of each Pharo they use from files.pharo.org, once.
 - The dump classes skip without a dump beside your image (`pharo.core`, or the path in
   `POLYPHEMUS_CORE`), saying so.
-- The Linux live classes need `bin/pharo-debuggable` built (section 1), and skip on other systems.
+- The Linux live classes need `bin/pharo-debuggable` built (section 2), and skip on other systems.
   The macOS ones read another process only when the Test Runner runs as root, and otherwise skip,
   saying so.
 - Some tests skip on purpose where your Pharo cannot reproduce the fixture's code, and say why.
 
-## The classes worth knowing first
+### The classes worth knowing first
 
 | Class | What it is |
 |---|---|
@@ -213,13 +218,11 @@ What to expect on a first run:
 | `ReifiedDebugSession`, `HeldProcess` | Pharo's debugger on another image, and the image held for it |
 | `SpurReadability` | how much can be read, and why not the rest |
 
-## Where things are
+### Where things are
 
 `docs/` holds the longer notes: `debugging-a-snapshot.md` first, then `reading-a-dump.md`,
 `reading-a-live-process.md`, `stage3-live-image.md`, `editions.md` and `patch-notes.md`.
 `docs/mistakes.md` is worth a look before any long hunt.
-`docs/guide.md` walks through debugging a running image, step by step.
-`docs/limitations.md` says what Polyphemus does not do yet, and what to do instead.
 
 `CLAUDE.md`, `AGENTS.md` and `bin/` (apart from `pharo-debuggable`) are this fork's working
 tools, written for our Linux box. You do not need them to use Polyphemus.
