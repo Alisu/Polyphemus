@@ -29,16 +29,19 @@ check() {   # $1 module, $2 property kind and name, $3 a label, the rest: NAME=V
   else
     verdict="holds ($(grep -o '[0-9,]* distinct states' "$out" | tail -1))"
   fi
-  printf '%-12s %-34s %-22s %s\n' "$module" "$label" "${prop#* }" "$verdict"
+  printf '%-12s %-42s %-22s %s\n' "$module" "$label" "${prop#* }" "$verdict"
 }
 
 # Hold: a plain hold, then a runUntil:, either side dying at any step.
 for stop in FALSE TRUE; do
-  for bell in FALSE TRUE; do
-    for prop in "INVARIANT NoStrayHold" "INVARIANT NoTrapLeft" "PROPERTY AskEnds" \
-                "PROPERTY FreeIfObserverDies" "PROPERTY FreeWhenThrough"; do
-      check Hold "$prop" "stop ends=$stop bell=$bell" MaxHolds=2 MaxAsks=1 WithTrap=TRUE \
-        HoldLimit=TRUE FastObserver=TRUE SeparateBell=$bell StopEndsWithObserver=$stop
+  for design in "FALSE FALSE FALSE" "TRUE FALSE FALSE" "TRUE TRUE FALSE" "TRUE TRUE TRUE"; do
+    set -- $design; bell=$1 guard=$2 sees=$3
+    for prop in "INVARIANT NoStrayHold" "INVARIANT NoTrapLeft" "INVARIANT NoBadWrite" \
+                "INVARIANT NoLostHold" "PROPERTY AskEnds" "PROPERTY FreeIfObserverDies" \
+                "PROPERTY FreeWhenThrough"; do
+      check Hold "$prop" "stop=$stop bell=$bell guard=$guard trap=$sees" MaxHolds=2 MaxAsks=1 \
+        WithTrap=TRUE HoldLimit=TRUE FastObserver=TRUE SeparateBell=$bell \
+        BellEndedGuard=$guard FallbackSeesTrap=$sees StopEndsWithObserver=$stop
     done
   done
 done
