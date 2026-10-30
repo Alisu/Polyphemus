@@ -32,7 +32,7 @@ The second trial on Linux and the fifth on a Mac.
   calls a step on a Mac; it reads it a few times now. The heap is no longer copied twice. A step
   is about 0.9 s there, 0.5 s on Linux; what is left is #135.
 - **Putting the watcher in twice (#124)** keeps the one there instead of breaking the hold, and
-  refuses while it holds the image (not yet after `runUntil:`, #132).
+  refuses, said in the observer, while it holds the image (#132).
 - **An image that ends while held (#127)** is said at once, in the observer, and closing the
   debugger no longer waits; it waited a minute and a half.
 - **A script's own code** (a `DoIt` frame) shows its source, from the method's properties, instead
