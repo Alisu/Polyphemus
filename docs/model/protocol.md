@@ -20,7 +20,7 @@ they share, each step and the method it comes from, and what must hold whatever 
 
 | Variable | Where | Meaning |
 |---|---|---|
-| `excess` | the semaphore's 3rd slot (`excessSignals`) | signals not yet consumed; W waits on it, A spins on it as its bell |
+| `excess` | the semaphore's 3rd slot (`excessSignals`) | signals not yet consumed; W waits on it, A spins on it as its bell. O's ring sets it to 1 and wakes nobody (`countOneSignalOnExternalSemaphore:`); only a VM signal (the hold's, the trap's) resumes a waiting W |
 | `stopped` | kernel | the image is stopped by O |
 | `interrupted`, `released`, `trap`, `do.st`, `do-failed` | files in the watch folder | W's and T's signals to O; O's script for W |
 | `channel/serving` | file | A started serving |
@@ -46,7 +46,7 @@ they share, each step and the method it comes from, and what must hold whatever 
    (`holdSourceAfterwards:`); sets `excess := 0`; runs `do.st` if present, else goes on.
 4. O waits for `interrupted` (its timeout, else "never took the interrupt").
 5. `serveAndHold:`: O deletes `channel/`, writes `do.st` (A's source), and rings
-   (stop, `excess := excess + 1`, resume).
+   (stop, `excess := 1`, resume). The ring wakes nobody: W sees it only while it spins.
 6. W sees `excess > 0`, runs `do.st`: A starts, creates `channel/`, writes `serving` unless `go`
    is there already.
 
@@ -56,7 +56,8 @@ they share, each step and the method it comes from, and what must hold whatever 
     `go`: if there, end.
   - Limit passed (an hour by default, none with `holdLimit: nil`): write `expired`, run `letGo`
     if the image's debugger left one, end.
-- After A ends, W writes `released` and waits on the semaphore again.
+- After A ends, W writes `released` and waits on the semaphore again. A ring after that sets
+  `excess` to 1 under a waiting W: the next hold then breaks (seen on the Mac, 2026-10-30).
 
 ### Asking (`DirectoryChannel>>ask:within:`)
 1. If `expired`: refused. If I ended: refused at once (#127).
@@ -82,7 +83,7 @@ Safety (nothing bad ever happens):
 2. **One watcher** per image and folder; a second is never put in beside it (#124).
 3. **No lost ring**: a request written while A serves is always seen by A (#49).
 4. **A request never lands in a folder that is not A's** (#90).
-5. **A ring meant for A never makes W hold again** once A has ended. *The code does not have this
+5. **A ring meant for A never makes W hold again**, nor breaks its next hold, once A has ended. *The code does not have this
    property today*: `limitations.md` says a hold ending as O asks can hold the image once more,
    for up to a minute (W's 60 s). The model should show the interleaving.
 6. **The trap fires at most once**, and is never left installed after `runUntil:` gives up.
@@ -93,6 +94,10 @@ Liveness (something good eventually happens):
    Not with `holdLimit: nil`, which is documented.
 9. **After a let-go that succeeded, U runs again.**
 10. **Two observers never hold each other for ever** (#117): to model with two O's and two I's.
+11. **No ring written where no semaphore is**: a ring on A's own bell after A unregistered it
+    would write past nil.
+12. **No lost hold**: O never gives up waiting on an image that is alive and whose agent did not
+    expire.
 
 ## What the model leaves out
 
@@ -102,29 +107,52 @@ Liveness (something good eventually happens):
 
 ## Results (TLC 2.19, 2026-10-30)
 
-`Hold.tla` (version 2, with the trap of `runUntil:` and Pharo's semaphore wait) checks properties
-5 to 9 on a small instance: one observer, one image, a plain hold with one request, then a
-`runUntil:`; either side dying at any step; the agent's hour running out at any step. Timing kept
-realistic: a live observer acts within the watcher's 60 s unless paused (idle, or its user
-deciding), and its own deadlines pass only when the image can make no step. `check_all.sh` runs
-every combination, and leaves each counterexample in `results/`; `trace.py` prints one step by step.
+`Hold.tla` (version 3) checks properties 5 to 9, 11 and 12 on a small instance: one observer, one
+image, a plain hold with one request, then a `runUntil:`; either side dying at any step; the
+agent's hour running out at any step. Timing kept realistic: a live observer acts within the
+watcher's 60 s unless paused (idle, or its user deciding), and its own deadlines pass only when the
+image can make no step. Version 3 (2026-10-30) follows the Mac trial: the observer's ring only
+counts (it never wakes a waiting watcher); version 2 had it wake one, and missed the lost holds.
+`check_all.sh` runs every combination, and leaves each counterexample in `results/`; `trace.py`
+prints one step by step.
 
-| Design | 5 no stray hold | 6 no trap left | 7 every ask ends | 8 runs if the observer dies | 9 runs when through |
-|---|---|---|---|---|---|
-| Today: SIGSTOP, one semaphore | fails (16 steps) | fails (41 steps) | holds | fails (4 steps) | holds |
-| Separate bell only | holds | holds | holds | fails (4 steps) | holds |
-| Stop that ends with the observer only | fails | fails | holds | holds | holds |
-| Both | holds | holds | holds | holds | holds |
+The fixes, each a switch of the model: the stop helper (the stop ends with the observer), the
+agent's own bell, `bell-ended` before the bell is let go, and `runUntil:`'s fallback looking for
+the trap's file once the image is stopped.
+
+| Design | 5 stray hold | 6 trap left | 11 write past nil | 12 lost hold | 7 ask ends | 8 observer dies | 9 through |
+|---|---|---|---|---|---|---|---|
+| Today | fails (16) | fails (37) | holds | fails (26) | holds | fails (4) | holds |
+| Own bell | holds | holds | fails (15) | fails (41) | holds | fails (4) | holds |
+| Own bell, `bell-ended` | holds | holds | holds | fails (41) | holds | fails (4) | holds |
+| Own bell, `bell-ended`, fallback sees the trap | holds | holds | holds | holds | holds | fails (4) | holds |
+| All of the above and the stop helper | holds | holds | holds | holds | holds | holds | holds |
+
+(Steps of the shortest counterexample in brackets. The stop helper alone fixes 8 and nothing
+else; with it, every row is the same except 8.)
 
 What the failures are:
 - **5, stray hold:** the observer writes a request; before its ring, the agent reaches its hour and
-  ends; the ring wakes the watcher, which holds the whole image again, with no agent, for 60 s
-  (the "hold once more" case of limitations.md).
+  ends; the ring lands before the watcher waits again, and its wait returns at once: the watcher
+  holds the whole image again, with no agent, for 60 s.
 - **6, trap left installed:** a ring left over from an earlier let-go makes the watcher start the
   next agent early; that agent takes the serving ring for the request's, the real request ring comes
   after it ended, and the observer gives up with the trap it asked for still in the image.
-- Both have one cause: the watcher's interrupt and the agent's bell are one semaphore, so rings get
-  out of step. **Fix: the agent rings on a bell of its own that nobody waits on.**
+- **12, lost hold, today:** the next hold's signal arrives while the last agent still serves; the
+  agent consumes it with its own ring, and the watcher never holds. The Mac trial showed another
+  way: a ring after the agent ended sets the count to 1 under the waiting watcher; the next hold
+  wakes it, it finds the count, skips its wait for the serve ring, finds no `do.st` yet and leaves;
+  the observer waits a minute for an agent that never comes.
+- 5, 6 and 12 have one cause: the watcher's interrupt and the agent's bell are one semaphore.
+  **Fix: the agent rings on a bell of its own that nobody waits on.**
+- **11, write past nil:** with its own bell, a ring after the agent unregistered it finds nil in
+  that slot of the external objects table and writes 24 bytes past nil. **Fix: the agent writes
+  `bell-ended` before it lets its bell go; the observer, while the image is stopped, rings only if
+  that file is not there.**
+- **12, lost hold, with the bell:** `runUntil:`'s deadline passes just as the trap fires; the
+  fallback hold signals a watcher the trap already woke, which takes it as its serve ring and
+  leaves with no agent, while the observer waits for an `interrupted` it deleted. **Fix: the
+  fallback stops the image first and looks for `trap`; if it is there, it takes the trap's hold.**
 - **8:** the observer dies while the image is stopped (SIGSTOP, task suspend): stopped for ever
   (#96). **Fix: a stop the system ends when the observer dies**: a stop helper (#137): it holds
   the SIGSTOP and lets the image go when the observer says so, dies, or cannot within a bound.
@@ -201,5 +229,5 @@ cd docs/model && ./check_all.sh
 ```
 
 It needs Java and `tools/tla2tools.jar` (TLA+ 1.7.4, from the TLA+ releases on GitHub,
-github.com/tlaplus/tlaplus), which is not kept in the repository. About a minute for all 36 checks.
+github.com/tlaplus/tlaplus), which is not kept in the repository. About six minutes for all 72 checks.
 To read a counterexample: `python3 trace.py results/<the check's file>.txt`.
