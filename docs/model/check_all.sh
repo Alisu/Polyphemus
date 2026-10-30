@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Check every property of the three models, in each design, with TLC. One line per check; the
+# Check every property of the four models, in each design, with TLC. One line per check; the
 # counterexamples are left in results/, and trace.py prints one step by step.
 #
 #   ./check_all.sh
@@ -55,5 +55,12 @@ done
 for lock in FALSE TRUE; do
   for prop in "INVARIANT NoWriteWhileRunning" "INVARIANT OneWatcher" "PROPERTY BothDone"; do
     check InjectPair "$prop" "stop lock=$lock" StopLock=$lock
+  done
+done
+
+# StopHelper: the stop helper of #137, two observers, helpers that may be killed.
+for kill in FALSE TRUE; do
+  for prop in "INVARIANT NoBadReadOrWrite" "INVARIANT OneHolder" "PROPERTY NeverStoppedForEver"; do
+    check StopHelper "$prop" "helpers killable=$kill" RecoverStale=TRUE MaxTries=2 HelpersKillable=$kill
   done
 done

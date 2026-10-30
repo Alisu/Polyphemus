@@ -174,6 +174,26 @@ SIGCONT are not counted: the first resume lets the image go for both.
   then go through one place, which covers #96 (observer dies), #117 (observers stopping each other)
   and this.
 
+## The stop helper itself: `StopHelper.tla`
+
+The helper #137 proposes, checked before it is written: two observers each read (and may write
+into) the same image, every stop through a helper of their own. A helper takes a lock named after
+the image's pid, stops the image, leaves a mark naming itself, and resumes the image when its
+observer says so, when its observer dies (its input ends), or at its bound. An observer whose stop
+ended early, or whose helper is gone, throws its reading away and tries again. A helper can be
+killed: the system then lets its lock go, not its stop. A helper taking the lock resumes an image
+a dead helper's mark says is stopped.
+
+| Property | Result |
+|---|---|
+| no reading accepted that the image moved under, no write into the running image | holds |
+| at most one helper holds the image stopped | holds |
+| the image is never stopped for ever | holds, unless helpers are killed (`kill -9`) and every observer is gone |
+
+The last case cannot be fixed from inside: a killed process does not clean up. The mark covers it
+for whoever comes next (a helper or an observer resumes an image a dead helper's mark says is
+stopped); otherwise `kill -CONT` by hand.
+
 ## Running the checks
 
 ```bash
@@ -181,5 +201,5 @@ cd docs/model && ./check_all.sh
 ```
 
 It needs Java and `tools/tla2tools.jar` (TLA+ 1.7.4, from the TLA+ releases on GitHub,
-github.com/tlaplus/tlaplus), which is not kept in the repository. About a minute for all 30 checks.
+github.com/tlaplus/tlaplus), which is not kept in the repository. About a minute for all 36 checks.
 To read a counterexample: `python3 trace.py results/<the check's file>.txt`.
