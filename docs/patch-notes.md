@@ -6,7 +6,20 @@ so this is where the difference between them is written down. Newest first.
 Each edition has three parts: what moved underneath us (Pharo, VMMaker, the VM), what we changed
 in answer, and what the edition still does not do.
 
-## Before the tag (2026-10-28 to 2026-10-29, all editions)
+From v0.1.0 on, each version has a section of its own, headed by its tag, with the same text as
+its release on GitHub; what is on stage2 since the last tag comes first.
+
+## Since v0.1.0 (stage2)
+
+- **A model of the hold protocol** (`docs/model/`, #137): the observer, the watcher, the agent and
+  the stops, checked with TLA+. It finds the stray hold of `limitations.md`, a trap left installed,
+  an image left stopped when the observer dies (#96), two observers stopping each other (#117) and
+  two observers writing into the same image at once, and checks the fixes before they are written:
+  an agent's own bell, and a stop helper with a lock.
+
+## v0.1.0 (2026-10-29, all editions)
+
+### Before the tag (2026-10-28 to 2026-10-29)
 
 The second trial on Linux and the fifth on a Mac.
 
@@ -31,10 +44,16 @@ The second trial on Linux and the fifth on a Mac.
   heap was; the first one caught is #133. The gate's temperature sampler stops however the gate
   ends.
 
-Known, not fixed: #133 (an address taken as a length, Pharo 10), #132, #134 (macOS explains a
-refused process with Linux's Yama), #135 (step speed).
+- **A script's frame shows where it is**: the statement a DoIt's frame runs is highlighted, from
+  the DoIt's own source compiled as the image compiled it (Pharo 10 keeps a DoIt header).
+- **Refusals said in the observer**: a watcher put in again while the image is held (#132), and a
+  process the system will not let us read, explained as that system has it (#134).
+- **Tests.** `TestImpactTest` is given a minute (#131, until its walk keeps one index).
 
-## Toward the first release (2026-10-13 to 2026-10-27, all editions)
+Known, not fixed: #133 (an address taken as a length, Pharo 10), #135 (step speed), #136 (a macOS
+test that catches a VM in machine code, flaky).
+
+### Toward the first release (2026-10-13 to 2026-10-27)
 
 The month of the first user trials, on a Mac and on Linux: every bug they found became an issue
 and a test. A user's guide is in `docs/guide.md`; what does not work yet is in `docs/limitations.md`.
