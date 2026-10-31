@@ -1,0 +1,1 @@
+Gives back two of Pharo's own DebugSession methods that a Polyphemus of September 2026 replaced, and that updating past it deleted: without them no debugger opens (#143). Runs when it is first loaded, an Iceberg pull included, and after a Metacello load.
