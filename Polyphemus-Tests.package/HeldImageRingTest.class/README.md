@@ -1,0 +1,1 @@
+The observer's rings to a held image: the watcher's, which hands it the agent, and the agent's own bell, so that a ring that comes late never holds the image again, breaks the next hold, or writes where no semaphore is (#137, docs/model/protocol.md).

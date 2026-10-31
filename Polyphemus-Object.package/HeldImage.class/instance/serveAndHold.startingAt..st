@@ -5,23 +5,17 @@ serveAndHold: aHash startingAt: aMethodSourceOrNil
 	process in the image's own debugger, read on from the last hold's reading when there was one.
 	A failure there lets the image go."
 
-	| channel ring previous |
+	| channel previous |
 	channel := DirectoryChannel on: directory / 'channel'.
 	channel directory ensureDeleteAll.
 	(directory / 'do.st')
 		ensureDelete;
 		writeStreamDo: [ :stream |
-			stream nextPutAll: (PolyphemusAgent
-					 sourceServing: channel directory
-					 bell: (PolyphemusAgent semaphoreAt: self semaphoreIndex)) ].
-	ring := [
-	        reader whileStopped: [
-		        (SpurWritableProcess on: reader) countOneSignalOnExternalSemaphore:
-			        self semaphoreIndex ] ].
+			stream nextPutAll: (PolyphemusAgent sourceServingOnItsOwnBell: channel directory) ].
 	channel
-		ringing: ring;
+		ringing: [ self ring ];
 		whyGone: [ reader hasEnded ifTrue: [ 'its process ' , reader pid printString , ' ended' ] ].
-	ring value.
+	self ring.
 	previous := process.
 	[
 	process := HeldProcess

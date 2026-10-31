@@ -2,15 +2,17 @@ source
 sourceServing: aDirectory bell: aSource limit: aDurationOrNil
 
 	"The agent: request.N in, answer.N out, go to end, or ends itself after aDurationOrNil without a
-	request. Between requests it allocates nothing: it spins on the bell's third slot and the clock,
-	consuming each ring before looking for its file, so none is left behind (#49)."
+	request. Allocating nothing between requests, it spins on the bell's third slot, consuming each
+	ring before looking for its file (#49). Bell nil: its own, named in bell-index (#137)."
 
 	^ '| dir count going workspace bell limit last now |
 dir := ' , aDirectory asFileReference fullName printString , ' asFileReference.
 [ dir exists ] whileFalse: [ [ dir ensureCreateDirectory ] on: DirectoryExists do: [ :e | ] ].
 count := 0.
 workspace := Dictionary new.
-bell := ' , aSource , '.
+bell := ' , (aSource ifNil: [ 'Semaphore new.
+(dir / ''bell-index.tmp'') ensureDelete; writeStreamDo: [ :stream | stream print: (Smalltalk registerExternalObject: bell) ].
+(dir / ''bell-index.tmp'') renameTo: ''bell-index''' ]) , '.
 limit := ' , (aDurationOrNil ifNil: [ 'nil' ] ifNotNil: [ :limit | limit asMilliSeconds printString ]) , '.
 going := (dir / ''go'') exists.
 going ifFalse: [ (dir / ''serving'') ensureCreateFile ].
@@ -44,4 +46,6 @@ last := Time millisecondClockValue.
 			expired writeStreamDo: [ :stream | stream nextPutAll: limit printString ].
 			expired renameTo: ''expired''.
 			(workspace at: #letGo ifAbsent: [ nil ]) ifNotNil: [ :letGo | letGo value ].
-			going := true ] ]'
+			going := true ] ]' , (aSource ifNil: [ '.
+(dir / ''bell-ended'') ensureCreateFile.
+Smalltalk unregisterExternalObject: bell' ] ifNotNil: [ '' ])
