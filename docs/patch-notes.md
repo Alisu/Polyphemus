@@ -16,6 +16,19 @@ its release on GitHub; what is on stage2 since the last tag comes first.
   an image left stopped when the observer dies (#96), two observers stopping each other (#117) and
   two observers writing into the same image at once, and checks the fixes before they are written:
   an agent's own bell, and a stop helper with a lock.
+- **An old space whose segments lie far apart (#133).** VM 9 on Linux (the Pharo 10 edition) maps
+  each segment old space adds about 127 TB above the heap. Every reading asked for the whole span
+  as one piece, gaps as zeros: the `OutOfMemory` of Pharo 10's held-image tests, and on macOS an
+  observer killed by the system. Readings now take the segments piece by piece. A full reading
+  and writing an image from such a dump still size the gap (#144).
+- **No message fades any more (#142).** A held image that is gone asks whether to close its
+  debugger or keep it open on its last reading (kept, its title starts with `[Image gone]`);
+  refusals, a save done in part, and a value the Oop tab cannot store are said until OK. Both
+  refusals and a gone image also ended in a second error on Pharo 13
+  (`spawnNewProcessIfThisIsUI:` is gone there), unseen until now.
+- **An observer that opened no debugger (#143).** Updating past 2a2d788 deleted two of Pharo's own
+  `DebugSession` methods, which an older Polyphemus had replaced: Pharo then opened no debugger at
+  all, on any error. The next pull, or any load, gives them back.
 
 ## v0.1.0 (2026-10-29, all editions)
 

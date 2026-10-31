@@ -8,10 +8,10 @@ do instead, and the issue that tracks it. When one is lifted, its entry goes.
 - **Linux x64 and macOS on Apple silicon**, Pharo 10 to 14. Intel Macs are not supported (#82).
 - **An observer reads the Pharo versions of its own edition only**: load Polyphemus in an image of
   the same Pharo as the one you look into; another is refused, saying so.
-- **Pharo 10 on its first VM (VM 9) is the weakest edition.** Its observer now and then stops on
-  an `OutOfMemory` during a hold, with RAM free: the one caught asked for a ByteArray of about
-  127 TB, an address taken as a length (#133). A Pharo 10 image runs on VM 10 too: run it there and
-  observe it with the Pharo 11 edition, which reads Pharo 10 on VM 10.
+- **An old space whose segments lie far apart** (VM 9, the Pharo 10 edition, puts each segment it
+  adds about 127 TB above the heap) is read piece by piece, but a full reading of it, and writing
+  an image from its core, still ask for the gap and stop on an `OutOfMemory` (#144). The debugger's
+  readings are not affected.
 - **Windows x64: Pharo 13 only**, a preview: images and minidumps are read, live work is partial,
   and `Polyphemus dumpProcess:to:` refuses, saying so: write a minidump with Windows' own tools (#32).
 - **Pharo 14 is pinned to a beta build** and its VM 12 beta; it is re-pinned when they are released
