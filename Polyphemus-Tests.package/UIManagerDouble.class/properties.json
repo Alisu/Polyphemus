@@ -6,7 +6,9 @@
 	"pools": [],
 	"classvars": [],
 	"instvars": [
-		"alerts"
+		"alerts",
+		"answer",
+		"questions"
 	],
 	"name": "UIManagerDouble",
 	"type": "normal"
