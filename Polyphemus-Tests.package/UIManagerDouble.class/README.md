@@ -1,1 +1,1 @@
-Stands in for UIManager default in tests: remembers each alert it was asked to show, a modal message that stays until OK, as title -> text.
+Stands in for UIManager default in tests: remembers each alert it was asked to show, a modal message that stays until OK, as title -> text, and each question it was asked to confirm, answering what it was made with.

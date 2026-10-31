@@ -6,6 +6,6 @@ testAKeptDebuggerSaysItsImageIsGone
 
 	| debugger |
 	debugger := DebuggerDouble titled: 'Counter>>tick:'.
-	[ self gone tellAbout: debugger ] valueSupplyingAnswer: false.
+	self gone tellAbout: debugger with: (UIManagerDouble answering: false).
 	self deny: debugger isClosed.
 	self assert: debugger title equals: '[Image gone] Counter>>tick:'
