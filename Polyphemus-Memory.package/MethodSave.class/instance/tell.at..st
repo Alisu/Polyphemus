@@ -6,12 +6,12 @@ tell: aMessage at: aPosition
 
 	told := aMessage.
 	notifier ifNil: [
-		UIManager default inform: aMessage.
+		self ui alert: aMessage title: 'Not saved'.
 		^ false ].
 	[
 	(notifier respondsTo: #notify:at:in:)
 		ifTrue: [ notifier notify: aMessage , ' ->' at: aPosition in: source ]
 		ifFalse: [ notifier notify: aMessage ] ]
 		on: Error
-		do: [ :error | UIManager default inform: aMessage ].
+		do: [ :error | self ui alert: aMessage title: 'Not saved' ].
 	^ false
