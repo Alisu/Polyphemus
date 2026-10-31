@@ -13,10 +13,7 @@ inspectionItems: aBuilder
 	memory editor ifNotNil: [
 		values
 			beEditable;
-			onAcceptEdition: [ :node :text |
-				[ self store: text inItemKeyed: node key ]
-					on: Error
-					do: [ :error | UIManager default inform: error messageText ] ] ].
+			onAcceptEdition: [ :node :text | self storeTyped: text inItemKeyed: node key telling: UIManager default ] ].
 	^ aBuilder newTable
 		addColumn: (SpStringTableColumn
 			title: 'Key'
