@@ -17,7 +17,7 @@ check() {   # $1 module, $2 property kind and name, $3 a label, the rest: NAME=V
     echo "$prop"
     grep -q "^StateBound" "$module.tla" && echo "CONSTRAINT StateBound"
   } > results/check.cfg
-  local out="results/$module-${prop#* }-$(echo "$@" | tr ' =' '_-').txt"
+  local out="results/$module-${prop#* }-$(echo "$label" | tr ' =' '_-').txt"
   java -XX:+UseParallelGC -cp "$jar" tlc2.TLC -config results/check.cfg -workers 4 -deadlock \
     -metadir "results/states-$$" -nowarning "$module.tla" > "$out" 2>&1
   rm -rf "results/states-$$"
@@ -26,22 +26,32 @@ check() {   # $1 module, $2 property kind and name, $3 a label, the rest: NAME=V
     verdict="FAILS ($(grep -c '^State ' "$out") steps)"
   elif grep -q "^Error" "$out"; then
     verdict="ERROR: $(grep -m1 '^Error' "$out")"
+  elif ! grep -q "No error has been found" "$out"; then
+    verdict="ERROR: TLC did not finish (see $out)"
   else
     verdict="holds ($(grep -o '[0-9,]* distinct states' "$out" | tail -1))"
   fi
-  printf '%-12s %-42s %-22s %s\n' "$module" "$label" "${prop#* }" "$verdict"
+  printf '%-12s %-68s %-22s %s\n' "$module" "$label" "${prop#* }" "$verdict"
 }
 
-# Hold: a plain hold, then a runUntil:, either side dying at any step.
+# Hold: a plain hold, then a runUntil:, either side dying at any step. As the code behaves since
+# version 4: the observer's signal is queued for the VM, and runUntil:'s deadline may pass at any
+# moment. The designs add one fix each: the agent's own bell, bell-ended, the fallback looking for
+# the trap, the watcher waiting for its do.st, the hold token, the trap claimed in one step; each
+# with and without the stop helper. Since version 6 the trap fires in two steps in every design.
 for stop in FALSE TRUE; do
-  for design in "FALSE FALSE FALSE" "TRUE FALSE FALSE" "TRUE TRUE FALSE" "TRUE TRUE TRUE"; do
-    set -- $design; bell=$1 guard=$2 sees=$3
+  for design in "FALSE FALSE FALSE FALSE FALSE FALSE" "TRUE FALSE FALSE FALSE FALSE FALSE" \
+                "TRUE TRUE FALSE FALSE FALSE FALSE" "TRUE TRUE TRUE FALSE FALSE FALSE" \
+                "TRUE TRUE TRUE TRUE FALSE FALSE" "TRUE TRUE TRUE TRUE TRUE FALSE" \
+                "TRUE TRUE TRUE TRUE TRUE TRUE"; do
+    set -- $design; bell=$1 guard=$2 sees=$3 waits=$4 token=$5 claims=$6
     for prop in "INVARIANT NoStrayHold" "INVARIANT NoTrapLeft" "INVARIANT NoBadWrite" \
-                "INVARIANT NoLostHold" "PROPERTY AskEnds" "PROPERTY FreeIfObserverDies" \
+                "INVARIANT NoLostHold" "INVARIANT NoUnservedHold" "INVARIANT NoBadRemove" "PROPERTY AskEnds" "PROPERTY FreeIfObserverDies" \
                 "PROPERTY FreeWhenThrough"; do
-      check Hold "$prop" "stop=$stop bell=$bell guard=$guard trap=$sees" MaxHolds=2 MaxAsks=1 \
-        WithTrap=TRUE HoldLimit=TRUE FastObserver=TRUE SeparateBell=$bell \
-        BellEndedGuard=$guard FallbackSeesTrap=$sees StopEndsWithObserver=$stop
+      check Hold "$prop" "stop=$stop bell=$bell guard=$guard trap=$sees waits=$waits token=$token claims=$claims" MaxHolds=2 \
+        MaxAsks=1 WithTrap=TRUE HoldLimit=TRUE FastObserver=TRUE SeparateBell=$bell \
+        BellEndedGuard=$guard FallbackSeesTrap=$sees WatcherWaitsForDoSt=$waits WatcherChecksToken=$token TrapClaims=$claims AsyncSignal=TRUE \
+        AnyDeadline=TRUE StopEndsWithObserver=$stop
     done
   done
 done

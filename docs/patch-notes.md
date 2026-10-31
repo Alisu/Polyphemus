@@ -14,8 +14,14 @@ its release on GitHub; what is on stage2 since the last tag comes first.
 - **A model of the hold protocol** (`docs/model/`, #137): the observer, the watcher, the agent and
   the stops, checked with TLA+. It finds the stray hold of `limitations.md`, a trap left installed,
   an image left stopped when the observer dies (#96), two observers stopping each other (#117) and
-  two observers writing into the same image at once, and checks the fixes before they are written:
-  an agent's own bell, and a stop helper with a lock.
+  two observers writing into the same image at once, and checks the fixes before they are written.
+- **Holds that end cleanly (#137).** The agent rings a bell of its own, and says when it let it go:
+  a ring after it ended no longer breaks the next hold, nor writes past nil. The watcher holds only
+  for a hold wanted (a `hold` file the observer leaves, or the trap's), and once its `do.st` is
+  there: a signal still on its way after the observer let go no longer holds the image for a
+  minute. `runUntil:`'s trap is claimed in one step: it fires once, its removal never takes it out
+  twice, and a trap that fired as the deadline passed is held there (`runUntil:` answers true).
+  What is left of the protocol's faults needs the stop helper (#96, #117).
 - **An old space whose segments lie far apart (#133).** VM 9 on Linux (the Pharo 10 edition) maps
   each segment old space adds about 127 TB above the heap. Every reading asked for the whole span
   as one piece, gaps as zeros: the `OutOfMemory` of Pharo 10's held-image tests, and on macOS an

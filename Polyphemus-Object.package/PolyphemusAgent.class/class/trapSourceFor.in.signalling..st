@@ -1,9 +1,9 @@
 source
 trapSourceFor: aMethodSource in: aDirectory signalling: anIndex
 
-	"For the held image to install itself: a MetaLink before that method which takes itself out,
-	says which process reached it, and signals our watcher's semaphore -- holding the image right there. Kept
-	in Smalltalk at: #PolyphemusTrap until it fires. Our agent, which installs it, passes (#48)."
+	"For the held image to install itself: a MetaLink before that method, kept in Smalltalk at:
+	#PolyphemusTrap. The first other process to claim that global takes it out, says who it is and
+	signals our watcher, holding the image there; any other passes, as our agent does (#48, #137)."
 
 	^ '| link dir agent |
 dir := ' , aDirectory asFileReference fullName printString , ' asFileReference.
@@ -11,9 +11,10 @@ agent := Processor activeProcess.
 link := MetaLink new.
 link
 	metaObject: [
-		Processor activeProcess == agent ifFalse: [
+		(Processor activeProcess ~~ agent and: [
+			 [ Smalltalk globals removeKey: #PolyphemusTrap ifAbsent: [ nil ] ] valueUnpreemptively
+				 notNil ]) ifTrue: [
 			link uninstall.
-			Smalltalk globals removeKey: #PolyphemusTrap ifAbsent: [ ].
 			(dir / ''trap.tmp'')
 				ensureDelete;
 				writeStreamDo: [ :stream | stream print: Processor activeProcess basicIdentityHash ].

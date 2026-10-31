@@ -98,6 +98,10 @@ Liveness (something good eventually happens):
     would write past nil.
 12. **No lost hold**: O never gives up waiting on an image that is alive and whose agent did not
     expire.
+13. **No unserved hold**: W holds the image only while O is in a hold, never by itself between
+    two of them.
+14. **The trap is taken out once**: O's removal never takes out a trap already taking itself
+    out (the second `uninstall` is an error).
 
 ## What the model leaves out
 
@@ -105,28 +109,39 @@ Liveness (something good eventually happens):
 - Timing beyond order and timeouts: a timeout is a step that may happen when its condition holds.
 - What a request does inside the image: an answer is one step.
 
-## Results (TLC 2.19, 2026-10-30)
+## Results (TLC 2.19, 2026-10-31)
 
-`Hold.tla` (version 3) checks properties 5 to 9, 11 and 12 on a small instance: one observer, one
+`Hold.tla` (version 6) checks properties 5 to 9 and 11 to 14 on a small instance: one observer, one
 image, a plain hold with one request, then a `runUntil:`; either side dying at any step; the
 agent's hour running out at any step. Timing kept realistic: a live observer acts within the
 watcher's 60 s unless paused (idle, or its user deciding), and its own deadlines pass only when the
-image can make no step. Version 3 (2026-10-30) follows the Mac trial: the observer's ring only
-counts (it never wakes a waiting watcher); version 2 had it wake one, and missed the lost holds.
+image can make no step, except `runUntil:`'s, which may pass at any moment, the trap still armed.
+Version 3 (2026-10-30) follows the Mac trial: the observer's ring only counts (it never wakes a
+waiting watcher); version 2 had it wake one, and missed the lost holds. Version 4 (2026-10-31)
+follows the box: the observer's signal (`signalExternalSemaphore:`) is queued, and the VM delivers
+it at a later step of the image; version 3 had it delivered at once, and missed a lost hold.
+Version 5 adds property 13, which version 4's property 5 let through: a hold signalled for by the
+observer, but after the observer was done with it. Version 6 follows the box again: the trap
+fires in two steps of the user process that reached the method (it takes itself out, then writes
+its file and signals), and a stop or the agent can come between them.
 `check_all.sh` runs every combination, and leaves each counterexample in `results/`; `trace.py`
 prints one step by step.
 
 The fixes, each a switch of the model: the stop helper (the stop ends with the observer), the
-agent's own bell, `bell-ended` before the bell is let go, and `runUntil:`'s fallback looking for
-the trap's file once the image is stopped.
+agent's own bell, `bell-ended` before the bell is let go, `runUntil:`'s fallback looking for the
+trap's file once the image is stopped, the watcher spinning until its `do.st` is there as well
+as a signal, a file saying a hold is wanted, and the trap claimed in one step.
 
-| Design | 5 stray hold | 6 trap left | 11 write past nil | 12 lost hold | 7 ask ends | 8 observer dies | 9 through |
-|---|---|---|---|---|---|---|---|
-| Today | fails (16) | fails (37) | holds | fails (26) | holds | fails (4) | holds |
-| Own bell | holds | holds | fails (15) | fails (41) | holds | fails (4) | holds |
-| Own bell, `bell-ended` | holds | holds | holds | fails (41) | holds | fails (4) | holds |
-| Own bell, `bell-ended`, fallback sees the trap | holds | holds | holds | holds | holds | fails (4) | holds |
-| All of the above and the stop helper | holds | holds | holds | holds | holds | holds | holds |
+| Design | 5 stray hold | 6 trap left | 11 write past nil | 12 lost hold | 13 unserved hold | 14 trap out twice | 7 ask ends | 8 observer dies | 9 through |
+|---|---|---|---|---|---|---|---|---|---|
+| Today | fails (17) | fails (39) | holds | fails (28) | fails (30) | fails (48) | holds | fails (4) | holds |
+| Own bell | holds | fails (55) | fails (16) | fails (45) | fails (49) | fails (50) | holds | fails (4) | holds |
+| Own bell, `bell-ended` | holds | fails (55) | holds | fails (45) | fails (49) | fails (50) | holds | fails (4) | holds |
+| and the fallback sees the trap | holds | fails (55) | holds | fails (48) | fails (49) | fails (50) | holds | fails (4) | holds |
+| and the watcher waits for its `do.st` | holds | fails (55) | holds | holds | fails (59) | fails (50) | holds | fails (4) | holds |
+| and the hold wanted is a file | holds | fails (55) | holds | holds | fails (59) | fails (50) | holds | fails (4) | holds |
+| and the trap claimed in one step | holds | holds | holds | holds | holds | holds | holds | fails (4) | holds |
+| All of the above and the stop helper | holds | holds | holds | holds | holds | holds | holds | holds | holds |
 
 (Steps of the shortest counterexample in brackets. The stop helper alone fixes 8 and nothing
 else; with it, every row is the same except 8.)
@@ -153,10 +168,36 @@ What the failures are:
   fallback hold signals a watcher the trap already woke, which takes it as its serve ring and
   leaves with no agent, while the observer waits for an `interrupted` it deleted. **Fix: the
   fallback stops the image first and looks for `trap`; if it is there, it takes the trap's hold.**
+- **12, lost hold, with that fix too** (version 4, and on the box, 2026-10-31): the fallback finds
+  no trap yet and signals; the VM has not delivered the signal when the trap fires and wakes the
+  watcher; delivered then, the signal is taken for the serve ring, and the watcher leaves with no
+  `do.st`. **Fix: the watcher spins until a signal and its `do.st`, never a signal alone.**
+- **13, unserved hold, with every fix above** (version 5): the same race, the other way round.
+  The fallback's signal is still queued when the trap fires; the trap's hold goes through, the
+  trap is taken out, the observer lets go; then the VM delivers the fallback's signal, and the
+  watcher holds the image for 60 s with nobody to serve it. No check on the observer's side can
+  take back a signal already queued. **Fix: a hold wanted is a file.** The observer writes `hold`
+  while the image is stopped, before it signals; the trap writes `trap`; letting go deletes both.
+  A watcher woken with neither there waits again without holding.
+- **6, 13 and 14, with every fix above** (version 6, and on the box, 2026-10-31): the trap fires
+  in two steps. Stopped between them, it has taken itself out but written no `trap`: the fallback
+  holds and asks the agent to take the trap out, and the second `uninstall` fails (14). Let go,
+  the user process finishes the trap: it writes `trap` after the observer deleted it, and
+  signals; the watcher holds for nobody (13). On the box the same process went through the trap
+  twice. **Fix: the trap claims itself in one step** (`Smalltalk globals removeKey:
+  #PolyphemusTrap`, unpreempted), and only the claimant takes the link out; the agent's removal
+  claims it the same way and answers which happened: *removed*, *firing* (claimed, its hold to
+  come: the observer lets go and takes it) or *fired* (the hold the observer has is the trap's).
+  With the claim, the file of the hold wanted is no longer needed by the model; it is kept
+  against signals the model does not foresee.
 - **8:** the observer dies while the image is stopped (SIGSTOP, task suspend): stopped for ever
   (#96). **Fix: a stop the system ends when the observer dies**: a stop helper (#137): it holds
   the SIGSTOP and lets the image go when the observer says so, dies, or cannot within a bound.
   Tried on macOS on 2026-10-30, all three cases work. Polyphemus stops with SIGSTOP on macOS too.
+
+Known and left out of 13: an agent that reached its hour while a `runUntil:` waited leaves the
+trap armed (the observer cannot ask it to take it out); a process reaching the method later is
+held 60 s with nobody to serve it.
 
 Not modelled yet: putting the watcher in (2, 4), one agent per folder (1); two observers (10) are
 in `HoldPair.tla`.
@@ -229,5 +270,5 @@ cd docs/model && ./check_all.sh
 ```
 
 It needs Java and `tools/tla2tools.jar` (TLA+ 1.7.4, from the TLA+ releases on GitHub,
-github.com/tlaplus/tlaplus), which is not kept in the repository. About six minutes for all 72 checks.
+github.com/tlaplus/tlaplus), which is not kept in the repository. About ten minutes for all 142 checks.
 To read a counterexample: `python3 trace.py results/<the check's file>.txt`.

@@ -12,6 +12,7 @@ testItInterruptsAnImageThatIsNotResponding
 	requests := (VMVariables on: reader) at: 'signalRequests'.
 	self deny: (LinuxProcessMemory unchecked: pid) isQuiet.
 
+	(self spikeDirectory / 'hold') ensureCreateFile.
 	reader whileStopped: [
 		(SpurWritableProcess on: reader) signalExternalSemaphore: self watcherSemaphoreIndex ].
 
