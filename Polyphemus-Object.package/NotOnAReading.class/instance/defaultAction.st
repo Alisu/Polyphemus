@@ -5,6 +5,6 @@ defaultAction
 	but without a debugger on the observer; elsewhere, an error as any other (#115)."
 
 	UIManager default uiProcess == Processor activeProcess ifFalse: [ ^ super defaultAction ].
-	UIManager default inform: self messageText.
-	UIManager default spawnNewProcessIfThisIsUI: Processor activeProcess.
+	self tell.
+	UIManager default spawnNewProcess.
 	Processor terminateActive
