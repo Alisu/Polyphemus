@@ -1,8 +1,10 @@
 helpers
 holdWithTheInterrupt: aReader
 
-	"Signal the watcher's semaphore from outside and wait until it says it is holding."
+	"Signal the watcher's semaphore from outside, a hold wanted, and wait until it says it is
+	holding."
 
+	(self spikeDirectory / 'hold') ensureCreateFile.
 	aReader whileStopped: [
 		(SpurWritableProcess on: aReader) signalExternalSemaphore: self watcherSemaphoreIndex ].
 	self

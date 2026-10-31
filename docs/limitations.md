@@ -76,9 +76,6 @@ core first (`Polyphemus dumpProcess:to:`), read and repair that, and act live on
   minutes without a request". Hold it again; set a longer limit, or none, with `Polyphemus
   holdLimit:` before holding. The limit counts from the last request, so an hour of stepping
   is not cut.
-- **A hold that ends at the very moment the observer asks something can hold the image once more**,
-  for up to a minute, before it runs on: the request's signal arrives after the agent has stopped
-  listening, and the watcher takes it for a new hold. Rare; nothing to do but wait.
 - **An observer does not hold or read itself**: its own pid is refused, saying so. **Two observers
   can still hold each other** (each run as root, or each the other's ancestor): both stop, and only
   `kill -CONT` frees them, if they are stopped rather than holding (see above). Hold from one observer at a time (#117).

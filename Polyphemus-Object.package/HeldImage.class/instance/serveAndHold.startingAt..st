@@ -8,10 +8,11 @@ serveAndHold: aHash startingAt: aMethodSourceOrNil
 	| channel previous |
 	channel := DirectoryChannel on: directory / 'channel'.
 	channel directory ensureDeleteAll.
-	(directory / 'do.st')
+	(directory / 'do.st.tmp')
 		ensureDelete;
 		writeStreamDo: [ :stream |
 			stream nextPutAll: (PolyphemusAgent sourceServingOnItsOwnBell: channel directory) ].
+	(directory / 'do.st.tmp') renameTo: 'do.st'.
 	channel
 		ringing: [ self ring ];
 		whyGone: [ reader hasEnded ifTrue: [ 'its process ' , reader pid printString , ' ended' ] ].

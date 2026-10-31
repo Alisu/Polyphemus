@@ -199,8 +199,10 @@ The first process to reach it takes the trap out, says who it is, and signals th
 semaphore -- our watcher wakes and holds the image right there. The debugger opens at the
 method's own context, below the trap's frames; a step from there runs the trap out and goes on
 in the method. Not reached in time, the image is held again where it got to and the trap
-removed. Known edge: two processes already inside the method when it fires would signal twice,
-and the watcher would read the second as our release.
+removed. The trap is claimed in one step, by removing `#PolyphemusTrap` from `Smalltalk`
+unpreempted: only the process that claims it takes it out and signals, and the removal claims it
+the same way (#137). A process that claimed it as the deadline passed has reached the method:
+`runUntil:` takes its hold and answers true.
 
 **A frame selected below the top: built.** The debugger steps the frame selected in its stack
 list, as Pharo's does: stepping over one below the top completes the frames above it. A context
