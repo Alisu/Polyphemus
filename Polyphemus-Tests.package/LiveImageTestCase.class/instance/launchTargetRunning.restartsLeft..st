@@ -1,8 +1,8 @@
 helpers
 launchTargetRunning: aScript restartsLeft: aCount
 
-	"The pinned image, launched observable and not as our descendant, running aScript, which
-	must leave a file named started in the spike directory. Answers the pid once it has."
+	"A copy of the pinned image (#145), launched observable and not as our descendant, running
+	aScript, which must leave a file named started in the spike directory. Answers the pid once it has."
 
 	| shim target pidFile bang |
 	shim := self repositoryDirectory / 'bin' / 'pharo-debuggable'.
@@ -11,6 +11,7 @@ launchTargetRunning: aScript restartsLeft: aCount
 	target exists ifFalse: [ ^ self skip: 'the pinned target image has not been downloaded' ].
 	self spikeDirectory ensureDeleteAll.
 	self spikeDirectory ensureCreateDirectory.
+	target := self privateCopyOfTheTarget.
 	(self spikeDirectory / 'quiet.st') writeStreamDo: [ :stream | stream nextPutAll: self quietTargetSource ].
 	(self spikeDirectory / 'target.st') writeStreamDo: [ :stream |
 		stream nextPutAll: aScript ].
