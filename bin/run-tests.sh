@@ -141,16 +141,19 @@ run_set() {
   local classes=("$@")
   [ ${#classes[@]} -eq 0 ] && { echo "== $label: nothing to run =="; return 0; }
   # With SERIAL_LANES=n, classes that launch images of their own run in n lanes beside the rest,
-  # one after another in each (#31). None by default.
-  local lanes="${SERIAL_LANES:-0}" lane=() pool=() c pool_jobs="$JOBS"
+  # one after another in each (#31). Unset: two lanes once more than four such classes run, as
+  # twelve at once overloaded the box (2026-11-01); none for fewer, which lanes only slowed.
+  local lanes="${SERIAL_LANES:-}" lane=() pool=() c pool_jobs="$JOBS" launching
   for c in "${classes[@]}"; do
     if grep -qx "$c" <<<"$LANE"; then lane+=("$c"); else pool+=("$c"); fi
   done
-  [ ${#lane[@]} -lt "$lanes" ] && lanes=${#lane[@]}
+  launching=${#lane[@]}
+  if [ -z "$lanes" ]; then lanes=0; [ "$launching" -gt 4 ] && lanes=2; fi
+  [ "$launching" -lt "$lanes" ] && lanes=$launching
   # No lanes: those classes run in the pool like any other (#45).
   if [ "$lanes" -eq 0 ]; then pool+=(${lane[@]+"${lane[@]}"}); lane=(); fi
   [ ${#pool[@]} -gt 0 ] && [ "$JOBS" -gt "$lanes" ] && pool_jobs=$((JOBS - lanes))
-  echo "== $label: ${#classes[@]} classes, $JOBS at a time; ${#lane[@]} launching images, in $lanes lane(s) =="
+  echo "== $label: ${#classes[@]} classes, $JOBS at a time; $launching launching images, in $lanes lane(s) =="
   local start; start=$(date +%s)
   # Each lane class, longest first, goes to the lane with the least recorded time so far.
   if [ ${#lane[@]} -gt 0 ]; then
@@ -261,9 +264,9 @@ elif ! grep -qs "^LIMIT ${SELECTED[0]} " "$LIMITS" &&
   COLLECTED=$(collect)   # a class never run here: asked once what it may take
 fi
 [ -n "$COLLECTED" ] && grep '^LIMIT ' <<<"$COLLECTED" > "$LIMITS"
-# SERIAL_LANES=n runs the image-launching classes in n lanes of their own; by default there are
-# none. Measured at -j 5 with the dump cache warm: no lanes 418 s, two 483 s, one 573 s, all
-# green -- the lanes cost more than the flakes they were meant to prevent (#31).
+# SERIAL_LANES=n runs the image-launching classes in n lanes of their own; by default two once
+# more than four run, else none. Measured at -j 5 with the dump cache warm: no lanes 418 s, two
+# 483 s, one 573 s, all green -- for the fast tier the lanes cost more than the flakes (#31).
 
 # Asked for classes this image does not hold (another host's, another edition's): said and
 # skipped, not run as broken. Asked of the image only for two classes or more.
