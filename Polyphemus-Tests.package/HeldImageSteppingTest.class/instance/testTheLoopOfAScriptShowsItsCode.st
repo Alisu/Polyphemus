@@ -1,8 +1,9 @@
 tests
 testTheLoopOfAScriptShowsItsCode
 
-	"A process a script forked loops in a block of the script's own code, a DoIt: its frame shows
-	that block's code, or at least its bytecodes, not the whole script's (#100)."
+	"A process a script forked loops in a block of the script's own code, a DoIt: with no sources
+	found its frame shows that block's code, or at least its bytecodes, not the whole script's
+	(#100). The sources put beside the target since #145 are taken away to read it so."
 
 	| pid memory frame code |
 	pid := self launchTargetRunning: '| dir |
@@ -14,6 +15,8 @@ Smalltalk saveAs: (dir / ''scripted'') fullName.
 (Delay forSeconds: ' , self targetLifetime printString , ') wait.
 Smalltalk exitSuccess'.
 	LibC system: 'kill -9 ' , pid printString.
+	(self spikeDirectory / (PharoImageAccessor sourcesNameForPharo: PharoImageAccessor targetPharo))
+		ensureDelete.
 	memory := Polyphemus readImageFile: (self spikeDirectory / 'scripted.image') fullName.
 	frame := (memory contextsOfProcess: (Polyphemus processNamed: 'scripted' in: memory)) detect: [ :each |
 		         each selector = #DoIt ].
