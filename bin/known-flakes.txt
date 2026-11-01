@@ -1,0 +1,9 @@
+# The flakes CI is known to show, each with its issue (#31 counts them), one per line:
+# test | the start of its message | issue. bin/ci-verdict.sh reads it: a listed test failing
+# with another message is new. Fix a flake, take its line out.
+HeldImageRingTest>>testATrapFiringAsItsDeadlinePassesIsHeldOnce | Error the image never took the interrupt | #137
+MacProcessMemoryTest>>testAVirtualMachineCaughtInMachineCodeShowsItsRunningProcess | TestFailure Assertion failed | #136
+WatcherInjectionTest>>testItWritesOnlyAtAMomentItsHeapReadsWhole | SpurCannotRead cannot read bytes: itWasNeverStoppedAtASafeMoment | #31
+HeldImageDebuggerCommandsTest>>testAHoldLeftPastItsLimitLetsTheImageAndTheProcessGo | PolyphemusChannelError the hold ended after 30.0 seconds | #31
+LiveDebuggingTest>>testItOpensOnWhatTheImageWasBusyWith | TestFailure Got 'false' instead of 'true' | #147
+LiveDebuggingTest>>testItOpensOnWhatTheImageWasBusyWith | Error the image no longer holds that process | #147
