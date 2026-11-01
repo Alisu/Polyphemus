@@ -1,4 +1,4 @@
 holding it still
 resumeItsThreads
 
-	LibC system: 'kill -CONT ' , pid printString
+	self resumeThroughTheHelperOr: [ LibC system: 'kill -CONT ' , pid printString ]

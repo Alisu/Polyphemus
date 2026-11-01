@@ -1,0 +1,14 @@
+{
+	"commentStamp" : "",
+	"super" : "PolyphemusTestCase",
+	"category" : "Polyphemus-Tests",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [
+		"directory",
+		"target"
+	],
+	"name" : "StopHelperTest",
+	"type" : "normal"
+}

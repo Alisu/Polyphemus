@@ -65,20 +65,25 @@ core first (`Polyphemus dumpProcess:to:`), read and repair that, and act live on
   with "the image did not answer within 1:00".
 - **An image that allocates without ever pausing is sometimes not held** (the hold reads it at a
   bad moment): try again, or hold it at a method with `runUntil:` (#98).
-- **If the observer itself crashes or is killed during a hold, the image stays frozen for up to
-  an hour** (#96). In the moments it is stopped to be read or written (`SIGSTOP`), `kill -CONT
-  <pid>` lets it go. The rest of the hold, the image runs but our agent spins in it waiting for a
-  request: `kill -CONT` does nothing, and the agent lets the image go by itself once the hold
-  limit has passed without a request (an hour; `Polyphemus holdLimit:`). With no limit
-  (`Polyphemus holdLimit: nil`), the image has to be killed. An error inside Polyphemus during a
-  hold does not do this: the image is let go before the error is shown.
+- **If the observer itself crashes or is killed during a hold, the image can stay frozen for up
+  to an hour** (#96). The moments it is stopped to be read or written end with the observer: the
+  stop helper (`bin/polyphemus-stop`) lets it go. The rest of the hold, the image runs but our
+  agent spins in it waiting for a request, and lets the image go by itself once the hold limit has
+  passed without a request (an hour; `Polyphemus holdLimit:`). With no limit (`Polyphemus
+  holdLimit: nil`), the image has to be killed. An error inside Polyphemus during a hold does not
+  do this: the image is let go before the error is shown.
+- **Without `cc`, the stop helper cannot be built** (it is, on first use, beside its source): stops
+  are then a plain `SIGSTOP`, which an observer killed leaves in place (`kill -CONT <pid>` lets the
+  image go), and two observers are not kept apart.
 - **A hold left an hour without a request ends**: the debugger then says "the hold ended after 60
   minutes without a request". Hold it again; set a longer limit, or none, with `Polyphemus
   holdLimit:` before holding. The limit counts from the last request, so an hour of stepping
   is not cut.
 - **An observer does not hold or read itself**: its own pid is refused, saying so. **Two observers
-  can still hold each other** (each run as root, or each the other's ancestor): both stop, and only
-  `kill -CONT` frees them, if they are stopped rather than holding (see above). Hold from one observer at a time (#117).
+  can still hold each other** (each run as root, or each the other's ancestor): each one's agent
+  spins in the other until the hold limit (see above). Two that only stop each other freeze until
+  the stop helper's bound lets one go (five minutes; `stopBound:` on the reader), and the reading
+  caught in it is refused (`itRanWhileRead`). Hold from one observer at a time (#117).
 - **The watcher is written in eden**: an image busy allocating at the exact moment it is put in
   could overwrite it. Not seen; an idle image or one waiting on its window is not exposed (#99).
 - **Putting the watcher in again keeps the one there**, and is refused while the image is held:

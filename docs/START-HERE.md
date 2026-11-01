@@ -76,6 +76,10 @@ machine (Yama's `ptrace_scope` stays as it is, normally 1). A VM already running
 it by anyone, is refused to you by Yama; run the observer as root (`sudo`) to read it, hold it and
 debug it.
 
+**On both**, Polyphemus builds `bin/polyphemus-stop` itself, with `cc`, the first time it stops a
+process: a helper that lets the process go if the observer dies while it is stopped (#137). Without
+`cc` it stops processes as before, without that guarantee.
+
 ## 3. From code
 
 The examples were run exactly as written on Pharo 13, Linux x64; the numbers in comments are what

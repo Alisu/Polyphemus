@@ -5,11 +5,13 @@ whileStoppedWhenQuiet: aBlock
 	through a collection or an allocation reads as damage that is not there. Retried for about
 	five seconds, then refused."
 
-	| tries |
+	| tries answer |
 	tries := 0.
 	[ self stop ifFalse: [ ^ self wouldNotStop ]. self isQuiet ] whileFalse: [
 		self resume.
 		(tries := tries + 1) > 100 ifTrue: [
 			^ (SpurCannotRead new level: #bytes reason: #itWasNeverQuietWhenStopped) signal ].
 		(Delay forMilliseconds: 50) wait ].
-	^ aBlock valueThenLetGo: [ self resume ]
+	answer := aBlock valueThenLetGo: [ self resume ].
+	self lastStopLasted ifFalse: [ ^ self ranWhileRead ].
+	^ answer
