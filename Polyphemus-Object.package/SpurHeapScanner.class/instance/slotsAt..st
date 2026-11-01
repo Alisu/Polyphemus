@@ -1,8 +1,8 @@
 reading headers
 slotsAt: anAddress
 
-	"How many slots the object here has, following the overflow word when the header says to.
-	nil when that cannot be answered."
+	"How many slots the object here has, following the overflow word when the header says to: its
+	low 56 bits, which a bridge across a far segment fills (#144). nil when that cannot be answered."
 
 	| header stated before |
 	header := self headerAt: anAddress.
@@ -13,5 +13,5 @@ slotsAt: anAddress
 	before := self headerAt: anAddress - 8.
 	before ifNil: [ ^ nil ].
 	^ (self slotCountIn: before) = 255
-		  ifTrue: [ before bitAnd: 16rFFFFFFFF ]
+		  ifTrue: [ before bitAnd: 16rFFFFFFFFFFFFFF ]
 		  ifFalse: [ nil ]
