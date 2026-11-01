@@ -14,7 +14,8 @@ start
 		pipe := nil.
 		^ false ].
 	deadline := DateAndTime now + bound + 10 seconds.
-	[ state exists or: [ DateAndTime now > deadline ] ] whileFalse: [ (Delay forMilliseconds: 2) wait ].
+	[ (#( '' 'waiting' ) includes: self said) not or: [ DateAndTime now > deadline ] ] whileFalse: [
+		(Delay forMilliseconds: 2) wait ].
 	self said = 'stopped' ifTrue: [ ^ true ].
 	self end.
 	^ false

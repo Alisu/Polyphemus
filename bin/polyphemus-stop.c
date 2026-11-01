@@ -2,18 +2,21 @@
  *
  *     polyphemus-stop <pid> <seconds> <state file>
  *
- * The observer starts it with popen(..., "w") and never writes: closing the pipe is its resume,
- * and the system closes it as well when the observer dies (#96). So this waits for the end of its
- * input, or for <seconds> to pass (#117), and then lets the process go.
+ * The observer starts it with popen(..., "w") and never writes. It lets the process go when the
+ * observer tells it to (SIGTERM), when the observer dies (#96: the pipe closes, or the observer is
+ * no longer its parent), or once <seconds> passed (#117). The signal and the parent are there for
+ * macOS, whose popen cannot keep the pipe from the observer's other children: one of them alive
+ * keeps the pipe open after the observer closed it or died.
  *
  * One stop at a time per process: a lock beside the state file, <pid>.lock, which the system
  * releases if this is killed. A mark, <pid>.mark, names the helper whose stop it is, so that the
  * next helper resumes a stop whose helper was killed. A process stopped with no mark was stopped
  * by someone else (a debugger, a hand): it is read as it is and left stopped.
  *
- * The state file says "stopped" once it is; then "resumed", or "resumed early" before the
- * process runs again at the bound, so that the observer throws away what it read. A process
- * that is gone or would not stop gets "not stopped". Written whole (a .tmp renamed).
+ * The state file says "waiting" at once, "stopped" once it is; then "resumed", or "resumed early"
+ * before the process runs again at the bound, so that the observer throws away what it read. A
+ * process that is gone or would not stop gets "not stopped". Its second line is this helper's
+ * pid, for the signal. Written whole (a .tmp renamed).
  *
  * The model: docs/model/StopHelper.tla.
  *
@@ -38,6 +41,14 @@
 #endif
 
 static char state_path[PATH_MAX];
+static pid_t observer;
+static volatile sig_atomic_t told;
+
+static void on_term(int signal_number)
+{
+	(void)signal_number;
+	told = 1;
+}
 
 static void say(const char *what)
 {
@@ -45,7 +56,7 @@ static void say(const char *what)
 	snprintf(tmp, sizeof tmp, "%s.tmp", state_path);
 	FILE *f = fopen(tmp, "w");
 	if (!f) return;
-	fprintf(f, "%s\n", what);
+	fprintf(f, "%s\n%d\n", what, (int)getpid());
 	fclose(f);
 	rename(tmp, state_path);
 }
@@ -83,11 +94,12 @@ static long now_ms(void)
 	return ts.tv_sec * 1000L + ts.tv_nsec / 1000000L;
 }
 
+/* Looked at every millisecond: a hold stops the process hundreds of times. */
 static int wait_until_stopped(pid_t pid)
 {
-	for (int i = 0; i < 100; i++) {
+	for (int i = 0; i < 2000; i++) {
 		if (is_stopped(pid)) return 1;
-		usleep(20000);
+		usleep(1000);
 	}
 	return is_stopped(pid);
 }
@@ -110,15 +122,17 @@ static pid_t read_mark(const char *path)
 	return (pid_t)helper;
 }
 
-/* The end of input, or the bound: whichever comes first. Answers whether it was the end. */
-static int wait_for_end_of_input(long deadline)
+/* The observer's end (told, gone, or its input closed), or the bound: whichever comes first.
+ * Answers whether it was the observer's end. */
+static int wait_for_the_observer(long deadline)
 {
 	char buffer[64];
 	for (;;) {
+		if (told || getppid() != observer) return 1;
 		long left = deadline - now_ms();
 		if (left <= 0) return 0;
 		struct pollfd p = { .fd = STDIN_FILENO, .events = POLLIN };
-		int ready = poll(&p, 1, (int)(left > 1000000 ? 1000000 : left));
+		int ready = poll(&p, 1, (int)(left > 100 ? 100 : left));
 		if (ready < 0 && errno == EINTR) continue;
 		if (ready < 0) return 1;
 		if (ready == 0) continue;
@@ -137,6 +151,11 @@ int main(int argc, char **argv)
 	long bound_ms = atol(argv[2]) * 1000L;
 	snprintf(state_path, sizeof state_path, "%s", argv[3]);
 	signal(SIGPIPE, SIG_IGN);
+	observer = getppid();
+	struct sigaction term = { .sa_handler = on_term };   /* no SA_RESTART: poll wakes up */
+	sigemptyset(&term.sa_mask);
+	sigaction(SIGTERM, &term, NULL);
+	say("waiting");
 
 	char dir_copy[PATH_MAX], lock_path[PATH_MAX], mark_path[PATH_MAX];
 	snprintf(dir_copy, sizeof dir_copy, "%s", state_path);
@@ -155,7 +174,10 @@ int main(int argc, char **argv)
 			say("not stopped");
 			return 1;
 		}
-		if (wait_for_end_of_input(now_ms() + 50)) return 1;
+		if (wait_for_the_observer(now_ms() + 50)) {
+			say("not stopped");
+			return 1;
+		}
 	}
 	if (pid <= 0 || !is_alive(pid)) {
 		say("not stopped");
@@ -180,7 +202,7 @@ int main(int argc, char **argv)
 	}
 	say("stopped");
 
-	int closed = wait_for_end_of_input(now_ms() + bound_ms);
+	int closed = wait_for_the_observer(now_ms() + bound_ms);
 	if (!closed) say("resumed early");   /* before it runs: what was read meanwhile is void */
 	if (!others) {
 		kill(pid, SIGCONT);
