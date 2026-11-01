@@ -1,10 +1,12 @@
 holding it still
 whileStopped: aBlock
 
-	"Read while it is held still, and let it go however that ends, before an error is shown.
-	Stopping and starting are cheap; see #whileStoppedWhenQuiet: for a consistent heap."
+	"Read while it is held still, and let it go however that ends, before an error is shown; refused
+	if it ran meanwhile (#137). Cheap; see #whileStoppedWhenQuiet: for a consistent heap."
 
-	| wasStopped |
-	wasStopped := self isStopped.
+	| wasStopped answer |
+	wasStopped := self isStoppedHere.
 	wasStopped ifFalse: [ self stop ifFalse: [ ^ self wouldNotStop ] ].
-	^ aBlock valueThenLetGo: [ wasStopped ifFalse: [ self resume ] ]
+	answer := aBlock valueThenLetGo: [ wasStopped ifFalse: [ self resume ] ].
+	(wasStopped or: [ self lastStopLasted ]) ifFalse: [ ^ self ranWhileRead ].
+	^ answer

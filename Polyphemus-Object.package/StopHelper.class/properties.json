@@ -1,0 +1,20 @@
+{
+	"commentStamp": "",
+	"super": "Object",
+	"category": "Polyphemus-Object-process",
+	"classinstvars": [
+		"helper",
+		"session"
+	],
+	"pools": [],
+	"classvars": [],
+	"instvars": [
+		"pid",
+		"directory",
+		"bound",
+		"pipe",
+		"state"
+	],
+	"name": "StopHelper",
+	"type": "normal"
+}

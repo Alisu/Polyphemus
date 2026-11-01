@@ -21,7 +21,13 @@ its release on GitHub; what is on stage2 since the last tag comes first.
   there: a signal still on its way after the observer let go no longer holds the image for a
   minute. `runUntil:`'s trap is claimed in one step: it fires once, its removal never takes it out
   twice, and a trap that fired as the deadline passed is held there (`runUntil:` answers true).
-  What is left of the protocol's faults needs the stop helper (#96, #117).
+- **Stops that end with the observer (#137, #96, #117).** On Linux and macOS a process is stopped
+  through a helper of its own, `bin/polyphemus-stop`, built with `cc` on first use beside its
+  source and started through `popen`, never written to: it lets the process go when the observer
+  closes the pipe, when the observer dies, or at its bound (five minutes, `stopBound:`), and keeps
+  one stop at a time per process. A second observer waits for the first's stop instead of reading
+  under it, and a reading the process ran under is refused (`itRanWhileRead`). Without `cc`, stops
+  are `SIGSTOP` as before.
 - **An old space whose segments lie far apart (#133).** VM 9 on Linux (the Pharo 10 edition) maps
   each segment old space adds about 127 TB above the heap. Every reading asked for the whole span
   as one piece, gaps as zeros: the `OutOfMemory` of Pharo 10's held-image tests, and on macOS an

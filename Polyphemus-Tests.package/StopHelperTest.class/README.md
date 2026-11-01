@@ -1,0 +1,1 @@
+The stop helper: a process of its own that holds another one stopped for an observer, and lets it go when the observer closes its pipe, when the observer dies, or at its bound; one stop at a time per process (#137, #96, #117, docs/model/StopHelper.tla). The process stopped here is a sleep, not an image.

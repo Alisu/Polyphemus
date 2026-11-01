@@ -101,9 +101,10 @@ is already there). After Proceed, a save in that debugger does nothing: the imag
 ## 7. When something goes wrong
 
 - **The observee stays frozen** after the observer itself crashed or was killed during a hold
-  (#96). If it was caught stopped, `kill -CONT <its pid>` lets it go; if our agent was waiting in
-  it, the agent lets it go by itself an hour after the last request (`Polyphemus holdLimit:`), or
-  kill it. Save a copy before holding an image that matters.
+  (#96). If it was caught stopped, the stop helper lets it go at once (without `cc` to build the
+  helper, `kill -CONT <its pid>` does); if our agent was waiting in it, the agent lets it go by
+  itself an hour after the last request (`Polyphemus holdLimit:`), or kill it. Save a copy before
+  holding an image that matters.
 - **"the hold ended after 60 minutes without a request"**: the debugger was left that long, and
   the observee went on. Hold it again. For a longer hold, `Polyphemus holdLimit: 3 hours` before
   holding; `Polyphemus holdLimit: nil` for no limit, at the cost of the line above.

@@ -81,6 +81,10 @@ ensureClass := [ :props :packageName |
 						(cls instVarNames includes: ivar) ifFalse: [
 							cls addInstVarNamed: ivar.
 							('IVAR ', name, '>>', ivar) traceCr ] ].
+					(props at: 'classinstvars' ifAbsent: [ #() ]) do: [ :civ |
+						(cls class instVarNames includes: civ) ifFalse: [
+							cls class addInstVarNamed: civ.
+							('CIVAR ', name, ' class>>', civ) traceCr ] ].
 					"The category is the class's tag, which is how the browser groups it."
 					(props at: 'category' ifAbsent: [ nil ]) ifNotNil: [ :wanted |
 						((cls respondsTo: #category:) and: [ cls category ~= wanted asSymbol ]) ifTrue: [
