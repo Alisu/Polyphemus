@@ -143,7 +143,8 @@ lives in their own image.
 - **Evaluating code in a frame** (Do it, Print it, Inspect it) runs in the held image, an
   assignment to a frame's variable included (#126). Each costs a new copy of the image, for the
   debugger to show it as it is after. On a reading only it runs in the observer, on stand-ins for
-  the image's objects, and says so. There, reading a frame's variables works where this host
+  the image's objects, and says so; changing a frame's variable there is refused, saying so, as a
+  frame read is not changed from here (#115). Reading a frame's variables works where this host
   reproduces the frame's code; elsewhere (a script's own frames, #6) Pharo asks about an "Unknown
   variable".
 
