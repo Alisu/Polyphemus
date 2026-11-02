@@ -7,3 +7,4 @@ WatcherInjectionTest>>testItWritesOnlyAtAMomentItsHeapReadsWhole | SpurCannotRea
 HeldImageDebuggerCommandsTest>>testAHoldLeftPastItsLimitLetsTheImageAndTheProcessGo | PolyphemusChannelError the hold ended after 30.0 seconds | #31
 LiveDebuggingTest>>testItOpensOnWhatTheImageWasBusyWith | TestFailure Got 'false' instead of 'true' | #147
 LiveDebuggingTest>>testItOpensOnWhatTheImageWasBusyWith | Error the image no longer holds that process | #147
+MacProcessMemoryTest>>testAVirtualMachineCaughtInMachineCodeShowsItsRunningProcess | MessageNotUnderstood receiver of "-" is nil | #136
