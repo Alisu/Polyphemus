@@ -83,6 +83,10 @@ tools
 					    at: 'frame' put: (self schema: 'integer' saying: 'The frame whose method it replaces, 1 (the top) if not given.');
 					    yourself)
 			   required: #( 'handle' 'source' )))).
+		  (self replacing: (self acting: (self tool: 'stop'
+			   description: 'End the process a held Pharo VM is held on, its ensure blocks run, as Pharo''s debugger ends one of its own; then let the VM go, which runs on without it. The handle is forgotten.'
+			   properties: (Dictionary new at: 'handle' put: (self schema: 'string' saying: 'As answered by hold.'); yourself)
+			   required: #( 'handle' )))).
 		  (self acting: (self tool: 'let_go'
 			   description: 'Let a held Pharo VM run on, the process held with it, and forget its handle.'
 			   properties: (Dictionary new at: 'handle' put: (self schema: 'string' saying: 'As answered by hold.'); yourself)

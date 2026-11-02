@@ -155,8 +155,8 @@ POLYPHEMUS_OBSERVER=any ./bin/pharo-debuggable /path/to/pharo-vm/pharo --headles
 ```
 
 A stock image carries nothing of ours, so first put a watcher into it. Then open Pharo's debugger
-on what it is busy with: its buttons step that image, a method accepted there is fixed in it, and
-Proceed lets it go.
+on what it is busy with: its buttons step that image, a method accepted there is fixed in it,
+Proceed lets it go, and Stop ends the process it is on and lets the image run on without it.
 
 ```smalltalk
 Polyphemus putAWatcherInto: 175431 watchedIn: '/tmp/busy/watch' asFileReference.
@@ -178,8 +178,9 @@ session resume.                                   "it runs on"
 An MCP server answers an agent (Claude Code, or any MCP client) with the same readings, one tool
 each: `open_image`, `open_core`, `open_process`, `processes`, `stack`, `inspect`, `census`,
 `packages`, `where_stuck`. These read only; a running process is held still only while it is copied.
-`hold`, `run_until`, `step`, `save` and `let_go` do with a running image what section 3's debugger
-does: hold it, run it to a method, step it, save a fix into it and let it go (#128).
+`hold`, `run_until`, `step`, `save`, `stop` and `let_go` do with a running image what section 3's
+debugger does: hold it, run it to a method, step it, save a fix into it, end its process and let it
+go (#128, #125).
 How to start it and register it is in `docs/mcp.md`. On macOS, `open_process` and `where_stuck`
 need the server run as root, as the observer does.
 

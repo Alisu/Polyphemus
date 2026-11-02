@@ -98,6 +98,9 @@ edited restarts in the new code, as in Pharo.
 the same. To look again, hold it again (section 3; `putAWatcherInto:` again does nothing, the watcher
 is already there). After Proceed, a save in that debugger does nothing: the image is no longer held.
 
+**Stop**, beside Proceed, ends the process the debugger is on instead, its ensure blocks run, and
+lets the observee run on without it (#125): for a loop you do not want to go on.
+
 ## 7. When something goes wrong
 
 - **The observee stays frozen** after the observer itself crashed or was killed during a hold
