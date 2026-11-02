@@ -66,6 +66,13 @@ LOG
 check "no suite run is the infrastructure" "[ \$(verdict) -eq 2 ] && grep -q '^VERDICT infra' $dir/out"
 check "it says what stopped it" "grep -q 'Could not fetch' $dir/out"
 
+mkdir "$dir/bin"
+printf '%s\n' '#!/bin/sh' 'echo "HTTP 403: API rate limit exceeded" >&2' 'exit 1' > "$dir/bin/gh"
+chmod +x "$dir/bin/gh"
+PATH="$dir/bin:$PATH" "$VERDICT" 41390051210 > "$dir/out" 2>&1; rc=$?
+check "a run GitHub would not show is unread, not green" \
+  "[ $rc -eq 2 ] && grep -q '^VERDICT unread' $dir/out && ! grep -q green $dir/out"
+
 rm -rf "$dir"
 echo "== ci-verdict-test: $failures failing"
 exit $(( failures > 0 ))

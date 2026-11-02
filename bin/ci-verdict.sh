@@ -5,7 +5,7 @@
 #   bin/ci-verdict.sh <run id>         each job of that run, its log read through gh
 #   bin/ci-verdict.sh --log <file>     one job's log
 #
-# Exit 0 for green or known, 1 for new, 2 for infra. A listed flake is its test and the start of
+# Exit 0 for green or known, 1 for new, 2 for infra or a run gh could not read. A listed flake is its test and the start of
 # its message: the same test failing with another message is new. The list: bin/known-flakes.txt.
 set -uo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
@@ -43,6 +43,9 @@ judge() {  # one job's log on stdin: what failed, then VERDICT green|known|infra
 if [ "${1:-}" = "--log" ]; then judge < "$2"; exit $?; fi
 [ $# -eq 1 ] || { sed -n '2,9p' "$0" | sed 's/^# \{0,1\}//'; exit 2; }
 
+jobs=$(gh run view "$1" --json jobs -q '.jobs[] | "\(.databaseId) \(.conclusion // "pending") \(.name)"' 2>&1)
+if [ $? -ne 0 ] || [ -z "$jobs" ]; then  # a run not read is no verdict, least of all green
+  echo "${jobs:-no jobs}" | head -1; echo "VERDICT unread: read the run again"; exit 2; fi
 worst=0
 while read -r id conclusion name; do
   case "$conclusion" in
@@ -54,7 +57,7 @@ while read -r id conclusion name; do
       [ "$rc" -eq 2 ] && [ "$worst" -eq 0 ] && worst=2 ;;
     *) echo "== $name: not finished ($conclusion)"; [ "$worst" -eq 0 ] && worst=2 ;;
   esac
-done < <(gh run view "$1" --json jobs -q '.jobs[] | "\(.databaseId) \(.conclusion // "pending") \(.name)"')
+done <<< "$jobs"
 case "$worst" in 0) echo "VERDICT green or known: fast-forward stage2" ;; 1) echo "VERDICT new: look at it" ;;
   *) echo "VERDICT infra or unfinished: run the failed jobs again" ;; esac
 exit "$worst"
