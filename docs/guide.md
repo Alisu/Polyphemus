@@ -49,18 +49,18 @@ In a new Playground in the observer, with the observee's pid and a folder of you
 pid := 12345.
 dir := '/tmp/watch' asFileReference.
 Polyphemus putAWatcherInto: pid watchedIn: dir.
-session := Polyphemus holdProcess: pid watchedIn: dir.
-session runUntil: 'Counter >> #tick:'.
+session := Polyphemus holdProcess: pid watchedIn: dir until: 'Counter >> #tick:'.
 StDebugger openOn: session withFullView: true.
 ```
 
 - `putAWatcherInto:watchedIn:` puts a small watcher into the observee, once per run of it, at a
   moment its memory is safe to write (never during a garbage collection). Asked again, it keeps
   the one there; while that one holds the image, it refuses and says so.
-- `holdProcess:watchedIn:` holds the whole image still.
-- `runUntil:` lets it run until some process reaches that method, and holds it there. Leave it
-  out to debug whatever the image was busy with; `Polyphemus debugProcess: pid watchedIn: dir`
-  does that in one line.
+- `holdProcess:watchedIn:until:` holds the whole image still, lets it run until some process
+  reaches that method, and holds it there. It reads the image only there: about 1.6 s sooner than
+  `holdProcess:watchedIn:` then `session runUntil:` (#114), which still do the same in two.
+- `holdProcess:watchedIn:` alone debugs whatever the image was busy with;
+  `Polyphemus debugProcess: pid watchedIn: dir` does that in one line.
 
 While it is held, **the whole observee stands still**: its windows are not redrawn, and a CPU core
 stays busy until you let it go.
