@@ -1,8 +1,9 @@
 # Polyphemus as an MCP server
 
 Polyphemus answers an agent's questions about a Pharo image through the Model Context Protocol
-(#71). The server runs in the observer image only: the images it reads are never instrumented,
-and it reads them without changing them, except through the tools that hold a running VM and step it (#128).
+(#71). The server runs in the observer image only. It reads images without changing them, except
+through the tools that hold a running VM, step it and save a fix into it (#128): those put our
+watcher into a VM that has none.
 
 ## Starting it
 
@@ -38,6 +39,7 @@ claude mcp add polyphemus -- ssh worker-box '~/polyphemus/Polyphemus/bin/polyphe
 | `hold(pid, directory)` | Holds a running VM on what it is busy with, in its own debugger, our watcher put in first if none waits on `directory` (by default a folder of ours under the temporary folder). A handle, and the held process's frames, top first. It stays held until `let_go`, or an hour without requests |
 | `run_until(handle, method, seconds)` | Lets the held VM run until some process reaches `Class >> #selector`, and holds it there; if not in time (60 s by default), where it got to. Whether it was reached, and the frames |
 | `step(handle, how, frame)` | Steps the held process `into`, `over` (the default) or `through`, at the top frame or the one below (`frame` 1 or 2), as the debugger's buttons do. Its frames afterwards |
+| `save(handle, source, frame)` | Saves a method's new source into the held VM where the frame's method is (the top one by default), and restarts that frame in it, as the debugger does on accept; the image keeps the source in its changes. Not saved (a source that does not parse or compile), the answer is a failure saying why, and the VM stays held |
 | `let_go(handle)` | The held VM runs on, the process held with it, and the handle is forgotten |
 | `open_process(pid)` | A handle on a running VM's memory, copied while it was held still at a quiet moment, then let go, for `processes`, `stack` and `inspect`. On macOS through the VM's task port, which needs the server run as root (`docs/handover-macos.md`) |
 
@@ -51,9 +53,11 @@ that process (on Linux an ancestor, or `bin/pharo-debuggable`; on macOS root).
 only where this host compiles its method as the image did (#6): on another version's image their
 values come by number, with a note saying why, and the edition made for that image names them.
 
-Every tool but `hold`, `run_until`, `step` and `let_go` is annotated read-only; those are annotated as changing a VM, not destructively, so a client may ask before it runs them. A tool that fails says so in its result (`isError`, with the
-reason), for the agent to read; JSON-RPC errors are kept for the protocol's own (unknown method,
-unknown tool, unreadable JSON).
+Every tool but `hold`, `run_until`, `step`, `save` and `let_go` is annotated read-only; those are
+annotated as changing a VM, so a client may ask before it runs them, and `save` as destructive:
+letting go does not undo it. A tool that fails says so in its result (`isError`, with the reason),
+for the agent to read; JSON-RPC errors are kept for the protocol's own (unknown method, unknown
+tool, unreadable JSON).
 
 ## Standard output is the protocol's
 
