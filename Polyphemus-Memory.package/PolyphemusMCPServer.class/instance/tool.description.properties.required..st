@@ -1,7 +1,7 @@
 protocol
 tool: aName description: aDescription properties: someProperties required: someNames
 
-	"Every tool of this slice only reads: the annotations say so, for clients to show."
+	"A tool that only reads, as the annotations say for clients to show; acting: says otherwise."
 
 	^ Dictionary new
 		  at: 'name' put: aName;

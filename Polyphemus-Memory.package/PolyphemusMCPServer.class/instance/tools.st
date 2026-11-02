@@ -51,4 +51,15 @@ tools
 		  (self tool: 'open_process'
 			   description: 'Read a running Pharo VM''s memory, from /proc on Linux or its task port on macOS (the observer run as root): it is held still while it is copied, at a moment it is quiet, then let go, and nothing in it is changed. Answers a handle for processes, stack and inspect, on that moment: the image runs on after it. Refused, with the reason, if the process is not a Pharo VM, cannot be read (an ancestor, or bin/pharo-debuggable, may read it) or never goes quiet.'
 			   properties: (Dictionary new at: 'pid' put: (self schema: 'integer' saying: 'The process id of the Pharo VM.'); yourself)
-			   required: #( 'pid' )) }
+			   required: #( 'pid' )).
+		  (self acting: (self tool: 'hold'
+			   description: 'Hold a running Pharo VM on what it is busy with, in its own debugger, which then steps it (#128): our watcher is put into it first if none waits there. It stays held, the rest of its processes too, until let_go, or an hour without requests. Answers a handle and the held process''s frames, top first. Needs permission to read and write that process (on Linux an ancestor, or bin/pharo-debuggable; on macOS root).'
+			   properties: (Dictionary new
+					    at: 'pid' put: (self schema: 'integer' saying: 'The process id of the Pharo VM.');
+					    at: 'directory' put: (self schema: 'string' saying: 'The folder its watcher watches, if it was started with one; one of ours under the temporary folder if not given.');
+					    yourself)
+			   required: #( 'pid' ))).
+		  (self acting: (self tool: 'let_go'
+			   description: 'Let a held Pharo VM run on, the process held with it, and forget its handle.'
+			   properties: (Dictionary new at: 'handle' put: (self schema: 'string' saying: 'As answered by hold.'); yourself)
+			   required: #( 'handle' ))) }

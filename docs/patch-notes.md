@@ -11,6 +11,9 @@ its release on GitHub; what is on stage2 since the last tag comes first.
 
 ## Since v0.1.0 (stage2)
 
+- **MCP tools that hold a running VM (#128)**: `hold(pid)` holds it on what it is busy with, our
+  watcher put in if none is there, and answers its frames; `let_go(handle)` lets it run on. Both
+  are annotated as changing the VM, so a client may ask before running them.
 - **A model of the hold protocol** (`docs/model/`, #137): the observer, the watcher, the agent and
   the stops, checked with TLA+. It finds the stray hold of `limitations.md`, a trap left installed,
   an image left stopped when the observer dies (#96), two observers stopping each other (#117) and
