@@ -133,11 +133,12 @@ The debugger shown on a held image is Pharo's, and some of its commands assume t
 lives in their own image.
 
 - **Run to here** steps over until the selection, as in Pharo.
-- **Restart, Return entered value, Peel to first like this**, and **changing a frame's variable**
-  (an assignment evaluated in a frame) would rewrite the held image's stack: refused, saying so.
-  Nothing is written into the image.
-- **Evaluating code in a frame** (Do it, Print it) runs in the observer, on stand-ins for the
-  image's objects, not in the image (#126). Reading a frame's variables works where this host
+- **Restart, Return entered value, Peel to first like this** would rewrite the held image's
+  stack: refused, saying so. Nothing is written into the image.
+- **Evaluating code in a frame** (Do it, Print it, Inspect it) runs in the held image, an
+  assignment to a frame's variable included (#126). Each costs a new copy of the image, for the
+  debugger to show it as it is after. On a reading only it runs in the observer, on stand-ins for
+  the image's objects, and says so. There, reading a frame's variables works where this host
   reproduces the frame's code; elsewhere (a script's own frames, #6) Pharo asks about an "Unknown
   variable".
 

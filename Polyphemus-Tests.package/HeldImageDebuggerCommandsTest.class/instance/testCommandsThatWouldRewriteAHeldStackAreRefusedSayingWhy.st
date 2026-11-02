@@ -1,8 +1,8 @@
 tests
 testCommandsThatWouldRewriteAHeldStackAreRefusedSayingWhy
 
-	"Restart, Return entered value, Peel and assigning a frame's variable ended in errors in the
-	observer; each is refused, saying so, and the held image is left as it was."
+	"Restart, Return entered value and Peel ended in errors in the observer; each is refused, saying
+	so, and the held image is left as it was. An assignment in a frame runs in the image (#126)."
 
 	| pid session debugger refusals before after |
 	pid := self launchTargetDefining: 'Counter' thenRunning: 'Smalltalk at: #PolyphemusN put: 0.' , (self counterTicking: 'tick: n
@@ -20,10 +20,6 @@ testCommandsThatWouldRewriteAHeldStackAreRefusedSayingWhy
 	(PolyphemusTestCase actionModelOf: debugger) stepOver: session interruptedContext.
 	PolyphemusTestCase drawWindowOf: debugger.
 	refusals := OrderedCollection new.
-	refusals add: (debugger code
-			 evaluate: 'step := 5000'
-			 onCompileError: [ :error | error ]
-			 onError: [ :error | error ]).
 	refusals add: ([ session restart: session interruptedContext. nil ] on: NotOnAReading do: [ :error | error ]).
 	refusals add: ([ session returnValue: 5000 from: session interruptedContext. nil ] on: NotOnAReading do: [ :error | error ]).
 	refusals add: ([ session peelToFirstLike: session interruptedContext. nil ] on: NotOnAReading do: [ :error | error ]).

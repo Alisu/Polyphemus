@@ -77,12 +77,12 @@ The debugger is Pharo's own, on the observee's stack:
 - **Do it, Print it, Inspect it** run in the observee, in the frame selected, on its receiver and
   its temporaries. Print it shows what the observee printed. Inspect it opens on the object it
   answered, read from the observee (the tab *In the image*); reading it takes a new copy of the
-  image. An error is the observee's. In a debugger on a reading only (a core, an image file), no
+  image. An error is the observee's. An assignment to a frame's variable takes, in the observee.
+  After each, the debugger shows the frame as the observee now has it. In a debugger on a reading only (a core, an image file), no
   image runs the code: it runs in the observer, on what was read, and says so (`"in the observer"`
   before what it printed, `[Code runs in the observer]` in the debugger's title).
-- **Refused, saying so**: Break on stack, Restart, Return entered value, Peel to first like this,
-  and assigning a frame's variable. They would rewrite the observee's stack, which Polyphemus does
-  not do yet. To stop at another method, hold it there with `runUntil:`.
+- **Refused, saying so**: Break on stack, Restart, Return entered value, Peel to first like this.
+  They would rewrite the observee's stack, which Polyphemus does not do yet. To stop at another method, hold it there with `runUntil:`.
 - **Browse, senders, implementors** look in the observer, not in the observee.
 
 ## 5. Fix a method
