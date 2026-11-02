@@ -178,8 +178,8 @@ session resume.                                   "it runs on"
 An MCP server answers an agent (Claude Code, or any MCP client) with the same readings, one tool
 each: `open_image`, `open_core`, `open_process`, `processes`, `stack`, `inspect`, `census`,
 `packages`, `where_stuck`. These read only; a running process is held still only while it is copied.
-`hold` and `let_go` hold a running image on what it is busy with and let it go. Stepping it and
-saving a fix are still done in Pharo's debugger, as in section 3 (the rest of #128).
+`hold`, `run_until`, `step` and `let_go` hold a running image, run it to a method, step it and let
+it go. Saving a fix is still done in Pharo's debugger, as in section 3 (the rest of #128).
 How to start it and register it is in `docs/mcp.md`. On macOS, `open_process` and `where_stuck`
 need the server run as root, as the observer does.
 

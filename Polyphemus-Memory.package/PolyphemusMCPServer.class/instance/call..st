@@ -17,6 +17,8 @@ call: someParams
 		            ('where_stuck' -> #whereStuck:).
 		            ('open_process' -> #openProcess:).
 		            ('hold' -> #hold:).
+		            ('run_until' -> #runUntil:).
+		            ('step' -> #step:).
 		            ('let_go' -> #letGo:) } asDictionary
 		            at: name
 		            ifAbsent: [ ^ PolyphemusMCPError signal: 'Unknown tool: ' , name printString code: -32602 ].
