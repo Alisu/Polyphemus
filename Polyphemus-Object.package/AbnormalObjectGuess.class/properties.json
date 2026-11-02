@@ -1,0 +1,17 @@
+{
+	"commentStamp": "",
+	"super": "Object",
+	"category": "Polyphemus-Object-oop-heap",
+	"classinstvars": [],
+	"pools": [],
+	"classvars": [],
+	"instvars": [
+		"className",
+		"classIndex",
+		"numSlots",
+		"format",
+		"evidence"
+	],
+	"name": "AbnormalObjectGuess",
+	"type": "normal"
+}
