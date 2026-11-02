@@ -1,0 +1,11 @@
+{
+	"commentStamp" : "",
+	"super" : "StDebuggerCommand",
+	"category" : "Polyphemus-Memory",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [ ],
+	"name" : "PolyphemusStopCommand",
+	"type" : "normal"
+}
