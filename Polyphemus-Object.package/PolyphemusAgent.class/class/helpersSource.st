@@ -8,10 +8,12 @@ helpersSource
 	((Processor instVarNamed: #quiescentProcessLists) includes: ((self at: #process) instVarNamed: #myList))
 		ifTrue: [ (self at: #process) suspend. self at: #suspended put: true ] ].
 self at: #letGo put: [
+	Smalltalk unregisterExternalObject: (self at: #process).
 	(self at: #suspended ifAbsent: [ false ]) ifTrue: [
 		self removeKey: #suspended.
 		(self at: #process) resume ] ].
 self at: #stop put: [
+	Smalltalk unregisterExternalObject: (self at: #process).
 	self removeKey: #suspended ifAbsent: [ nil ].
 	(self at: #session) terminate ].
 self at: #frameBelow put: [ :depth |
@@ -66,6 +68,7 @@ self at: #hold put: [ :hash :method |
 	found := Process allInstances select: [ :each | each basicIdentityHash = hash ].
 	found size = 1 ifFalse: [ self error: found size printString , '' processes have that hash'' ].
 	self at: #process put: found first.
+	self at: #processSlot put: (Smalltalk registerExternalObject: found first).
 	(self at: #keepStill) value.
 	start := found first suspendedContext.
 	method ifNotNil: [
