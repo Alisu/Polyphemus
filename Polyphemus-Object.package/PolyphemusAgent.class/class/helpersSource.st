@@ -44,20 +44,14 @@ self at: #restart put: [ :className :selector :depth |
 		rewindContextToMethod: ((self at: #methodNamed) value: className value: selector)
 		fromContext: ((self at: #frameBelow) value: depth) home.
 	(self at: #keepStill) value ].
-self at: #saveSource put: [ :className :selector :source :preamble :collect |
-	| method |
+self at: #compile put: [ :className :selector :source |
+	| method protocol |
 	method := (self at: #methodNamed) value: className value: selector.
-	(method respondsTo: #putSource:withPreamble:)
-		ifTrue: [
-			method putSource: source withPreamble: [ :stream | stream cr; nextPut: $!; nextPutAll: preamble; cr ] ]
-		ifFalse: [
-			method
-				putSource: source
-				withFooter: ''''
-				protocol: ([ method protocol name asString ] on: Error do: [ :e | ''polyphemus'' ])
-				timestamp: DateAndTime now asString
-				priorSourcePointer: 0 ].
-	collect ifTrue: [ Smalltalk garbageCollect ] ].
+	protocol := [ method protocol isString ifTrue: [ method protocol ] ifFalse: [ method protocol name ] ]
+		on: Error do: [ :e | nil ].
+	protocol
+		ifNil: [ method methodClass compile: source ]
+		ifNotNil: [ method methodClass compile: source classified: protocol ] ].
 self at: #untrap put: [ :start :method |
 	(start method ~~ method and: [ start method selector == method selector ]) ifTrue: [
 		| caller |

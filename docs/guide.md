@@ -87,15 +87,16 @@ The debugger is Pharo's own, on the observee's stack:
 
 ## 5. Fix a method
 
-Change the method in the code pane and save it (Cmd+S). It is compiled in the observer against
-the observee's class, written into the observee, and its source is kept there. The frame you
-edited restarts in the new code, as in Pharo.
+Change the method in the code pane and save it (Cmd+S). The observee compiles it itself, with its
+own compiler, and keeps its source, as any save there does (#112). The frame you edited restarts
+in the new code, as in Pharo.
 
-- Code that does not compile is shown in the pane, at the error, as Pharo shows it.
-- A change to a method's pragmas is refused.
-- **A save can crash the observee**, later, most often after stepping (#119); the cause is not
-  known yet. Save a copy of the observee (or take a core, section 7) before changing a method in
-  an image that matters.
+- Code that does not compile is shown in the pane, at the error, as Pharo shows it: the observer
+  compiles it first, only to say where.
+- Its pragmas may change.
+- **A save crashed the observee**, later, most often after stepping, until 2026-10-26 (#119). Its
+  reproducer has passed since, but the cause was never found. Save a copy of the observee (or
+  take a core, section 7) before changing a method in an image that matters.
 
 ## 6. Let it go
 

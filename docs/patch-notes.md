@@ -11,6 +11,12 @@ its release on GitHub; what is on stage2 since the last tag comes first.
 
 ## Since v0.1.0 (stage2)
 
+- **A held image compiles its own saves (#112)**: a method saved from the debugger of a held image
+  is compiled and installed by the image, with its own compiler, symbols and changes file, its
+  protocol kept, and no longer written into its heap from outside. A change to the pragmas is
+  taken. The observer still compiles it first, only to say where it does not compile. The
+  reproducer of #119 passed 10 runs in 10 on Pharo 12 this way, and also the old way: the crash
+  no longer shows, its cause still unknown.
 - **Do it, Print it, Inspect it in the observee (#126)**: in the debugger of a held image, code
   runs in the frame selected, through the agent, and Inspect it opens on the object answered, read
   from the image. On a reading only it runs in the observer, which the print string and the

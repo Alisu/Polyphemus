@@ -118,12 +118,16 @@ in its run queue, it ran behind the debugger, or the VM dropped it as a zombie).
 - **A save into a held image can crash it**, later, in a process the save did not touch (#119).
   Seen on every VM, most often after stepping: a counter stepped and saved round after round
   crashed in 3 to 6 runs in 10. The cause is not known yet; an image left alone never crashed,
-  and its heap reads whole right after each save. Save a copy of the image (or take a core)
-  before changing a method in an image that matters.
+  and its heap reads whole right after each save. On 2026-11-02 the same reproducer passed 10
+  runs in 10 on Pharo 12, both written from outside and compiled by the image (#112): gone with
+  some other fix, perhaps, not known. Save a copy of the image (or take a core) before changing a
+  method in an image that matters.
 - **Kept as source only in a held image**: a method saved from the debugger of a held image keeps
   its source in that image's changes file. A method fixed in an image *file* (post mortem) is
   written without its source.
-- **A change to a method's pragmas is refused**: they are kept as the image had them.
+- **In an image file or a core, a change to a method's pragmas is refused**: written from outside,
+  they are kept as the image had them. A held image compiles its saves itself, pragmas and all
+  (#112).
 - **After Proceed, a save does nothing and says nothing**: the image was let go. Hold it again to
   change it (#107).
 
