@@ -11,6 +11,11 @@ its release on GitHub; what is on stage2 since the last tag comes first.
 
 ## Since v0.1.0 (stage2)
 
+- **What a wiped object was, and putting it back (#139)**: an abnormal entity whose first object
+  lost its header guesses what it was (`guesses`): it ends where sound objects begin that run to
+  the end of its gap, its slots hold objects or immediates, and each class making such an object
+  is a guess, with its evidence. `restoreAs:` writes the header of the guess chosen. Only pointer
+  objects are guessed so far; a header damaged in one field is still read as sound.
 - **Stop the debugged process (#125)**: the debugger of a held image has Stop beside Proceed. It
   ends the process held, its ensure blocks run, and lets the image run on without it; the MCP
   server has it as `stop(handle)`.
