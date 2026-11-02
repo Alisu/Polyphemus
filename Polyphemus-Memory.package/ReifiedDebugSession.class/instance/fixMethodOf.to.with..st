@@ -4,7 +4,10 @@ fixMethodOf: aContext to: aString with: aMethodSave
 	"Put that source where the context's method is, as aMethodSave says: in the image held, or
 	through the fix. Answers whether it was done."
 
-	(fix isNil and: [ held isNil ]) ifTrue: [ ^ aMethodSave refuse: 'this image is open for reading only' ].
+	(fix isNil and: [ held isNil ]) ifTrue: [
+		^ aMethodSave refuse: (wasLetGo == true
+				   ifTrue: [ 'this image was let go: hold it again to change it' ]
+				   ifFalse: [ 'this image is open for reading only' ]) ].
 	^ aMethodSave writeWith: [
 		  held
 			  ifNil: [ fix apply: aString to: aContext homeMethod ]

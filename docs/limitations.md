@@ -128,8 +128,9 @@ in its run queue, it ran behind the debugger, or the VM dropped it as a zombie).
 - **In an image file or a core, a change to a method's pragmas is refused**: written from outside,
   they are kept as the image had them. A held image compiles its saves itself, pragmas and all
   (#112).
-- **After Proceed, a save does nothing and says nothing**: the image was let go. Hold it again to
-  change it (#107).
+- **After Proceed the image is the debugger's no more**: Proceed closes it, as in Pharo. A save
+  through a session that let its image go is refused, saying so: hold it again to change it
+  (#107).
 
 ## The debugger's other commands
 
