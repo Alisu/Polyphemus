@@ -11,9 +11,10 @@ its release on GitHub; what is on stage2 since the last tag comes first.
 
 ## Since v0.1.0 (stage2)
 
-- **Faster to a held method (#114, #135)**: `holdProcess:watchedIn:until:` holds and runs to a
-  method reading the image once, there (hold then `runUntil:` 5.6 s, now 3.8 to 4.5 s, Pharo 13
-  on Linux). On Linux a copy of a held VM reads straight into its buffer (half the time). The VM's
+- **Faster to a held method (#114, #129, #135)**: `holdProcess:watchedIn:until:` holds and runs to
+  a method reading the image once, there. A reading no longer walks every object to find the heap
+  or the held process. Pharo 13 on Linux, a counter: hold then `runUntil:` 5.6 s, now about 2 s.
+  The same with 8 million strings more: the watcher put in 30 s now 3 s, the hold 72 s now 2.5 s. On Linux a copy of a held VM reads straight into its buffer (half the time). The VM's
   library is parsed once per file, and the files a process maps listed once per stop: the Mac's
   costs, to be measured there.
 - **A debugger on a running VM read opens (#149)**: read without holding it, a waiting process
