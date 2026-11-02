@@ -1,5 +1,5 @@
 reading the map
-mappedFiles
+listMappedFiles
 
 	"Each region a file is mapped into, with the file and where in it (proc_regionfilename)."
 

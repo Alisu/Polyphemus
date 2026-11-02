@@ -10,7 +10,8 @@
 		"segments",
 		"stopHelper",
 		"stopBound",
-		"stopLasted"
+		"stopLasted",
+	 "mappedFiles"
 	],
 	"name": "ProcessMemory",
 	"type": "normal"

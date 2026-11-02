@@ -1,5 +1,5 @@
 accessing
-mappedFiles
+listMappedFiles
 
 	"The files mapped into the process, from its map: the lines that name a path."
 

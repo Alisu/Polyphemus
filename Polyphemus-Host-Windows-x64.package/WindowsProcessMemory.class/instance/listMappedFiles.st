@@ -1,5 +1,5 @@
 reading the map
-mappedFiles
+listMappedFiles
 
 	"Each module the process loaded, its path and where its image lies, as a minidump's
 	ModuleList names them (K32EnumProcessModulesEx, every kind; MODULEINFO: base, then size)."
