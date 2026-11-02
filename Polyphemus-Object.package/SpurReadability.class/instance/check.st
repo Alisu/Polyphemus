@@ -8,7 +8,5 @@ check
 	found := Dictionary new.
 	self levels do: [ :level |
 		(self stopped: found) ifFalse: [
-			| why |
-			why := self whyCannotRead: level.
-			why ifNotNil: [ found at: level put: why ] ] ].
+			(self reasonFor: level) ifNotNil: [ :why | found at: level put: why ] ] ].
 	^ found
