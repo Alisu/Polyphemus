@@ -9,4 +9,5 @@ setChannel: aChannel reader: aProcessMemory identityHash: anInteger startingAt: 
 	hash := anInteger.
 	heldReading := HeldReading on: aProcessMemory identityHash: anInteger.
 	channel ask: PolyphemusAgent helpersSource.
-	channel ask: '(self at: #hold) value: ' , hash printString , ' value: (' , (aMethodSourceOrNil ifNil: [ 'nil' ]) , '). nil'
+	channel ask: '(self at: #hold) value: ' , hash printString , ' value: (' , (aMethodSourceOrNil ifNil: [ 'nil' ]) , '). nil'.
+	heldReading lookFirstInExternalSlot: (channel ask: '(self at: #processSlot)') asNumber
