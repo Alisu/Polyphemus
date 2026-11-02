@@ -4,6 +4,13 @@ Reading an image tells you what went wrong. Editing one is what a Pharo debugger
 the method and carry on. Here the method is in *another* image -- a file, a dump, or a live
 process -- and the compiler that fixes it is this one, never a simulator's.
 
+**A held image compiles its own saves (#112).** Since 2026-11-02 a save into a held image is not
+written from outside: the agent asks the image to compile the source into the method's class
+(`compile:classified:`, its protocol kept), with its own compiler, symbols and changes file, then
+the frame restarts. Nothing below is used for it but the first compilation here, which only says
+where a source does not compile. Writing from outside is for what has no agent to ask: image
+files, dumps, and an image too wedged to answer.
+
 ## The trap that comes first: a reading's addresses are not the file's
 
 `Polyphemus readImageFile:` loads the image through VMMaker, which puts it where it pleases. On
