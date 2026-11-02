@@ -1,4 +1,4 @@
 holding it still
 forgetWhatWasRead
 
-	segments := nil
+	segments := mappedFiles := nil
