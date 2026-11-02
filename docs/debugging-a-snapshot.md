@@ -160,6 +160,24 @@ whole image rather than stop at the first bad word.
 `BlankedContextImageTest` reads a copy of the pinned image with the running process' stack
 pointer blanked in the **file**, by something that is not the reader, and never repaired.
 
+### What a damaged object was
+
+A full reading (`FullyReifiedMemory`) stands an `OOPAbnormalEntity` in for a stretch it cannot
+decode: a header wiped to zero, or an object whose slot count runs over the objects after it.
+Its `guesses` say what the first object of the stretch may have been:
+
+```smalltalk
+abnormal guesses.                  "PCAssociation, 2 slots, format 1  PCArray, 2 slots, format 2 ..."
+abnormal guesses first evidence.   "where it ends, and what its slots hold"
+abnormal restoreAs: aGuess.        "writes that header; then memory update reads it again"
+```
+
+The object ends where sound objects begin that run to the end of the stretch, or with the
+stretch. When each of its slots holds an object or an immediate, every class making a pointer
+object of that many slots is a guess. A wiped header leaves only that shape, so the guesses are
+many and choosing one is left to whoever knows the image. `restoreAs:` writes into the memory
+read, so use it on a copy. What it does not do yet is listed in #148.
+
 ## Known wart
 
 The variables pane lists `address` and `memory` as instance variables of the receiver. Those
