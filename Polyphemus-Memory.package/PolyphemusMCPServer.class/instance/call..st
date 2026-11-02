@@ -20,6 +20,7 @@ call: someParams
 		            ('run_until' -> #runUntil:).
 		            ('step' -> #step:).
 		            ('save' -> #save:).
+		            ('stop' -> #stop:).
 		            ('let_go' -> #letGo:) } asDictionary
 		            at: name
 		            ifAbsent: [ ^ PolyphemusMCPError signal: 'Unknown tool: ' , name printString code: -32602 ].

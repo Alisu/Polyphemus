@@ -40,6 +40,7 @@ claude mcp add polyphemus -- ssh worker-box '~/polyphemus/Polyphemus/bin/polyphe
 | `run_until(handle, method, seconds)` | Lets the held VM run until some process reaches `Class >> #selector`, and holds it there; if not in time (60 s by default), where it got to. Whether it was reached, and the frames |
 | `step(handle, how, frame)` | Steps the held process `into`, `over` (the default) or `through`, at the top frame or the one below (`frame` 1 or 2), as the debugger's buttons do. Its frames afterwards |
 | `save(handle, source, frame)` | Saves a method's new source into the held VM where the frame's method is (the top one by default), and restarts that frame in it, as the debugger does on accept; the image keeps the source in its changes. Not saved (a source that does not parse or compile), the answer is a failure saying why, and the VM stays held |
+| `stop(handle)` | Ends the held process, its ensure blocks run, as the debugger's Stop does, and lets the VM run on without it; the handle is forgotten |
 | `let_go(handle)` | The held VM runs on, the process held with it, and the handle is forgotten |
 | `open_process(pid)` | A handle on a running VM's memory, copied while it was held still at a quiet moment, then let go, for `processes`, `stack` and `inspect`. On macOS through the VM's task port, which needs the server run as root (`docs/handover-macos.md`) |
 
@@ -53,9 +54,9 @@ that process (on Linux an ancestor, or `bin/pharo-debuggable`; on macOS root).
 only where this host compiles its method as the image did (#6): on another version's image their
 values come by number, with a note saying why, and the edition made for that image names them.
 
-Every tool but `hold`, `run_until`, `step`, `save` and `let_go` is annotated read-only; those are
-annotated as changing a VM, so a client may ask before it runs them, and `save` as destructive:
-letting go does not undo it. A tool that fails says so in its result (`isError`, with the reason),
+Every tool but `hold`, `run_until`, `step`, `save`, `stop` and `let_go` is annotated read-only;
+those are annotated as changing a VM, so a client may ask before it runs them, and `save` and
+`stop` as destructive: letting go does not undo them. A tool that fails says so in its result (`isError`, with the reason),
 for the agent to read; JSON-RPC errors are kept for the protocol's own (unknown method, unknown
 tool, unreadable JSON).
 

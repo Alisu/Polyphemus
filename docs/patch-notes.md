@@ -11,6 +11,9 @@ its release on GitHub; what is on stage2 since the last tag comes first.
 
 ## Since v0.1.0 (stage2)
 
+- **Stop the debugged process (#125)**: the debugger of a held image has Stop beside Proceed. It
+  ends the process held, its ensure blocks run, and lets the image run on without it; the MCP
+  server has it as `stop(handle)`.
 - **MCP tools that act on a running VM (#128)**: `hold(pid)` holds it on what it is busy with, our
   watcher put in if none is there, and answers its frames; `run_until(handle, method)` runs it to a
   method, `step(handle, how)` steps it, `save(handle, source)` saves a fix into it and restarts the
