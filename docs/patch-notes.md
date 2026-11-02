@@ -11,6 +11,9 @@ its release on GitHub; what is on stage2 since the last tag comes first.
 
 ## Since v0.1.0 (stage2)
 
+- **A save after the image was let go says so (#107)**: it was refused as if the image were open
+  for reading only, or, from a debugger left open, went nowhere. Proceed closes the debugger, as
+  in Pharo; a test keeps it so.
 - **A held image compiles its own saves (#112)**: a method saved from the debugger of a held image
   is compiled and installed by the image, with its own compiler, symbols and changes file, its
   protocol kept, and no longer written into its heap from outside. A change to the pragmas is

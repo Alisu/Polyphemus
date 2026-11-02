@@ -9,5 +9,6 @@ letTheImageGo
 	release := nil.
 	letGo ifNil: [ ^ false ].
 	held := image := nil.
+	wasLetGo := true.
 	letGo value.
 	^ true
