@@ -59,6 +59,22 @@ tools
 					    at: 'directory' put: (self schema: 'string' saying: 'The folder its watcher watches, if it was started with one; one of ours under the temporary folder if not given.');
 					    yourself)
 			   required: #( 'pid' ))).
+		  (self acting: (self tool: 'run_until'
+			   description: 'Let a held Pharo VM run until some process reaches a method, and hold it there, on that process. If it is not reached in time, it is held where it got to. Answers whether it was reached, and the held process''s frames.'
+			   properties: (Dictionary new
+					    at: 'handle' put: (self schema: 'string' saying: 'As answered by hold.');
+					    at: 'method' put: (self schema: 'string' saying: 'The method, as Class >> #selector.');
+					    at: 'seconds' put: (self schema: 'integer' saying: 'How long to let it run, 60 if not given.');
+					    yourself)
+			   required: #( 'handle' 'method' ))).
+		  (self acting: (self tool: 'step'
+			   description: 'Step a held Pharo VM''s process, as its debugger''s buttons do: into a message, over it, or through to a block it runs. Answers its frames afterwards, top first.'
+			   properties: (Dictionary new
+					    at: 'handle' put: (self schema: 'string' saying: 'As answered by hold.');
+					    at: 'how' put: (self schema: 'string' saying: 'into, over or through; over if not given.');
+					    at: 'frame' put: (self schema: 'integer' saying: 'The frame stepped: 1, the top, if not given, or 2, the one below it.');
+					    yourself)
+			   required: #( 'handle' ))).
 		  (self acting: (self tool: 'let_go'
 			   description: 'Let a held Pharo VM run on, the process held with it, and forget its handle.'
 			   properties: (Dictionary new at: 'handle' put: (self schema: 'string' saying: 'As answered by hold.'); yourself)

@@ -1,0 +1,1 @@
+The MCP server's tools that act on a held image (#128): run_until, step, save, on a counter launched for the test.

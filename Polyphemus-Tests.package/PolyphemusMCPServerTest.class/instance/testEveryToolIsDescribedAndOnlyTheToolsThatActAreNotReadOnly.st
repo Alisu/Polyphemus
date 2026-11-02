@@ -7,7 +7,7 @@ testEveryToolIsDescribedAndOnlyTheToolsThatActAreNotReadOnly
 	| tools acting |
 	tools := ((self answer: (self request: 'tools/list' id: 2 params: Dictionary new)) at: 'result') at: 'tools'.
 	self assert: ((tools collect: [ :each | each at: 'name' ]) includesAll: #( 'open_image' 'census' 'packages' 'hold' 'let_go' )).
-	acting := #( 'hold' 'let_go' ).
+	acting := #( 'hold' 'run_until' 'step' 'let_go' ).
 	tools do: [ :each |
 		self assert: (each at: 'description') notEmpty.
 		self assert: ((each at: 'inputSchema') at: 'type') equals: 'object'.
