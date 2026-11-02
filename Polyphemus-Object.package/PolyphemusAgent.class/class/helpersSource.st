@@ -11,6 +11,9 @@ self at: #letGo put: [
 	(self at: #suspended ifAbsent: [ false ]) ifTrue: [
 		self removeKey: #suspended.
 		(self at: #process) resume ] ].
+self at: #stop put: [
+	self removeKey: #suspended ifAbsent: [ nil ].
+	(self at: #session) terminate ].
 self at: #frameBelow put: [ :depth |
 	| context |
 	context := (self at: #session) interruptedContext.
