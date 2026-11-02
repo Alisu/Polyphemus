@@ -5,6 +5,5 @@ sayCodeRunsInTheObserver
 
 	self owner ifNotNil: [ :code |
 		code owner ifNotNil: [ :debugger |
-			debugger withWindowDo: [ :window |
-				(window title beginsWith: '[Code runs in the observer]') ifFalse: [
-					window title: '[Code runs in the observer] ' , window title ] ] ] ]
+			self session mark: 'Code runs in the observer'.
+			self session markTitleOf: debugger ] ]

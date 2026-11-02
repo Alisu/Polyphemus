@@ -11,6 +11,10 @@ its release on GitHub; what is on stage2 since the last tag comes first.
 
 ## Since v0.1.0 (stage2)
 
+- **A debugger on a running VM read opens (#149)**: read without holding it, a waiting process
+  shows only its top frame (#150), and Pharo 10's debugger failed to open on it. It opens, its
+  title saying the stack is cut and to hold the image to see all of it. Marks in the title are
+  lost at the next selection or step (#151).
 - **A save after the image was let go says so (#107)**: it was refused as if the image were open
   for reading only, or, from a debugger left open, went nowhere. Proceed closes the debugger, as
   in Pharo; a test keeps it so.

@@ -5,7 +5,7 @@
 	"classinstvars" : [ ],
 	"pools" : [ ],
 	"classvars" : [ ],
-	"instvars" : [ "fix", "release", "held", "image", "wasLetGo" ],
+	"instvars" : [ "fix", "release", "held", "image", "wasLetGo", "marks" ],
 	"name" : "ReifiedDebugSession",
 	"type" : "normal"
 }
