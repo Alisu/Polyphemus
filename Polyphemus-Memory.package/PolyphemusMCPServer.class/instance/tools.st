@@ -75,6 +75,14 @@ tools
 					    at: 'frame' put: (self schema: 'integer' saying: 'The frame stepped: 1, the top, if not given, or 2, the one below it.');
 					    yourself)
 			   required: #( 'handle' ))).
+		  (self replacing: (self acting: (self tool: 'save'
+			   description: 'Save a method''s new source into a held Pharo VM, where a frame''s method is, and restart that frame in it, as Pharo''s debugger does on accept. The image keeps the source in its changes. Not saved, the answer is a failure saying why, the image still held. Answers the frames afterwards.'
+			   properties: (Dictionary new
+					    at: 'handle' put: (self schema: 'string' saying: 'As answered by hold.');
+					    at: 'source' put: (self schema: 'string' saying: 'The whole method, its selector and arguments first, as in a code pane.');
+					    at: 'frame' put: (self schema: 'integer' saying: 'The frame whose method it replaces, 1 (the top) if not given.');
+					    yourself)
+			   required: #( 'handle' 'source' )))).
 		  (self acting: (self tool: 'let_go'
 			   description: 'Let a held Pharo VM run on, the process held with it, and forget its handle.'
 			   properties: (Dictionary new at: 'handle' put: (self schema: 'string' saying: 'As answered by hold.'); yourself)
