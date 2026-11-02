@@ -1,0 +1,16 @@
+{
+	"commentStamp": "",
+	"super": "Object",
+	"category": "Polyphemus-Object",
+	"classinstvars": [],
+	"pools": [],
+	"classvars": [],
+	"instvars": [
+		"classIndex",
+		"which",
+		"printed",
+		"heldReading"
+	],
+	"name": "HeldEvaluation",
+	"type": "normal"
+}

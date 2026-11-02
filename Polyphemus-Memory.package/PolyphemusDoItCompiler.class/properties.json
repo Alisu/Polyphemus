@@ -1,0 +1,16 @@
+{
+	"commentStamp": "",
+	"super": "Object",
+	"category": "Polyphemus-Memory",
+	"classinstvars": [],
+	"pools": [],
+	"classvars": [],
+	"instvars": [
+		"settings",
+		"source",
+		"context",
+		"requestor"
+	],
+	"name": "PolyphemusDoItCompiler",
+	"type": "normal"
+}
