@@ -1,0 +1,1 @@
+Stop, in the toolbar of a held image's debugger: the process held is ended, its ensure blocks run, and the image let go, which runs on without it (#125). Closing the window lets the image go with the process (#116).
