@@ -1,0 +1,13 @@
+{
+	"commentStamp": "",
+	"super": "Object",
+	"category": "Polyphemus-Memory",
+	"classinstvars": [],
+	"pools": [],
+	"classvars": [],
+	"instvars": [
+		"value"
+	],
+	"name": "ObserverEvaluation",
+	"type": "normal"
+}

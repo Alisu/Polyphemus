@@ -1,0 +1,4 @@
+compiling
+compiler
+
+	^ PolyphemusDoItCompiler new

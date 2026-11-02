@@ -19,6 +19,18 @@ self at: #frameBelow put: [ :depth |
 	context := (self at: #session) interruptedContext.
 	depth timesRepeat: [ context := context sender ].
 	context ].
+self at: #evaluate put: [ :source :depth |
+	| context result printed |
+	context := (self at: #frameBelow) value: depth.
+	result := Smalltalk compiler receiver: context receiver; context: context; evaluate: source.
+	self at: #evaluated put: result.
+	printed := [ result printString ] on: Error do: [ :error | ''a '' , result class name , '' that does not print: '' , error messageText asString ].
+	String streamContents: [ :stream |
+		stream print: result class basicIdentityHash; lf.
+		(result isKindOf: SmallInteger) ifTrue: [ stream nextPutAll: ''integer ''; print: result ].
+		(result isKindOf: Character) ifTrue: [ stream nextPutAll: ''character ''; print: result asInteger ].
+		result isImmediateObject ifFalse: [ stream print: result basicIdentityHash ].
+		stream lf; nextPutAll: printed ] ].
 self at: #methodNamed put: [ :className :selector |
 	| class |
 	class := Smalltalk globals at: (className substrings: '' '') first asSymbol.

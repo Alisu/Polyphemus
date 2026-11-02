@@ -1,0 +1,11 @@
+{
+	"commentStamp": "",
+	"super": "StDebuggerContextInteractionModel",
+	"category": "Polyphemus-Memory",
+	"classinstvars": [],
+	"pools": [],
+	"classvars": [],
+	"instvars": [],
+	"name": "PolyphemusContextInteractionModel",
+	"type": "normal"
+}

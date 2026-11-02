@@ -11,6 +11,11 @@ its release on GitHub; what is on stage2 since the last tag comes first.
 
 ## Since v0.1.0 (stage2)
 
+- **Do it, Print it, Inspect it in the observee (#126)**: in the debugger of a held image, code
+  runs in the frame selected, through the agent, and Inspect it opens on the object answered, read
+  from the image. On a reading only it runs in the observer, which the print string and the
+  debugger's title say. On Pharo 10 that also works in a block's frame, where the compiler asked
+  the block for its class.
 - **What a wiped object was, and putting it back (#139)**: an abnormal entity whose first object
   lost its header guesses what it was (`guesses`): it ends where sound objects begin that run to
   the end of its gap, its slots hold objects or immediates, and each class making such an object
