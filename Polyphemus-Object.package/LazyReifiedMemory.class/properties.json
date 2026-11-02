@@ -6,7 +6,8 @@
 	"pools" : [ ],
 	"classvars" : [ ],
 	"instvars" : [
-		"lastObjectAccess"
+		"lastObjectAccess",
+		"whole"
 	],
 	"name" : "LazyReifiedMemory",
 	"type" : "normal"

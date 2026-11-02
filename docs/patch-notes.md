@@ -11,6 +11,10 @@ its release on GitHub; what is on stage2 since the last tag comes first.
 
 ## Since v0.1.0 (stage2)
 
+- **A running VM or a core opens in seconds (#129)**: `readProcess:` and `readCoreDump:` no
+  longer reify every object first, only what is looked at; a question about every object still
+  sees every object, and the instances of a class are found by one walk for that class. A counter
+  with 8 million strings more: 210 s to read, now 1.3 s, then 15 s to find a process by name.
 - **Faster to a held method (#114, #129, #135)**: `holdProcess:watchedIn:until:` holds and runs to
   a method reading the image once, there. A reading no longer walks every object to find the heap
   or the held process. Pharo 13 on Linux, a counter: hold then `runUntil:` 5.6 s, now about 2 s.
