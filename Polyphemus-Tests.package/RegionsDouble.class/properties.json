@@ -8,7 +8,8 @@
 	"instvars": [
 		"regions",
 		"writable",
-		"files"
+		"files",
+		"bytesAsked"
 	],
 	"name": "RegionsDouble",
 	"type": "normal"
