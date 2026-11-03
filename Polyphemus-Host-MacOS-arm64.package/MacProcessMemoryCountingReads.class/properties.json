@@ -1,0 +1,13 @@
+{
+	"commentStamp": "",
+	"super": "MacProcessMemory",
+	"category": "Polyphemus-Host-MacOS-arm64",
+	"classinstvars": [],
+	"pools": [],
+	"classvars": [],
+	"instvars": [
+		"blockReads"
+	],
+	"name": "MacProcessMemoryCountingReads",
+	"type": "normal"
+}
