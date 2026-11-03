@@ -13,7 +13,7 @@ testClasses
 	selectors do: [ :each |
 		| class everybodys |
 		class := Smalltalk globals at: each key asSymbol ifAbsent: [ nil ].
-		everybodys := (SystemNavigation default allImplementorsOf: each value) size > self wideLimit.
+		everybodys := self isEverybodys: each value.
 		(class notNil and: [ class inheritsFrom: TestCase ])
 			ifTrue: [
 				tests addAll: (class withAllSubclasses reject: [ :sub | sub isAbstract ]).

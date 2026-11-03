@@ -9,3 +9,4 @@ LiveDebuggingTest>>testItOpensOnWhatTheImageWasBusyWith | TestFailure Got 'false
 LiveDebuggingTest>>testItOpensOnWhatTheImageWasBusyWith | Error the image no longer holds that process | #147
 MacProcessMemoryTest>>testAVirtualMachineCaughtInMachineCodeShowsItsRunningProcess | MessageNotUnderstood receiver of "-" is nil | #136
 MacProcessMemoryTest>>testAVirtualMachineCaughtInMachineCodeShowsItsRunningProcess | TestFailure no machine code frame under the newest | #136
+HeldImageRingTest>>testATrapFiringAsItsDeadlinePassesIsHeldOnce | PolyphemusChannelError Error: 2 processes have that hash | #137

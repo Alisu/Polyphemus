@@ -1,7 +1,7 @@
 running
 defaultTimeLimit
 
-	"Each step of the walk searches every method of the image: 3 s here, past SUnit's ten in a
-	warm image under load (#131), until the walk keeps one index."
+	"A walk from a class many methods refer to takes seconds, which shared CI runners under load
+	can stretch past SUnit's ten (#131)."
 
 	^ 1 minute
