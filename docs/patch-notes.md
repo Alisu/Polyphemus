@@ -11,6 +11,11 @@ its release on GitHub; what is on stage2 since the last tag comes first.
 
 ## Since v0.1.0 (stage2)
 
+- **Every heap a test reads or writes is checked (#141)**: once a test ends, each heap it read
+  from bytes held (a copy, a core, a file) climbs the readability ladder; an image file it wrote
+  is read back as it is written, and a process it wrote into is checked before it runs again. What
+  breaks fails the test, each problem printed as a `NOTE HEAP` line. A test reading an unsound heap
+  on purpose says so with `<readsAnUnsoundHeap>`.
 - **The inspector shows an object as its image would (#95)**: a new tab, In image, first and
   shown by default: a dictionary's keys and values (a method dictionary's selectors and methods),
   sorted by key; a set's or an ordered collection's elements; a string's text; a method's source;
