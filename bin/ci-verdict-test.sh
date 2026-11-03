@@ -73,6 +73,27 @@ PATH="$dir/bin:$PATH" "$VERDICT" 41390051210 > "$dir/out" 2>&1; rc=$?
 check "a run GitHub would not show is unread, not green" \
   "[ $rc -eq 2 ] && grep -q '^VERDICT unread' $dir/out && ! grep -q green $dir/out"
 
+# gh from 2.103 on prints a log holding terminal escapes only when told it may.
+cat > "$dir/bin/gh" <<'GH'
+#!/bin/sh
+case "$*" in
+  "run view"*) echo "7 failure Pharo 10" ;;
+  "api --help") echo "      --allow-escape-sequences   Allow terminal escape sequences" ;;
+  api*/actions/jobs/7/logs*)
+    case "$*" in *--allow-escape-sequences*) ;; *)
+      echo "the response contains terminal escape sequences; pass --allow-escape-sequences to output it anyway" >&2; exit 1 ;; esac
+    [ -n "${GH_LOG_GONE:-}" ] && { echo "HTTP 410: Gone" >&2; exit 1; }
+    printf '2026-11-03T02:00:00.0000000Z \033[36;1m    ERROR SomeTest>>testIt -- ZeroDivide\033[0m\n'
+    echo "2026-11-03T02:00:01.0000000Z == totals: 965 run, 0 failures, 1 errors, 0 broken, 0 flaky ==" ;;
+esac
+GH
+chmod +x "$dir/bin/gh"
+PATH="$dir/bin:$PATH" "$VERDICT" 41574774098 > "$dir/out" 2>&1; rc=$?
+check "a log gh prints only with escapes allowed is read" "[ $rc -eq 1 ] && grep -q 'NEW SomeTest>>testIt' $dir/out"
+GH_LOG_GONE=1 PATH="$dir/bin:$PATH" "$VERDICT" 41574774098 > "$dir/out" 2>&1; rc=$?
+check "a job log gh cannot give is unread, not a suite that never ran" \
+  "[ $rc -eq 2 ] && grep -q 'Pharo 10: unread' $dir/out && ! grep -q 'no suite ran' $dir/out"
+
 rm -rf "$dir"
 echo "== ci-verdict-test: $failures failing"
 exit $(( failures > 0 ))

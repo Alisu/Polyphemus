@@ -12,7 +12,8 @@ HERE="$(cd "$(dirname "$0")" && pwd)"
 KNOWN_FLAKES="${KNOWN_FLAKES:-$HERE/known-flakes.txt}"
 
 judge() {  # one job's log on stdin: what failed, then VERDICT green|known|infra|new
-  sed -E 's/^[0-9]{4}-[0-9-]+T[0-9:.]+Z //' | awk -v known="$KNOWN_FLAKES" '
+  # Colours out first: a failure line behind one would not be seen, and the job read green.
+  sed -E "s/$(printf '\033')\[[0-9;]*m//g; s/^[0-9]{4}-[0-9-]+T[0-9:.]+Z //" | awk -v known="$KNOWN_FLAKES" '
     function trim(s) { gsub(/^ +| +$/, "", s); return s }
     BEGIN {
       while ((getline line < known) > 0) {
@@ -46,12 +47,16 @@ if [ "${1:-}" = "--log" ]; then judge < "$2"; exit $?; fi
 jobs=$(gh run view "$1" --json jobs -q '.jobs[] | "\(.databaseId) \(.conclusion // "pending") \(.name)"' 2>&1)
 if [ $? -ne 0 ] || [ -z "$jobs" ]; then  # a run not read is no verdict, least of all green
   echo "${jobs:-no jobs}" | head -1; echo "VERDICT unread: read the run again"; exit 2; fi
+# gh from 2.103 on prints no log holding terminal escapes, CI's colours, unless told it may.
+escapes=""; [[ "$(gh api --help 2>&1)" == *--allow-escape-sequences* ]] && escapes="--allow-escape-sequences"
 worst=0
 while read -r id conclusion name; do
   case "$conclusion" in
     success) echo "== $name: green" ;;
     failure|cancelled|timed_out)
-      out=$(gh api "repos/{owner}/{repo}/actions/jobs/$id/logs" 2>/dev/null | judge); rc=$?
+      log=$(gh api $escapes "repos/{owner}/{repo}/actions/jobs/$id/logs" 2>&1) || {  # no log, no verdict
+        echo "== $name: unread ($(head -1 <<<"$log"))"; [ "$worst" -eq 0 ] && worst=2; continue; }
+      out=$(judge <<<"$log"); rc=$?
       echo "== $name: ${out##*VERDICT }"; grep -v '^VERDICT' <<<"$out" | sed 's/^/   /'
       [ "$rc" -eq 1 ] && worst=1
       [ "$rc" -eq 2 ] && [ "$worst" -eq 0 ] && worst=2 ;;
