@@ -5,5 +5,4 @@ referencesTo: aClass
 
 	(rooted includes: aClass) ifTrue: [ ^ #(  ) ].
 	rooted add: aClass.
-	^ (SystemNavigation default allReferencesTo: (Smalltalk globals associationAt: aClass name))
-		  flatCollect: [ :each | self reach: each compiledMethod ]
+	^ (self referencesOfOursTo: aClass) flatCollect: [ :each | self reach: each ]

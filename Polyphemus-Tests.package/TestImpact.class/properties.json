@@ -11,7 +11,11 @@
 		"tests",
 		"wide",
 		"seen",
-		"rooted"
+		"rooted",
+		"senders",
+		"references",
+		"implementors",
+		"imageSearches"
 	],
 	"name": "TestImpact",
 	"type": "normal"

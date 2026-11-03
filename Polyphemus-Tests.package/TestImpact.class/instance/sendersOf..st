@@ -5,7 +5,7 @@ sendersOf: aSelector
 	request, a menu, Pharo's tools): the tests and resources naming the classes implementing it."
 
 	| ours |
-	ours := (SystemNavigation default allSendersOf: aSelector) select: [ :each | self isOurs: each compiledMethod ].
-	ours ifNotEmpty: [ ^ ours flatCollect: [ :each | self reach: each compiledMethod ] ].
-	^ ((SystemNavigation default allImplementorsOf: aSelector) select: [ :each | self isOurs: each compiledMethod ])
+	ours := self sendersOfOurs: aSelector.
+	ours ifNotEmpty: [ ^ ours asArray flatCollect: [ :each | self reach: each ] ].
+	^ ((self implementorsOf: aSelector) select: [ :each | self isOurs: each compiledMethod ])
 		  flatCollect: [ :each | self testsNaming: each compiledMethod methodClass instanceSide ]
