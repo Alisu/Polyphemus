@@ -76,7 +76,7 @@ The debugger is Pharo's own, on the observee's stack:
 - **Variables** of a frame show the observee's values.
 - **Do it, Print it, Inspect it** run in the observee, in the frame selected, on its receiver and
   its temporaries. Print it shows what the observee printed. Inspect it opens on the object it
-  answered, read from the observee (the tab *In the image*); reading it takes a new copy of the
+  answered, read from the observee (the tab *In image*); reading it takes a new copy of the
   image. An error is the observee's. An assignment to a frame's variable takes, in the observee.
   After each, the debugger shows the frame as the observee now has it. In a debugger on a reading only (a core, an image file), no
   image runs the code: it runs in the observer, on what was read, and says so (`"in the observer"`

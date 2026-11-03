@@ -1,0 +1,4 @@
+inspection
+inImageDescription
+
+	^ self printString

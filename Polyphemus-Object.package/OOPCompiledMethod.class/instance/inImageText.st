@@ -1,0 +1,4 @@
+inspection
+inImageText
+
+	^ self sourceCode
