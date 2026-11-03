@@ -1,5 +1,6 @@
 tests
 testOldSpaceAcrossAGapIsHeldWithoutTheGap
+	<readsAnUnsoundHeap>
 
 	"The memory between two segments was never committed: the heap holds a copy of each, not of
 	the gap. Held as one ByteArray, the gap cost as much as the heap once the host had grown (#86)."

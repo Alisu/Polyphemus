@@ -1,5 +1,5 @@
 examples
 readsABrokenHeapOnPurpose
-	<damagesTheHeap>
+	<readsAnUnsoundHeap>
 
 	self readsABrokenHeap

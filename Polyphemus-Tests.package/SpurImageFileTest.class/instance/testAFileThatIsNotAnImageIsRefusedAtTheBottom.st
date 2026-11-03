@@ -1,5 +1,6 @@
 tests
 testAFileThatIsNotAnImageIsRefusedAtTheBottom
+	<readsAnUnsoundHeap>
 
 	| zeros readability |
 	zeros := PolyphemusEdition current scratch / 'polyphemus-not-an-image.image'.

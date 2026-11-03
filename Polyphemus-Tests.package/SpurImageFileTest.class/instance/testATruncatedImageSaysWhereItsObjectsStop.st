@@ -1,5 +1,6 @@
 tests
 testATruncatedImageSaysWhereItsObjectsStop
+	<readsAnUnsoundHeap>
 
 	"Half of candle: the heap is there and its objects read up to where the file ends,
 	which the ladder says; VMMaker is not handed a file it cannot load."

@@ -1,5 +1,6 @@
 tests
 testDamageInOnePartDoesNotHideWhatIsSoundInAnother
+	<readsAnUnsoundHeap>
 
 	"A walk that stops part way is damage there only: it is recorded, the climb carries on, and
 	the untouched class table stays readable."

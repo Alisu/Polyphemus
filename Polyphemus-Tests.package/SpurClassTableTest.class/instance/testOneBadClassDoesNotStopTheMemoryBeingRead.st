@@ -1,5 +1,6 @@
 tests
 testOneBadClassDoesNotStopTheMemoryBeingRead
+	<readsAnUnsoundHeap>
 
 	"One table entry that is not a class costs that index's name only: the table resolves, the
 	heap is a heap, and every other object reads."

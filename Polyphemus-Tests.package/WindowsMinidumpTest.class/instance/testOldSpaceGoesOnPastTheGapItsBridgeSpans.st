@@ -1,5 +1,6 @@
 tests
 testOldSpaceGoesOnPastTheGapItsBridgeSpans
+	<readsAnUnsoundHeap>
 
 	"Windows commits old space a segment at a time, with memory never committed between them:
 	the heap is every segment its bridges lead to, not only the mappings that touch."

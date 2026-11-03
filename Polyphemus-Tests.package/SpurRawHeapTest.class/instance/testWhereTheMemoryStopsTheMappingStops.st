@@ -1,5 +1,6 @@
 tests
 testWhereTheMemoryStopsTheMappingStops
+	<readsAnUnsoundHeap>
 
 	"#15: a region listed but gone by the time it is read. What was read is kept, the
 	mapping ends there, and nothing is made up for the rest."

@@ -1,5 +1,6 @@
 tests
 testOldSpaceInTouchingRegionsIsHeldWhole
+	<readsAnUnsoundHeap>
 
 	"Two regions, one right after the other, as a core of Pharo 10 has them: held as one piece,
 	both copied. Taking the first's end for where the memory stopped lost the second."
