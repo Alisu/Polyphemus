@@ -7,4 +7,5 @@ storeBytes: aByteArray at: anAddress
 	self isStopped ifFalse: [ ^ self error: 'refusing to write to a process that is running' ].
 	(self hasAddress: anAddress) ifFalse: [ ^ self error: 'nothing is mapped at ' , anAddress printStringHex ].
 	self write: aByteArray at: anAddress.
+	SpurHeapWatch noteWriteInto: self.
 	^ aByteArray size
