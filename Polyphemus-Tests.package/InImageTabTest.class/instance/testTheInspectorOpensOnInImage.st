@@ -1,10 +1,11 @@
 tests
 testTheInspectorOpensOnInImage
 
-	"#95: the tab shown first, before Polyphemus's own Oop tab."
+	"#95: the tab shown first, before Polyphemus's own Oop tab. The inspector is StInspector up to
+	Pharo 11."
 
 	| inspector |
-	inspector := StInspectorPresenter onObject: (self memory oopClassNamed: 'Object') reifiedMethodDictionary.
+	inspector := (Smalltalk globals at: #StInspectorPresenter ifAbsent: [ Smalltalk globals at: #StInspector ]) onObject: (self memory oopClassNamed: 'Object') reifiedMethodDictionary.
 	[
 	inspector open.
 	PolyphemusTestCase drawWindowOf: inspector.
