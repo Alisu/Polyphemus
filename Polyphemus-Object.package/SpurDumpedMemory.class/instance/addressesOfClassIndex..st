@@ -1,12 +1,12 @@
 reading
 addressesOfClassIndex: anIndex
 
-	"Where every object of that class is, by a walk over old space and new space that reifies
-	nothing (#129)."
+	"Where every object of that class is, by the scanner's walks over old space and new space:
+	nothing reified (#129), and not through the simulator (#152)."
 
-	| memory found |
-	memory := self memory.
-	found := OrderedCollection new.
-	memory allOldSpaceObjectsDo: [ :oop | (memory classIndexOf: oop) = anIndex ifTrue: [ found add: oop ] ].
-	raw youngObjectsDo: [ :oop | (memory classIndexOf: oop) = anIndex ifTrue: [ found add: oop ] ].
+	| scanner found |
+	scanner := raw scanner.
+	found := scanner addressesOfClassIndex: anIndex from: raw heapStart upTo: raw mappingLimit.
+	raw youngObjectsDo: [ :oop |
+		(scanner classIndexIn: (scanner headerAt: oop)) = anIndex ifTrue: [ found add: oop ] ].
 	^ found
