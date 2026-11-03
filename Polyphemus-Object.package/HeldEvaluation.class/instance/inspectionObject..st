@@ -1,7 +1,7 @@
 inspection
 inspectionObject: aBuilder
-	<inspectorPresentationOrder: -1 title: 'In the image'>
+	<inspectorPresentationOrder: -1 title: 'In image'>
 
-	"The object answered, as the image now holds it (#126)."
+	"The object answered, as the image now holds it (#126) and would show it (#95)."
 
-	^ self object inspectionItems: aBuilder
+	^ self object inspectionInImage: aBuilder

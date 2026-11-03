@@ -11,6 +11,11 @@ its release on GitHub; what is on stage2 since the last tag comes first.
 
 ## Since v0.1.0 (stage2)
 
+- **The inspector shows an object as its image would (#95)**: a new tab, In image, first and
+  shown by default: a dictionary's keys and values (a method dictionary's selectors and methods),
+  sorted by key; a set's or an ordered collection's elements; a string's text; a method's source;
+  any other object its variables by name. Each value is said as Pharo prints it (`nil`, `#foo`,
+  `an OrderedCollection`, `Object >> #printString`). The Oop tab keeps Polyphemus's own view.
 - **Debug from the process browser (#138)**: a right-click on a process in `Polyphemus browse:`
   offers Debug, opening Pharo's debugger on its stack, post mortem, as `Polyphemus
   debugProcess:in:` does.
