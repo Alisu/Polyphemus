@@ -1,0 +1,11 @@
+{
+	"commentStamp": "",
+	"super": "StDebugger",
+	"category": "Polyphemus-Memory",
+	"classinstvars": [],
+	"pools": [],
+	"classvars": [],
+	"instvars": [],
+	"name": "PolyphemusDebugger",
+	"type": "normal"
+}

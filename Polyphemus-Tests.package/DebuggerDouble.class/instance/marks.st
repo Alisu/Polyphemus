@@ -1,0 +1,4 @@
+accessing
+marks
+
+	^ marks ifNil: [ #(  ) ]
