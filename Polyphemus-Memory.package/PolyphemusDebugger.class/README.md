@@ -1,0 +1,1 @@
+Pharo's debugger, on a reading: what its session has to say (#149, #126, #142) stays in front of the title Pharo writes anew at each selection and step (#151). Debuggers open as StDebugger, and one on a reading is made one of these once built.

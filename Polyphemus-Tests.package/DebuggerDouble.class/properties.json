@@ -7,7 +7,8 @@
 	"classvars": [],
 	"instvars": [
 		"title",
-		"closed"
+		"closed",
+		"marks"
 	],
 	"name": "DebuggerDouble",
 	"type": "normal"
