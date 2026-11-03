@@ -2,11 +2,12 @@ walking
 walkFrom: anAddress upTo: aLimit atMost: aCount
 
 	"As walkFrom:upTo:, stopping once aCount live objects are found (#enoughObjects), or at
-	the limit when aCount is nil."
+	the limit when aCount is nil. Each header is read once (#152)."
 
-	| count free liveBytes freeBytes consecutiveFree current soa answer lastLiveEnd |
+	| count free liveBytes freeBytes consecutiveFree current header soa answer lastLiveEnd |
 	count := 0. free := 0. liveBytes := 0. freeBytes := 0. consecutiveFree := 0.
 	current := anAddress.
+	header := self headerAt: current.
 	answer := [ :where :why |
 		          SpurHeapWalk new
 			          count: count
@@ -19,11 +20,13 @@ walkFrom: anAddress upTo: aLimit atMost: aCount
 			          lastLiveEnd: lastLiveEnd;
 			          yourself ].
 	[ current < aLimit ] whileTrue: [
-		| wrong size |
-		wrong := self whyNotAnObjectAt: current.
+		| slots wrong size |
+		header ifNil: [ ^ answer value: current value: #outsideTheRegion ].
+		slots := self slotsAt: current header: header.
+		wrong := self whyNotAnObjectAt: current header: header slots: slots.
 		wrong ifNotNil: [ ^ answer value: current value: wrong ].
-		size := self bytesOfObjectAt: current.
-		(self isFreeChunkAt: current)
+		size := 8 + ((slots max: 1) * 8).
+		(self classIndexIn: header) = 0
 			ifTrue: [
 				free := free + 1.
 				freeBytes := freeBytes + size.
@@ -38,9 +41,16 @@ walkFrom: anAddress upTo: aLimit atMost: aCount
 				lastLiveEnd := current + size.
 				consecutiveFree := 0.
 				(soa isNil and: [
-					 self looksLikeTheSpecialObjectsArrayAt: current from: anAddress ])
-					ifTrue: [ soa := current ] ].
-		current := self objectAfter: current.
-		current ifNil: [ ^ answer value: aLimit value: #couldNotStep ] ].
+					 self
+						 looksLikeTheSpecialObjectsArrayAt: current
+						 header: header
+						 slots: slots
+						 from: anAddress ]) ifTrue: [ soa := current ] ].
+		"The next object, past an overflow word when there is one, as objectAfter: steps."
+		current := current + size.
+		header := self headerAt: current.
+		(header notNil and: [ (self slotCountIn: header) = 255 ]) ifTrue: [
+			current := current + 8.
+			header := self headerAt: current ] ].
 
 	^ answer value: current value: #reachedTheLimit

@@ -1,4 +1,4 @@
 testing
 hasAddress: anAddress
 
-	^ pieces anySatisfy: [ :each | each hasAddress: anAddress ]
+	^ (self pieceHolding: anAddress) notNil
