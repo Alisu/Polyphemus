@@ -1,5 +1,6 @@
 tests
 testAHeapBridgedFarAwayIsLoadedPieceByPiece
+	<readsAnUnsoundHeap>
 
 	"#133: a reading's simulator memory holds each piece at its own address and nothing for the
 	gap between them, which a walk steps over by the bridge."

@@ -1,5 +1,6 @@
 tests
 testATableWhosePagesAreGoneCannotBeRead
+	<readsAnUnsoundHeap>
 
 	"This is the damage that really does stop everything: a page of the wrong size means the
 	arithmetic turning a class index into an entry has nowhere to land, so no object

@@ -1,5 +1,6 @@
 tests
 testAHeapBridgedFarAwayIsHeldInItsTwoPieces
+	<readsAnUnsoundHeap>
 
 	"#133: the mapping reaches the far segment across the bridge, and holds its two pieces, not
 	the gap between them."

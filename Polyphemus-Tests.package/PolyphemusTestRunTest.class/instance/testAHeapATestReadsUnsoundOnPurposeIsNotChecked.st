@@ -1,7 +1,7 @@
 tests
-testAHeapATestDamagesOnPurposeIsNotChecked
+testAHeapATestReadsUnsoundOnPurposeIsNotChecked
 
-	"#141: a test saying it damages the heap (<damagesTheHeap>) gets no notes about it."
+	"#141: a test saying it reads an unsound heap on purpose (<readsAnUnsoundHeap>) gets no notes about it."
 
 	| suite run |
 	suite := TestSuite new addTest: (PolyphemusTestRunExample selector: #readsABrokenHeapOnPurpose); yourself.
