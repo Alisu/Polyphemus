@@ -5,7 +5,7 @@
 	"classinstvars" : [ ],
 	"pools" : [ ],
 	"classvars" : [ ],
-	"instvars" : [ "pieces" ],
+	"instvars" : [ "pieces", "last" ],
 	"name" : "SplitAddressSpace",
 	"type" : "normal"
 }

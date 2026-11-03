@@ -1,0 +1,15 @@
+{
+	"commentStamp": "",
+	"super": "Object",
+	"category": "Polyphemus-Tests",
+	"classinstvars": [],
+	"pools": [],
+	"classvars": [],
+	"instvars": [
+		"space",
+		"reads",
+		"lookups"
+	],
+	"name": "CountingAddressSpace",
+	"type": "normal"
+}
