@@ -5,7 +5,7 @@
 	"classinstvars" : [ ],
 	"pools" : [ ],
 	"classvars" : [ ],
-	"instvars" : [ "suite", "outcomes", "again", "places" ],
+	"instvars" : [ "suite", "outcomes", "again", "places", "heapNotes" ],
 	"name" : "PolyphemusTestRun",
 	"type" : "normal"
 }

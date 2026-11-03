@@ -4,4 +4,5 @@ setSuite: aSuite
 	suite := aSuite.
 	outcomes := OrderedCollection new.
 	again := Dictionary new.
-	places := IdentityDictionary new
+	places := IdentityDictionary new.
+	heapNotes := Dictionary new
