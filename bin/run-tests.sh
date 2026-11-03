@@ -43,7 +43,9 @@ while [ $# -gt 0 ]; do
   shift
 done
 
-noise() { tr -d '\033' | grep -avE 'Simd|addMapped|extensionBytecode|CleanBlockChecker|^\[' ; }
+# Colour codes out whole: their escape alone taken out left "[0m" before a RES line, which the
+# filter of the VM's bracketed lines then dropped, and the class read "never ran".
+noise() { sed -E "s/$(printf '\033')\[[0-9;]*[A-Za-z]//g" | tr -d '\033' | grep -avE 'Simd|addMapped|extensionBytecode|CleanBlockChecker|^\[' ; }
 export -f noise
 
 collect() {
