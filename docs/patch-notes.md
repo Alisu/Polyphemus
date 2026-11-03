@@ -11,6 +11,9 @@ its release on GitHub; what is on stage2 since the last tag comes first.
 
 ## Since v0.1.0 (stage2)
 
+- **Debug from the process browser (#138)**: a right-click on a process in `Polyphemus browse:`
+  offers Debug, opening Pharo's debugger on its stack, post mortem, as `Polyphemus
+  debugProcess:in:` does.
 - **A running VM or a core opens in seconds (#129)**: `readProcess:` and `readCoreDump:` no
   longer reify every object first, only what is looked at; a question about every object still
   sees every object, and the instances of a class are found by one walk for that class. A counter

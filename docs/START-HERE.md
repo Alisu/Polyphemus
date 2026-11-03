@@ -94,7 +94,7 @@ The examples use `/tmp/target/target.image`, with its `.changes` and `.sources` 
 memory := Polyphemus readImageFile: '/tmp/target/target.image'.
 memory allReifiedProcesses size.                  "9"
 (memory activationsOfProcess: (Polyphemus deepestProcessIn: memory)) size.   "19"
-Polyphemus browse: memory.                        "every process, its stack, the source of each frame"
+Polyphemus browse: memory.                        "every process, its stack, the source of each frame; Debug in its menu"
 Polyphemus debugDeepestProcessIn: memory.         "Pharo's debugger, on the deepest stack"
 ```
 
