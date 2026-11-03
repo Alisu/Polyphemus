@@ -89,7 +89,10 @@ ascii := [ :text | String streamContents: [ :s | text do: [ :ch | s nextPut: (ch
       (run describe: each value),
       (again = #passed
         ifTrue: [ ' (passed when run again in the same image: a flake, or state its first run left, #31)' ]
-        ifFalse: [ ' (again: ', (run describe: again), ')' ]))) traceCr ] ]
+        ifFalse: [ ' (again: ', (run describe: again), ')' ]))) traceCr ].
+  "What the heaps a test read break of their invariants, noted, not failed yet (#141)."
+  run heapNotes keysAndValuesDo: [ :selector :notes |
+    notes do: [ :each | (ascii value: '    NOTE HEAP $c>>', selector, ' -- ', each) traceCr ] ] ]
   on: Error, Warning
   do: [ :e | (ascii value: 'RES $c BROKEN ', e class name, ' ', e messageText asString) traceCr ].
 Smalltalk exitSuccess

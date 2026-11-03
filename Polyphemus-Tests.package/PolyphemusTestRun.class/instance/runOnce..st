@@ -2,16 +2,10 @@ running
 runOnce: aTest
 
 	"#passed, #skipped, or the exception it signalled, caught where TestResult catches it and
-	noted with where it was signalled, and how full the heap was if out of memory, while that is
-	still on the stack."
+	noted with where it was signalled and how full the heap was if out of memory; then the heaps
+	it read are checked (#141)."
 
-	^ [
-	  aTest runCaseManaged.
-	  #passed ]
-		  on: TestResult failure , TestResult skip , TestResult warning , TestResult error
-		  do: [ :e |
-			  (e isKindOf: TestResult skip)
-				  ifTrue: [ #skipped ]
-				  ifFalse: [
-					  places at: e put: (self placeOf: e) , (self memoryOf: e).
-					  e ] ]
+	| outcome heaps |
+	heaps := SpurHeapWatch during: [ outcome := self outcomeOfRunning: aTest ].
+	self note: heaps of: aTest.
+	^ outcome

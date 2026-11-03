@@ -1,0 +1,15 @@
+{
+	"commentStamp": "",
+	"super": "Object",
+	"category": "Polyphemus-Object-dump",
+	"classinstvars": [
+		"current"
+	],
+	"pools": [],
+	"classvars": [],
+	"instvars": [
+		"heaps"
+	],
+	"name": "SpurHeapWatch",
+	"type": "normal"
+}
