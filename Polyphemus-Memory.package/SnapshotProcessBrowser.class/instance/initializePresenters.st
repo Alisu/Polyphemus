@@ -6,6 +6,7 @@ initializePresenters
 
 	processList := self newList.
 	processList display: [ :process | self labelForProcess: process ].
+	processList contextMenu: [ self processMenu ].
 	frameList := self newList.
 	frameList display: [ :context | reifiedMemory descriptionOfContext: context ].
 	sourceText := self newText.

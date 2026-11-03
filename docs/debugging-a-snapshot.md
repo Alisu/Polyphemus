@@ -45,6 +45,7 @@ memory disassemblyOfContext: (memory contextsOfProcess: process) first.
 ```
 
 `SnapshotProcessBrowser on: memory` opens all three panes at once: processes, frames, source.
+Debug, in a process's menu, opens Pharo's debugger on its stack (`Polyphemus debugProcess:in:`).
 
 ## Open the debugger
 
