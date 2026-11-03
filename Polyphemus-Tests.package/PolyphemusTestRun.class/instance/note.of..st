@@ -2,7 +2,7 @@ running
 note: aHeapWatch of: aTest
 
 	"What the readability ladder refuses in each heap aTest read or wrote, unless it reads an unsound heap
-	on purpose (<readsAnUnsoundHeap>). Noted for now, not failed (#141)."
+	on purpose (<readsAnUnsoundHeap>); runOnce: fails it on them (#141)."
 
 	| notes |
 	((aTest class lookupSelector: aTest selector) hasPragmaNamed: #readsAnUnsoundHeap) ifTrue: [ ^ self ].
