@@ -129,7 +129,8 @@ INNER
   elif ! grep -a -q "^RES $c " <<< "$out"; then
     # The image died, or printed nothing: a class that did not report is broken, not absent.
     echo "RES $c BROKEN no result (exit $rc)"
-    tail -n 5 "$log" | tr -d '\033' | sed 's/^/    | /'
+    # Each line ended, the last too: a log cut mid-line glued the next class's result to it (#31).
+    tail -n 5 "$log" | sed -E "s/$(printf '\033')\[[0-9;]*[A-Za-z]//g" | tr -d '\033' | awk '{ print "    | " $0 }'
   else
     # NOTE lines (a target started again, #31) come after the class's result line.
     grep -a -v '^    NOTE' <<< "$out" | sed "1s/\$/ (${el}s)/"
