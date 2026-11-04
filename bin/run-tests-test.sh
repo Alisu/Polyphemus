@@ -19,6 +19,8 @@ case "$script" in *collect-tests.st)
   exit 0 ;; esac
 class=$(grep -ao "RES [A-Za-z0-9]* '" "$script" | head -1 | awk '{print $2}')
 [ -n "${STUB_COLOUR:-}" ] && printf '\033[0m'   # a colour reset left by the VM's output, then the line
+# A class whose image dies says nothing, its log ending mid-line (#51).
+[ "$class" = "${STUB_SILENT:-}" ] && { printf 'a stack, then\033[0m'; exit 1; }
 echo "RES $class 1 run 0 failures 0 errors"
 STUB
 chmod +x "$dir/pharo"
@@ -29,6 +31,8 @@ check "a class run in the pool reports its result" "grep -q '^RES FakeTest 1 run
 check "no class is broken by the runner itself" "! grep -q 'BROKEN' <<<\"\$out\""
 out=$(WORK="$dir" STUB_COLOUR=1 "$HERE/run-tests.sh" -c FakeTest -j 1 2>&1)
 check "a result behind a colour code still counts" "grep -q '^RES FakeTest 1 run' <<<\"\$out\" && ! grep -q 'BROKEN' <<<\"\$out\""
+out=$(WORK="$dir" STUB_CLASSES="SilentTest FakeTest" STUB_SILENT=SilentTest "$HERE/run-tests.sh" -c SilentTest -c FakeTest -j 1 2>&1)
+check "a class after one whose log ends mid-line still counts" "grep -q '^RES FakeTest 1 run' <<<\"\$out\" && ! grep -q 'FakeTest BROKEN' <<<\"\$out\""
 # Many classes that launch images run two at a time, in lanes of their own: twelve at once
 # overloaded the box (2026-11-01). A few run in the pool as before (#31).
 many="LaunchATest LaunchBTest LaunchCTest LaunchDTest LaunchETest"
