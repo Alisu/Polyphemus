@@ -11,6 +11,8 @@ its release on GitHub; what is on stage2 since the last tag comes first.
 
 ## Since v0.1.0 (stage2)
 
+- **A debugger on a core, or on a running VM read, shows whole stacks (#150)**: every frame, those still on the VM's stack pages too, where it showed the top of a waiting process and could not open at all on the process a VM is stuck in, which has no context. Its frames answer as contexts; nothing is written to the reading. Code typed there runs in the observer and says so.
+- **A frame running a young method (#150)**: from VM 10 new space lies below old space, and a frame interpreting a method or block still in it was taken for machine code, a literal read as its method.
 - **What a stuck call waits on (#159)**: `Polyphemus whereIsStuck:` and the MCP's `where_stuck` now say it on Linux, from `/proc`: a descriptor and what it is (a path, a pipe, a socket), a lock, a child process. A call waiting on many descriptors at once (`poll`, `select`) is only named.
 - **Faster walks over the heap (#152)**: a walk reads each header once, and finding a process by name no longer goes through the simulator. A counter with 8 million strings more: the first `processNamed:` 15 s, now 1.4 s.
 - **Steps on a Mac (#135)**: a held image's copy reads straight into its buffer, as on Linux. A counter on an M1 Pro: a step 747 ms, now 585 ms.
@@ -37,9 +39,7 @@ its release on GitHub; what is on stage2 since the last tag comes first.
   The same with 8 million strings more: the watcher put in 30 s now 3 s, the hold 72 s now 2.5 s. On Linux a copy of a held VM reads straight into its buffer (half the time). The VM's
   library is parsed once per file, and the files a process maps listed once per stop: the Mac's
   costs, to be measured there.
-- **A debugger on a running VM read opens (#149)**: read without holding it, a waiting process
-  shows only its top frame (#150), and Pharo 10's debugger failed to open on it. It opens, its
-  title saying the stack is cut and to hold the image to see all of it.
+- **A debugger on a running VM read opens (#149)**: Pharo 10's debugger failed to open on one read without holding it.
 - **What a debugger's title says stays (#151)**: `[Stack cut…]`, `[Code runs in the observer]`
   and `[Image gone]` were lost at the next selection or step, Pharo writing the title anew. A
   debugger on a reading is made a `PolyphemusDebugger` once built, which puts them back each time.

@@ -1,0 +1,4 @@
+testing
+isReadActivation
+
+	^ true
