@@ -6,6 +6,7 @@ setUpBasicIndexes
 	self setUpMode.
 	self setUpStringClasses.
 	self setUpCompiledMethodClass.
+	self setUpCompiledBlockClass.
 	self setUpMetaclassForTraitIndex.
 	self setUpTraitedMetaclassIndex.
 	self setUpObjectHandlers.
