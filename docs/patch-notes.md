@@ -11,6 +11,9 @@ its release on GitHub; what is on stage2 since the last tag comes first.
 
 ## Since v0.1.0 (stage2)
 
+- **What a stuck call waits on (#159)**: `Polyphemus whereIsStuck:` and the MCP's `where_stuck` now say it on Linux, from `/proc`: a descriptor and what it is (a path, a pipe, a socket), a lock, a child process. A call waiting on many descriptors at once (`poll`, `select`) is only named.
+- **Faster walks over the heap (#152)**: a walk reads each header once, and finding a process by name no longer goes through the simulator. A counter with 8 million strings more: the first `processNamed:` 15 s, now 1.4 s.
+- **Steps on a Mac (#135)**: a held image's copy reads straight into its buffer, as on Linux. A counter on an M1 Pro: a step 747 ms, now 585 ms.
 - **Every heap a test reads or writes is checked (#141)**: once a test ends, each heap it read
   from bytes held (a copy, a core, a file) climbs the readability ladder; an image file it wrote
   is read back as it is written, and a process it wrote into is checked before it runs again. What
