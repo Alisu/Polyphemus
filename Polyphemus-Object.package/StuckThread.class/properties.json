@@ -13,7 +13,8 @@
 		"sp",
 		"pc",
 		"location",
-		"wasRunning"
+		"wasRunning",
+		"waitsOn"
 	],
 	"name": "StuckThread",
 	"type": "normal"

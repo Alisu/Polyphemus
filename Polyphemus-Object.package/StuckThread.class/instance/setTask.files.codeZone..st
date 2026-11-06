@@ -15,4 +15,5 @@ setTask: aTaskDirectory files: someMappedFiles codeZone: anAssociationOrNil
 		arguments := (fields copyFrom: 2 to: fields size - 2) collect: [ :each | self hexValueOf: each ].
 		sp := self hexValueOf: (fields at: fields size - 1).
 		pc := self hexValueOf: fields last.
-		location := self class locationOf: pc codeZone: anAssociationOrNil files: someMappedFiles ]
+		location := self class locationOf: pc codeZone: anAssociationOrNil files: someMappedFiles.
+		waitsOn := self whatItWaitsOnFrom: aTaskDirectory ]
