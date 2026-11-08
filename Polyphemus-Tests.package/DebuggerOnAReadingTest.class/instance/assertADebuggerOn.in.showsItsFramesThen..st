@@ -11,4 +11,4 @@ assertADebuggerOn: aName in: aReading showsItsFramesThen: aBlock
 	[
 	PolyphemusTestCase drawEachFrameOf: debugger.
 	self assert: debugger stackTable items size equals: frames size.
-	aBlock value: debugger ] ensure: [ debugger window ifNotNil: [ :window | window close ] ]
+	aBlock value: debugger ] ensure: [ PolyphemusTestCase closeWindowOf: debugger ]

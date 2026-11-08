@@ -9,8 +9,9 @@ testCodeInAFrameOfAReadingRunsInTheObserverAndSaysSo
 	^ n + 1').
 	[
 	self assertADebuggerOn: 'counter' in: (Polyphemus readProcess: pid) showsItsFramesThen: [ :debugger | | result |
-		debugger stackTable selectIndex: 1.
-		result := debugger code evaluate: '3 + 4' onCompileError: [ nil ] onError: [ :error | error ].
+		result := PolyphemusTestCase inUIProcess: [
+			          debugger stackTable selectIndex: 1.
+			          debugger code evaluate: '3 + 4' onCompileError: [ nil ] onError: [ :error | error ] ].
 		self assert: result printString equals: '"in the observer" 7'.
 		self assert: (debugger window title beginsWith: '[Code runs in the observer]').
 		self should: [ debugger stackTable selectedItem tempAt: 1 put: 5 ] raise: NotOnAReading ] ] ensure: [
