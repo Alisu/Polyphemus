@@ -10,7 +10,8 @@
 		"threads",
 		"stoppedToLook",
 		"caughtSignals",
-		"codeZone"
+		"codeZone",
+		"smalltalkAboveC"
 	],
 	"name": "StuckReport",
 	"type": "normal"
