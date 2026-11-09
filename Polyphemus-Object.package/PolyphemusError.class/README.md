@@ -1,0 +1,1 @@
+The root of Polyphemus's errors: catching it lets a bug of the caller's own, a MessageNotUnderstood or a ZeroDivide, through (#118).
