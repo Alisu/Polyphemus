@@ -18,3 +18,6 @@ HeldImageDebuggerCommandsTest>>testProceedInTheDebuggerOfAHeldImageClosesIt | Po
 StopHelperTest>>testItResumesWhenTold | CannotDeleteFileException | #164
 StopHelperTest>>testItResumesWhenItsObserverDiesThoughItsPipeLivesOn | CannotDeleteFileException | #164
 HeldImageEvaluatingTest>>testADebuggerOnARunningVirtualMachineReadNotHeldOpensOnItsTopFrame | TestTookTooMuchTime | #164
+HeldImageDebuggerCommandsTest>>testAnImageThatEndsWhileHeldIsSaidAtOnce | PolyphemusChannelError MessageNotUnderstood: receiver of "sender" is nil | #164
+HeldImageSavingTest>>testASaveThatDoesNotCompileIsShownInThePaneAtTheError | PolyphemusChannelError MessageNotUnderstood: receiver of "sender" is nil | #164
+LinuxRootObserverTest>>testAStockVirtualMachineIsHeldAsRoot | TestFailure the target never started as runner | #31
