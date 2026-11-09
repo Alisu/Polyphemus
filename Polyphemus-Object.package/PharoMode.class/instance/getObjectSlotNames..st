@@ -1,8 +1,8 @@
 mode
 getObjectSlotNames: aClassOop
 
-	"A class's instance variable names, read from its layout. Defensive: one oddly shaped entry
-	costs that entry, not every name."
+	"A class's instance variable names, read from its layout. An entry that does not read keeps
+	its place as '(unreadable name)', so that each later name still names its own slot (#118)."
 
 	| res layout |
 	res := OrderedCollection new.
@@ -13,5 +13,5 @@ getObjectSlotNames: aClassOop
 	2 to: ([ layout oopNumberOfSlots ] on: Error do: [ :e | 1 ]) do: [ :anIndex |
 		[ res add: ((layout reifiedSlotAt: anIndex) reifiedSlotAt: 1) ]
 			on: Error
-			do: [ :e | "unreadable slot: skip it" ] ].
+			do: [ :e | res add: '(unreadable name)' ] ].
 	^ res
