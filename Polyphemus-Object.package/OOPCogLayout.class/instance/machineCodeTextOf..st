@@ -20,6 +20,8 @@ machineCodeTextOf: aMethodAddress
 			  (self cogit isPCMappedAnnotation: annotation) ifTrue: [
 				  ([ self cogit bytecodePCFor: mcpc startBcpc: start in: cogMethod ] on: Error do: [ :e | 0 ])
 					  ifNotNil: [ :bcpc | bcpc > 0 ifTrue: [ s nextPutAll: '  -> bytecode pc ' , (bcpc + 1) printString ] ] ].
+			  annotation >= (Cogit bindingOf: #IsSendCall) value ifTrue: [
+				  (self linkOfSendAt: mcpc) ifNotNil: [ :link | s nextPutAll: ', ' , link ] ].
 			  s cr.
 			  false ].
 		  s cr; nextPutAll: 'Bytes'; cr.
