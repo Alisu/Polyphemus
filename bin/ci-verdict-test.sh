@@ -9,7 +9,8 @@ failures=0
 check() { if eval "$2"; then echo "ok   $1"; else echo "FAIL $1"; failures=$((failures + 1)); fi; }
 dir=$(mktemp -d)
 printf '%s\n' '# test | message start | issue' \
-  'RingTest>>testRace | the image never took the interrupt | #137' > "$dir/known"
+  'RingTest>>testRace | Error the image never took the interrupt | #137' \
+  'SlowTest>>testWait | TestTookTooMuchTime | #31' > "$dir/known"
 log() { sed 's/^/2026-11-01T12:26:06.4241060Z /' > "$dir/log"; }
 verdict() { KNOWN_FLAKES="$dir/known" "$VERDICT" --log "$dir/log" > "$dir/out" 2>&1; echo $?; }
 
@@ -23,7 +24,32 @@ log <<'LOG'
     FLAKY OtherTest>>testSlow
 == totals: 965 run, 0 failures, 0 errors, 0 broken, 1 flaky ==
 LOG
-check "a test that passed again alone is no failure" "[ \$(verdict) -eq 0 ] && grep -q '^VERDICT green' $dir/out"
+check "a flake not on the list is new, though it passed again alone (#164)" "[ \$(verdict) -eq 1 ] && grep -q 'NEW OtherTest>>testSlow (failed, then passed alone)' $dir/out"
+
+log <<'LOG'
+    ERROR SlowTest>>testWait -- TestTookTooMuchTime
+    FLAKY SlowTest>>testWait
+== totals: 965 run, 0 failures, 0 errors, 0 broken, 1 flaky ==
+LOG
+check "a listed flake that passed again alone is known" "[ \$(verdict) -eq 0 ] && grep -q 'KNOWN #31 SlowTest>>testWait' $dir/out"
+
+log <<'LOG'
+    ERROR RingTest>>testRace -- KeyNotFound key not found, after: Error the image never took the interrupt
+== totals: 965 run, 0 failures, 1 errors, 0 broken, 0 flaky ==
+LOG
+check "a listed message counts only at the start of the failure's (#164)" "[ \$(verdict) -eq 1 ] && grep -q 'NEW RingTest>>testRace' $dir/out"
+
+log <<'LOG'
+== totals: 0 run, 0 failures, 0 errors, 0 broken, 0 flaky ==
+LOG
+check "a suite that ran nothing is no green (#164)" "[ \$(verdict) -eq 2 ] && grep -q '^VERDICT infra' $dir/out"
+
+log <<'LOG'
+== totals: 965 run, 0 failures, 0 errors, 0 broken, 0 flaky ==
+!! not every class answered
+##[error]Process completed with exit code 1.
+LOG
+check "a check failing after a clean suite is new (#164)" "[ \$(verdict) -eq 1 ] && grep -q 'NEW !! not every class answered' $dir/out"
 
 log <<'LOG'
     ERROR RingTest>>testRace -- Error the image never took the interrupt: is it running the watcher
@@ -56,7 +82,7 @@ RES HeavyTest BROKEN no result (exit 1)
     FLAKY HeavyTest
 == totals: 965 run, 0 failures, 0 errors, 0 broken, 1 flaky ==
 LOG
-check "a broken class that ran again green is no failure" "[ \$(verdict) -eq 0 ]"
+check "a broken class that ran again green is a new flake (#164)" "[ \$(verdict) -eq 1 ] && grep -q 'NEW HeavyTest (failed, then passed alone)' $dir/out"
 
 log <<'LOG'
 WARM ERR target image :: Could not fetch cleanP13.image into resources: is curl there, and files.pharo.org reachable?
@@ -90,6 +116,33 @@ GH
 chmod +x "$dir/bin/gh"
 PATH="$dir/bin:$PATH" "$VERDICT" 41574774098 > "$dir/out" 2>&1; rc=$?
 check "a log gh prints only with escapes allowed is read" "[ $rc -eq 1 ] && grep -q 'NEW SomeTest>>testIt' $dir/out"
+# A green job is read too: a flake hides in it (#164).
+cat > "$dir/bin/gh" <<'GH'
+#!/bin/sh
+case "$*" in
+  "run view"*) echo "8 success Pharo 13" ;;
+  "api --help") echo "" ;;
+  api*/actions/jobs/8/logs*)
+    echo "2026-11-03T02:00:00.0000000Z     ERROR OtherTest>>testSlow -- TestTookTooMuchTime"
+    echo "2026-11-03T02:00:00.0000000Z     FLAKY OtherTest>>testSlow"
+    echo "2026-11-03T02:00:01.0000000Z == totals: 965 run, 0 failures, 0 errors, 0 broken, 1 flaky ==" ;;
+esac
+GH
+chmod +x "$dir/bin/gh"
+PATH="$dir/bin:$PATH" "$VERDICT" 41574774099 > "$dir/out" 2>&1; rc=$?
+check "a green job's unlisted flake is seen (#164)" "[ $rc -eq 1 ] && grep -q 'NEW OtherTest>>testSlow' $dir/out"
+cat > "$dir/bin/gh" <<'GH'
+#!/bin/sh
+case "$*" in
+  "run view"*) echo "7 failure Pharo 10" ;;
+  "api --help") echo "      --allow-escape-sequences   Allow terminal escape sequences" ;;
+  api*/actions/jobs/7/logs*)
+    case "$*" in *--allow-escape-sequences*) ;; *)
+      echo "the response contains terminal escape sequences; pass --allow-escape-sequences to output it anyway" >&2; exit 1 ;; esac
+    [ -n "${GH_LOG_GONE:-}" ] && { echo "HTTP 410: Gone" >&2; exit 1; } ;;
+esac
+GH
+chmod +x "$dir/bin/gh"
 GH_LOG_GONE=1 PATH="$dir/bin:$PATH" "$VERDICT" 41574774098 > "$dir/out" 2>&1; rc=$?
 check "a job log gh cannot give is unread, not a suite that never ran" \
   "[ $rc -eq 2 ] && grep -q 'Pharo 10: unread' $dir/out && ! grep -q 'no suite ran' $dir/out"
