@@ -1,0 +1,14 @@
+{
+	"commentStamp" : "",
+	"super" : "OOPAbstractEntity",
+	"category" : "Polyphemus-Object-oop",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [
+		"index",
+		"reason"
+	],
+	"name" : "OOPUnreadableSlot",
+	"type" : "normal"
+}

@@ -1,0 +1,1 @@
+An object's slots, each reified, one that does not read said so rather than shown as nil (#118).

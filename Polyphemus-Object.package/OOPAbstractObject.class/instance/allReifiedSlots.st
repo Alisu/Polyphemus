@@ -1,8 +1,10 @@
 accessing-slots
 allReifiedSlots
 
-	| errorBlock |
-	"I am unsure of what we should do for now I will juste anwser nilObject" 
-	errorBlock := [ memory objectAt: memory nilObject ].
-	^ (1 to: self oopNumberOfSlots) collect: [ :anIndex | 
-		  [ self reifiedSlotAt: anIndex ] onErrorDo: errorBlock ]
+	"Each slot reified, in order; one that does not read stands as an OOPUnreadableSlot saying
+	why, in its place, not as nil (#118)."
+
+	^ (1 to: self oopNumberOfSlots) collect: [ :anIndex |
+		  [ self reifiedSlotAt: anIndex ]
+			  on: Error
+			  do: [ :e | OOPUnreadableSlot index: anIndex because: e messageText asString on: memory ] ]
