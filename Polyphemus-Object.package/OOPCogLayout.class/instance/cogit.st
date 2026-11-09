@@ -19,7 +19,10 @@ cogit
 		  cogit
 			  instVarNamed: #coInterpreter
 			  put: (OOPCogInterpreterStandIn on: self interpreter: memory interpreter).
-		  cogit instVarNamed: #backEnd put: (self class backEndFor: raw vmVariables processor).
+		  cogit instVarNamed: #backEnd put: ((self class backEndFor: raw vmVariables processor)
+				   instVarNamed: #cogit put: cogit;
+				   instVarNamed: #objectMemory put: (cogit instVarNamed: #objectMemory);
+				   yourself).
 		  cogit instVarNamed: #generatorTable put: StackToRegisterMappingCogit generatorTable.
 		  cogit instVarNamed: #cogMethodSurrogateClass put: self cogMethodSurrogateClass.
 		  "VMMaker v10.3 has no block surrogate: its block methods read as methods."
