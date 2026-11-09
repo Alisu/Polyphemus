@@ -22,3 +22,4 @@ HeldImageDebuggerCommandsTest>>testAnImageThatEndsWhileHeldIsSaidAtOnce | Polyph
 HeldImageSavingTest>>testASaveThatDoesNotCompileIsShownInThePaneAtTheError | PolyphemusChannelError MessageNotUnderstood: receiver of "sender" is nil | #164
 LinuxRootObserverTest>>testAStockVirtualMachineIsHeldAsRoot | TestFailure the target never started as runner | #31
 HeldImageSavingTest>>testASaveRemembersNoYoungObject | PolyphemusChannelError MessageNotUnderstood: receiver of "sender" is nil | #164
+HeldImageEditingTest>>testACounterSteppedFromItsLoopsFrameThenEditedCountsOn | TestFailure a heap it read or wrote breaks an invariant: #freeSpace | #165
