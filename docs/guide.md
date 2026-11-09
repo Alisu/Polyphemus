@@ -118,10 +118,11 @@ lets the observee run on without it (#125): for a loop you do not want to go on.
 - **"the hold ended after 60 minutes without a request"**: the debugger was left that long, and
   the observee went on. Hold it again. For a longer hold, `Polyphemus holdLimit: 3 hours` before
   holding; `Polyphemus holdLimit: nil` for no limit, at the cost of the line above.
-- **"the image did not answer within 1:00"**: a step over something that waits longer than a
-  minute. The observee is still inside that step, waiting; next time, hold it further on with
-  `runUntil:` rather than stepping over the wait ([limitations.md](limitations.md), "Stepping in
-  the debugger").
+- **"RequestStopped: stopped after 50 s"**: a step, or an expression, that had not ended after 50
+  seconds (a loop that never ends, a wait). It is stopped and the image stays held, answering
+  on (#161); to step over a long wait, hold it further on with `runUntil:` instead, or give it
+  longer with `PolyphemusAgent requestLimit: 5 minutes` before holding (under a minute, the
+  observer's own wait, unless that is raised too).
 - **Refused to hold** an image that loops at priority 70 or more, or is stuck in C: the table in [limitations.md](limitations.md) says which and why. You can still take a core
   and read it, without holding anything:
 
