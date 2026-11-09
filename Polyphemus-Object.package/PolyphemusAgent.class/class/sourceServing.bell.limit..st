@@ -10,6 +10,7 @@ dir := ' , aDirectory asFileReference fullName printString , ' asFileReference.
 [ dir exists ] whileFalse: [ [ dir ensureCreateDirectory ] on: DirectoryExists do: [ :e | ] ].
 count := 0.
 workspace := Dictionary new.
+workspace at: #agent put: Processor activeProcess.
 bell := ' , (aSource ifNil: [ 'Semaphore new.
 (dir / ''bell-index.tmp'') ensureDelete; writeStreamDo: [ :stream | stream print: (Smalltalk registerExternalObject: bell) ].
 (dir / ''bell-index.tmp'') renameTo: ''bell-index''' ]) , '.
@@ -39,7 +40,7 @@ last := Time millisecondClockValue.
 							on: Error , (Smalltalk globals at: #SyntaxErrorNotification ifAbsent: [ Error ])
 							do: [ :error | ''error'' , String lf , error class name , '': '' , error messageText asString ].
 						finished := true ] newProcess.
-					worker priority: Processor activePriority.
+					worker priority: Processor activePriority; name: ' , self requestProcessName printString , '.
 					watchdog := [
 						(Delay forMilliseconds: requestLimit) wait.
 						finished ifFalse: [ stopped := true. worker terminate ] ] newProcess.

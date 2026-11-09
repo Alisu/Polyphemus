@@ -21,3 +21,4 @@ HeldImageEvaluatingTest>>testADebuggerOnARunningVirtualMachineReadNotHeldOpensOn
 HeldImageDebuggerCommandsTest>>testAnImageThatEndsWhileHeldIsSaidAtOnce | PolyphemusChannelError MessageNotUnderstood: receiver of "sender" is nil | #164
 HeldImageSavingTest>>testASaveThatDoesNotCompileIsShownInThePaneAtTheError | PolyphemusChannelError MessageNotUnderstood: receiver of "sender" is nil | #164
 LinuxRootObserverTest>>testAStockVirtualMachineIsHeldAsRoot | TestFailure the target never started as runner | #31
+HeldImageSavingTest>>testASaveRemembersNoYoungObject | PolyphemusChannelError MessageNotUnderstood: receiver of "sender" is nil | #164
