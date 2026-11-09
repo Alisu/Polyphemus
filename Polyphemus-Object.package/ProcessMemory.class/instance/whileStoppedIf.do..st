@@ -6,6 +6,7 @@ whileStoppedIf: aCondition do: aBlock
 
 	| fresh answer |
 	fresh := self class on: pid.
+	fresh stopBound: self stopBound.
 	fresh stop ifFalse: [
 		fresh close.
 		^ 'it would not stop' ].
@@ -22,5 +23,6 @@ whileStoppedIf: aCondition do: aBlock
 	          why ifNil: [ { (aBlock cull: dumped cull: fresh) } ] ifNotNil: [ why ] ] valueThenLetGo: [
 		          fresh resume.
 		          fresh close ].
+	fresh lastStopLasted ifFalse: [ ^ self ranWhileRead ].
 	answer isArray ifFalse: [ (Delay forMilliseconds: 50) wait ].
 	^ answer

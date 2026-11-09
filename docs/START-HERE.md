@@ -114,12 +114,13 @@ memory := Polyphemus readProcess: 175398.        "your pid"
 memory allReifiedProcesses size.                  "16"
 ```
 
-It is stopped only while it is copied, and only at a moment its VM is quiet. A busy target (in
-a loop) has such moments too, when its VM polls for events between bytecodes, but if none comes
-within a few seconds it is refused, saying so:
+It is stopped only while it is copied, at a moment its VM is quiet if one comes within about two
+seconds. A busy target (in a loop) may never be quiet: it is then copied at a moment no garbage
+collection runs and its classes and special objects read whole (#113). If even that never comes,
+it is refused, saying what the last try saw:
 
 ```
-SpurCannotRead: cannot read bytes: itWasNeverQuietWhenStopped
+SpurCannotRead: cannot read bytes: itWasNeverStoppedAtASafeMoment
 ```
 
 Holding it works whatever it is doing (below).

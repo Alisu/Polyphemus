@@ -9,15 +9,4 @@ whileStoppedAtASafeMoment: aBlock
 	40 timesRepeat: [
 		tried := self whileStoppedIf: [ :fresh | fresh isQuiet ifFalse: [ 'running, not waiting in the kernel' ] ] do: aBlock.
 		tried isArray ifTrue: [ ^ tried first ] ].
-	5 timesRepeat: [
-		tried := self
-			         whileStoppedIf: [ :fresh |
-				         | phase |
-				         phase := (VMVariables on: fresh) at: 'gcPhaseInProgress'.
-				         phase = 0 ifFalse: [ 'collecting garbage (gcPhaseInProgress ' , phase printString , ')' ] ]
-			         do: aBlock.
-		tried isArray ifTrue: [ ^ tried first ] ].
-	^ SpurCannotRead new
-		  level: #bytes reason: #itWasNeverStoppedAtASafeMoment;
-		  detail: 'last try: ' , tried;
-		  signal
+	^ self whileStoppedOutsideACollection: aBlock
