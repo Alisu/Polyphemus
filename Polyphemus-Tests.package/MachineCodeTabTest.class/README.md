@@ -1,0 +1,1 @@
+The Machine code tab of a method Cog compiled, read from a running VM: its CogMethod, read only (#95).
