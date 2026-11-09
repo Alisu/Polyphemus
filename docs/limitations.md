@@ -61,8 +61,8 @@ core first (`Polyphemus dumpProcess:to:`), read and repair that, and act live on
   image again (#135).
 - **If the image's process ends while it is held**, the next command says so at once ("the image
   is gone"), and the debugger stays open on the last reading; close it as usual.
-- **A request to a held image waits one minute at most**: a step over a call that takes longer ends
-  with "the image did not answer within 1:00".
+- **A request to a held image runs 50 seconds at most**: a step or an expression that has not
+  ended by then is stopped, and says so ("RequestStopped"); the image stays held (#161).
 - **An image that allocates without ever pausing is sometimes not held** (the hold reads it at a
   bad moment): try again, or hold it at a method with `runUntil:` (#98).
 - **If the observer itself crashes or is killed during a hold, the image can stay frozen for up

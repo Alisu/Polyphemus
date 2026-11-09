@@ -4,7 +4,7 @@
 	"category" : "Polyphemus-Object-process",
 	"classinstvars" : [ ],
 	"pools" : [ ],
-	"classvars" : [ "HoldLimit" ],
+	"classvars" : [ "HoldLimit", "RequestLimit" ],
 	"instvars" : [  ],
 	"name" : "PolyphemusAgent",
 	"type" : "normal"

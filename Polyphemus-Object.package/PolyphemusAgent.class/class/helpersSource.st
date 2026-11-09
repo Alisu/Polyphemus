@@ -2,20 +2,25 @@ source
 helpersSource
 
 	"What a held image is asked to do, as blocks in the agent's workspace, called by name with
-	literal values (HeldProcess>>call:with:) rather than source pasted together (#118)."
+	literal values (HeldProcess>>call:with:) (#118). The held process is unregistered once the image
+	runs again: held inside the table's lock, waiting for it would hold the image for ever (#162)."
 
 	^ 'self at: #keepStill put: [
 	((Processor instVarNamed: #quiescentProcessLists) includes: ((self at: #process) instVarNamed: #myList))
 		ifTrue: [ (self at: #process) suspend. self at: #suspended put: true ] ].
 self at: #letGo put: [
-	Smalltalk unregisterExternalObject: (self at: #process).
+	| process |
+	process := self at: #process.
 	(self at: #suspended ifAbsent: [ false ]) ifTrue: [
 		self removeKey: #suspended.
-		(self at: #process) resume ] ].
+		process resume ].
+	[ Smalltalk unregisterExternalObject: process ] forkAt: Processor userBackgroundPriority ].
 self at: #stop put: [
-	Smalltalk unregisterExternalObject: (self at: #process).
+	| process |
+	process := self at: #process.
 	self removeKey: #suspended ifAbsent: [ nil ].
-	(self at: #session) terminate ].
+	(self at: #session) terminate.
+	[ Smalltalk unregisterExternalObject: process ] forkAt: Processor userBackgroundPriority ].
 self at: #frameBelow put: [ :depth |
 	| context |
 	context := (self at: #session) interruptedContext.
