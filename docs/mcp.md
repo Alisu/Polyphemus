@@ -35,14 +35,14 @@ claude mcp add polyphemus -- ssh worker-box '~/polyphemus/Polyphemus/bin/polyphe
 | `processes(handle)` | Each Smalltalk process, numbered: state, priority, name, depth, the method on top |
 | `stack(handle, process, depth)` | Its frames: method, the statement it was in, receiver, temporaries and values |
 | `inspect(handle, address, limit)` | An object: class, format, named slots and the first indexable ones, a string's characters |
-| `where_stuck(pid)` | Where a running VM is, from `/proc` (on macOS its task port, as root): each thread's system call or pc, the signals it catches |
+| `where_stuck(pid)` | Where a running VM is, from `/proc` (on macOS its task port, as root): each thread's system call or pc, what a blocked call waits on (#159), the signals it catches |
 | `hold(pid, directory)` | Holds a running VM on what it is busy with, in its own debugger, our watcher put in first if none waits on `directory` (by default a folder of ours under the temporary folder). A handle, and the held process's frames, top first. It stays held until `let_go`, or an hour without requests |
 | `run_until(handle, method, seconds)` | Lets the held VM run until some process reaches `Class >> #selector`, and holds it there; if not in time (60 s by default), where it got to. Whether it was reached, and the frames |
 | `step(handle, how, frame)` | Steps the held process `into`, `over` (the default) or `through`, at the top frame or the one below (`frame` 1 or 2), as the debugger's buttons do. Its frames afterwards |
 | `save(handle, source, frame)` | Saves a method's new source into the held VM where the frame's method is (the top one by default), and restarts that frame in it, as the debugger does on accept; the image keeps the source in its changes. Not saved (a source that does not parse or compile), the answer is a failure saying why, and the VM stays held |
 | `stop(handle)` | Ends the held process, its ensure blocks run, as the debugger's Stop does, and lets the VM run on without it; the handle is forgotten |
 | `let_go(handle)` | The held VM runs on, the process held with it, and the handle is forgotten |
-| `open_process(pid)` | A handle on a running VM's memory, copied while it was held still at a quiet moment, then let go, for `processes`, `stack` and `inspect`. On macOS through the VM's task port, which needs the server run as root (`docs/handover-macos.md`) |
+| `open_process(pid)` | A handle on a running VM's memory, copied while it was held still at a safe moment (quiet, else outside a collection, #113), then let go, for `processes`, `stack` and `inspect`. On macOS through the VM's task port, which needs the server run as root (`docs/handover-macos.md`) |
 
 `processes` and `stack` give the address of each process, receiver and temporary value, and
 `inspect` the address of each slot that holds an object, so an agent follows references from one

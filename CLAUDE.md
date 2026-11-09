@@ -21,8 +21,8 @@ Three stages, in order:
 3. **Stage 3 (done)** — a *live* image: interrupt it, hold it, read it, fix it, let it go.
    Much of it arrived with stage 2's editing work; what it does, and what is only believed
    rather than checked, is in `docs/stage3-live-image.md`. Then an edition per operating system:
-   macOS arm64 done 2026-10-14 (`docs/handover-macos.md`, in CI); Windows x64 under way on branch
-   `windows` (`docs/handover-windows.md`). #47, many instances at once, is parked.
+   macOS arm64 done 2026-10-14 (`docs/handover-macos.md`, in CI); Windows x64, Pharo 13, a
+   preview in CI since 2026-10-19 (`docs/handover-windows.md`, #32). #47, many instances at once, is parked.
 
 ## Environment (on the Ubuntu box, `~/polyphemus`)
 
@@ -130,7 +130,7 @@ Fork-only, and the canonical record. `mistakes.md` first if a hunt is going long
 
 Green: **each of Pharo 10 to 14, 0 failures** (`bin/run-tests.sh --all -j 6` ~4 min
 alone on a cool box; `bin/gate.sh` every edition in turn). Stage 3 done 2026-09-26; editions for Pharo 10 to 14 done 2026-09-28
-(`docs/editions.md`, what each changed in `docs/patch-notes.md`); macOS arm64 since 2026-10-14, Windows under way (Pharo 14 is not released yet: its pin will move). The two defects this
+(`docs/editions.md`, what each changed in `docs/patch-notes.md`); macOS arm64 since 2026-10-14, a Windows preview since 2026-10-19 (Pharo 14 is not released yet: its pin will move). The two defects this
 fork started with — the load-time simulator crash and `computeOperandStack:` — are fixed.
 
 ### Stage 1 — a corrupted image file. Done.
@@ -179,7 +179,7 @@ What it is made of:
 - **Reading the bytes.** `ElfCoreDump` answers three messages — `hasAddress:`,
   `bytesAt:count:`, `unsignedAt:size:` — from a file, through one open stream and a 64 KB block
   cache. `ByteArrayAddressSpace` answers the same three from bytes in hand, `LinuxProcessMemory`
-  from `/proc/<pid>/mem` (no FFI), `MacProcessMemory` from a task port; Windows is under way.
+  from `/proc/<pid>/mem` (no FFI), `MacProcessMemory` from a task port, `WindowsProcessMemory` on the Windows preview.
   Nothing above them learns which it is holding.
 - **Finding the heap.** `SpurHeapScanner` finds old space by its shape: the nil/false/true
   triple, then believed only if the walk from it runs. On a real 204 MB core it found the heap
@@ -282,6 +282,11 @@ worth its cost; #23 holds what that would take.
   cut to this; the originals are in git history.
 
 - **TDD**: red test first, then the fix. No implementation before a failing test.
+- **CI is the gate** (since 2026-11-01): test first with `bin/tdd.sh` on Pharo 13 and 10, commit
+  on a short-lived `ci/<topic>` branch made from stage2 and push it; CI runs every edition. Read
+  the run with `bin/ci-verdict.sh <run>`: green, or red only from flakes listed in
+  `bin/known-flakes.txt`, fast-forwards stage2 to the branch, which is then deleted. Anything
+  else is fixed on the branch first. The tiers below are kept for tags and for what CI cannot run.
 - **Gate in tiers** (since 2026-09-28; a gate of every edition took up to 52 min, and a commit
   build should stay near ten minutes -- Beck's XP guideline, and the most common "maximum
   acceptable" CI build time in Hilton et al., FSE 2017):
