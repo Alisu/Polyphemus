@@ -9,7 +9,11 @@
    at a later step of the image. Version 5: a hold wanted is a file too (the observer's hold, the
    trap's trap), so a signal delivered after the observer let go can be told from a wanted one.
    Version 6, after the box run of 2026-10-31: the trap fires in two steps of a user process
-   (taking itself out, then its file and its signal), which a stop or the agent can come between. *)
+   (taking itself out, then its file and its signal), which a stop or the agent can come between.
+   Version 7, after #161 (2026-11-09): what a request does is no longer one step. It starts, then
+   ends or hangs (a loop, a wait that never ends); run apart (#161), a watchdog stops a hung one;
+   while it runs it may meet the trap; and with the agent asleep meanwhile, a hung request that
+   blocks leaves the VM nothing to run when the held process is its idle process. *)
 
 EXTENDS Naturals
 
@@ -27,14 +31,18 @@ CONSTANTS
     AnyDeadline,          \* TRUE: runUntil:'s deadline may pass at any moment, the trap still armed
     WatcherChecksToken,   \* TRUE: woken with neither hold nor trap there, the watcher waits again
     TrapClaims,           \* TRUE: the trap or the agent's removal claims it in one step; the removal says which
-    StopEndsWithObserver  \* TRUE: a stop is let go when the observer dies (ptrace); FALSE: SIGSTOP
+    StopEndsWithObserver, \* TRUE: a stop is let go when the observer dies (ptrace); FALSE: SIGSTOP
+    RequestsMayHang,      \* TRUE: a plain request (a step, an expression) may never end
+    RequestApart,         \* TRUE (#161): a request runs in a process of its own, a watchdog stops it if it hangs
+    TrapPassesRequests,   \* TRUE: the trap lets the agent's request processes through, not only the agent
+    AgentSleeps           \* TRUE: the agent sleeps while a request runs (#161's first try); FALSE: it spins
 
 VARIABLES
     excess,      \* the watcher's semaphore: signals counted
     bell,        \* the agent's own bell, when SeparateBell
     stopped,     \* the image is stopped by the observer
     w,           \* watcher: waiting | woken | spin | agent | after
-    a,           \* agent: none | starting | serving | ended
+    a,           \* agent: none | starting | serving | running (a request) | hung (one that never ends) | ended
     intent,      \* holds signalled for (by the observer or the trap) not yet taken
     trapOn,      \* the trap: off | on (installed) | firing (taken out, its file and signal to come)
     installing,  \* the observer's pending request installs the trap
@@ -46,7 +54,8 @@ VARIABLES
     oPc, ringNext, oAlive, iAlive, holds, asks,
     pending,     \* signals the observer asked for that the VM has not delivered yet
     hist         \* [badWrite: a ring written past nil, lost: the observer gave up on a live image,
-                 \*  badRemove: the removal took out a trap already taking itself out]
+                 \*  badRemove: the removal took out a trap already taking itself out,
+                 \*  ownTrap: a request of ours took the trap, abort: the VM found nothing to run]
 
 vars == <<hist, pending, excess, bell, stopped, w, a, intent, trapOn, installing, removing, removed, f, reqN, ansN,
           oPc, ringNext, oAlive, iAlive, holds, asks>>
@@ -60,7 +69,8 @@ Init ==
     /\ trapOn = "off" /\ installing = FALSE /\ removing = FALSE /\ removed = "removed" /\ f = NoFiles
     /\ reqN = 0 /\ ansN = 0
     /\ oPc = "idle" /\ ringNext = "idle" /\ oAlive = TRUE /\ iAlive = TRUE /\ holds = 0 /\ asks = 0
-    /\ hist = [badWrite |-> FALSE, lost |-> FALSE, badRemove |-> FALSE] /\ pending = 0
+    /\ hist = [badWrite |-> FALSE, lost |-> FALSE, badRemove |-> FALSE, ownTrap |-> FALSE, abort |-> FALSE]
+    /\ pending = 0
 
 (* A signal on the watcher's semaphore, taken by the VM when the image runs: it resumes the
    watcher if the watcher waits on it, else it is counted. *)
@@ -125,25 +135,68 @@ AgentStarts ==
     /\ bell' = 0
     /\ UNCHANGED <<hist, pending, excess, w, intent, trapOn, stopped, Channel, Observer, oAlive, iAlive>>
 
-(* Rung: the ring consumed, then the next request answered if there, else go read. *)
+(* A request answered: installed or removed the trap if it was for that. *)
+Answered ==
+    /\ ansN' = ansN + 1
+    /\ trapOn' = IF installing THEN "on"
+                  ELSE IF removing /\ trapOn = "on" THEN "off" ELSE trapOn
+    /\ removed' = CASE ~removing -> removed
+                     [] trapOn = "on" -> "removed"
+                     [] trapOn = "firing" -> "firing"
+                     [] OTHER -> "fired"
+    /\ hist' = [hist EXCEPT !.badRemove = hist.badRemove
+                               \/ (removing /\ trapOn = "firing" /\ ~TrapClaims)]
+    /\ installing' = FALSE /\ removing' = FALSE
+
+\* Version 7: a request is more than one step when it may hang or runs apart.
+RequestSteps == RequestsMayHang \/ RequestApart
+
+(* Rung: the ring consumed, then the next request answered (or started) if there, else go read. *)
 AgentRung ==
     /\ Runs /\ a = "serving"
     /\ IF SeparateBell THEN bell > 0 /\ bell' = 0 /\ UNCHANGED excess
                        ELSE excess > 0 /\ excess' = 0 /\ UNCHANGED bell
     /\ IF reqN > ansN
-       THEN /\ ansN' = ansN + 1 /\ UNCHANGED a
-            /\ trapOn' = IF installing THEN "on"
-                          ELSE IF removing /\ trapOn = "on" THEN "off" ELSE trapOn
-            /\ removed' = CASE ~removing -> removed
-                             [] trapOn = "on" -> "removed"
-                             [] trapOn = "firing" -> "firing"
-                             [] OTHER -> "fired"
-            /\ hist' = [hist EXCEPT !.badRemove = hist.badRemove
-                                       \/ (removing /\ trapOn = "firing" /\ ~TrapClaims)]
-            /\ installing' = FALSE /\ removing' = FALSE
+       THEN IF RequestSteps
+            THEN a' = "running" /\ UNCHANGED <<hist, ansN, trapOn, installing, removing, removed>>
+            ELSE Answered /\ UNCHANGED a
        ELSE /\ a' = IF f.go THEN "ended" ELSE "serving"
             /\ UNCHANGED <<hist, ansN, trapOn, installing, removing, removed>>
     /\ UNCHANGED <<pending, w, intent, f, stopped, reqN, Observer, oAlive, iAlive>>
+
+\* The request ends and is answered.
+RequestEnds ==
+    /\ Runs /\ a = "running"
+    /\ Answered /\ a' = "serving"
+    /\ UNCHANGED <<pending, excess, bell, w, intent, f, stopped, reqN, Observer, oAlive, iAlive>>
+
+\* A plain request (not our own trap's) never ends: an endless loop, a wait nothing ends.
+RequestHangs ==
+    /\ RequestsMayHang /\ Runs /\ a = "running" /\ ~installing /\ ~removing
+    /\ a' = "hung"
+    /\ UNCHANGED <<hist, pending, excess, bell, w, intent, trapOn, f, stopped, Channel, Observer, oAlive, iAlive>>
+
+\* Run apart, a hung request is stopped at its limit, and answered so (#161).
+WatchdogStops ==
+    /\ RequestApart /\ Runs /\ a = "hung"
+    /\ ansN' = ansN + 1 /\ a' = "serving"
+    /\ UNCHANGED <<hist, pending, excess, bell, w, intent, trapOn, f, stopped, installing, removing, removed,
+                   reqN, Observer, oAlive, iAlive>>
+
+(* A request's process reaches the trapped method. Run by the agent, the trap lets it pass; run
+   apart, only if the trap lets the agent's requests through too. Else the trap fires on us. *)
+RequestTakesTrap ==
+    /\ RequestApart /\ ~TrapPassesRequests /\ Runs /\ a \in {"running", "hung"} /\ trapOn = "on"
+    /\ trapOn' = "off" /\ f' = [f EXCEPT !.trap = TRUE] /\ intent' = intent + 1 /\ Signal
+    /\ hist' = [hist EXCEPT !.ownTrap = TRUE]
+    /\ UNCHANGED <<pending, bell, a, stopped, Channel, Observer, oAlive, iAlive>>
+
+(* The agent asleep while a hung request blocks, the held process suspended: when that is the
+   idle process, nothing in the image can run, and the VM aborts. *)
+VMAborts ==
+    /\ RequestApart /\ AgentSleeps /\ Runs /\ a = "hung"
+    /\ hist' = [hist EXCEPT !.abort = TRUE] /\ iAlive' = FALSE
+    /\ UNCHANGED <<pending, Image, stopped, f, Channel, Observer, oAlive>>
 
 AgentExpires ==
     /\ HoldLimit /\ Runs /\ a = "serving" /\ (IF SeparateBell THEN bell ELSE excess) = 0
@@ -182,6 +235,7 @@ ImageDies ==
 ImageSteps ==
     WatcherWakes \/ WatcherSpinEnds(TRUE) \/ WatcherSpinEnds(FALSE) \/ WatcherAfter
     \/ AgentStarts \/ AgentRung \/ AgentExpires \/ AgentEnds \/ TrapStarts \/ TrapFires \/ DeliverSignal
+    \/ RequestEnds \/ RequestHangs \/ WatchdogStops \/ RequestTakesTrap \/ VMAborts
 
 ----------------------------------------------------------------------------
 (* The observer: holdWithin:, serveAndHold:, ask:within:, letGo, runUntil:within:. The first
@@ -223,7 +277,7 @@ RingStop ==
 (* The ring (countOneSignalOnExternalSemaphore:), decided while the image is stopped: it sets
    the semaphore's count to 1 and wakes nobody. With SeparateBell it goes to bell-index once that
    exists; a bell no longer registered is a write past nil. With the guard, none after bell-ended. *)
-BellRegistered == a \in {"serving", "ended"}
+BellRegistered == a \in {"serving", "running", "hung", "ended"}
 
 RingResume ==
     /\ OStep("ringResume")
@@ -354,7 +408,7 @@ Spec ==
     /\ WF_vars(WatcherWakes) /\ WF_vars(WatcherSpinEnds(TRUE)) /\ WF_vars(WatcherSpinEnds(FALSE))
     /\ WF_vars(WatcherAfter) /\ WF_vars(AgentStarts) /\ WF_vars(AgentRung)
     /\ WF_vars(AgentExpires) /\ WF_vars(AgentEnds) /\ WF_vars(TrapStarts) /\ WF_vars(TrapFires)
-    /\ WF_vars(DeliverSignal)
+    /\ WF_vars(DeliverSignal) /\ WF_vars(RequestEnds) /\ WF_vars(WatchdogStops)
 
 ----------------------------------------------------------------------------
 (* Properties, numbered as in protocol.md. *)
@@ -387,6 +441,12 @@ NoBadWrite == ~hist.badWrite
 
 \* 12. The observer never gives up on an image that is alive and whose agent did not expire.
 NoLostHold == ~hist.lost
+
+\* 15. No process of ours (the agent, a request of its) takes the trap (#161).
+NoOwnTrap == ~hist.ownTrap
+
+\* 16. The image is never left with nothing to run while held (#161's first try).
+NoAbort == ~hist.abort
 
 StateBound == excess <= 3 /\ bell <= 3 /\ intent <= 3 /\ pending <= 3
 =============================================================================
