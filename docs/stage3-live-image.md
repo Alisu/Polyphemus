@@ -72,7 +72,8 @@ An image that knows nothing of Polyphemus has no such process. Signalling its in
 reaches whatever *it* keeps there -- Pharo's own interrupt handling, or nobody at all, in which
 case the signal only increments `excessSignals` and nothing happens. We can still SIGSTOP it and
 read it (`whileStoppedWhenQuiet:`), but we cannot choose the moment, and an image spinning in a
-loop never goes quiet, so that fallback covers the idle case and not the interesting one.
+loop never goes quiet, so that fallback covers the idle case and not the interesting one. (Since
+#113 a reading falls back, as the watcher's injection does, to a moment no collection runs.)
 
 **Measured** (stock Pharo 10 image, launched headless with a busy loop at priority 40, nothing
 of ours in it): nobody waits on slot 31. The semaphore's `firstLink` and `lastLink` are nil, and

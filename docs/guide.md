@@ -37,8 +37,9 @@ Polyphemus whereIsStuck: 12345.
 ```
 
 It says, for each thread, whether it waits in the kernel, runs machine code, or is blocked in a C
-call. An image stuck in a C call (an FFI call, a primitive) cannot be held: take a core instead
-(section 7).
+call, and on what it waits. An image stuck in a C call (an FFI call, a primitive) cannot be
+held: `Polyphemus debugInC: 12345` opens Pharo's debugger on the process that called into C, as
+read, or take a core (section 7).
 
 ## 3. Hold it where you want
 
@@ -121,8 +122,7 @@ lets the observee run on without it (#125): for a loop you do not want to go on.
   minute. The observee is still inside that step, waiting; next time, hold it further on with
   `runUntil:` rather than stepping over the wait ([limitations.md](limitations.md), "Stepping in
   the debugger").
-- **Refused to hold** an image that is never quiet, loops at priority 70 or more, or is stuck in
-  C: the table in [limitations.md](limitations.md) says which and why. You can still take a core
+- **Refused to hold** an image that loops at priority 70 or more, or is stuck in C: the table in [limitations.md](limitations.md) says which and why. You can still take a core
   and read it, without holding anything:
 
   ```smalltalk

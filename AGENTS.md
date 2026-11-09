@@ -34,8 +34,8 @@ Pharo (`docs/editions.md`). Théo is porting it to other operating systems now.
   source or the binary (as the struct layouts were read with `gdb ptype /o`), not recalled.
 - **Measure before and after** anything claimed to be faster.
 - **Make the change asked for**, and say so separately if something else needs doing.
-- **Gate in tiers** (`CLAUDE.md`, Working agreement): before a commit, the suite of the edition
-  you work on; before anything reaches `stage2`, every edition, Linux ones included.
+- **CI is the gate** (`CLAUDE.md`, Working agreement): before a commit, the tests of the edition
+  you work on; before anything reaches `stage2`, CI on every edition, from a `ci/<topic>` branch.
 - **Waiting on a job**: wait on something it writes (a log's last line), with a bound on the
   wait, never on a process listing that matches your own command line.
 - **Each edition gets a section in `docs/patch-notes.md`**: what moved underneath, what we

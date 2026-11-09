@@ -40,10 +40,10 @@ do instead, and the issue that tracks it. When one is lifted, its entry goes.
 | The image... | Reading it | Holding and debugging it |
 |---|---|---|
 | idle, or every process waiting (a deadlock) | yes | yes |
-| looping at a priority below 70 (the usual frozen image) | **refused**: reading waits for a quiet moment it never gets; `where_stuck` answers (#113) | yes: the watcher goes in at a safe moment and holds it |
-| looping at priority 70 or above | refused, as above | **no**: the watcher, at 70, never runs |
-| stuck in C (an FFI call, a primitive) | yes if it waits in the kernel, else refused | **no**: nothing is interpreted, so the watcher never runs; `where_stuck` shows its threads, not the C frames (#18) |
-| allocating without pause | rarely quiet | sometimes (#98) |
+| looping at a priority below 70 (the usual frozen image) | yes: never quiet, it is copied at a moment no garbage collection runs (#113) | yes: the watcher goes in at a safe moment and holds it |
+| looping at priority 70 or above | yes, as above | **no**: the watcher, at 70, never runs |
+| stuck in C (an FFI call, a primitive) | yes; `where_stuck` names the call and what it waits on (#159), `whereIsStuck:reading:` the Smalltalk process and method above it, with the gdb command for the C side (#18) | **no**: nothing is interpreted, so the watcher never runs; `debugInC:` opens Pharo's debugger on that process as read (#18) |
+| allocating without pause | yes, at a moment outside a collection; refused if five tries all land in one (#31) | sometimes (#98) |
 
 **A damaged heap** is read level by level, each saying whether it reads (bytes, heap, objects, free
 space, classes, special objects); the watcher is not put in unless the classes and special objects
@@ -165,6 +165,8 @@ Not tried yet, so unknown rather than broken:
 
 - **A method of an image shipped without sources shows as bytecodes**, not decompiled. A script's
   own code (a `DoIt` frame) shows its source, but which statement runs is not highlighted yet.
-- **A frame in machine code** shows its bytecodes, not the machine code (#19), and no C frames
-  under a primitive or an FFI call (#18).
+- **A frame in machine code** shows its bytecodes. Its method's Machine code tab shows what Cog
+  compiled (the CogMethod, its map, what each send is linked to, its bytes), not a disassembly
+  (#95, #19). No C frames under a primitive or an FFI call: the stuck report prints the gdb
+  command that shows them (#18).
 - **Reading a dump and an image file in the same observer image** breaks the image side (#12).
