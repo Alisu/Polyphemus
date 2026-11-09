@@ -1,6 +1,6 @@
 {
 	"commentStamp": "",
-	"super": "Error",
+	"super": "PolyphemusError",
 	"category": "Polyphemus-Object-process",
 	"classinstvars": [],
 	"pools": [],

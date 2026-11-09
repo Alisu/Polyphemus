@@ -10,9 +10,9 @@ baseline: spec
 		spec postLoadDoIt: #postLoad.
 
 		spec package: 'Polyphemus-Helper' with: [ spec requires: #( 'VMMaker' ) ].
-		spec package: 'Polyphemus-Memory' with: [ spec requires: #( 'VMMaker' ) ].
+		spec package: 'Polyphemus-Memory' with: [ spec requires: #( 'VMMaker' 'Polyphemus-Object' ) ].
 		spec package: 'Polyphemus-Object' with: [ spec requires: #( 'VMMaker' ) ].
-		spec package: 'Polyphemus-Builder' with: [ spec requires: #( 'VMMaker' ) ].
+		spec package: 'Polyphemus-Builder' with: [ spec requires: #( 'VMMaker' 'Polyphemus-Object' ) ].
 		spec package: 'Polyphemus-Tests' with: [
 			spec requires:
 				#( 'VMMakerWithItsTests' 'Polyphemus-Object' 'Polyphemus-Builder' ) ].

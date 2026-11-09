@@ -1,0 +1,1 @@
+Polyphemus's errors under one root, so that a caller can catch ours and let any other error through (#118).
