@@ -52,10 +52,16 @@ they share, each step and the method it comes from, and what must hold whatever 
 
 ### The agent serving (`sourceServing:bell:limit:`)
 - Loop, spinning (no yield, priority 70): wait until `excess > 0` or `now - last > limit`.
-  - Rung: `excess := 0`; if `request.(count+1)` exists, answer it (`answer.(count+1)`); else read
-    `go`: if there, end.
+  - Rung: `excess := 0`; if `request.(count+1)` exists, run it in a process of its own, named
+    `PolyphemusAgent requestProcessName`, at A's priority, and answer it (`answer.(count+1)`);
+    else read `go`: if there, end. While the request runs, A keeps spinning, yielding to it: the
+    image is never left with nothing to run (#161). A watchdog one priority above stops a request
+    still running after `requestLimit` (50 s, under O's minute), and the answer says so.
   - Limit passed (an hour by default, none with `holdLimit: nil`): write `expired`, run `letGo`
     if the image's debugger left one, end.
+- Letting go and Stop resume (or end) the held process, then unregister it from a process at
+  background priority: held inside the external semaphore table's lock, waiting for it would hold
+  the image for ever (#162).
 - After A ends, W writes `released` and waits on the semaphore again. A ring after that sets
   `excess` to 1 under a waiting W: the next hold then breaks (seen on the Mac, 2026-10-30).
 
@@ -102,12 +108,15 @@ Liveness (something good eventually happens):
     two of them.
 14. **The trap is taken out once**: O's removal never takes out a trap already taking itself
     out (the second `uninstall` is an error).
+15. **No process of ours takes the trap**: neither A nor a request A runs (#161).
+16. **Never nothing to run**: while the image is held, some process can always run (#161).
 
 ## What the model leaves out
 
 - Memory, readings, copies: no Spur, no heap. That side is for the invariants in tests.
 - Timing beyond order and timeouts: a timeout is a step that may happen when its condition holds.
-- What a request does inside the image: an answer is one step.
+- What a request does inside the image, beyond ending, never ending, and meeting the trap
+  (version 7). Locks taken inside the image (#162's) are not in it.
 
 ## Results (TLC 2.19, 2026-10-31)
 
@@ -201,6 +210,29 @@ held 60 s with nobody to serve it.
 
 Not modelled yet: putting the watcher in (2, 4), one agent per folder (1); two observers (10) are
 in `HoldPair.tla`.
+
+## Version 7: requests that may not end (#161), 2026-11-09
+
+An answer was one step until #161 showed what that hid: a request that never ends (an endless
+loop stepped over, a wait) held the image for good. Version 7 lets a plain request start, then end
+or hang; run apart, a watchdog stops a hung one; while it runs it may reach the trapped method;
+and with A asleep meanwhile, a hung request that blocks leaves the VM nothing to run when the held
+process is its idle process. Four switches, on top of version 6's final design with the stop
+helper: requests may hang, run apart with a watchdog, the trap passing A's requests, A asleep.
+
+| Design | 12 lost hold | 15 our trap | 16 nothing to run | 8 observer dies | 9 through | others |
+|---|---|---|---|---|---|---|
+| Requests never hang (version 6) | holds | holds | holds | holds | holds | hold |
+| They may hang, A runs them (before #161) | fails (17) | holds | holds | fails (18) | fails (25) | hold |
+| Apart, A asleep (#161's first try) | holds | holds | fails (17) | holds | holds | hold |
+| Apart, the trap passing only A (CI, 2026-11-09) | holds | fails (51) | holds | holds | holds | hold |
+| Apart, the trap passing A's requests, A spinning (now) | holds | holds | holds | holds | holds | hold |
+
+Each failure is a bug the code had that day: #161 itself, where an observer dying did not free the
+image either, the hour limit being checked only between requests; the VM abort of #161's first
+try ("scheduler could not find a runnable process"); the trap taken by a request process, found by
+CI. Property 16 is close to built in (the abort is a step of the model when its condition holds):
+it records the lesson rather than finding it.
 
 ## Two observers holding each other (#117): `HoldPair.tla`
 

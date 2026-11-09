@@ -51,8 +51,26 @@ for stop in FALSE TRUE; do
       check Hold "$prop" "stop=$stop bell=$bell guard=$guard trap=$sees waits=$waits token=$token claims=$claims" MaxHolds=2 \
         MaxAsks=1 WithTrap=TRUE HoldLimit=TRUE FastObserver=TRUE SeparateBell=$bell \
         BellEndedGuard=$guard FallbackSeesTrap=$sees WatcherWaitsForDoSt=$waits WatcherChecksToken=$token TrapClaims=$claims AsyncSignal=TRUE \
-        AnyDeadline=TRUE StopEndsWithObserver=$stop
+        AnyDeadline=TRUE StopEndsWithObserver=$stop RequestsMayHang=FALSE RequestApart=FALSE \
+        TrapPassesRequests=FALSE AgentSleeps=FALSE
     done
+  done
+done
+
+# Hold, version 7 (#161): version 6's final design with the stop helper, requests that may hang,
+# run apart with a watchdog or not, the trap passing the agent's requests or not, the agent asleep
+# while a request runs or not.
+for design in "FALSE FALSE FALSE FALSE" "TRUE FALSE FALSE FALSE" "TRUE TRUE TRUE TRUE" \
+              "TRUE TRUE FALSE FALSE" "TRUE TRUE TRUE FALSE"; do
+  set -- $design; hang=$1 apart=$2 passes=$3 sleeps=$4
+  for prop in "INVARIANT NoStrayHold" "INVARIANT NoTrapLeft" "INVARIANT NoBadWrite" "INVARIANT NoLostHold" \
+              "INVARIANT NoUnservedHold" "INVARIANT NoBadRemove" "INVARIANT NoOwnTrap" "INVARIANT NoAbort" \
+              "PROPERTY AskEnds" "PROPERTY FreeIfObserverDies" "PROPERTY FreeWhenThrough"; do
+    check Hold "$prop" "hang=$hang apart=$apart passes=$passes sleeps=$sleeps" MaxHolds=2 MaxAsks=1 \
+      WithTrap=TRUE HoldLimit=TRUE FastObserver=TRUE SeparateBell=TRUE BellEndedGuard=TRUE \
+      FallbackSeesTrap=TRUE WatcherWaitsForDoSt=TRUE WatcherChecksToken=TRUE TrapClaims=TRUE \
+      AsyncSignal=TRUE AnyDeadline=TRUE StopEndsWithObserver=TRUE RequestsMayHang=$hang \
+      RequestApart=$apart TrapPassesRequests=$passes AgentSleeps=$sleeps
   done
 done
 
