@@ -1,0 +1,1 @@
+How a Pharo image's classes are read: their instance variable names, from their layout.

@@ -1,0 +1,1 @@
+A reified object whose slots are given: a value, or a block that raises, standing for a slot that does not read (#118).
