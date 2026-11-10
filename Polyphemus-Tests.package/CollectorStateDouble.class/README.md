@@ -1,0 +1,1 @@
+The collector's state as VMVariables answers it, from a dictionary; a name it lacks is a symbol the VM has not (#163).

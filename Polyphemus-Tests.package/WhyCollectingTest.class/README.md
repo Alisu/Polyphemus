@@ -1,0 +1,1 @@
+When a write into a stopped image could be lost to a collection, or lose an object to one: while it moves objects, or marks them (#163, risk 4).
