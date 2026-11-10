@@ -1,0 +1,1 @@
+The fields of a Spur 64-bit object header, read and made in one place: slot count in the top byte (255: the count is in the word before), hash in bits 32 to 53, format in bits 24 to 28, class index in the low 22 bits. Words, not objects: nothing here reads memory (#118).

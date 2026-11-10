@@ -10,4 +10,4 @@ allocateContextOf: slots like: aFrame
 	^ dumped memory
 		  allocateSlotsInOldSpace: slots
 		  format: (scanner formatIn: header)
-		  classIndex: (header bitAnd: 16r3FFFFF)
+		  classIndex: (SpurHeader classIndexOf: header)

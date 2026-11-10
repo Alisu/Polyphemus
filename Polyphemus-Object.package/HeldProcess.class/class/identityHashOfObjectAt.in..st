@@ -7,6 +7,6 @@ identityHashOfObjectAt: anAddress in: aWritableMemory
 	| hash |
 	hash := aWritableMemory hashBitsOf: anAddress.
 	hash = 0 ifFalse: [ ^ hash ].
-	hash := ((anAddress bitShift: -3) bitAnd: 16r3FFFFF) max: 1.
+	hash := ((anAddress bitShift: -3) bitAnd: SpurHeader hashMask) max: 1.
 	aWritableMemory setHashBitsOf: anAddress to: hash.
 	^ hash

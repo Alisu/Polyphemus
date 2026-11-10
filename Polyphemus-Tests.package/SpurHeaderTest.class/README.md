@@ -1,0 +1,1 @@
+The fields of a Spur 64-bit object header, read and made in one place (#118).

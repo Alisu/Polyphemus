@@ -10,10 +10,8 @@ allocateSlots: aCount format: aFormat classIndex: anIndex
 	bytes := address - start + 8 + ((aCount max: 1) * 8).
 	start + bytes > (self variables at: 'scavengeThreshold') ifTrue: [
 		^ NotInTheReading signal: 'that image has no room left in its eden' ].
-	address > start ifTrue: [ self wordAt: start put: (255 bitShift: 56) + aCount ].
-	self
-		wordAt: address
-		put: ((aCount min: 255) bitShift: 56) + (aFormat bitShift: 24) + anIndex.
+	address > start ifTrue: [ self wordAt: start put: (SpurHeader overflowWordFor: aCount) ].
+	self wordAt: address put: (SpurHeader headerFor: aCount format: aFormat classIndex: anIndex).
 	1 to: (aCount max: 1) do: [ :each | self wordAt: address + (each * 8) put: 0 ].
 	self wordAt: (self variables addressOf: 'freeStart') put: start + bytes.
 	^ address

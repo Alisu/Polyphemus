@@ -5,9 +5,9 @@ numSlotsOf: anOop
 	holds the real one and is marked 255 itself."
 
 	| count before |
-	count := (self wordAt: anOop) bitShift: -56.
+	count := SpurHeader slotCountOf: (self wordAt: anOop).
 	count = 255 ifFalse: [ ^ count ].
 	before := self wordAt: anOop - 8.
-	(before bitShift: -56) = 255 ifFalse: [
+	(SpurHeader overflowsItsSlotCount: before) ifFalse: [
 		^ CannotWriteThere signal: 'the object at ' , anOop printStringHex , ' has no overflow word' ].
-	^ before bitAnd: 16rFFFFFFFFFFFFFF
+	^ SpurHeader countInOverflowWord: before
