@@ -17,6 +17,7 @@ serveAndHold: aHash startingAt: aMethodSourceOrNil
 		ringing: [ self ring ];
 		whyGone: [ reader hasEnded ifTrue: [ 'its process ' , reader pid printString , ' ended' ] ].
 	self ring.
+	channel beatWhileServed.
 	previous := process.
 	[
 	process := HeldProcess

@@ -4,8 +4,9 @@
 	"category" : "Polyphemus-Object-process",
 	"classinstvars" : [ ],
 	"pools" : [ ],
-	"classvars" : [ ],
-	"instvars" : [ "directory", "count", "bell", "whyGone" ],
+	"classvars" : [ "HeartbeatEvery" ],
+	"instvars" : [ "directory", "count", "bell", "whyGone",
+		"heartbeat" ],
 	"name" : "DirectoryChannel",
 	"type" : "normal"
 }
