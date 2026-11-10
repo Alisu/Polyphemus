@@ -6,9 +6,8 @@ statedSpecialObjectsOop
 	can pick another array of that shape: on candle it did (#43)."
 
 	| stated |
-	stated := (space respondsTo: #specialObjectsOop)
-		          ifTrue: [ space specialObjectsOop ]
-		          ifFalse: [ [ self vmVariables at: 'specialObjectsOop' ] on: Error do: [ :error | ^ nil ] ].
+	stated := space specialObjectsOop ifNil: [
+		          [ self vmVariables at: 'specialObjectsOop' ] on: Error do: [ :error | ^ nil ] ].
 	^ ((stated isInteger and: [ stated between: mappingStart and: mappingLimit - 1 ]) and: [
 		   self scanner looksLikeTheSpecialObjectsArrayAt: stated from: heapStart ])
 		  ifTrue: [ stated ]
