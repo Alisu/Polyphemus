@@ -1,0 +1,1 @@
+An edit refused, saying so, when the image ran a request since the reading it goes through (#168).

@@ -10,6 +10,7 @@ readAgain
 		fresh := SpurDumpedMemory on: (ProcessMemoryCopy ofWhatAReadingReads: reader).
 		fresh raw pieces.
 		collections := self collectionsSoFar.
+		askedSince := false.
 		dumped ifNotNil: [ fresh raw assumeTheHeapOf: dumped raw ] ].
 	reading ifNotNil: [ reading forgetItsASTs ].
 	reading := (dumped notNil and: [ fresh holdsTheClassesOf: dumped ])
