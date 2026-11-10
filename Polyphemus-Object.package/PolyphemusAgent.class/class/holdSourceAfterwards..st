@@ -1,11 +1,12 @@
 source
 holdSourceAfterwards: aSource
 
-	"Held: says so, spins without yielding until we signal the semaphore and left do.st (#137), runs
+	"Held: says so (no longer released), spins without yielding until we signal and left do.st, runs
 	it -- one that fails is no reason to end the image (#29): do-failed says what went wrong (#90) --
 	then aSource."
 
-	^ '	(dir / ''interrupted'') ensureCreateFile.
+	^ '	(dir / ''released'') ensureDelete.
+	(dir / ''interrupted'') ensureCreateFile.
 	start := Time millisecondClockValue.
 	[ ((interrupt instVarAt: 3) > 0 and: [ (dir / ''do.st'') exists ])
 		or: [ Time millisecondClockValue - start > 60000 ] ] whileFalse: [ ].

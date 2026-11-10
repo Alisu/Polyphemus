@@ -29,10 +29,10 @@ last := Time millisecondClockValue.
 		now < last ifTrue: [ last := now ].
 		now - last > limit ]) or: [
 		now := Time millisecondClockValue.
-		(now - beat) abs > 1000 and: [
+		now - last > silence and: [ (now - beat) abs > 1000 and: [
 			beat := now.
 			silent := (dir / ''alive'') exists and: [
-				(DateAndTime now - (dir / ''alive'') modificationTime) asMilliSeconds > silence ] ] ] ] ] whileFalse: [ ].
+				(DateAndTime now - (dir / ''alive'') modificationTime) asMilliSeconds > silence ] ] ] ] ] ] whileFalse: [ ].
 	(bell instVarAt: 3) > 0
 		ifTrue: [
 			bell instVarAt: 3 put: 0.
