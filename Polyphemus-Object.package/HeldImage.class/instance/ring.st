@@ -6,7 +6,7 @@ ring
 
 	| channel |
 	channel := directory / 'channel'.
-	reader whileStopped: [
+	reader whileStoppedNotCollecting: [
 		(channel / 'bell-ended') exists ifFalse: [
 			(SpurWritableProcess on: reader) countOneSignalOnExternalSemaphore:
 				((channel / 'bell-index') exists
