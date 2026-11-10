@@ -59,6 +59,7 @@ if [ $? -ne 0 ] || [ -z "$jobs" ]; then  # a run not read is no verdict, least o
 escapes=""; [[ "$(gh api --help 2>&1)" == *--allow-escape-sequences* ]] && escapes="--allow-escape-sequences"
 worst=0
 while read -r id conclusion name; do
+  [ "$name" = "Judged on a ci/ branch" ] && continue   # it runs no suite (#164)
   case "$conclusion" in
     success|failure|cancelled|timed_out)
       log=$(gh api $escapes "repos/{owner}/{repo}/actions/jobs/$id/logs" 2>&1) || {  # no log, no verdict

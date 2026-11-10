@@ -116,6 +116,19 @@ GH
 chmod +x "$dir/bin/gh"
 PATH="$dir/bin:$PATH" "$VERDICT" 41574774098 > "$dir/out" 2>&1; rc=$?
 check "a log gh prints only with escapes allowed is read" "[ $rc -eq 1 ] && grep -q 'NEW SomeTest>>testIt' $dir/out"
+# The job asking whether a commit was judged runs no suite: it is no job to judge (#164).
+cat > "$dir/bin/gh" <<'GH'
+#!/bin/sh
+case "$*" in
+  "run view"*) printf '%s\n' "9 success Judged on a ci/ branch" "8 success Pharo 13" ;;
+  "api --help") echo "" ;;
+  api*/actions/jobs/9/logs*) echo "2026-11-03T02:00:00.0000000Z skip=false" ;;
+  api*/actions/jobs/8/logs*) echo "2026-11-03T02:00:01.0000000Z == totals: 965 run, 0 failures, 0 errors, 0 broken, 0 flaky ==" ;;
+esac
+GH
+chmod +x "$dir/bin/gh"
+PATH="$dir/bin:$PATH" "$VERDICT" 41574774100 > "$dir/out" 2>&1; rc=$?
+check "the job that runs no suite is left out" "[ $rc -eq 0 ] && grep -q '^VERDICT green' $dir/out && ! grep -q 'Judged' $dir/out"
 # A green job is read too: a flake hides in it (#164).
 cat > "$dir/bin/gh" <<'GH'
 #!/bin/sh
