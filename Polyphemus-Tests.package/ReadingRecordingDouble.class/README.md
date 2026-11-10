@@ -1,0 +1,1 @@
+A held reading that notes in a shared log when it is read again, beside a channel noting each request (#168).
