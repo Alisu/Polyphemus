@@ -1,17 +1,7 @@
 holding it still
 whileStoppedNotCollecting: aBlock
 
-	"aBlock's value, stopped at a moment no collection moves or marks objects, within five tries;
-	else refused. Only the collector's state is read: lighter than whileStoppedOutsideACollection:."
+	"aBlock's value, stopped at a moment no collection moves or marks objects (#163, risk 4): to
+	write into objects that exist. Only the collector's state is read."
 
-	| why answer |
-	5 timesRepeat: [
-		answer := self whileStopped: [
-			          why := self class whyCollectingIn: (VMVariables on: self).
-			          why ifNil: [ { aBlock value } ] ].
-		answer ifNotNil: [ ^ answer first ].
-		(Delay forMilliseconds: 20) wait ].
-	^ SpurCannotRead new
-		  level: #bytes reason: #itWasNeverStoppedAtASafeMoment;
-		  detail: 'last try: ' , why;
-		  signal
+	^ self whileStoppedUnless: [ :variables | self class whyCollectingIn: variables ] do: aBlock
