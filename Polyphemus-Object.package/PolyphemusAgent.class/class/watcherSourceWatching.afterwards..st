@@ -8,5 +8,5 @@ watcherSourceWatching: aDirectory afterwards: aSource
 	^ (self watcherSetUpIn: aDirectory) , '
 [ [ interrupt wait.
 	((dir / ''hold'') exists or: [ (dir / ''trap'') exists ]) ifTrue: [
-' , (self holdSourceAfterwards: aSource) , ' ] ] repeat ] forkAt: 70.
+' , (self holdSourceAfterwards: aSource) , ' ] ] repeat ] forkAt: 70 named: ' , WatcherInjection watcherName printString , '.
 '
