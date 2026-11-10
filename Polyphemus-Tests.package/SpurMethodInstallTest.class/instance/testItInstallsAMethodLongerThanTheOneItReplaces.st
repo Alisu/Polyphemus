@@ -18,11 +18,11 @@ testItInstallsAMethodLongerThanTheOneItReplaces
 		       insteadOf: found second.
 
 	self assert: oop ~= found first address.
-	installed := (1 to: (install codeOf: found third) size) collect: [ :each |
+	installed := (1 to: (SpurEdit codeOf: found third) size) collect: [ :each |
 		             memory
 			             byteAt: oop + 8 + (found third numLiterals + 1 * 8) + each - 1 ].
-	self assert: installed equals: (install codeOf: found third).
-	self assert: installed size > (install codeOf: found second) size.
+	self assert: installed equals: (SpurEdit codeOf: found third).
+	self assert: installed size > (SpurEdit codeOf: found second) size.
 
 	install memory writeTo: written.
 	self assert: (Polyphemus readabilityOfImageFile: written) refusals asArray equals: #(  ).
