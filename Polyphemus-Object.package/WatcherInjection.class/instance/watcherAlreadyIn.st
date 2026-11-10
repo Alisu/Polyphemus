@@ -6,6 +6,7 @@ watcherAlreadyIn
 
 	| index semaphore waiting |
 	index := (self class semaphoreIndexIn: directory) ifNil: [ ^ nil ].
+	(self class isOfThisVersionIn: directory) ifFalse: [ ^ nil ].
 	index > (installer memory numSlotsOf: self externalObjects) ifTrue: [ ^ nil ].
 	semaphore := installer memory fetchPointer: index - 1 ofObject: self externalObjects.
 	((semaphore bitAnd: 7) ~= 0 or: [ semaphore = installer nilOop ]) ifTrue: [ ^ nil ].

@@ -5,6 +5,7 @@ leaveSemaphoreIndex: anIndex in: aDirectory
 	written (#163). Pharo renames onto no file, so the old one goes just before."
 
 	| file |
+	(aDirectory / 'watcher-version') ensureDelete; writeStreamDo: [ :stream | stream print: self watcherVersion ].
 	file := aDirectory / 'semaphore-index.tmp'.
 	file ensureDelete.
 	file writeStreamDo: [ :stream | stream print: anIndex ].

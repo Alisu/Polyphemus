@@ -9,5 +9,5 @@ interrupt'.
 	[
 	self assert: ((PolyphemusAgent watcherSetUpIn: directory) includesSubstring: 'semaphore-index.tmp').
 	self assert: (WatcherInjection semaphoreIndexIn: directory) equals: (Smalltalk externalObjects indexOf: interrupt).
-	self assert: (directory children collect: [ :each | each basename ]) asArray equals: #( 'semaphore-index' ) ]
+	self assert: (directory children collect: [ :each | each basename ]) asArray sort equals: #( 'semaphore-index' 'watcher-version' ) ]
 		ensure: [ Smalltalk unregisterExternalObject: interrupt ]
