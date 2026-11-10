@@ -1,0 +1,1 @@
+One observer at a time holds through a directory; a lock whose observer died is taken over (#163, risk 7).

@@ -8,4 +8,5 @@ abandon: aChannel
 		on: Error
 		do: [ :error | nil ].
 	aChannel letGoWithin: 5 seconds.
-	reader close
+	reader close.
+	(HoldLock on: directory) release

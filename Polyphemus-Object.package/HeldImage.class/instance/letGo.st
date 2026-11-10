@@ -7,4 +7,5 @@ letGo
 	self forget: #( 'hold' 'trap' ).
 	[ process letGo ] ensure: [
 		reader close.
-		process forgetTheReading ]
+		process forgetTheReading.
+		(HoldLock on: directory) release ]

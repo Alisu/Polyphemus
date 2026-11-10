@@ -1,0 +1,1 @@
+One observer at a time holds an image through a directory: hold.lock there names the observer's pid. Made whole under another name and renamed into place, which fails while another lock is there; a lock whose observer no longer runs is taken over (#163, risk 7).
