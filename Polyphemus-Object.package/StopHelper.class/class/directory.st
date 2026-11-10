@@ -9,4 +9,4 @@ directory
 		  ifFalse: [
 			  self
 				  directoryShared: self sharedDirectory
-				  else: (FileLocator temp / ('polyphemus-stop-' , (OSPlatform current environment at: 'USER' ifAbsent: [ 'user' ]))) asFileReference ]
+				  else: (FileLocator temp / ('polyphemus-stop-' , (OSEnvironment current at: 'USER' ifAbsent: [ 'user' ]))) asFileReference ]
