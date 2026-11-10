@@ -307,7 +307,7 @@ fi
 [ -s "$TIMINGS.new" ] && merge_timings "$TIMINGS" "$TIMINGS.new"   # worst and best, not last (#54, #118)
 rm -f "$TIMINGS.new"
 
-awk '/^RES /{ if ($3=="TIMEOUT"||$3=="BROKEN") b++; else {r+=$3; f+=$5; e+=$7} } /^    FLAKY /{ k++ }
-     END { printf "== totals: %d run, %d failures, %d errors, %d broken, %d flaky ==\n", r, f, e, b, k }' "$RESULTS"
+awk '/^RES /{ if ($3=="TIMEOUT"||$3=="BROKEN") b++; else {r+=$3; f+=$5; e+=$7; if ($10=="skipped") s+=$9} } /^    FLAKY /{ k++ }
+     END { printf "== totals: %d run, %d failures, %d errors, %d broken, %d flaky, %d skipped ==\n", r, f, e, b, k, s }' "$RESULTS"
 rm -f "$RESULTS.retried"
 if red; then exit 1; else exit 0; fi

@@ -89,6 +89,8 @@ jobs:
           grep -aE "^RES|^    (FAIL|ERROR|FLAKY|NOTE|\|)|totals|BROKEN|TIMEOUT" suite.log || true
           # Flakes and failures as annotations, kept and public: bin/flakes.sh counts them (#31).
           bin/annotate-results.sh ~/setup/.test-results
+          # Not green on what it did not run: classes answered, tests run but not skipped (#164).
+          bin/check-totals.sh suite.log 134 1000 || { echo "== end of the log =="; tail -60 suite.log; exit 1; }
           grep -q "totals: .* 0 failures, 0 errors, 0 broken" suite.log || { echo "== end of the log =="; tail -60 suite.log; exit 1; }
 
       # A VM someone else started, not through bin/pharo-debuggable: Yama refuses it to the
@@ -166,6 +168,8 @@ jobs:
           grep -aE "^RES|^    (FAIL|ERROR|FLAKY|NOTE|\|)|totals|BROKEN|TIMEOUT" suite.log || true
           # Flakes and failures as annotations, kept and public: bin/flakes.sh counts them (#31).
           bin/annotate-results.sh ~/setup/.test-results
+          # Not green on what it did not run: classes answered, tests run but not skipped (#164).
+          bin/check-totals.sh suite.log 136 800 || { echo "== end of the log =="; tail -60 suite.log; exit 1; }
           grep -q "totals: .* 0 failures, 0 errors, 0 broken" suite.log || { echo "== end of the log =="; tail -60 suite.log; exit 1; }
 
       # Not on Pharo 10 for now: macOS's VM 9 keeps new space apart from old space and its
@@ -242,8 +246,8 @@ jobs:
           bin/annotate-results.sh ~/setup/.test-results
           # The logs where upload-artifact finds them: not behind ~ or the junction.
           mkdir -p logs && cp ~/setup/load.log logs/ && cp -r ~/setup/.class-logs logs/class-logs 2>/dev/null || true
-          # A suite that ran nothing is not green: every class answers with a RES line.
-          [ "$(grep -ac "^RES " suite.log)" -ge 90 ] || { echo "!! fewer than 90 classes answered"; tail -60 suite.log; exit 1; }
+          # Not green on what it did not run: classes answered, tests run but not skipped (#164).
+          bin/check-totals.sh suite.log 133 820 || { echo "== end of the log =="; tail -60 suite.log; exit 1; }
           grep -q "totals: .* 0 failures, 0 errors, 0 broken" suite.log || { echo "== end of the log =="; tail -60 suite.log; exit 1; }
 
       - name: Keep the log
