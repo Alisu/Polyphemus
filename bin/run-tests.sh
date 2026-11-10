@@ -79,6 +79,8 @@ run_class() {
  the runner then sees binary, not the line. Anything past ASCII prints as a question mark
  (written by its code: this text goes through a heredoc, where a dollar sign is the shell's)."
 ascii := [ :text | String streamContents: [ :s | text do: [ :ch | s nextPut: (ch asInteger < 128 ifTrue: [ ch ] ifFalse: [ Character value: 63 ]) ] ] ].
+"Where its targets run from, so that the runner kills only this setup's (#164)."
+(Smalltalk at: #PolyphemusEdition ifPresent: [ :e | 'SCRATCH ', e current scratch fullName ] ifAbsent: [ 'SCRATCH' ]) traceCr.
 [ run := (PolyphemusTestRun of: $suite) run.
   '' traceCr. "a line of its own: the simulator leaves its output unfinished (#51)"
   ('RES $c ', run runCount printString, ' run ', run failureCount printString, ' failures ', run errorCount printString, ' errors', (run skippedCount > 0 ifTrue: [ ' ', run skippedCount printString, ' skipped' ] ifFalse: [ '' ])) traceCr.
@@ -126,11 +128,13 @@ INNER
   rm -f "$script"
   if [ $rc -eq 124 ]; then
     echo "RES $c TIMEOUT ${limit}s"
+    kill_targets_of "$c" "$log"
   elif ! grep -a -q "^RES $c " <<< "$out"; then
     # The image died, or printed nothing: a class that did not report is broken, not absent.
     echo "RES $c BROKEN no result (exit $rc)"
     # Each line ended, the last too: a log cut mid-line glued the next class's result to it (#31).
     tail -n 5 "$log" | sed -E "s/$(printf '\033')\[[0-9;]*[A-Za-z]//g" | tr -d '\033' | awk '{ print "    | " $0 }'
+    kill_targets_of "$c" "$log"
   else
     # NOTE lines (a target started again, #31) come after the class's result line.
     grep -a -v '^    NOTE' <<< "$out" | sed "1s/\$/ (${el}s)/"
@@ -139,7 +143,19 @@ INNER
     [ -z "${ONLY_TEST:-}" ] && grep -a -q " 0 failures 0 errors" <<< "$out" && echo "$c $el" >> "$TIMINGS.new"
   fi
 }
-export -f run_script run_class
+kill_targets_of() {  # class log: the targets a class that died left running, its ensure: never run (#164)
+  # Found by this setup's spike directory for the class, which the class said first, in their
+  # command line: another setup's run of the class is left alone. Bracketed, the pattern never
+  # matches the search itself.
+  local scratch pids
+  scratch=$(grep -a -m1 '^SCRATCH /' "$2" 2>/dev/null | cut -c9- | tr -d '\r')
+  [ -n "$scratch" ] || return 0
+  pids=$(pgrep -f "[${scratch:0:1}]${scratch:1}/polyphemus-target-$1/" 2>/dev/null | tr '\n' ' ')
+  [ -n "${pids// /}" ] || return 0
+  kill -9 $pids 2>/dev/null
+  echo "    NOTE killed the targets it left running: $pids"
+}
+export -f run_script run_class kill_targets_of
 export WORK IMAGE TMO TIMINGS ONLY_TEST
 
 run_set() {
