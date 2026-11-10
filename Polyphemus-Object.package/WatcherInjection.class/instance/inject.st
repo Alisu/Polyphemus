@@ -14,14 +14,14 @@ inject
 			  ifNotNil: [ :waiting | waiting ]
 			  ifNil: [
 				  index := self freeExternalSlot.
+				  self class leaveSemaphoreIndex: index in: directory.
+				  [
 				  semaphore := self new: 'Semaphore' extra: 0 format: 1.
 				  self slot: 'excessSignals' of: semaphore in: 'Semaphore' put: (installer memory smallIntegerOop: 0).
 				  installer memory storePointer: index - 1 ofObject: self externalObjects withValue: semaphore.
 				  installer memory remember: self externalObjects.
 				  process := self processFor: (self contextSignalledAt: index) waitingOn: semaphore.
 				  self slot: 'firstLink' of: semaphore in: 'Semaphore' put: process.
-				  self slot: 'lastLink' of: semaphore in: 'Semaphore' put: process.
-				  (directory / 'semaphore-index')
-					  ensureDelete;
-					  writeStreamDo: [ :stream | stream print: index ].
+				  self slot: 'lastLink' of: semaphore in: 'Semaphore' put: process ]
+					  ifCurtailed: [ (directory / 'semaphore-index') ensureDelete ].
 				  process ] ]

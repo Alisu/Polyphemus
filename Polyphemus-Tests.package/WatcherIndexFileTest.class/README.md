@@ -1,0 +1,1 @@
+The file semaphore-index: left whole under its name, read as an index or refused, never read half written (#163, risk 9).
