@@ -5,6 +5,7 @@ holdWithin: aDuration unless: aCondition
 	already (a trap that fired, #137); answers whether this did. The hold file says it is wanted."
 
 	| hash held |
+	(HoldLock on: directory) take.
 	held := false.
 	hash := reader whileStopped: [
 		        aCondition value ifFalse: [
@@ -16,6 +17,7 @@ holdWithin: aDuration unless: aCondition
 	held ifFalse: [ ^ false ].
 	(self waitFor: 'interrupted' within: aDuration) ifFalse: [
 		reader close.
+		(HoldLock on: directory) release.
 		^ HoldFailed signal: 'the image never took the interrupt: is it running the watcher on '
 			  , directory fullName , '?' ].
 	self serveAndHold: hash startingAt: nil.
