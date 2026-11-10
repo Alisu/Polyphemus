@@ -22,6 +22,6 @@ classVariableNamed: aName
 						  key: wanted asSymbol
 						  value: ([ owner oopClassVariableNamed: wanted ]
 								   on: Error
-								   do: [ :e | nil ]) ] ].
+								   do: [ :e | OOPUnreadableSlot named: wanted because: e messageText asString on: memory ]) ] ].
 		current := [ current oopSuperclass ] on: Error do: [ :e | nil ] ].
 	^ nil
