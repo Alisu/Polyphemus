@@ -18,6 +18,7 @@ case "$script" in *collect-tests.st)
   for c in ${STUB_LANES:-}; do echo "LANE $c"; done
   exit 0 ;; esac
 class=$(grep -ao "RES [A-Za-z0-9]* '" "$script" | head -1 | awk '{print $2}')
+[ -n "${STUB_SCRATCH:-}" ] && echo "SCRATCH $STUB_SCRATCH"
 [ -n "${STUB_COLOUR:-}" ] && printf '\033[0m'   # a colour reset left by the VM's output, then the line
 # A class whose image dies says nothing, its log ending mid-line (#51).
 [ "$class" = "${STUB_SILENT:-}" ] && { printf 'a stack, then\033[0m'; exit 1; }
@@ -29,6 +30,25 @@ chmod +x "$dir/pharo"
 # The workers are fresh shells: every function they call must reach them.
 out=$(WORK="$dir" "$HERE/run-tests.sh" -c FakeTest -j 1 2>&1)
 check "a class run in the pool reports its result" "grep -q '^RES FakeTest 1 run 0 failures 0 errors' <<<\"\$out\""
+
+# A class that dies leaves its targets running, its ensure: blocks never run (#164): the runner
+# kills them, found by the class's spike directory in their command line, before its retry.
+( exec -a "fakevm $dir/polyphemus-target-SilentTest/quiet.st" sleep 60 ) &
+target=$!
+sleep 0.3
+out=$(WORK="$dir" STUB_SCRATCH="$dir" STUB_CLASSES="SilentTest" STUB_SILENT=SilentTest "$HERE/run-tests.sh" -c SilentTest -j 1 2>&1)
+sleep 0.3
+check "a dead class's targets are killed, and said" "! kill -0 $target 2>/dev/null && grep -q 'NOTE killed the targets it left running' <<<\"\$out\""
+kill -9 $target 2>/dev/null
+( exec -a "fakevm $dir/polyphemus-target-FakeTestTwo/quiet.st" sleep 60 ) &
+other=$!
+( exec -a "fakevm $dir/another-setup/polyphemus-target-SilentTest/quiet.st" sleep 60 ) &
+elsewhere=$!
+sleep 0.3
+out=$(WORK="$dir" STUB_SCRATCH="$dir" STUB_CLASSES="SilentTest" STUB_SILENT=SilentTest "$HERE/run-tests.sh" -c SilentTest -j 1 2>&1)
+check "another class's targets are left alone" "kill -0 $other 2>/dev/null"
+check "another setup's run of the class is left alone" "kill -0 $elsewhere 2>/dev/null"
+kill -9 $other $elsewhere 2>/dev/null
 
 # A class the suite no longer has leaves the timings the lanes are balanced on (#164).
 printf 'GoneTest 1883\nFakeTest 5\n' > "$dir/.test-timings"
