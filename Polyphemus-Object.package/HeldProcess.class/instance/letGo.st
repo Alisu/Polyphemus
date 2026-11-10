@@ -7,4 +7,4 @@ letGo
 	| gone |
 	(channel hasExpired or: [ channel isGone ]) ifTrue: [ ^ self ].
 	[ self call: #letGo with: #(  ) ] ensure: [ gone := channel letGo ].
-	gone ifFalse: [ ^ self error: 'the image''s agent never served: the image may still be held' ]
+	gone ifFalse: [ ^ HoldFailed signal: 'the image''s agent never served: the image may still be held' ]

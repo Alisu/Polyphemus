@@ -9,5 +9,5 @@ bytes
 		  ((bytes first: 4) asArray = #( 16r7F 69 76 70 ) and: [
 			   (bytes at: 5) = 2 and: [ (bytes at: 6) = 1 ] ]) ifFalse: [
 			  bytes := nil.
-			  ^ self error: file basename , ' is not a 64 bit little endian ELF file' ].
+			  ^ UnknownFormat signal: file basename , ' is not a 64 bit little endian ELF file' ].
 		  bytes ]

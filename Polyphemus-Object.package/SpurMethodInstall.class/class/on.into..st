@@ -5,7 +5,7 @@ on: aReifiedMemory into: aWritableMemory
 	what is found through the reading is written by its address."
 
 	aWritableMemory canMakeObjects ifFalse: [
-		^ self error: 'that memory cannot make objects, so nothing can be installed in it' ].
+		^ CannotWriteThere signal: 'that memory cannot make objects, so nothing can be installed in it' ].
 	(aWritableMemory shiftFrom: aReifiedMemory) = 0 ifFalse: [
-		^ self error: 'that memory does not hold the image where the reading shows it' ].
+		^ CannotWriteThere signal: 'that memory does not hold the image where the reading shows it' ].
 	^ self new setReading: aReifiedMemory memory: aWritableMemory

@@ -9,7 +9,7 @@ allocateSlots: aCount format: aFormat classIndex: anIndex
 	address := aCount >= 255 ifTrue: [ start + 8 ] ifFalse: [ start ].
 	bytes := address - start + 8 + ((aCount max: 1) * 8).
 	start + bytes > (self variables at: 'scavengeThreshold') ifTrue: [
-		^ self error: 'that image has no room left in its eden' ].
+		^ NotInTheReading signal: 'that image has no room left in its eden' ].
 	address > start ifTrue: [ self wordAt: start put: (255 bitShift: 56) + aCount ].
 	self
 		wordAt: address

@@ -11,6 +11,6 @@ object
 	(which beginsWith: 'character ') ifTrue: [
 		memory := heldReading reading memoryManager.
 		^ heldReading reading reifyOop: (memory characterObjectOf: (which allButFirst: 10) asInteger) ].
-	which ifEmpty: [ ^ self error: 'an immediate object this observer does not read: ' , printed ].
+	which ifEmpty: [ ^ NotInTheReading signal: 'an immediate object this observer does not read: ' , printed ].
 	^ (heldReading objectOfClassIndex: classIndex hash: which asInteger) ifNil: [
-		  self error: 'the image no longer holds ' , printed ]
+		  NotInTheReading signal: 'the image no longer holds ' , printed ]

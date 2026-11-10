@@ -7,7 +7,7 @@ install: aNewCompilation as: aReifiedMethod of: aReifiedClass insteadOf: anOldCo
 
 	| oop |
 	anOldCompilation literals = aNewCompilation literals ifFalse: [
-		^ self error: 'the new code does not use the same literals' ].
+		^ CannotWriteThere signal: 'the new code does not use the same literals' ].
 	oop := self allocateLike: aReifiedMethod for: aNewCompilation.
 	self fill: oop from: aNewCompilation like: aReifiedMethod.
 	self pointAt: oop insteadOf: aReifiedMethod in: aReifiedClass.

@@ -7,7 +7,7 @@ signalExternalSemaphore: anIndex
 
 	| slot request |
 	(anIndex between: 1 and: (self int32At: (self variables addressOf: 'numSignalRequests')))
-		ifFalse: [ ^ self error: 'the VM has no external semaphore ' , anIndex printString ].
+		ifFalse: [ ^ CannotWriteThere signal: 'the VM has no external semaphore ' , anIndex printString ].
 	slot := anIndex - 1.
 	request := (self variables at: 'signalRequests') + (slot * 8).
 	self int32At: request put: (self int32At: request) + 1.

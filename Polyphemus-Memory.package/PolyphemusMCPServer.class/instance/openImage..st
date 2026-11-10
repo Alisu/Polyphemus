@@ -2,8 +2,8 @@ tools
 openImage: someArguments
 
 	| path memory census handle |
-	path := someArguments at: 'path' ifAbsent: [ self error: 'open_image needs a path' ].
-	path asFileReference isFile ifFalse: [ self error: 'No image file at ' , path ].
+	path := someArguments at: 'path' ifAbsent: [ ToolCallFailed signal: 'open_image needs a path' ].
+	path asFileReference isFile ifFalse: [ ToolCallFailed signal: 'No image file at ' , path ].
 	memory := (Polyphemus interpreterOnImageFile: path) objectMemory.
 	census := HeapCensus of: memory.
 	opened := (opened ifNil: [ 0 ]) + 1.

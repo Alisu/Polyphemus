@@ -15,4 +15,4 @@ scan: aWeakSet for: aString
 	element address = flag address ifTrue: [ ^ nil -> index ].
 	([ element asString ] on: Error do: [ :e | '' ]) = aString ifTrue: [ ^ element -> index ].
 	(index := index \\ size + 1) = start ] whileFalse.
-	^ self error: 'this image''s symbol set has no room left'
+	^ StaleReading signal: 'this image''s symbol set has no room left'

@@ -2,8 +2,8 @@ tools
 openCore: someArguments
 
 	| path reified handle |
-	path := someArguments at: 'path' ifAbsent: [ self error: 'open_core needs a path' ].
-	path asFileReference isFile ifFalse: [ self error: 'No core file at ' , path ].
+	path := someArguments at: 'path' ifAbsent: [ ToolCallFailed signal: 'open_core needs a path' ].
+	path asFileReference isFile ifFalse: [ ToolCallFailed signal: 'No core file at ' , path ].
 	reified := Polyphemus readCoreDump: path.
 	opened := (opened ifNil: [ 0 ]) + 1.
 	handle := 'core' , opened printString.

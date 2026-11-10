@@ -7,5 +7,5 @@ bindingFor: aBinding
 	| name |
 	name := aBinding key asString.
 	^ ([ reading globalNamed: name ] on: Error do: [ :e | nil ])
-		  ifNil: [ self error: 'this image has no global named ' , name ]
+		  ifNil: [ NotInTheReading signal: 'this image has no global named ' , name ]
 		  ifNotNil: [ :global | global address ]

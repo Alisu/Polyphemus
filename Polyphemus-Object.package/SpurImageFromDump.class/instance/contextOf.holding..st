@@ -7,7 +7,7 @@ contextOf: aFrame holding: aStackSize
 	| slots |
 	slots := aStackSize <= 16 ifTrue: [ 22 ] ifFalse: [ 62 ].
 	aStackSize > 56 ifTrue: [
-		^ self error: 'a stack of ' , aStackSize printString , ' does not fit a context' ].
+		^ CannotWriteThere signal: 'a stack of ' , aStackSize printString , ' does not fit a context' ].
 	(aFrame oopFlag isMarried and: [
 		 (dumped memory numSlotsOf: aFrame oopContext address) - 6 >= aStackSize ]) ifTrue: [
 		^ aFrame oopContext address ].

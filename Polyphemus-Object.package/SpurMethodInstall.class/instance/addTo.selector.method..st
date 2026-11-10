@@ -11,7 +11,7 @@ addTo: aReifiedClass selector: aSelectorOop method: anOop
 	size := memory numSlotsOf: methods.
 	tally := ((memory fetchPointer: 0 ofObject: dictionary) - 1) // 8.
 	tally + 1 > (size * 3 // 4) ifTrue: [
-		^ self error: 'that dictionary would have to grow, which is not done yet' ].
+		^ CannotWriteThere signal: 'that dictionary would have to grow, which is not done yet' ].
 	index := (memory hashBitsOf: aSelectorOop) \\ size + 1.
 	[ (memory fetchPointer: index + 1 ofObject: dictionary) = self nilOop ] whileFalse: [
 		index := index \\ size + 1 ].

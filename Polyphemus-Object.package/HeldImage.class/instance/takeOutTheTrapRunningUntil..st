@@ -17,5 +17,5 @@ takeOutTheTrapRunningUntil: aMethodSource
 	self forget: #( 'interrupted' 'released' 'hold' ).
 	process letGo.
 	(self waitFor: 'trap' within: 1 minute) ifFalse: [
-		^ self error: 'a process claimed the trap and never said so' ].
+		^ HoldFailed signal: 'a process claimed the trap and never said so' ].
 	^ nil

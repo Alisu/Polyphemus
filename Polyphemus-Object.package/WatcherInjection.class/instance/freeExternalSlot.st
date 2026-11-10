@@ -8,4 +8,4 @@ freeExternalSlot
 	1 to: (installer memory numSlotsOf: table) do: [ :each |
 		(installer memory fetchPointer: each - 1 ofObject: table) = installer nilOop ifTrue: [
 			^ each ] ].
-	^ self error: 'the image''s external objects table has no free slot'
+	^ CannotWriteThere signal: 'the image''s external objects table has no free slot'

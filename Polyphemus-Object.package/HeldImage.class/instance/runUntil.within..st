@@ -14,6 +14,6 @@ runUntil: aMethodSource within: aDuration
 		(self holdWithin: 1 minute unless: [ (directory / 'trap') exists ]) ifTrue: [
 			(self takeOutTheTrapRunningUntil: aMethodSource) ifNotNil: [ :reached | ^ reached ] ] ].
 	(self waitFor: 'interrupted' within: 1 minute) ifFalse: [
-		^ self error: 'the trap fired and the watcher never held the image' ].
+		^ HoldFailed signal: 'the trap fired and the watcher never held the image' ].
 	self serveAndHold: self trapsProcessHash startingAt: aMethodSource.
 	^ true

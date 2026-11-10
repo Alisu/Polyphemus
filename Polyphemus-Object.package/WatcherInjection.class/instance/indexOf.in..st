@@ -7,5 +7,5 @@ indexOf: aName in: aClassName
 	| index |
 	index := ((reading oopClassNamed: aClassName) allInstVarNames collect: [ :each | each asString ])
 		         indexOf: aName.
-	index = 0 ifTrue: [ ^ self error: aClassName , ' has no ' , aName , ' in this image' ].
+	index = 0 ifTrue: [ ^ NotInTheReading signal: aClassName , ' has no ' , aName , ' in this image' ].
 	^ index - 1

@@ -1,0 +1,1 @@
+A tool call the MCP server answers as failed, saying why: an argument missing, a handle it does not know, a process it cannot read (#118).

@@ -6,10 +6,10 @@ debugInC: aPid
 
 	| memory report session |
 	report := self whereIsStuck: aPid.
-	report mainThread isInACCall ifFalse: [ ^ self error: 'not in a C call: ' , report mainThread summary ].
+	report mainThread isInACCall ifFalse: [ ^ NotInTheReading signal: 'not in a C call: ' , report mainThread summary ].
 	memory := self readProcess: aPid.
 	report := self whereIsStuck: aPid reading: memory.
-	report mainThread isInACCall ifFalse: [ ^ self error: 'not in a C call: ' , report mainThread summary ].
+	report mainThread isInACCall ifFalse: [ ^ NotInTheReading signal: 'not in a C call: ' , report mainThread summary ].
 	session := self sessionOn: memory reifiedActiveProcess in: memory.
 	session mark: report mainThread titleMark.
 	^ StDebugger openOn: session withFullView: true

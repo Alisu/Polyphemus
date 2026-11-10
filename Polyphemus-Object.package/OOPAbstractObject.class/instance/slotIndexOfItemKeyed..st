@@ -7,4 +7,4 @@ slotIndexOfItemKeyed: aKey
 	key := aKey asString.
 	(key beginsWith: 'slot ') ifTrue: [ ^ (key allButFirst: 5) asNumber ].
 	(key beginsWith: '(') ifTrue: [ ^ (key copyFrom: 2 to: (key indexOf: $)) - 1) asNumber ].
-	^ self error: key , ' is not a slot'
+	^ NotInTheReading signal: key , ' is not a slot'

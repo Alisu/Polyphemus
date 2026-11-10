@@ -11,15 +11,15 @@ apply: aSource to: aReifiedMethod
 	new := (reading compileHostSource: aSource for: class) ifNil: [
 		       (reading whyHostSourceDoesNotCompile: aSource for: class) ifNotNil: [ :why |
 			       ^ SourceDoesNotCompile new position: why value; signal: why key ].
-		       ^ self error: 'that source does not compile' ].
+		       ^ CannotWriteThere signal: 'that source does not compile' ].
 	(self pragmasOf: old first) = (self pragmasOf: new first) ifFalse: [
-		^ self error:
+		^ CannotWriteThere signal:
 			  'that change is to the pragmas, which are the image''s own and are kept as they are' ].
 	(old first literals = new first literals and: [
 		 (self codeLengthOf: new first) = (self codeLengthOf: old first) ]) ifTrue: [
 		edit replaceCodeOfMethodShown: aReifiedMethod from: old first to: new first.
 		^ #wroteItWhereItWas ].
 	installer ifNil: [
-		^ self error: 'that code does not fit where it is, and this memory cannot make room' ].
+		^ StaleReading signal: 'that code does not fit where it is, and this memory cannot make room' ].
 	installer install: new first as: aReifiedMethod of: class.
 	^ #madeRoomForIt

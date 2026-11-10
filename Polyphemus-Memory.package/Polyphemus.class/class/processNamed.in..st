@@ -6,6 +6,6 @@ processNamed: aName in: aReifiedMemory
 	^ aReifiedMemory allReifiedProcesses
 		  detect: [ :each | (self nameOfProcess: each) = aName ]
 		  ifNone: [
-			  self error: 'no process named ' , aName printString , ' here; there are: ' , (', ' join:
+			  NotInTheReading signal: 'no process named ' , aName printString , ' here; there are: ' , (', ' join:
 					   ((aReifiedMemory allReifiedProcesses collect: [ :each | self nameOfProcess: each ])
 						    reject: [ :each | each isNil ])) ]

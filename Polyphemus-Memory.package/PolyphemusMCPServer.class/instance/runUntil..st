@@ -6,7 +6,7 @@ runUntil: someArguments
 
 	| session method reached answer |
 	session := self sessionAt: someArguments.
-	method := someArguments at: 'method' ifAbsent: [ self error: 'run_until needs a method, as Class >> #selector' ].
+	method := someArguments at: 'method' ifAbsent: [ ToolCallFailed signal: 'run_until needs a method, as Class >> #selector' ].
 	reached := session runUntil: method within: (someArguments at: 'seconds' ifAbsent: [ 60 ]) seconds.
 	answer := self held: (someArguments at: 'handle') saying: (reached
 			           ifTrue: [ 'Reached ' , method , ', and held there.' ]

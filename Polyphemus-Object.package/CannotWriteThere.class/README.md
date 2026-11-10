@@ -1,0 +1,1 @@
+A write into an image, a file or a process that is refused or not done yet, saying why: no room left, a value the image would have to be given, a process still running (#118).

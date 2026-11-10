@@ -1,0 +1,11 @@
+{
+	"commentStamp" : "",
+	"super" : "PolyphemusError",
+	"category" : "Polyphemus-Memory-MCP",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [ ],
+	"name" : "ToolCallFailed",
+	"type" : "normal"
+}

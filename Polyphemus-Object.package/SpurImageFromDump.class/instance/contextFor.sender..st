@@ -13,7 +13,7 @@ contextFor: aFrame sender: aSenderOop
 		         , aFrame stackWords.
 	stackp := words size.
 	aFrame pc ifNil: [
-		^ self error: 'the frame at ' , aFrame framePointer printStringHex , ' has no pc' ].
+		^ NotInTheReading signal: 'the frame at ' , aFrame framePointer printStringHex , ' has no pc' ].
 	context := self contextOf: aFrame holding: stackp.
 	memory
 		storePointer: 0 ofObject: context withValue: aSenderOop;

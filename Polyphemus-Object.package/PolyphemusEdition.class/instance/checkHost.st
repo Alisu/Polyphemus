@@ -1,4 +1,4 @@
 checking
 checkHost
 
-	(self refusalOfHost: PolyphemusHost current) ifNotNil: [ :refusal | self error: refusal ]
+	(self refusalOfHost: PolyphemusHost current) ifNotNil: [ :refusal | NotSetUp signal: refusal ]
