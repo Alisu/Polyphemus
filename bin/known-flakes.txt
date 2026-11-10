@@ -26,3 +26,4 @@ HeldImageEditingTest>>testACounterSteppedFromItsLoopsFrameThenEditedCountsOn | T
 LinuxProcessMemoryTest>>testTheRunningProcessOfAStoppedImageShowsItsStack | TestFailure OOPTopFrame, machine code true | #164
 HeldImageEditingTest>>testACounterEditedLiveCountsOnAndTheImageWithIt | TestTookTooMuchTime | #164
 HeldImageRingTest>>testATrapFiringAsItsDeadlinePassesIsHeldOnce | PolyphemusChannelError the image did not answer within | #137
+HeldImageRingTest>>testATrapFiringAsItsDeadlinePassesIsHeldOnce | PolyphemusChannelError Error: 0 processes have that hash | #137
