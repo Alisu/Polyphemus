@@ -8,7 +8,8 @@
  * macOS, whose popen cannot keep the pipe from the observer's other children: one of them alive
  * keeps the pipe open after the observer closed it or died.
  *
- * One stop at a time per process: a lock beside the state file, <pid>.lock, which the system
+ * One stop at a time per process, whichever user observes it: a lock beside the state file,
+ * <pid>.lock, in a directory open to all, which the system
  * releases if this is killed. A mark, <pid>.mark, names the helper whose stop it is, so that the
  * next helper resumes a stop whose helper was killed. A process stopped with no mark was stopped
  * by someone else (a debugger, a hand): it is read as it is and left stopped.
@@ -32,6 +33,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/file.h>
+#include <sys/stat.h>
 #include <sys/types.h>
 #include <time.h>
 #include <unistd.h>
@@ -163,8 +165,13 @@ int main(int argc, char **argv)
 	snprintf(lock_path, sizeof lock_path, "%s/%d.lock", dir, (int)pid);
 	snprintf(mark_path, sizeof mark_path, "%s/%d.mark", dir, (int)pid);
 
-	/* Waiting for another observer's stop, it still leaves when its own observer gives up. */
-	int lock = open(lock_path, O_CREAT | O_RDWR, 0600);
+	/* One directory for the observers of every user (#163): open to all, by its owner, and each
+	 * lock too, past the umask. Waiting for another observer's stop, it still leaves when its
+	 * own observer gives up. */
+	chmod(dir, 0777);
+	int lock = open(lock_path, O_CREAT | O_RDWR, 0666);
+	if (lock >= 0)
+		fchmod(lock, 0666);
 	if (lock < 0) {
 		say("not stopped");
 		return 1;
