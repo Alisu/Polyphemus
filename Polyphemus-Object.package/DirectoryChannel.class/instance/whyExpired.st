@@ -2,6 +2,8 @@ private
 whyExpired
 
 	| limit |
+	(directory / 'observer-silent') exists ifTrue: [
+		^ 'the agent heard nothing from this observer for its silence limit, and the image went on: hold it again' ].
 	limit := [ (directory / 'expired') contents trimBoth asNumber ] on: Error do: [ :e | nil ].
 	^ 'the hold ended after '
 	  , (limit ifNil: [ 'its limit' ] ifNotNil: [

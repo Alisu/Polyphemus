@@ -5,6 +5,9 @@ letGoWithin: aDuration
 	looks for it first. Rung only if it serves, so no ring is left behind (#49); answers that."
 
 	| served |
+	heartbeat ifNotNil: [
+		heartbeat terminate.
+		heartbeat := nil ].
 	self hasExpired ifTrue: [ ^ true ].
 	self whyGone ifNotNil: [ ^ false ].
 	served := self isServingBefore: DateAndTime now + aDuration.
