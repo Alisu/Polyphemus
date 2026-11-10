@@ -1,0 +1,1 @@
+A class variable of the image read, looked up by name, one that does not read said so rather than shown as nil (#118).
