@@ -7,6 +7,7 @@ watcherSetUpIn: aDirectory
 
 	^ (self directorySetUpIn: aDirectory) , '
 interrupt := Semaphore new.
+(dir / ''watcher-version'') ensureDelete; writeStreamDo: [ :stream | stream print: ' , WatcherInjection watcherVersion printString , ' ].
 (dir / ''semaphore-index.tmp'') ensureDelete; writeStreamDo: [ :stream |
 	stream print: (Smalltalk registerExternalObject: interrupt) ].
 (dir / ''semaphore-index'') ensureDelete.
