@@ -19,12 +19,12 @@ testItInstallsCodeCompiledHereOverAMethodOfTheImage
 	edit memory writeTo: written.
 
 	file := SpurImageFile on: written.
-	installed := (1 to: (edit codeOf: found third) size) collect: [ :each |
+	installed := (1 to: (SpurEdit codeOf: found third) size) collect: [ :each |
 		             file
 			             unsignedAt: (edit addressOf: found first) + 8
 				             + (found second initialPC - 1) + each - 1
 			             size: 1 ].
 	file close.
-	self assert: installed equals: (edit codeOf: found third).
-	self assert: installed ~= (edit codeOf: found second).
+	self assert: installed equals: (SpurEdit codeOf: found third).
+	self assert: installed ~= (SpurEdit codeOf: found second).
 	self assert: (Polyphemus readabilityOfImageFile: written) isFullyReadable

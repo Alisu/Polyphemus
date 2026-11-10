@@ -6,24 +6,8 @@ call: someParams
 	| name arguments selector |
 	name := someParams at: 'name' ifAbsent: [ nil ].
 	arguments := someParams at: 'arguments' ifAbsent: [ Dictionary new ].
-	selector := {
-		            ('open_image' -> #openImage:).
-		            ('census' -> #census:).
-		            ('packages' -> #packages:).
-		            ('open_core' -> #openCore:).
-		            ('processes' -> #processes:).
-		            ('stack' -> #stack:).
-		            ('inspect' -> #inspect:).
-		            ('where_stuck' -> #whereStuck:).
-		            ('open_process' -> #openProcess:).
-		            ('hold' -> #hold:).
-		            ('run_until' -> #runUntil:).
-		            ('step' -> #step:).
-		            ('save' -> #save:).
-		            ('stop' -> #stop:).
-		            ('let_go' -> #letGo:) } asDictionary
-		            at: name
-		            ifAbsent: [ ^ PolyphemusMCPError signal: 'Unknown tool: ' , name printString code: -32602 ].
+	selector := (self selectorOfTool: name) ifNil: [
+		            ^ PolyphemusMCPError signal: 'Unknown tool: ' , name printString code: -32602 ].
 	^ [ self perform: selector with: arguments ]
 		  on: Error
 		  do: [ :e | self failure: e messageText asString ]

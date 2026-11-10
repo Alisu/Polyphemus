@@ -1,0 +1,1 @@
+The code SpurEdit and SpurMethodInstall compare: a method compiled here, its bytecodes alone (#118).

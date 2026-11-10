@@ -8,8 +8,8 @@ replaceCodeOfMethodShown: aReifiedMethod from: anOldCompilation to: aNewCompilat
 	| old new address |
 	anOldCompilation literals = aNewCompilation literals ifFalse: [
 		^ CannotWriteThere signal: 'the new code does not use the same literals' ].
-	old := self codeOf: anOldCompilation.
-	new := self codeOf: aNewCompilation.
+	old := self class codeOf: anOldCompilation.
+	new := self class codeOf: aNewCompilation.
 	old size = new size ifFalse: [
 		^ CannotWriteThere signal: 'the new code is ' , new size printString , ' bytes where there is room for '
 			, old size printString ].
