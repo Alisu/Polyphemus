@@ -1,0 +1,1 @@
+A channel whose image answers what it is told to, in order, the last again once the others are used (#168).

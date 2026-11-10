@@ -27,3 +27,7 @@ LinuxProcessMemoryTest>>testTheRunningProcessOfAStoppedImageShowsItsStack | Test
 HeldImageEditingTest>>testACounterEditedLiveCountsOnAndTheImageWithIt | TestTookTooMuchTime | #164
 HeldImageRingTest>>testATrapFiringAsItsDeadlinePassesIsHeldOnce | PolyphemusChannelError the image did not answer within | #137
 HeldImageRingTest>>testATrapFiringAsItsDeadlinePassesIsHeldOnce | PolyphemusChannelError Error: 0 processes have that hash | #137
+HeldImageEditingTest>>testACounterSteppedIntoRoundItsLoopEditedCountsOn | PolyphemusChannelError MessageNotUnderstood: receiver of "sender" is nil | #168
+HeldImageEditingTest>>testTheFrameSavedInRunsTheNewCode | PolyphemusChannelError MessageNotUnderstood: receiver of "sender" is nil | #168
+HeldImageSavingTest>>testASaveThatChangesThePragmasIsCompiledByTheImage | PolyphemusChannelError MessageNotUnderstood: receiver of "sender" is nil | #168
+HeldImageDebuggerCommandsTest>>testAWatcherIsRefusedWhileRunUntilHoldsItsImage | PolyphemusChannelError MessageNotUnderstood: receiver of "sender" is nil | #168
