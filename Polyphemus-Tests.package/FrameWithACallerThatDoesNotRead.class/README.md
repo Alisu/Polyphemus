@@ -1,0 +1,1 @@
+A frame whose caller does not read, and whose page caller would answer if asked (#118).
