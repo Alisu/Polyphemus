@@ -7,9 +7,9 @@ compilationOf: aReifiedMethod for: aReifiedClass
 	| source compiled |
 	source := [ aReifiedMethod getSourceFromFile ] on: Error do: [ :e | nil ].
 	(source isNil or: [ source isEmpty ]) ifTrue: [
-		^ self error: 'that image has no source for the method being fixed' ].
+		^ CannotWriteThere signal: 'that image has no source for the method being fixed' ].
 	compiled := (reading compileHostSource: source for: aReifiedClass) ifNil: [
-		            ^ self error: 'the method''s own source does not compile here' ].
+		            ^ CannotWriteThere signal: 'the method''s own source does not compile here' ].
 	(reading host: compiled first matchesOop: aReifiedMethod) ifFalse: [
-		^ self error: 'the image does not hold what its source says it does' ].
+		^ NotInTheReading signal: 'the image does not hold what its source says it does' ].
 	^ compiled

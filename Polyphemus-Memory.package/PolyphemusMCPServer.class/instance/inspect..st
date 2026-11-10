@@ -3,10 +3,10 @@ inspect: someArguments
 
 	| reified address object names slots indexable limit structured |
 	reified := self reifiedOf: (self imageAt: someArguments).
-	address := someArguments at: 'address' ifAbsent: [ self error: 'inspect needs an address' ].
+	address := someArguments at: 'address' ifAbsent: [ ToolCallFailed signal: 'inspect needs an address' ].
 	object := [ reified reifyOop: address ] on: Error do: [ :e | nil ].
 	(object notNil and: [ [ object isObjectOop and: [ object isReadable ] ] on: Error do: [ :e | false ] ]) ifFalse: [
-		self error: 'No object at ' , address printString , ' in ' , (someArguments at: 'handle') ].
+		ToolCallFailed signal: 'No object at ' , address printString , ' in ' , (someArguments at: 'handle') ].
 	names := [ object oopClass instanceVariableNames asArray ] on: Error do: [ :e | #(  ) ].
 	slots := OrderedCollection new.
 	(object oopFormat between: 0 and: 5) ifTrue: [

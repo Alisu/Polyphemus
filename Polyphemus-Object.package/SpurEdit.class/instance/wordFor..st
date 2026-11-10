@@ -6,4 +6,4 @@ wordFor: aValue
 
 	aValue isInteger ifTrue: [ ^ memory smallIntegerOop: aValue ].
 	(aValue isKindOf: OOPAbstractEntity) ifTrue: [ ^ self addressOf: aValue ].
-	^ self error: 'store a SmallInteger, or an object this image already holds'
+	^ CannotWriteThere signal: 'store a SmallInteger, or an object this image already holds'

@@ -8,9 +8,9 @@ readFrom: aFileReference
 	file := aFileReference asFileReference.
 	stream := nil.
 	header := self bytesAtOffset: 0 count: 32.
-	(header first: 4) asString = 'MDMP' ifFalse: [ ^ self error: 'not a Windows minidump' ].
+	(header first: 4) asString = 'MDMP' ifFalse: [ ^ UnknownFormat signal: 'not a Windows minidump' ].
 	listAt := self streamOfType: 9 in: header.
-	listAt ifNil: [ ^ self error: 'a minidump without its memory: take it with MiniDumpWithFullMemory' ].
+	listAt ifNil: [ ^ UnknownFormat signal: 'a minidump without its memory: take it with MiniDumpWithFullMemory' ].
 	list := self bytesAtOffset: listAt count: 16.
 	count := self unsignedFrom: list at: 1 size: 8.
 	rva := self unsignedFrom: list at: 9 size: 8.

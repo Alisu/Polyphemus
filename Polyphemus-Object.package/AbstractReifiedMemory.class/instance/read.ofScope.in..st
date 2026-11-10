@@ -10,6 +10,6 @@ read: aVariable ofScope: aScope in: anActivation
 		^ (anActivation tempAt: vector index) reifiedSlotAt: aVariable index ].
 
 	aVariable index ifNil: [
-		^ self error: 'cannot tell where ' , aVariable name asString , ' is kept' ].
+		^ NotInTheReading signal: 'cannot tell where ' , aVariable name asString , ' is kept' ].
 
 	^ anActivation tempAt: aVariable index

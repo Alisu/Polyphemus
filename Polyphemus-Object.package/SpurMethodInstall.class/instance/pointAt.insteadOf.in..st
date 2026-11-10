@@ -11,7 +11,7 @@ pointAt: anOop insteadOf: aReifiedMethod in: aReifiedClass
 			         [ (methods reifiedSlotAt: each) address = aReifiedMethod address ]
 				         on: Error
 				         do: [ :e | false ] ]
-		         ifNone: [ ^ self error: 'that class does not hold that method' ].
+		         ifNone: [ ^ CannotWriteThere signal: 'that class does not hold that method' ].
 	memory remember: methods address.
 	memory storePointer: index - 1 ofObject: methods address withValue: anOop.
 	^ index

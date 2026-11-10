@@ -5,7 +5,7 @@ runUntil: aMethodSource within: aDuration
 	whether it was reached; if not, the image is held where it got to."
 
 	| reached |
-	image ifNil: [ ^ self error: 'this stack is only read: nothing here runs' ].
+	image ifNil: [ ^ OnlyRead signal: 'this stack is only read: nothing here runs' ].
 	reached := image runUntil: aMethodSource within: aDuration.
 	held := image process.
 	self

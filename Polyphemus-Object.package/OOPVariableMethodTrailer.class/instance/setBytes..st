@@ -9,4 +9,4 @@ setBytes: someBytes
 	(#( #EmbeddedSource #EmbeddedSourceWide #EmbeddedSourceQCompress #EmbeddedSourceZip
 	    #ClearedTrailer #TempsNamesQCompress #TempsNamesZip ) includes: kind) ifTrue: [
 		^ self decodeEmbedded ].
-	self error: 'a method trailer of kind ' , kind , ', which no image holds'
+	UnknownFormat signal: 'a method trailer of kind ' , kind , ', which no image holds'

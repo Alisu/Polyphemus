@@ -5,6 +5,6 @@ current
 
 	^ self subclasses
 		  ifEmpty: [
-			  self error: 'No Polyphemus-Host package is loaded: the baseline has none for '
+			  NotSetUp signal: 'No Polyphemus-Host package is loaded: the baseline has none for '
 				  , PolyphemusHost current metacelloAttribute ]
 		  ifNotEmpty: [ :all | all first ]

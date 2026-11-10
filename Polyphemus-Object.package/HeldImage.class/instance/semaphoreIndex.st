@@ -6,5 +6,5 @@ semaphoreIndex
 	| file |
 	file := directory / 'semaphore-index'.
 	file exists ifFalse: [
-		^ self error: 'nothing watches ' , directory fullName , ': is the image running the watcher?' ].
+		^ HoldFailed signal: 'nothing watches ' , directory fullName , ': is the image running the watcher?' ].
 	^ file contents trimBoth asNumber

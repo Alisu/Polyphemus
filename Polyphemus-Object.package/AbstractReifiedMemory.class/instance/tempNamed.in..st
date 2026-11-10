@@ -13,7 +13,7 @@ tempNamed: aName in: anActivation
 		| scope var |
 		seen add: current.
 		(self faithfulCodeOf: current) ifNil: [
-			^ self error: 'cannot read ' , name asString
+			^ NotInTheReading signal: 'cannot read ' , name asString
 				, ': this host does not reproduce the code of that frame (#6)' ].
 		scope := self astScopeOf: current.
 		var := [ scope lookupVar: name ] on: Error do: [ :e | nil ].
@@ -21,4 +21,4 @@ tempNamed: aName in: anActivation
 			ifTrue: [ ^ self read: var ofScope: scope in: current ].
 		current := [ current outerContext ] on: Error do: [ :e | nil ] ].
 
-	^ self error: 'no temporary named ' , name asString , ' in this frame'
+	^ NotInTheReading signal: 'no temporary named ' , name asString , ' in this frame'

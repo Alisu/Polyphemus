@@ -1,0 +1,1 @@
+What was read may no longer be where it was: the image stepped or collected garbage since, or the memory is not the one the reading shows (#118).

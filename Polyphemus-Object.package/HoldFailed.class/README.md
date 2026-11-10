@@ -1,0 +1,1 @@
+Holding a running image, or letting it go, went wrong: no watcher, the interrupt not taken, the trap firing unheld, the agent not serving (#118).

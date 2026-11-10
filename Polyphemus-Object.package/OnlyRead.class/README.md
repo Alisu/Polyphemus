@@ -1,0 +1,1 @@
+Refused because this is a reading and not a held image: nothing here runs, nothing typed is stored (#118).

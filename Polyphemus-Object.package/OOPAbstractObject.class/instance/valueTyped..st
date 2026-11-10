@@ -10,4 +10,4 @@ valueTyped: aString
 	text = 'true' ifTrue: [ ^ memory reifiedTrueObject ].
 	text = 'false' ifTrue: [ ^ memory reifiedFalseObject ].
 	(text matchesRegex: '-?[0-9]+') ifTrue: [ ^ text asInteger ].
-	^ self error: 'type an integer, nil, true or false: ' , text , ' is not one'
+	^ CannotWriteThere signal: 'type an integer, nil, true or false: ' , text , ' is not one'

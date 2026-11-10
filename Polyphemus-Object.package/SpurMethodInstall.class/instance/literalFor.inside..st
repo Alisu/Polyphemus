@@ -12,5 +12,5 @@ literalFor: aValue inside: anOuterOop
 	(aValue isKindOf: CompiledBlock) ifTrue: [
 		^ self blockFor: aValue inside: anOuterOop ].
 	(aValue isKindOf: CompiledCode) ifTrue: [
-		^ self error: 'new code naming a whole method of its own is not installed yet' ].
+		^ CannotWriteThere signal: 'new code naming a whole method of its own is not installed yet' ].
 	^ self valueFor: aValue

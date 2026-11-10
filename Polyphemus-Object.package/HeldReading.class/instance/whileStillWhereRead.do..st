@@ -5,8 +5,8 @@ whileStillWhereRead: aReifiedObject do: aBlock
 	last reading shows it: of that reading, and the image has not collected garbage since."
 
 	aReifiedObject memory == reading ifFalse: [
-		^ self error: 'read before the last step: it may have moved since' ].
+		^ StaleReading signal: 'read before the last step: it may have moved since' ].
 	^ reader whileStopped: [
 		  self collectionsSoFar = collections ifFalse: [
-			  ^ self error: 'the image collected garbage since this was read, and may have moved it' ].
+			  ^ StaleReading signal: 'the image collected garbage since this was read, and may have moved it' ].
 		  aBlock value: (SpurWritableProcess on: reader) ]

@@ -16,7 +16,7 @@ holdWithin: aDuration unless: aCondition
 	held ifFalse: [ ^ false ].
 	(self waitFor: 'interrupted' within: aDuration) ifFalse: [
 		reader close.
-		^ self error: 'the image never took the interrupt: is it running the watcher on '
+		^ HoldFailed signal: 'the image never took the interrupt: is it running the watcher on '
 			  , directory fullName , '?' ].
 	self serveAndHold: hash startingAt: nil.
 	self checkItsVersion.

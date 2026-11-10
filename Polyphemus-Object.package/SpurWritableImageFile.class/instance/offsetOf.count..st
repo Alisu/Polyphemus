@@ -6,5 +6,5 @@ offsetOf: anAddress count: aCount
 	| segment |
 	segment := file segmentHolding: anAddress.
 	(segment notNil and: [ segment holdsAddress: anAddress + aCount - 1 ]) ifFalse: [
-		^ self error: anAddress printStringHex , ' is not in this image''s heap' ].
+		^ NotInTheReading signal: anAddress printStringHex , ' is not in this image''s heap' ].
 	^ segment fileOffsetFor: anAddress

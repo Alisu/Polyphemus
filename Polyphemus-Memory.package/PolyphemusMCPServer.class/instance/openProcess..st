@@ -2,10 +2,10 @@ tools
 openProcess: someArguments
 
 	| pid reified handle |
-	pid := someArguments at: 'pid' ifAbsent: [ self error: 'open_process needs a pid' ].
+	pid := someArguments at: 'pid' ifAbsent: [ ToolCallFailed signal: 'open_process needs a pid' ].
 	reified := [ Polyphemus readProcess: pid ]
 		           on: Error
-		           do: [ :e | self error: 'Cannot read process ' , pid printString , ': ' , e messageText asString ].
+		           do: [ :e | ToolCallFailed signal: 'Cannot read process ' , pid printString , ': ' , e messageText asString ].
 	opened := (opened ifNil: [ 0 ]) + 1.
 	handle := 'process' , opened printString.
 	self images at: handle put: (Dictionary new

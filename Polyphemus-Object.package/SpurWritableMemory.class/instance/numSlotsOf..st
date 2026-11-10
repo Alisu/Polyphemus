@@ -9,5 +9,5 @@ numSlotsOf: anOop
 	count = 255 ifFalse: [ ^ count ].
 	before := self wordAt: anOop - 8.
 	(before bitShift: -56) = 255 ifFalse: [
-		^ self error: 'the object at ' , anOop printStringHex , ' has no overflow word' ].
+		^ CannotWriteThere signal: 'the object at ' , anOop printStringHex , ' has no overflow word' ].
 	^ before bitAnd: 16rFFFFFFFFFFFFFF

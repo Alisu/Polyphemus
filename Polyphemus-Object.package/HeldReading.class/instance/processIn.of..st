@@ -7,5 +7,5 @@ processIn: aReading of: aDumpedMemory
 	address := aDumpedMemory
 		           objectOfClassIndex: (aReading oopClassNamed: 'Process') oopHash
 		           hash: hash.
-	address ifNil: [ ^ self error: 'the image no longer holds that process' ].
+	address ifNil: [ ^ NotInTheReading signal: 'the image no longer holds that process' ].
 	^ aReading reifyOop: address

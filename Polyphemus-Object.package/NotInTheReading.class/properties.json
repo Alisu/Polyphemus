@@ -1,0 +1,11 @@
+{
+	"commentStamp" : "",
+	"super" : "PolyphemusError",
+	"category" : "Polyphemus-Object",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [ ],
+	"name" : "NotInTheReading",
+	"type" : "normal"
+}

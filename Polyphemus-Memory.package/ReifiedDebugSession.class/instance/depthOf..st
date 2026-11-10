@@ -8,6 +8,6 @@ depthOf: aContext
 	depth := 0.
 	[ context address = aContext address ] whileFalse: [
 		context := context sender.
-		context ifNil: [ ^ self error: 'not a frame of the process being stepped' ].
+		context ifNil: [ ^ NotInTheReading signal: 'not a frame of the process being stepped' ].
 		depth := depth + 1 ].
 	^ depth

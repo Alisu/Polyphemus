@@ -6,4 +6,4 @@ frame: aNumber of: aSession
 	| context |
 	context := aSession interruptedContext.
 	aNumber - 1 timesRepeat: [ context := context ifNotNil: [ context sender ] ].
-	^ context ifNil: [ self error: 'No frame ' , aNumber printString , ' in the held process' ]
+	^ context ifNil: [ ToolCallFailed signal: 'No frame ' , aNumber printString , ' in the held process' ]

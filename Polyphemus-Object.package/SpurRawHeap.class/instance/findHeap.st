@@ -8,7 +8,7 @@ findHeap
 	heapStart ifNotNil: [ ^ self ].
 	heapStart := self statedHeapStart ifNil: [
 		             self scanner heapStartFrom: mappingStart upTo: mappingLimit ].
-	heapStart ifNil: [ ^ self error: 'no Spur heap in this memory' ].
+	heapStart ifNil: [ ^ NotInTheReading signal: 'no Spur heap in this memory' ].
 	liveEnd := self statedEndOfMemory.
 	specialObjectsOop := self statedSpecialObjectsOop.
 	(liveEnd notNil and: [ specialObjectsOop notNil ]) ifTrue: [ ^ self ].
