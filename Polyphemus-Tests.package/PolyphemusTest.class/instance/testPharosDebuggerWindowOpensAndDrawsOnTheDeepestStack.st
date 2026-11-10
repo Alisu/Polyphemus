@@ -9,4 +9,5 @@ testPharosDebuggerWindowOpensAndDrawsOnTheDeepestStack
 	memory := Polyphemus readImageFile: PharoImageAccessor pathToCandle64Bit.
 	[
 	debugger := StDebugger openOn: (Polyphemus sessionOnDeepestProcessIn: memory) withFullView: true.
+	self assert: debugger stackTable items size > 1 description: 'the deepest stack shows one frame or none'.
 	PolyphemusTestCase drawEachFrameOf: debugger ] ensure: [ debugger ifNotNil: [ debugger window ifNotNil: [ :window | window close ] ] ]

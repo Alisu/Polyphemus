@@ -1,3 +1,3 @@
 tests-classVariables
 testStringClassAllClassVariablesNames
-	self assert: (reifiedMemory reifiedStringClass oopAllClassVariablesNames includes: #AsciiOrder)
+	self assert: (reifiedMemory reifiedStringClass oopClassSide oopAllClassVariablesNames includes: #AsciiOrder)
