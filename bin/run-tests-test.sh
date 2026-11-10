@@ -21,13 +21,18 @@ class=$(grep -ao "RES [A-Za-z0-9]* '" "$script" | head -1 | awk '{print $2}')
 [ -n "${STUB_COLOUR:-}" ] && printf '\033[0m'   # a colour reset left by the VM's output, then the line
 # A class whose image dies says nothing, its log ending mid-line (#51).
 [ "$class" = "${STUB_SILENT:-}" ] && { printf 'a stack, then\033[0m'; exit 1; }
-echo "RES $class 1 run 0 failures 0 errors"
+if [ -n "${STUB_SKIPPED:-}" ]; then echo "RES $class 3 run 0 failures 0 errors 2 skipped"
+else echo "RES $class 1 run 0 failures 0 errors"; fi
 STUB
 chmod +x "$dir/pharo"
 
 # The workers are fresh shells: every function they call must reach them.
 out=$(WORK="$dir" "$HERE/run-tests.sh" -c FakeTest -j 1 2>&1)
 check "a class run in the pool reports its result" "grep -q '^RES FakeTest 1 run 0 failures 0 errors' <<<\"\$out\""
+
+# Skipped tests are run tests that did not run: the totals say how many (#164).
+out=$(STUB_SKIPPED=1 WORK="$dir" "$HERE/run-tests.sh" -c FakeTest -j 1 2>&1)
+check "the totals count the tests skipped" "grep -q '^== totals: 3 run, 0 failures, 0 errors, 0 broken, 0 flaky, 2 skipped ==' <<<\"\$out\""
 check "no class is broken by the runner itself" "! grep -q 'BROKEN' <<<\"\$out\""
 out=$(WORK="$dir" STUB_COLOUR=1 "$HERE/run-tests.sh" -c FakeTest -j 1 2>&1)
 check "a result behind a colour code still counts" "grep -q '^RES FakeTest 1 run' <<<\"\$out\" && ! grep -q 'BROKEN' <<<\"\$out\""
