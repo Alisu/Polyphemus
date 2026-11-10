@@ -304,7 +304,10 @@ else
   esac
 fi
 
-[ -s "$TIMINGS.new" ] && merge_timings "$TIMINGS" "$TIMINGS.new"   # worst and best, not last (#54, #118)
+[ -s "$TIMINGS.new" ] && merge_timings "$TIMINGS" "$TIMINGS.new"   # the last five: worst, best (#54, #118, #164)
+# Classes the suite no longer has leave the timings the lanes are balanced on (#164); a
+# collection that found nothing keeps them.
+if [ -f "$TIMINGS" ] && [ -n "${ALL+x}" ] && [ ${#ALL[@]} -gt 0 ]; then prune_timings "$TIMINGS" "${ALL[@]}"; fi
 rm -f "$TIMINGS.new"
 
 awk '/^RES /{ if ($3=="TIMEOUT"||$3=="BROKEN") b++; else {r+=$3; f+=$5; e+=$7; if ($10=="skipped") s+=$9} } /^    FLAKY /{ k++ }
