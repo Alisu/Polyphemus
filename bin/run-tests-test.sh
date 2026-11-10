@@ -30,6 +30,12 @@ chmod +x "$dir/pharo"
 out=$(WORK="$dir" "$HERE/run-tests.sh" -c FakeTest -j 1 2>&1)
 check "a class run in the pool reports its result" "grep -q '^RES FakeTest 1 run 0 failures 0 errors' <<<\"\$out\""
 
+# A class the suite no longer has leaves the timings the lanes are balanced on (#164).
+printf 'GoneTest 1883\nFakeTest 5\n' > "$dir/.test-timings"
+out=$(STUB_CLASSES="FakeTest" WORK="$dir" "$HERE/run-tests.sh" --all -j 1 2>&1)
+check "a full run drops the timings of classes no longer in the suite" "! grep -q GoneTest '$dir/.test-timings' && grep -q FakeTest '$dir/.test-timings'"
+rm -f "$dir/.test-timings"
+
 # Skipped tests are run tests that did not run: the totals say how many (#164).
 out=$(STUB_SKIPPED=1 WORK="$dir" "$HERE/run-tests.sh" -c FakeTest -j 1 2>&1)
 check "the totals count the tests skipped" "grep -q '^== totals: 3 run, 0 failures, 0 errors, 0 broken, 0 flaky, 2 skipped ==' <<<\"\$out\""

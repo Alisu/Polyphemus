@@ -28,6 +28,19 @@ check "its limit still knows the worst" "[ \$(worst_time_of DriftedTest '$dir/ti
 # A class never run is not slow, and has no time.
 check "a class never timed is not slow" "! is_slow_in '$dir/timings' NewTest 8"
 check "a class never timed has no worst time" "[ -z \"\$(worst_time_of NewTest '$dir/timings')\" ]"
+# A worst time from a busy day falls out after five runs (#164): it set the limit for good.
+printf 'SlowTest 1059 143\n' > "$dir/timings"
+for t in 150 160 150 155 150; do printf 'SlowTest %s\n' "$t" > "$dir/new"; merge_timings "$dir/timings" "$dir/new"; done
+check "the limit comes from the last five runs" "[ \$(worst_time_of SlowTest '$dir/timings') = 160 ]"
+check "so does the tier" "[ \$(best_time_of SlowTest '$dir/timings') = 150 ]"
+printf 'SlowTest 400\n' > "$dir/new"; merge_timings "$dir/timings" "$dir/new"
+check "a slow run among them still sets the limit" "[ \$(worst_time_of SlowTest '$dir/timings') = 400 ]"
+
+# A class the suite no longer has goes from the timings, which the lanes are balanced on.
+printf 'GoneTest 1883\nKeptTest 5\n' > "$dir/timings"
+prune_timings "$dir/timings" KeptTest OtherTest
+check "a class no longer in the suite is dropped" "! grep -q GoneTest '$dir/timings'"
+check "a class still in it is kept" "[ \$(worst_time_of KeptTest '$dir/timings') = 5 ]"
 rm -rf "$dir"
 
 echo "== timings-test: $failures failing"
