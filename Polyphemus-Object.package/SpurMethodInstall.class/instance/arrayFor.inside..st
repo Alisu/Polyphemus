@@ -7,7 +7,8 @@ arrayFor: anArray inside: anOuterOop
 	oop := memory
 		       allocateSlots: anArray size
 		       format: 2
-		       classIndex: (reading oopClassNamed: 'Array') oopHash.
+		       classIndex: (reading oopClassNamed: 'Array') oopHash
+		       filledWith: self nilOop.
 	anArray doWithIndex: [ :each :index |
 		memory
 			storePointer: index - 1
