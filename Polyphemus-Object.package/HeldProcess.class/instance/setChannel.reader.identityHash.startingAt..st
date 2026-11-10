@@ -8,6 +8,6 @@ setChannel: aChannel reader: aProcessMemory identityHash: anInteger startingAt: 
 	channel := aChannel.
 	hash := anInteger.
 	heldReading := HeldReading on: aProcessMemory identityHash: anInteger.
-	channel ask: PolyphemusAgent helpersSource.
-	channel ask: '(self at: #hold) value: ' , hash printString , ' value: (' , (aMethodSourceOrNil ifNil: [ 'nil' ]) , '). nil'.
-	(channel ask: '(self at: #processSlot)') ifNotNil: [ :slot | heldReading lookFirstInExternalSlot: slot asNumber ]
+	self request: PolyphemusAgent helpersSource.
+	self request: '(self at: #hold) value: ' , hash printString , ' value: (' , (aMethodSourceOrNil ifNil: [ 'nil' ]) , '). nil'.
+	(self request: '(self at: #processSlot)') ifNotNil: [ :slot | heldReading lookFirstInExternalSlot: slot asNumber ]

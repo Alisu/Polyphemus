@@ -5,7 +5,8 @@
 	"classinstvars" : [ ],
 	"pools" : [ ],
 	"classvars" : [ ],
-	"instvars" : [ "reader", "hash", "dumped", "reading", "collections", "address", "slot" ],
+	"instvars" : [ "reader", "hash", "dumped", "reading", "collections", "address", "slot",
+		"askedSince" ],
 	"name" : "HeldReading",
 	"type" : "normal"
 }

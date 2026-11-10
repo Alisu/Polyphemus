@@ -6,7 +6,7 @@ depthOfTheDebuggersContext
 
 	| answer |
 	10 timesRepeat: [
-		answer := channel ask: '| context wanted depth |
+		answer := self request: '| context wanted depth |
 context := (self at: #process) suspendedContext.
 wanted := (self at: #session) interruptedContext.
 depth := 0.
