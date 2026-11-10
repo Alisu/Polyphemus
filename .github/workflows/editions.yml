@@ -15,9 +15,35 @@ on:
   schedule:
     - cron: '0 2 * * 1'
 
+# Reading other runs' jobs and logs (bin/already-judged.sh) needs actions: read.
+permissions:
+  contents: read
+  actions: read
+
 jobs:
+  # A commit fast-forwarded to stage2 was judged on its ci/ branch: stage2's run of it keeps its
+  # setups and caches, which branches read, and skips the suites it would run again (#164).
+  judged:
+    name: Judged on a ci/ branch
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    outputs:
+      skip: ${{ steps.verdict.outputs.skip }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: verdict
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ "${{ github.event_name }}" = push ] && [ "${{ github.ref }}" = refs/heads/stage2 ]; then
+            bin/already-judged.sh "${{ github.sha }}" | tee -a "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" | tee -a "$GITHUB_OUTPUT"
+          fi
+
   suite:
     name: Pharo ${{ matrix.edition }}
+    needs: judged
     runs-on: ubuntu-24.04
     timeout-minutes: 150
     strategy:
@@ -76,6 +102,7 @@ jobs:
           restore-keys: image-from-dump-${{ matrix.edition }}-
 
       - name: Suite
+        if: needs.judged.outputs.skip != 'true'
         run: |
           ln -sfn "$GITHUB_WORKSPACE" ~/setup/Polyphemus
           # Some runs are stopped from outside 6 to 9 minutes in (exit 143, no log kept). The
@@ -96,13 +123,14 @@ jobs:
       # A VM someone else started, not through bin/pharo-debuggable: Yama refuses it to the
       # runner's user, and root reads it, as on macOS. The runner gives sudo without a password.
       - name: As root, a VM started by someone else
+        if: needs.judged.outputs.skip != 'true'
         run: |
           sudo WORK="$HOME/setup" TMO=1800 bin/run-tests.sh -c LinuxRootObserverTest 2>&1 | tee root.log | grep -aE "^RES|^    (FAIL|ERROR)" || true
           [ "$(grep -ac "^RES " root.log)" -eq 1 ] || { echo "!! the class did not answer"; exit 1; }
           ! grep -aE "^RES .*(BROKEN| [1-9][0-9]* (failures|errors))" root.log
 
       - name: Keep the core when the suite fails
-        if: failure()
+        if: failure() && needs.judged.outputs.skip != 'true'
         uses: actions/upload-artifact@v4
         with:
           name: core-pharo-${{ matrix.edition }}
@@ -125,6 +153,7 @@ jobs:
   # as root. The runner gives sudo without a password.
   macos:
     name: macOS Pharo ${{ matrix.edition }}
+    needs: judged
     runs-on: macos-15
     timeout-minutes: 150
     strategy:
@@ -162,6 +191,7 @@ jobs:
           key: images-macos-${{ hashFiles('Polyphemus-Helper.package/PharoImageAccessor.class/class/downloadNameForPharo..st', 'Polyphemus-Helper.package/PharoImageAccessor.class/class/sourcesNameForPharo..st') }}
 
       - name: Suite
+        if: needs.judged.outputs.skip != 'true'
         run: |
           ln -sfn "$GITHUB_WORKSPACE" ~/setup/Polyphemus
           WORK=~/setup TMO=1800 bin/tdd.sh --all -j 3 > suite.log 2>&1 || true
@@ -175,7 +205,7 @@ jobs:
       # Not on Pharo 10 for now: macOS's VM 9 keeps new space apart from old space and its
       # heap does not read as Linux's VM 9 does (#80). Its suite runs.
       - name: As root, reading other processes
-        if: matrix.edition != 10
+        if: matrix.edition != 10 && needs.judged.outputs.skip != 'true'
         run: |
           csrutil status || true
           for class in MacProcessMemoryTest MacStuckReportTest MacHoldTest MacMCPToolsTest; do
@@ -199,6 +229,7 @@ jobs:
   # the same scripts; the checkout is linked into the setup by a junction, not a symbolic link.
   windows:
     name: Windows Pharo ${{ matrix.edition }}
+    needs: judged
     runs-on: windows-2022
     timeout-minutes: 150
     defaults:
@@ -237,6 +268,7 @@ jobs:
           key: images-windows-${{ hashFiles('Polyphemus-Helper.package/PharoImageAccessor.class/class/downloadNameForPharo..st', 'Polyphemus-Helper.package/PharoImageAccessor.class/class/sourcesNameForPharo..st') }}
 
       - name: Suite
+        if: needs.judged.outputs.skip != 'true'
         run: |
           [ -e ~/setup/Polyphemus ] && cmd //c "rmdir $(cygpath -w ~/setup/Polyphemus)"
           cmd //c "mklink /J $(cygpath -w ~/setup/Polyphemus) $(cygpath -w "$GITHUB_WORKSPACE")" > /dev/null
