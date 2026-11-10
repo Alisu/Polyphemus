@@ -1,0 +1,1 @@
+Memory read at addresses: bytes in hand, a file, a process, a copy of one, a dump. Subclasses read; what only some of them can tell (segments, threads, a pid, a file, where the image says its heap starts) answers nil here, rather than being looked for with respondsTo: (#118).

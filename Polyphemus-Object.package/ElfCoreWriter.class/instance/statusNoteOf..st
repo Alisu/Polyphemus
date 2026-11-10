@@ -6,7 +6,7 @@ statusNoteOf: someRegisters
 
 	| description |
 	description := ByteArray new: 392.
-	(memory respondsTo: #pid) ifTrue: [ description unsignedLongAt: 33 put: memory pid ].
+	memory pid ifNotNil: [ :pid | description unsignedLongAt: 33 put: pid ].
 	(((0 to: 28) collect: [ :i | someRegisters at: ('x' , i printString) asSymbol ])
 	 , { someRegisters at: #fp. someRegisters at: #lr. someRegisters at: #sp. someRegisters at: #pc. someRegisters at: #pstate })
 		withIndexDo: [ :each :i | description unsignedLongLongAt: 112 + (i - 1 * 8) + 1 put: each ].

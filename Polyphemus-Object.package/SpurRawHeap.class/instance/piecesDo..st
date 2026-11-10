@@ -4,9 +4,9 @@ piecesDo: aBlock
 	"The stretches of memory, each readable in one piece: a dump's segments clipped to the
 	mapping, or the whole mapping for bytes in hand."
 
-	(space respondsTo: #loadableSegments)
-		ifFalse: [ ^ aBlock value: mappingStart value: mappingLimit ].
-	((space loadableSegments
+	| segments |
+	segments := space loadableSegments ifNil: [ ^ aBlock value: mappingStart value: mappingLimit ].
+	((segments
 		  select: [ :each |
 			  each address < mappingLimit and: [
 				  each address + each sizeInFile > mappingStart ] ])

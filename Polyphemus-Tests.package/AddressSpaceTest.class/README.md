@@ -1,0 +1,1 @@
+What every reader of an address space answers, and what one that has no such thing answers by default (#118).

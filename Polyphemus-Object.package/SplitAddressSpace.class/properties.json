@@ -1,6 +1,6 @@
 {
 	"commentStamp" : "",
-	"super" : "Object",
+	"super" : "AddressSpace",
 	"category" : "Polyphemus-Object-dump",
 	"classinstvars" : [ ],
 	"pools" : [ ],
