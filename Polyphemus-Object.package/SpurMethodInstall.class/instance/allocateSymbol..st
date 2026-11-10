@@ -9,5 +9,5 @@ allocateSymbol: aString
 	oop := self allocateBytesOfSymbolClass: aString size.
 	1 to: aString size do: [ :each |
 		memory byteAt: oop + 8 + each - 1 put: (aString at: each) asInteger ].
-	memory setHashBitsOf: oop to: (1 max: (aString hash bitAnd: 16r3FFFFF)).
+	memory setHashBitsOf: oop to: (1 max: (aString hash bitAnd: SpurHeader hashMask)).
 	^ oop

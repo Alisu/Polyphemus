@@ -9,6 +9,6 @@ slotsAt: anAddress header: aHeader
 	stated = 255 ifFalse: [ ^ stated ].
 	before := self headerAt: anAddress - 8.
 	before ifNil: [ ^ nil ].
-	^ (self slotCountIn: before) = 255
-		  ifTrue: [ before bitAnd: 16rFFFFFFFFFFFFFF ]
+	^ (SpurHeader overflowsItsSlotCount: before)
+		  ifTrue: [ SpurHeader countInOverflowWord: before ]
 		  ifFalse: [ nil ]

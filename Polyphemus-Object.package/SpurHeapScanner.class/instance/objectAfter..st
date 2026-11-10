@@ -9,6 +9,6 @@ objectAfter: anAddress
 	size ifNil: [ ^ nil ].
 	next := anAddress + size.
 	after := self headerAt: next.
-	^ (after notNil and: [ (self slotCountIn: after) = 255 ])
+	^ (after notNil and: [ SpurHeader overflowsItsSlotCount: after ])
 		  ifTrue: [ next + 8 ]
 		  ifFalse: [ next ]

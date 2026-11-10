@@ -20,8 +20,6 @@ readSegments
 				 inMemory: size).
 		held < size ifTrue: [ ^ self ].
 		bridge := self unsignedFrom: (self bytesAtOffset: offset + size - 16 count: 16) at: 1 size: 8.
-		address := address + size + ((bridge bitShift: -56) = 0
-			            ifTrue: [ 0 ]
-			            ifFalse: [ 8 * (bridge bitAnd: (1 bitShift: 56) - 1) ]).
+		address := address + size + (SpurHeader bridgeSpanFrom: bridge).
 		offset := offset + size.
 		size := self unsignedFrom: (self bytesAtOffset: offset - 8 count: 8) at: 1 size: 8 ]

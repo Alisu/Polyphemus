@@ -1,4 +1,4 @@
 objects
 classIndexOf: anOop
 
-	^ (self wordAt: anOop) bitAnd: 16r3FFFFF
+	^ SpurHeader classIndexOf: (self wordAt: anOop)

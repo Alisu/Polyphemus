@@ -50,7 +50,7 @@ walkFrom: anAddress upTo: aLimit atMost: aCount liveDo: aBlock
 		"The next object, past an overflow word when there is one, as objectAfter: steps."
 		current := current + size.
 		header := self headerAt: current.
-		(header notNil and: [ (self slotCountIn: header) = 255 ]) ifTrue: [
+		(header notNil and: [ SpurHeader overflowsItsSlotCount: header ]) ifTrue: [
 			current := current + 8.
 			header := self headerAt: current ] ].
 
