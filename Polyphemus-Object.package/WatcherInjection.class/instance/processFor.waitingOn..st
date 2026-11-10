@@ -9,6 +9,6 @@ processFor: aContext waitingOn: aSemaphore
 	self slot: 'suspendedContext' of: process in: 'Process' put: aContext.
 	self slot: 'priority' of: process in: 'Process' put: (installer memory smallIntegerOop: 70).
 	self slot: 'myList' of: process in: 'Process' put: aSemaphore.
-	self slot: 'name' of: process in: 'Process' put: (installer stringFor: 'Polyphemus watcher').
+	self slot: 'name' of: process in: 'Process' put: (installer stringFor: self class watcherName).
 	self slot: 'terminating' of: process in: 'Process' put: installer falseOop.
 	^ process
