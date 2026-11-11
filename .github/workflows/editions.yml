@@ -20,6 +20,13 @@ permissions:
   contents: read
   actions: read
 
+# A push to a branch whose run is still going takes its place: that run would be judged on a
+# commit no longer the branch's, and its macOS jobs keep the next run's waiting. stage2's runs
+# all finish: they keep the caches the branches read.
+concurrency:
+  group: editions-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/stage2' }}
+
 jobs:
   # A commit fast-forwarded to stage2 was judged on its ci/ branch: stage2's run of it keeps its
   # setups and caches, which branches read, and skips the suites it would run again (#164).
@@ -41,8 +48,11 @@ jobs:
             echo "skip=false" | tee -a "$GITHUB_OUTPUT"
           fi
 
+  # Each edition's suite on two runners (SHARD=k/2, bin/run-tests.sh): the classes that launch
+  # images run in two lanes on each, and in two lanes on one runner they alone took 25 to 40
+  # minutes. The job "whole" below reads the two as one suite.
   suite:
-    name: Pharo ${{ matrix.edition }}
+    name: Pharo ${{ matrix.edition }} (${{ matrix.shard }}/2)
     needs: judged
     runs-on: ubuntu-24.04
     timeout-minutes: 150
@@ -50,6 +60,7 @@ jobs:
       fail-fast: false
       matrix:
         edition: [ 10, 11, 12, 13, 14 ]
+        shard: [ 1, 2 ]
     steps:
       # Whole history: Iceberg, which the sync and the fixtures find the checkout through,
       # refuses a shallow clone.
@@ -92,14 +103,16 @@ jobs:
       # The image SpurImageFromDumpTest writes from the setup's core: VMMaker's simulated snapshot,
       # some six minutes, the longest thing a run does. The latest kept is restored; the class's
       # own key (cacheKey: the core and the code the image depends on) says whether it holds, and
-      # one that does not is written again.
+      # one that does not is written again. One a shard: each keeps what its own classes wrote.
       - name: Image written from the core, from cache
         if: ${{ github.event_name != 'schedule' && !inputs.fresh }}
         uses: actions/cache@v4
         with:
           path: /tmp/polyphemus/*/cache/image-from-dump
-          key: image-from-dump-${{ matrix.edition }}-${{ hashFiles('Polyphemus-Object.package/**', 'Polyphemus-Edition-Pharo*.package/**', 'Polyphemus-VMMaker-MemoryMap.package/**', 'Polyphemus-Tests.package/SpurImageFromDumpTest.class/**', 'Polyphemus-Tests.package/StackOfADumpTest.class/**', 'bin/ci-setup.sh') }}
-          restore-keys: image-from-dump-${{ matrix.edition }}-
+          key: image-from-dump-${{ matrix.edition }}-${{ matrix.shard }}of2-${{ hashFiles('Polyphemus-Object.package/**', 'Polyphemus-Edition-Pharo*.package/**', 'Polyphemus-VMMaker-MemoryMap.package/**', 'Polyphemus-Tests.package/SpurImageFromDumpTest.class/**', 'Polyphemus-Tests.package/StackOfADumpTest.class/**', 'bin/ci-setup.sh') }}
+          restore-keys: |
+            image-from-dump-${{ matrix.edition }}-${{ matrix.shard }}of2-
+            image-from-dump-${{ matrix.edition }}-
 
       - name: Suite
         if: needs.judged.outputs.skip != 'true'
@@ -112,18 +125,20 @@ jobs:
           # No timings yet on a fresh runner: a class gets TMO seconds, not three times its last run.
           # Two classes at once: with their targets, four took 14 of the runner's 16 GB and three
           # 15.9, and the step was killed from outside, leaving no log (exit 143, windows branch).
-          WORK=~/setup TMO=1800 bin/tdd.sh --all -j 2 > suite.log 2>&1 || true
-          grep -aE "^RES|^    (FAIL|ERROR|FLAKY|NOTE|\|)|totals|BROKEN|TIMEOUT" suite.log || true
+          SHARD=${{ matrix.shard }}/2 WORK=~/setup TMO=1800 bin/tdd.sh --all -j 2 > suite.log 2>&1 || true
+          grep -aE "^RES|^    (FAIL|ERROR|FLAKY|NOTE|\|)|^== shard|totals|BROKEN|TIMEOUT" suite.log || true
           # Flakes and failures as annotations, kept and public: bin/flakes.sh counts them (#31).
           bin/annotate-results.sh ~/setup/.test-results
-          # Not green on what it did not run: classes answered, tests run but not skipped (#164).
-          bin/check-totals.sh suite.log 134 1000 || { echo "== end of the log =="; tail -60 suite.log; exit 1; }
+          # Not green on what it did not run (#164): this shard ran classes of its own and tests;
+          # that the two hold the whole suite, and as much as it is known to run, is "whole"'s to say.
+          grep -aqE "^== shard ${{ matrix.shard }}/2: [1-9][0-9]* of [1-9][0-9]* classes ==" suite.log || { echo "!! the shard ran no class of its own"; tail -60 suite.log; exit 1; }
+          ! grep -aq "^== totals: 0 run" suite.log || { echo "!! the shard ran no test"; tail -60 suite.log; exit 1; }
           grep -q "totals: .* 0 failures, 0 errors, 0 broken" suite.log || { echo "== end of the log =="; tail -60 suite.log; exit 1; }
 
       # A VM someone else started, not through bin/pharo-debuggable: Yama refuses it to the
       # runner's user, and root reads it, as on macOS. The runner gives sudo without a password.
       - name: As root, a VM started by someone else
-        if: needs.judged.outputs.skip != 'true'
+        if: matrix.shard == 1 && needs.judged.outputs.skip != 'true'
         run: |
           sudo WORK="$HOME/setup" TMO=1800 bin/run-tests.sh -c LinuxRootObserverTest 2>&1 | tee root.log | grep -aE "^RES|^    (FAIL|ERROR)" || true
           [ "$(grep -ac "^RES " root.log)" -eq 1 ] || { echo "!! the class did not answer"; exit 1; }
@@ -133,7 +148,7 @@ jobs:
         if: failure() && needs.judged.outputs.skip != 'true'
         uses: actions/upload-artifact@v4
         with:
-          name: core-pharo-${{ matrix.edition }}
+          name: core-pharo-${{ matrix.edition }}-${{ matrix.shard }}
           path: ~/setup/pharo.core
           retention-days: 5
 
@@ -141,12 +156,49 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: suite-pharo-${{ matrix.edition }}
+          name: suite-pharo-${{ matrix.edition }}-${{ matrix.shard }}
           path: |
             suite.log
             root.log
             ~/setup/load.log
             ~/setup/.class-logs
+
+      # The suite log alone, for "whole" to read the shards as one.
+      - name: Hand the shard's log on
+        if: always() && needs.judged.outputs.skip != 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: shard-pharo-${{ matrix.edition }}-${{ matrix.shard }}
+          path: suite.log
+          retention-days: 5
+
+  # Each edition's two shards read as one suite (bin/check-shards.sh): both ended, every class
+  # in one of them and none in both, and as many classes and tests, skipped ones not counted, as
+  # an edition is known to run (#164). It runs whatever the shards said, to say what is missing.
+  whole:
+    name: Every edition, its shards as one suite
+    needs: [ judged, suite ]
+    if: ${{ always() && needs.judged.outputs.skip != 'true' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: shard-pharo-*
+          path: shards
+      - name: Each edition's shards, as one suite
+        run: |
+          bad=0
+          for edition in 10 11 12 13 14; do
+            echo "== Pharo $edition"
+            mkdir -p "edition-$edition"
+            for log in shards/shard-pharo-$edition-*/suite.log; do
+              [ -f "$log" ] && cp "$log" "edition-$edition/$(basename "$(dirname "$log")").log"
+            done
+            bin/check-shards.sh "edition-$edition" 134 1000 || bad=1
+          done
+          exit $bad
 
   # macOS on Apple silicon, every edition (docs/handover-macos.md): the suite, then the tests that
   # read another process through its task port, which macOS grants a stock VM's observer only
@@ -194,7 +246,10 @@ jobs:
         if: needs.judged.outputs.skip != 'true'
         run: |
           ln -sfn "$GITHUB_WORKSPACE" ~/setup/Polyphemus
-          WORK=~/setup TMO=1800 bin/tdd.sh --all -j 3 > suite.log 2>&1 || true
+          # No lanes: the classes that launch images skip here without root, and two lanes kept
+          # for them left the rest one class at a time (-j 3 less two). Two at once: the runner
+          # has 7 GB, a class's image near 2.
+          SERIAL_LANES=0 WORK=~/setup TMO=1800 bin/tdd.sh --all -j 2 > suite.log 2>&1 || true
           grep -aE "^RES|^    (FAIL|ERROR|FLAKY|NOTE|\|)|totals|BROKEN|TIMEOUT" suite.log || true
           # Flakes and failures as annotations, kept and public: bin/flakes.sh counts them (#31).
           bin/annotate-results.sh ~/setup/.test-results
@@ -272,7 +327,9 @@ jobs:
         run: |
           [ -e ~/setup/Polyphemus ] && cmd //c "rmdir $(cygpath -w ~/setup/Polyphemus)"
           cmd //c "mklink /J $(cygpath -w ~/setup/Polyphemus) $(cygpath -w "$GITHUB_WORKSPACE")" > /dev/null
-          WORK=~/setup TMO=1800 bin/tdd.sh --all -j 3 > suite.log 2>&1 || true
+          # No lanes: the classes that launch images skip here, and two lanes kept for them left
+          # the rest one class at a time (-j 3 less two).
+          SERIAL_LANES=0 WORK=~/setup TMO=1800 bin/tdd.sh --all -j 3 > suite.log 2>&1 || true
           grep -aE "^RES|^    (FAIL|ERROR|FLAKY|NOTE|\|)|totals|BROKEN|TIMEOUT" suite.log || true
           # Flakes and failures as annotations, kept and public: bin/flakes.sh counts them (#31).
           bin/annotate-results.sh ~/setup/.test-results
