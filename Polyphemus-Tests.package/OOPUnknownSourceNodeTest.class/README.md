@@ -1,0 +1,1 @@
+What a frame answers for its node when its code could not be reproduced: the questions a node is asked, answered as no node (#171).
