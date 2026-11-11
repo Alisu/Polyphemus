@@ -131,8 +131,10 @@ jobs:
           bin/annotate-results.sh ~/setup/.test-results
           # Not green on what it did not run (#164): this shard ran classes of its own and tests;
           # that the two hold the whole suite, and as much as it is known to run, is "whole"'s to say.
+          # (No totals line spelled out here: this script is echoed into the job's log, where
+          # bin/ci-verdict.sh would read it as the suite's.)
           grep -aqE "^== shard ${{ matrix.shard }}/2: [1-9][0-9]* of [1-9][0-9]* classes ==" suite.log || { echo "!! the shard ran no class of its own"; tail -60 suite.log; exit 1; }
-          ! grep -aq "^== totals: 0 run" suite.log || { echo "!! the shard ran no test"; tail -60 suite.log; exit 1; }
+          bin/check-totals.sh suite.log 1 1 || { echo "== end of the log =="; tail -60 suite.log; exit 1; }
           grep -q "totals: .* 0 failures, 0 errors, 0 broken" suite.log || { echo "== end of the log =="; tail -60 suite.log; exit 1; }
 
       # A VM someone else started, not through bin/pharo-debuggable: Yama refuses it to the
