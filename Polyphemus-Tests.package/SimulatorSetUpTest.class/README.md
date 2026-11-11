@@ -1,0 +1,1 @@
+VMMaker's simulator set up in one place, as the simulator sets itself up (#118).

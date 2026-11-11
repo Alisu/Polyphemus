@@ -1,0 +1,1 @@
+VMMaker's interpreter simulator on a fresh 64-bit Spur memory, nothing loaded, set up as the simulator sets itself up: in one place, for a reading and for a dump (#118).
