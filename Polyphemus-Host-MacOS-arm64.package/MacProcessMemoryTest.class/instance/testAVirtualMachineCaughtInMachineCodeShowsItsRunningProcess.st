@@ -1,10 +1,9 @@
 tests
 testAVirtualMachineCaughtInMachineCodeShowsItsRunningProcess
 
-	"Stopped in Cog's code, the newest frames are only in the thread's registers: x29, x28 and
-	pc on arm64 (#17). Every machine code pc maps through Cog's map, read in arm64's four-byte
-	instructions. Caught in its own frame within thirty stops, and checked in that stop: a frame
-	reads the process itself, which spins on once let go (#136)."
+	"Stopped in Cog's code, the newest frames are only in the thread's registers, x29, x28 and pc
+	(#17); each machine code pc maps through Cog's map, in arm64's four-byte instructions. Caught
+	within thirty stops and checked in that stop: a frame reads the process itself (#136)."
 
 	| pid stack memory caught refusals checked |
 	MacProcessMemory isRoot ifFalse: [ ^ self skip: 'reading another process on macOS needs the observer run as root (sudo)' ].
