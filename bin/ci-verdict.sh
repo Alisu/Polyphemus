@@ -52,13 +52,14 @@ judge() {  # one job's log on stdin: what failed, then VERDICT green|known|infra
 if [ "${1:-}" = "--log" ]; then judge < "$2"; exit $?; fi
 [ $# -eq 1 ] || { sed -n '2,9p' "$0" | sed 's/^# \{0,1\}//'; exit 2; }
 
-jobs=$(gh run view "$1" --json jobs -q '.jobs[] | "\(.databaseId) \(.conclusion // "pending") \(.name)"' 2>&1)
+jobs=$(gh run view "$1" --json jobs -q '.jobs[] | "\(.databaseId)|\(.conclusion // "")|\(.name)"' 2>&1)
 if [ $? -ne 0 ] || [ -z "$jobs" ]; then  # a run not read is no verdict, least of all green
   echo "${jobs:-no jobs}" | head -1; echo "VERDICT unread: read the run again"; exit 2; fi
 # gh from 2.103 on prints no log holding terminal escapes, CI's colours, unless told it may.
 escapes=""; [[ "$(gh api --help 2>&1)" == *--allow-escape-sequences* ]] && escapes="--allow-escape-sequences"
 worst=0
-while read -r id conclusion name; do
+while IFS="|" read -r id conclusion name; do   # a running job's conclusion is empty
+  [ -n "$conclusion" ] || conclusion=pending
   [ "$name" = "Judged on a ci/ branch" ] && continue   # it runs no suite (#164)
   case "$conclusion" in
     success|failure|cancelled|timed_out)
