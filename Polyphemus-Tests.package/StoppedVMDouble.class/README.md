@@ -1,0 +1,1 @@
+A stopped process of bytes whose first half is its heap and whose last quarter is the VM's own data, a gap between; it says whether it was caught collecting garbage (#173).
