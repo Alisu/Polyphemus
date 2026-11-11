@@ -3,6 +3,5 @@
 Polyphemus-Edition-Pharo10 SpurMemoryManager>>allOldSpaceEntitiesFrom:do:
 Polyphemus-Memory Spur32BitMemoryManager>>defaultEdenBytes
 Polyphemus-Memory Spur64BitMemoryManager>>defaultEdenBytes
-Polyphemus-Memory SpurMemoryManager>>initialHeadroom:givenFreeOldSpaceInImage:
 Polyphemus-VMMaker-MemoryMap SpurMemoryManager>>allOldSpaceEntitiesFrom:do:
 Polyphemus-VMMaker-MemoryMap VMStackPages>>longAt:
