@@ -75,6 +75,36 @@ out=$(WORK="$dir" STUB_CLASSES="$few" STUB_LANES="$few" "$HERE/run-tests.sh" $(p
 check "three of them run in the pool" "grep -q '3 launching images, in 0 lane(s)' <<<\"\$out\""
 out=$(WORK="$dir" STUB_CLASSES="$many" STUB_LANES="$many" SERIAL_LANES=0 "$HERE/run-tests.sh" $(printf -- '-c %s ' $many) -j 6 2>&1)
 check "SERIAL_LANES=0 still runs them all in the pool" "grep -q '5 launching images, in 0 lane(s)' <<<\"\$out\""
+
+# Where no run was timed, as on CI's runners, a class weighs what bin/class-weights.txt says: the
+# heaviest starts first, not whichever sorts first.
+printf 'AaTest 5\nBbTest 500\n' > "$dir/weights"
+out=$(WORK="$dir" WEIGHTS="$dir/weights" STUB_CLASSES="AaTest BbTest" "$HERE/run-tests.sh" --all -j 1 2>&1)
+check "with no timings, the class the weights call heaviest runs first" "[ \"\$(grep '^RES ' <<<\"\$out\" | head -1 | awk '{print \$2}')\" = BbTest ]"
+rm -f "$dir/.test-timings"
+
+# A suite shared out over runners (SHARD=k/n): each class in one shard and only one, the classes
+# that launch images and the rest each shared out by weight, the same on every runner.
+seven="LaunchATest LaunchBTest LaunchCTest LaunchDTest PlainATest PlainBTest PlainCTest"
+launching="LaunchATest LaunchBTest LaunchCTest LaunchDTest"
+printf 'LaunchATest 1200\nLaunchBTest 700\nLaunchCTest 400\nLaunchDTest 300\nPlainATest 1200\nPlainBTest 50\n' > "$dir/weights"
+one=$(WORK="$dir" WEIGHTS="$dir/weights" STUB_CLASSES="$seven" STUB_LANES="$launching" SHARD=1/2 "$HERE/run-tests.sh" --all -j 2 2>&1)
+rm -f "$dir/.test-timings"
+two=$(WORK="$dir" WEIGHTS="$dir/weights" STUB_CLASSES="$seven" STUB_LANES="$launching" SHARD=2/2 "$HERE/run-tests.sh" --all -j 2 2>&1)
+ran() { grep '^RES ' <<<"$1" | awk '{print $2}' | sort | tr '\n' ' '; }
+check "the two shards run every class between them" "[ \"\$( { ran \"\$one\"; ran \"\$two\"; } | tr ' ' '\n' | grep . | sort | tr '\n' ' ')\" = \"\$(tr ' ' '\n' <<<\"\$seven\" | sort | tr '\n' ' ')\" ]"
+check "the heaviest launching class is alone against the three others" "[ \"\$(ran \"\$one\")\" = 'LaunchATest PlainATest ' ] && [ \"\$(ran \"\$two\")\" = 'LaunchBTest LaunchCTest LaunchDTest PlainBTest PlainCTest ' ]"
+check "a shard says how many of the suite's classes are its own" "grep -q '^== shard 1/2: 2 of 7 classes ==' <<<\"\$one\" && grep -q '^== shard 2/2: 5 of 7 classes ==' <<<\"\$two\""
+check "a shard's totals are of its own classes" "grep -q '^== totals: 2 run, 0 failures' <<<\"\$one\""
+printf 'LaunchATest 9\nPlainATest 9\nPlainBTest 9\n' > "$dir/.test-timings"
+again=$(WORK="$dir" WEIGHTS="$dir/weights" STUB_CLASSES="$seven" STUB_LANES="$launching" SHARD=1/2 "$HERE/run-tests.sh" --all -j 2 2>&1)
+check "a runner's own timings do not move a class to another shard" "[ \"\$(ran \"\$again\")\" = 'LaunchATest PlainATest ' ]"
+check "a shard's run keeps the timings of the other shards' classes" "grep -q '^PlainBTest ' '$dir/.test-timings'"
+rm -f "$dir/.test-timings"
+WORK="$dir" STUB_CLASSES="$seven" SHARD=3/2 "$HERE/run-tests.sh" --all -j 2 > /dev/null 2>&1
+check "a shard past the last is refused" "[ $? -eq 2 ]"
+out=$(WORK="$dir" WEIGHTS="$dir/weights" STUB_CLASSES="$seven" STUB_LANES="$launching" SHARD=2/2 "$HERE/run-tests.sh" -c LaunchATest -j 1 2>&1)
+check "a class asked for by name runs whatever the shard" "grep -q '^RES LaunchATest 1 run' <<<\"\$out\""
 rm -rf "$dir"
 
 echo "== run-tests-test: $failures failing"
