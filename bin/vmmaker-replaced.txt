@@ -5,7 +5,5 @@ Polyphemus-Memory Spur32BitMemoryManager>>defaultEdenBytes
 Polyphemus-Memory Spur64BitMemoryManager>>defaultEdenBytes
 Polyphemus-Memory SpurMemoryManager>>initialHeadroom:givenFreeOldSpaceInImage:
 Polyphemus-Memory StackInterpreter>>interpreterAllocationReserveBytes
-Polyphemus-Tests VMInterpreterTests>>setUp
-Polyphemus-Tests VMSpurMemoryManagerTest>>setUp
 Polyphemus-VMMaker-MemoryMap SpurMemoryManager>>allOldSpaceEntitiesFrom:do:
 Polyphemus-VMMaker-MemoryMap VMStackPages>>longAt:
