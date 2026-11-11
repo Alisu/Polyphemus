@@ -103,7 +103,7 @@ check "a run GitHub would not show is unread, not green" \
 cat > "$dir/bin/gh" <<'GH'
 #!/bin/sh
 case "$*" in
-  "run view"*) echo "7 failure Pharo 10" ;;
+  "run view"*) echo "7|failure|Pharo 10" ;;
   "api --help") echo "      --allow-escape-sequences   Allow terminal escape sequences" ;;
   api*/actions/jobs/7/logs*)
     case "$*" in *--allow-escape-sequences*) ;; *)
@@ -120,7 +120,7 @@ check "a log gh prints only with escapes allowed is read" "[ $rc -eq 1 ] && grep
 cat > "$dir/bin/gh" <<'GH'
 #!/bin/sh
 case "$*" in
-  "run view"*) printf '%s\n' "9 success Judged on a ci/ branch" "8 success Pharo 13" ;;
+  "run view"*) printf '%s\n' "9|success|Judged on a ci/ branch" "8|success|Pharo 13" ;;
   "api --help") echo "" ;;
   api*/actions/jobs/9/logs*) echo "2026-11-03T02:00:00.0000000Z skip=false" ;;
   api*/actions/jobs/8/logs*) echo "2026-11-03T02:00:01.0000000Z == totals: 965 run, 0 failures, 0 errors, 0 broken, 0 flaky ==" ;;
@@ -129,11 +129,22 @@ GH
 chmod +x "$dir/bin/gh"
 PATH="$dir/bin:$PATH" "$VERDICT" 41574774100 > "$dir/out" 2>&1; rc=$?
 check "the job that runs no suite is left out" "[ $rc -eq 0 ] && grep -q '^VERDICT green' $dir/out && ! grep -q 'Judged' $dir/out"
+# A job still running has an empty conclusion, not none: it is not finished, its name whole.
+cat > "$dir/bin/gh" <<'GH'
+#!/bin/sh
+case "$*" in
+  "run view"*) echo "9||Pharo 13 (2/2)" ;;
+  "api --help") echo "" ;;
+esac
+GH
+chmod +x "$dir/bin/gh"
+PATH="$dir/bin:$PATH" "$VERDICT" 41574774101 > "$dir/out" 2>&1; rc=$?
+check "a running job reads unfinished, by its name" "[ $rc -eq 2 ] && grep -q '^== Pharo 13 (2/2): not finished' $dir/out"
 # A green job is read too: a flake hides in it (#164).
 cat > "$dir/bin/gh" <<'GH'
 #!/bin/sh
 case "$*" in
-  "run view"*) echo "8 success Pharo 13" ;;
+  "run view"*) echo "8|success|Pharo 13" ;;
   "api --help") echo "" ;;
   api*/actions/jobs/8/logs*)
     echo "2026-11-03T02:00:00.0000000Z     ERROR OtherTest>>testSlow -- TestTookTooMuchTime"
@@ -147,7 +158,7 @@ check "a green job's unlisted flake is seen (#164)" "[ $rc -eq 1 ] && grep -q 'N
 cat > "$dir/bin/gh" <<'GH'
 #!/bin/sh
 case "$*" in
-  "run view"*) echo "7 failure Pharo 10" ;;
+  "run view"*) echo "7|failure|Pharo 10" ;;
   "api --help") echo "      --allow-escape-sequences   Allow terminal escape sequences" ;;
   api*/actions/jobs/7/logs*)
     case "$*" in *--allow-escape-sequences*) ;; *)
