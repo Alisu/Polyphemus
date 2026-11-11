@@ -2,4 +2,3 @@
 # the edition loads. bin/vmmaker-replaced.py fails CI on one not listed; take a line out once it goes.
 Polyphemus-Edition-Pharo10 SpurMemoryManager>>allOldSpaceEntitiesFrom:do:
 Polyphemus-VMMaker-MemoryMap SpurMemoryManager>>allOldSpaceEntitiesFrom:do:
-Polyphemus-VMMaker-MemoryMap VMStackPages>>longAt:

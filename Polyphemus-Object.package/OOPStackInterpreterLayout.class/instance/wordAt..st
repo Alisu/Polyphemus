@@ -1,4 +1,4 @@
 reading
 wordAt: anAddress
 
-	^ memory interpreter stackPages longAt: anAddress
+	^ memory interpreter stackPages unsignedLongAt: anAddress
