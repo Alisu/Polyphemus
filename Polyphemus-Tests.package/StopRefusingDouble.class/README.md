@@ -1,0 +1,1 @@
+A held process whose stop fails, as one the image cannot end (#170).
