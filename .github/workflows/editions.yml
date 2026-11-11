@@ -114,6 +114,11 @@ jobs:
             image-from-dump-${{ matrix.edition }}-${{ matrix.shard }}of2-
             image-from-dump-${{ matrix.edition }}-
 
+      # Our packages may replace only the VMMaker methods bin/vmmaker-replaced.txt lists, which
+      # only shrinks (#118): each edition's VMMaker is checked against its own source.
+      - name: No VMMaker method replaced beyond the list
+        run: python3 bin/vmmaker-replaced.py ~/setup/pharo-local/iceberg/pharo-project/pharo-vm/smalltalksrc . ${{ matrix.edition }}
+
       - name: Suite
         if: needs.judged.outputs.skip != 'true'
         run: |

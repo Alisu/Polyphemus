@@ -1,0 +1,11 @@
+# The VMMaker methods our packages replace (#118), one per line: package, then Class>>selector, those
+# the edition loads. bin/vmmaker-replaced.py fails CI on one not listed; take a line out once it goes.
+Polyphemus-Edition-Pharo10 SpurMemoryManager>>allOldSpaceEntitiesFrom:do:
+Polyphemus-Memory Spur32BitMemoryManager>>defaultEdenBytes
+Polyphemus-Memory Spur64BitMemoryManager>>defaultEdenBytes
+Polyphemus-Memory SpurMemoryManager>>initialHeadroom:givenFreeOldSpaceInImage:
+Polyphemus-Memory StackInterpreter>>interpreterAllocationReserveBytes
+Polyphemus-Tests VMInterpreterTests>>setUp
+Polyphemus-Tests VMSpurMemoryManagerTest>>setUp
+Polyphemus-VMMaker-MemoryMap SpurMemoryManager>>allOldSpaceEntitiesFrom:do:
+Polyphemus-VMMaker-MemoryMap VMStackPages>>longAt:
