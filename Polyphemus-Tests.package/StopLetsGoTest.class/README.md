@@ -1,0 +1,1 @@
+Stop lets the image go whatever stopping the held process does (#170).
