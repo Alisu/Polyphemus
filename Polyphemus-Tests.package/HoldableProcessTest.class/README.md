@@ -1,0 +1,1 @@
+A hold takes the process running at the stop only when the watcher outranks it (#172): no live image, the stops are a double's.

@@ -2,12 +2,13 @@ holding
 holdWithin: aDuration unless: aCondition
 
 	"Hold it as holdWithin: does, unless aCondition, checked once the image is stopped, says it holds
-	already (a trap that fired, #137); answers whether this did. The hold file says it is wanted."
+	already (a trap that fired, #137); answers whether this did. The hold file says it is wanted.
+	The process held is one the watcher outranks, when a few stops find one (#172)."
 
 	| hash held |
 	(HoldLock on: directory) take.
 	held := false.
-	hash := reader whileStopped: [
+	hash := self whileStoppedOnAProcessItCanHold: [
 		        aCondition value ifFalse: [
 			        held := true.
 			        self forget: #( 'interrupted' 'released' ).
