@@ -4,7 +4,7 @@
  TDD loop we compile straight from the files: every *.class and *.extension directory
  of every Polyphemus package, creating classes that do not exist yet and removing
  classes and methods whose files are gone."
-| root joined ensureClass syncSide created compiled removed packages pending organizer define |
+| root joined ensureClass syncSide created compiled removed packages pending organizer define drop |
 "This host's packages: RPackageOrganizer up to Pharo 12, PackageOrganizer from Pharo 13."
 organizer := (Smalltalk globals at: #RPackageOrganizer ifAbsent: [ Smalltalk globals at: #PackageOrganizer ]) default.
 "Wherever this checkout is: Iceberg has it registered, which the test fixtures rely on too."
@@ -108,6 +108,23 @@ ensureClass := [ :props :packageName |
 							('RETAGGED ', name, ' -> ', wanted) traceCr ] ].
 					cls ] ] ].
 
+"A method whose file is gone goes, or the version of another package it replaced comes back:
+ the changes file keeps it. Removing that one too would leave a hole a fresh load does not have."
+drop := [ :target :sel |
+	| m original |
+	m := target >> sel.
+	original := [ m isExtension ifTrue: [ (SourceFiles changeRecordsFrom: m sourcePointer
+			className: target instanceSide name isMeta: target isMeta)
+		detect: [ :r | (((r respondsTo: #protocol) ifTrue: [ r protocol ] ifFalse: [ r category ])
+			asString beginsWith: '*Polyphemus') not ] ifNone: [ nil ] ] ] on: Error do: [ :e | nil ].
+	original
+		ifNil: [ target removeSelector: sel.
+			('REMOVED ', target name, '>>', sel) traceCr ]
+		ifNotNil: [ target compile: original string classified:
+				((original respondsTo: #protocol) ifTrue: [ original protocol ] ifFalse: [ original category ]).
+			('RESTORED ', target name, '>>', sel, ' as it was before Polyphemus replaced it') traceCr ].
+	removed := removed + 1 ].
+
 syncSide := [ :target :dir :packageName |
 	| fileSelectors |
 	fileSelectors := Set new.
@@ -126,19 +143,16 @@ syncSide := [ :target :dir :packageName |
 						  compiled := compiled + 1 ] ]
 					on: Error , (Smalltalk globals at: #SyntaxErrorNotification ifAbsent: [ Error ])
 					do: [ :e | ('COMPILE ERR ', f basename, ' :: ', e messageText asString) traceCr ] ] ] ].
-	"Drop methods this package used to define and no longer does. #localSelectors
-	excludes methods a trait provides: removing those would silently strip the class."
-	fileSelectors ifNotEmpty: [
+	"Drop methods this package used to define and no longer does, the side's last one too.
+	#localSelectors excludes methods a trait provides: removing those would strip the class."
 	[ target localSelectors asArray do: [ :sel |
 		| m |
 		m := target >> sel.
 		((fileSelectors includes: sel) not
 			and: [ [ m package notNil and: [ m package name = packageName ] ]
 				on: Error do: [ :e | false ] ])
-			ifTrue: [ target removeSelector: sel.
-				removed := removed + 1.
-				('REMOVED ', target name, '>>', sel) traceCr ] ] ]
-		on: Error do: [ :e | ] ] ].
+			ifTrue: [ drop value: target value: sel ] ] ]
+		on: Error do: [ :e | ] ].
 
 packages := (root directories select: [ :d | d basename endsWith: '.package' ])
 	select: [ :pkgDir |
@@ -196,6 +210,15 @@ packages do: [ :pkgDir |
 			cls ifNotNil: [
 				syncSide value: cls value: clsDir / 'instance' value: packageName.
 				syncSide value: cls class value: clsDir / 'class' value: packageName ] ] ] ].
+
+"An extension whose directory is gone goes too: the walk above never visits it."
+packages do: [ :pkgDir |
+	| packageName |
+	packageName := pkgDir basename copyReplaceAll: '.package' with: ''.
+	[ (organizer packageNamed: packageName) extensionMethods asArray do: [ :m |
+		(pkgDir / (m methodClass instanceSide name , '.extension')) exists ifFalse: [
+			drop value: m methodClass value: m selector ] ] ]
+		on: Error do: [ :e | ('SYNC ERR extensions of ', packageName, ' :: ', e messageText asString) traceCr ] ].
 
 ('SYNC ', created printString, ' classes created, ', compiled printString,
 	' methods compiled, ', removed printString, ' removed') traceCr.

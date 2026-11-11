@@ -44,7 +44,7 @@ if [ -z "${SKIP_PREPARE:-}" ]; then
 rm -f .warm-fingerprint
 echo "== compiling working copy into dev.image =="
 sync=$(timeout 600 ./pharo dev.image --no-default-preferences st "$HERE/sync-from-working-copy.st" 2>&1 | tr -d '\033')
-grep -E '^SYNC|^CREATED|^REMOVED|^REDEFINED|^IVAR|^COMPILE ERR|^SKIP|^NO COMMENT|^RETAGGED' <<<"$sync"
+grep -E '^SYNC|^CREATED|^REMOVED|^RESTORED|^REDEFINED|^IVAR|^COMPILE ERR|^SKIP|^NO COMMENT|^RETAGGED' <<<"$sync"
 # No summary line means the script itself failed, and the tests would run the image as it was.
 if ! grep -q '^SYNC' <<<"$sync"; then
   echo "!! the working copy was not compiled; the sync script said:"
