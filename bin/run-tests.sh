@@ -7,6 +7,7 @@
 #   ./run-tests.sh -c Foo -c Bar   just these classes (the TDD loop)
 #   ./run-tests.sh -c Foo -t testBar   just one test (the tightest loop)
 #   ./run-tests.sh -j 10           parallelism (default 6)
+#   SHARD=1/3 ./run-tests.sh --all one runner's third of the suite, the others run the rest
 #   IMAGE=dev.image ./run-tests.sh run against another image
 #
 # One Pharo process per class: the image is single threaded, the box is not.
@@ -26,6 +27,13 @@ cd "$WORK" || { echo "!! no setup at $WORK"; exit 2; }
 [ -f "$WORK/polyphemus.env" ] && { set -a; . "$WORK/polyphemus.env"; set +a; }
 TIMINGS="$WORK/.test-timings"
 RESULTS="$WORK/.test-results"
+# What a class takes where no run was timed, as on CI's runners: "Class seconds" a line.
+WEIGHTS="${WEIGHTS:-$HERE/class-weights.txt}"
+SHARD="${SHARD:-}"
+if [ -n "$SHARD" ]; then
+  [[ "$SHARD" =~ ^[1-9][0-9]*/[1-9][0-9]*$ ]] && [ "${SHARD%/*}" -le "${SHARD#*/}" ] ||
+    { echo "!! SHARD is k/n, k from 1 to n: $SHARD"; exit 2; }
+fi
 
 MODE=tiered
 SELECTED=()
@@ -57,9 +65,24 @@ all_classes() { grep '^CLASS ' <<<"$COLLECTED" | awk '{print $2}' | sort -u; }
 export -f worst_time_of best_time_of
 is_slow() { is_slow_in "$TIMINGS" "$1" "$SLOW_THRESHOLD"; }
 
-longest_first() {
-  awk -v timings="$TIMINGS" 'BEGIN { while ((getline line < timings) > 0) { split(line, f, " "); t[f[1]] = f[2] } }
+longest_first() {  # by this setup's timings, else by the weights; a class in neither goes first
+  awk -v timings="$TIMINGS" -v weights="$WEIGHTS" '
+    BEGIN { while ((getline line < weights) > 0) { split(line, f, " "); t[f[1]] = f[2] }
+            while ((getline line < timings) > 0) { split(line, f, " "); t[f[1]] = f[2] } }
     { print ($1 in t ? t[$1] : 999999), $1 }' | sort -k1,1nr | awk '{print $2}'
+}
+
+# The classes on stdin that are shard $1 of $2's. Those that launch images, then the rest, each
+# shared out heaviest first to the shard with the least so far, by the weights alone: every
+# runner must answer the same, and their own timings differ.
+in_shard() {
+  awk -v weights="$WEIGHTS" -v lanes="$(tr '\n' ' ' <<<"$LANE")" '
+    BEGIN { while ((getline line < weights) > 0) { split(line, f, " "); w[f[1]] = f[2] }
+            n = split(lanes, l, " "); for (i = 1; i <= n; i++) launches[l[i]] = 1 }
+    { print (($1 in launches) ? 0 : 1), (($1 in w) ? w[$1] : (($1 in launches) ? 120 : 5)), $1 }' \
+    | LC_ALL=C sort -k1,1n -k2,2nr -k3,3 | awk -v k="$1" -v n="$2" '
+    { best = 1; for (i = 2; i <= n; i++) if (load[$1, i] + 0 < load[$1, best] + 0) best = i
+      load[$1, best] += $2; if (best == k) print $3 }'
 }
 
 run_script() {  # $1 limit, $2 script, $3 log: the lines the runner reads; status timeout's own (#14)
@@ -179,8 +202,9 @@ run_set() {
   local start; start=$(date +%s)
   # Each lane class, longest first, goes to the lane with the least recorded time so far.
   if [ ${#lane[@]} -gt 0 ]; then
-    local assigned; assigned=$(printf '%s\n' "${lane[@]}" | longest_first | awk -v n="$lanes" -v timings="$TIMINGS" '
-      BEGIN { while ((getline line < timings) > 0) { split(line, f, " "); t[f[1]] = f[2] } }
+    local assigned; assigned=$(printf '%s\n' "${lane[@]}" | longest_first | awk -v n="$lanes" -v timings="$TIMINGS" -v weights="$WEIGHTS" '
+      BEGIN { while ((getline line < weights) > 0) { split(line, f, " "); t[f[1]] = f[2] }
+              while ((getline line < timings) > 0) { split(line, f, " "); t[f[1]] = f[2] } }
       { best = 0; for (i = 1; i < n; i++) if (load[i] < load[best]) best = i
         load[best] += ($1 in t ? t[$1] : 60); print best, $1 }')
     local i
@@ -302,8 +326,13 @@ if [ ${#SELECTED[@]} -gt 0 ]; then
   run_set "selected" "${SELECTED[@]}"
 else
   ALL=(); while IFS= read -r c; do ALL+=("$c"); done < <(all_classes)   # no mapfile in bash 3.2 (macOS)
+  if [ -n "$SHARD" ]; then
+    WHOLE=${#ALL[@]}
+    ALL=(); while IFS= read -r c; do [ -n "$c" ] && ALL+=("$c"); done < <(all_classes | in_shard "${SHARD%/*}" "${SHARD#*/}")
+    echo "== shard $SHARD: ${#ALL[@]} of $WHOLE classes =="
+  fi
   FAST=(); SLOW=()
-  for c in "${ALL[@]}"; do
+  for c in ${ALL[@]+"${ALL[@]}"}; do
     if is_slow "$c"; then SLOW+=("$c"); else FAST+=("$c"); fi
   done
   case "$MODE" in
@@ -323,7 +352,8 @@ fi
 [ -s "$TIMINGS.new" ] && merge_timings "$TIMINGS" "$TIMINGS.new"   # the last five: worst, best (#54, #118, #164)
 # Classes the suite no longer has leave the timings the lanes are balanced on (#164); a
 # collection that found nothing keeps them.
-if [ -f "$TIMINGS" ] && [ -n "${ALL+x}" ] && [ ${#ALL[@]} -gt 0 ]; then prune_timings "$TIMINGS" "${ALL[@]}"; fi
+# A shard holds part of the suite: the other shards' classes are still the suite's.
+if [ -f "$TIMINGS" ] && [ -z "$SHARD" ] && [ -n "${ALL+x}" ] && [ ${#ALL[@]} -gt 0 ]; then prune_timings "$TIMINGS" "${ALL[@]}"; fi
 rm -f "$TIMINGS.new"
 
 awk '/^RES /{ if ($3=="TIMEOUT"||$3=="BROKEN") b++; else {r+=$3; f+=$5; e+=$7; if ($10=="skipped") s+=$9} } /^    FLAKY /{ k++ }
