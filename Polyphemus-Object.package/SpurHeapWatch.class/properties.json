@@ -10,7 +10,8 @@
 	"instvars": [
 		"heaps",
 		"problems",
-		"written"
+		"written",
+		"unchecked"
 	],
 	"name": "SpurHeapWatch",
 	"type": "normal"

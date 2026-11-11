@@ -6,4 +6,5 @@ initialize
 	super initialize.
 	heaps := WeakOrderedCollection new.
 	problems := OrderedCollection new.
-	written := IdentitySet new
+	unchecked := OrderedCollection new.
+	written := IdentityDictionary new

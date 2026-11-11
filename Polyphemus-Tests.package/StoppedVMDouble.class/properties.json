@@ -1,0 +1,13 @@
+{
+	"commentStamp": "",
+	"super": "ProcessMemoryOfBytes",
+	"category": "Polyphemus-Tests",
+	"classinstvars": [],
+	"pools": [],
+	"classvars": [],
+	"instvars": [
+		"collecting"
+	],
+	"name": "StoppedVMDouble",
+	"type": "normal"
+}
