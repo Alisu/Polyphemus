@@ -1,0 +1,1 @@
+A held image whose stops catch, one after another, processes of the priorities it is given, the last one from then on; it counts the stops (#172).

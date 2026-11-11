@@ -1,0 +1,14 @@
+{
+	"commentStamp": "",
+	"super": "HeldImage",
+	"category": "Polyphemus-Tests",
+	"classinstvars": [],
+	"pools": [],
+	"classvars": [],
+	"instvars": [
+		"priorities",
+		"stops"
+	],
+	"name": "HeldImageCatchingPriorities",
+	"type": "normal"
+}
