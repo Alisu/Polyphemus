@@ -16,7 +16,7 @@ holdSourceAfterwards: aSource
 		script := (dir / ''do.st'') contents.
 		(dir / ''do.st'') ensureDelete.
 		[ Smalltalk compiler evaluate: script ]
-			on: Error , (Smalltalk globals at: #SyntaxErrorNotification ifAbsent: [ Error ])
+			on: Error , Halt , (Smalltalk globals at: #SyntaxErrorNotification ifAbsent: [ Error ])
 			do: [ :error |
 				(dir / ''do-failed'') ensureDelete; writeStreamDo: [ :stream |
 					stream nextPutAll: error class name , '': '' , error messageText asString ] ] ].

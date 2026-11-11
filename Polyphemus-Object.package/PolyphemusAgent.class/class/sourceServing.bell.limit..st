@@ -45,7 +45,7 @@ last := Time millisecondClockValue.
 					stopped := false.
 					worker := [
 						answer := [ ''ok'' , String lf , (Smalltalk compiler receiver: workspace; evaluate: request contents) printString ]
-							on: Error , (Smalltalk globals at: #SyntaxErrorNotification ifAbsent: [ Error ])
+							on: Error , Halt , (Smalltalk globals at: #SyntaxErrorNotification ifAbsent: [ Error ])
 							do: [ :error | ''error'' , String lf , error class name , '': '' , error messageText asString ].
 						finished := true ] newProcess.
 					worker priority: Processor activePriority; name: ' , self requestProcessName printString , '.
