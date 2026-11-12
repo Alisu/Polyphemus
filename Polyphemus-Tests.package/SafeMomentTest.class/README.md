@@ -1,0 +1,1 @@
+How long a reader looks for a stop outside a collection before it writes (#31): on a process of bytes that stops and runs, the collector's state scripted by the test.
