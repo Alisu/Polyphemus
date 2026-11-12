@@ -6,6 +6,6 @@ testItResumesWhenTold
 
 	self helperFedBy: 'sleep 30' bound: 60 saying: 'state'.
 	self assert: (self within: 10 seconds comesTrue: [ (self said: 'state') = 'stopped' ]).
-	LibC system: 'kill -TERM ' , (directory / 'state') contents lines second.
+	LibC system: 'kill -TERM ' , (StopHelper linesIn: directory / 'state') second.
 	self assert: (self within: 5 seconds comesTrue: [ (self said: 'state') = 'resumed' ]).
 	self deny: self isStopped
