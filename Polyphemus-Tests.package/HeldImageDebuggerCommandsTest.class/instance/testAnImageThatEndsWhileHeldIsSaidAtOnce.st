@@ -11,8 +11,8 @@ testAnImageThatEndsWhileHeldIsSaidAtOnce
 	Polyphemus putAWatcherInto: pid watchedIn: self spikeDirectory.
 	session := Polyphemus holdProcess: pid watchedIn: self spikeDirectory.
 	self assert: (session runUntil: 'Counter >> #tick:').
-	debugger := StDebugger openOn: session withFullView: true.
-	PolyphemusTestCase drawWindowOf: debugger.
+	debugger := PolyphemusTestCase inUIProcess: [ StDebugger openOn: session withFullView: true ].
+	PolyphemusTestCase inUIProcess: [ PolyphemusTestCase drawWindowOf: debugger ].
 	LibC system: 'kill -9 ' , pid printString.
 	self assert: (self waitFor: [ (LibC system: 'kill -0 ' , pid printString , ' 2>/dev/null') ~= 0 ]).
 	started := Time millisecondClockValue.
@@ -20,6 +20,6 @@ testAnImageThatEndsWhileHeldIsSaidAtOnce
 		should: [ session heldProcess ask: '3 + 4' ]
 		raise: PolyphemusChannelError
 		withExceptionDo: [ :error | self assert: (error messageText includesSubstring: 'gone') ].
-	self shouldnt: [ debugger window close ] raise: Error.
+	self shouldnt: [ PolyphemusTestCase inUIProcess: [ debugger window close ] ] raise: Error.
 	self assert: Time millisecondClockValue - started < 10000 ] ensure: [
 		LibC system: 'kill -9 ' , pid printString ]

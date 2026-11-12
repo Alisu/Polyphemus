@@ -13,11 +13,11 @@ testADebuggerDoneWithAHeldImageKeepsNoReadingOfIt
 		(self spikeDirectory / 'released') ensureDelete.
 		session := Polyphemus holdProcess: pid watchedIn: self spikeDirectory.
 		self assert: (session runUntil: 'Counter >> #tick:').
-		debugger := StDebugger openOn: session withFullView: true.
-		PolyphemusTestCase drawWindowOf: debugger.
+		debugger := PolyphemusTestCase inUIProcess: [ StDebugger openOn: session withFullView: true ].
+		PolyphemusTestCase inUIProcess: [ PolyphemusTestCase drawWindowOf: debugger ].
 		readings := WeakArray with: session heldProcess dumped with: session heldProcess reading memoryManager.
-		how = #proceeded ifTrue: [ (PolyphemusTestCase actionModelOf: debugger) proceedDebugSession ].
-		debugger window ifNotNil: [ :window | window close ].
+		how = #proceeded ifTrue: [ PolyphemusTestCase inUIProcess: [ (PolyphemusTestCase actionModelOf: debugger) proceedDebugSession ] ].
+		PolyphemusTestCase closeWindowOf: debugger.
 		debugger := nil.
 		self
 			assert: ((1 to: 200) anySatisfy: [ :each |

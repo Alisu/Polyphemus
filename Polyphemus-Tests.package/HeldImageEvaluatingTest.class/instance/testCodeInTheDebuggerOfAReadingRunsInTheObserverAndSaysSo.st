@@ -10,10 +10,10 @@ testCodeInTheDebuggerOfAReadingRunsInTheObserverAndSaysSo
 Smalltalk saveAs: (dir / ''sleeper'') fullName.'.
 	LibC system: 'kill -9 ' , pid printString.
 	memory := Polyphemus readImageFile: (self spikeDirectory / 'sleeper.image') fullName.
-	debugger := Polyphemus debugProcessNamed: 'sleeper' in: memory.
+	debugger := PolyphemusTestCase inUIProcess: [ Polyphemus debugProcessNamed: 'sleeper' in: memory ].
 	[
-	PolyphemusTestCase drawWindowOf: debugger.
-	result := debugger code evaluate: '3 + 4' onCompileError: [ nil ] onError: [ :error | error ].
+	PolyphemusTestCase inUIProcess: [ PolyphemusTestCase drawWindowOf: debugger ].
+	result := PolyphemusTestCase inUIProcess: [ debugger code evaluate: '3 + 4' onCompileError: [ nil ] onError: [ :error | error ] ].
 	self assert: result printString equals: '"in the observer" 7'.
 	self assert: (debugger window title beginsWith: '[Code runs in the observer]') ] ensure: [
-		debugger window ifNotNil: [ :window | window close ] ]
+		PolyphemusTestCase closeWindowOf: debugger ]

@@ -18,7 +18,7 @@ cls compile: ''pong: n
 	session := Polyphemus holdProcess: pid watchedIn: self spikeDirectory.
 	self assert: (session runUntil: 'PingPong >> #pong:').
 	[
-	debugger := StDebugger openOn: session withFullView: true.
+	debugger := PolyphemusTestCase inUIProcess: [ StDebugger openOn: session withFullView: true ].
 	self
 		deny: (debugger session isContextPostMortem: debugger session interruptedContext)
 		description: 'a live hold opened as post mortem, without its step buttons (#93)'.
@@ -32,10 +32,10 @@ cls compile: ''pong: n
 		description: 'the trap left its reflective method in the stack (#94)'.
 	PolyphemusTestCase drawEachFrameOf: debugger.
 	before := debugger session interruptedContext selector -> debugger session interruptedContext pc.
-	(PolyphemusTestCase actionModelOf: debugger) stepOver: debugger session interruptedContext.
+	PolyphemusTestCase inUIProcess: [ (PolyphemusTestCase actionModelOf: debugger) stepOver: debugger session interruptedContext ].
 	self deny: debugger session interruptedContext selector -> debugger session interruptedContext pc equals: before.
-	(PolyphemusTestCase actionModelOf: debugger) proceedDebugSession ] ensure: [
-		debugger ifNotNil: [ debugger window ifNotNil: [ :window | window close ] ] ].
+	PolyphemusTestCase inUIProcess: [ (PolyphemusTestCase actionModelOf: debugger) proceedDebugSession ] ] ensure: [
+		debugger ifNotNil: [ PolyphemusTestCase closeWindowOf: debugger ] ].
 	self
 		assert: (self waitFor: [ (self spikeDirectory / 'released') exists ])
 		description: 'proceeding never let it go' ] ensure: [ LibC system: 'kill -9 ' , pid printString ]

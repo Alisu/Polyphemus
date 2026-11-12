@@ -8,9 +8,9 @@ testADebuggerOfTheObserversOwnProcessHasNoStop
 	process := [ Semaphore new wait ] newProcess.
 	session := process newDebugSessionNamed: 'observer' startedAt: process suspendedContext.
 	session exception: (OupsNullException fromSignallerContext: process suspendedContext).
-	debugger := StDebugger openOn: session withFullView: true.
+	debugger := PolyphemusTestCase inUIProcess: [ StDebugger openOn: session withFullView: true ].
 	[
-	PolyphemusTestCase drawWindowOf: debugger.
+	PolyphemusTestCase inUIProcess: [ PolyphemusTestCase drawWindowOf: debugger ].
 	self deny: (debugger rootCommandsGroup allCommands anySatisfy: [ :each | each name = 'Stop' ]) ] ensure: [
-		debugger window ifNotNil: [ :window | window close ].
+		PolyphemusTestCase closeWindowOf: debugger.
 		process terminate ]

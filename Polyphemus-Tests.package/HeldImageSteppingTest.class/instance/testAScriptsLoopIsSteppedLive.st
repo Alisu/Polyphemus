@@ -12,16 +12,16 @@ testAScriptsLoopIsSteppedLive
 	session := Polyphemus holdProcess: pid watchedIn: self spikeDirectory.
 	self assert: (session runUntil: 'Counter >> #tick:').
 	[
-	debugger := StDebugger openOn: session withFullView: true.
+	debugger := PolyphemusTestCase inUIProcess: [ StDebugger openOn: session withFullView: true ].
 	trail := OrderedCollection with: debugger session interruptedContext selector -> debugger session interruptedContext pc.
 	6 timesRepeat: [
-		(PolyphemusTestCase actionModelOf: debugger) stepOver: debugger session interruptedContext.
-		PolyphemusTestCase drawWindowOf: debugger.
+		PolyphemusTestCase inUIProcess: [ (PolyphemusTestCase actionModelOf: debugger) stepOver: debugger session interruptedContext ].
+		PolyphemusTestCase inUIProcess: [ PolyphemusTestCase drawWindowOf: debugger ].
 		trail add: debugger session interruptedContext selector -> debugger session interruptedContext pc ].
 	self
 		assert: (trail count: [ :each | each key = #DoIt ]) >= 2
 		description: [ 'never stepped on through the script''s loop: ' , trail printString ].
 	self assert: trail asSet size = trail size description: [ 'a step did not move it: ' , trail printString ].
-	(PolyphemusTestCase actionModelOf: debugger) proceedDebugSession ] ensure: [
-		debugger ifNotNil: [ debugger window ifNotNil: [ :window | window close ] ] ] ] ensure: [
+	PolyphemusTestCase inUIProcess: [ (PolyphemusTestCase actionModelOf: debugger) proceedDebugSession ] ] ensure: [
+		debugger ifNotNil: [ PolyphemusTestCase closeWindowOf: debugger ] ] ] ensure: [
 		LibC system: 'kill -9 ' , pid printString ]

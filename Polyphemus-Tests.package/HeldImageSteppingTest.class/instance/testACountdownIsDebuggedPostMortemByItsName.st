@@ -22,10 +22,10 @@ Smalltalk saveAs: (dir / ''countdown'') fullName.'.
 		assert: ((frames select: [ :each | each selector = #from: ]) collect: [ :each | (each tempAt: 1) asInteger ]) asArray
 		equals: (50 to: 100) asArray.
 	[
-	debugger := Polyphemus debugProcessNamed: 'countdown' in: memory.
+	debugger := PolyphemusTestCase inUIProcess: [ Polyphemus debugProcessNamed: 'countdown' in: memory ].
 	{ 1. 4. debugger stackTable items size } do: [ :index |
-		debugger stackTable selectIndex: index.
+		PolyphemusTestCase inUIProcess: [ debugger stackTable selectIndex: index ].
 		(Delay forMilliseconds: 300) wait.
-		PolyphemusTestCase drawWindowOf: debugger ] ] ensure: [
+		PolyphemusTestCase inUIProcess: [ PolyphemusTestCase drawWindowOf: debugger ] ] ] ensure: [
 		(Delay forMilliseconds: 300) wait.
-		debugger ifNotNil: [ debugger window ifNotNil: [ :window | window close ] ] ]
+		debugger ifNotNil: [ PolyphemusTestCase closeWindowOf: debugger ] ]

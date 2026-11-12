@@ -14,17 +14,17 @@ testBreakingOnTheStackOfAHeldImageInstallsNothingInTheObserver
 	session := Polyphemus holdProcess: pid watchedIn: self spikeDirectory.
 	self assert: (session runUntil: 'Counter >> #tick:').
 	(self spikeDirectory / 'released') ensureDelete.
-	debugger := StDebugger openOn: session withFullView: true.
+	debugger := PolyphemusTestCase inUIProcess: [ StDebugger openOn: session withFullView: true ].
 	[
-	PolyphemusTestCase drawWindowOf: debugger.
-	[ debugger breakOnStack ] on: NotOnAReading do: [ :error | refusal := error messageText ].
-	PolyphemusTestCase drawWindowOf: debugger.
+	PolyphemusTestCase inUIProcess: [ PolyphemusTestCase drawWindowOf: debugger ].
+	[ PolyphemusTestCase inUIProcess: [ debugger breakOnStack ] ] on: NotOnAReading do: [ :error | refusal := error messageText ].
+	PolyphemusTestCase inUIProcess: [ PolyphemusTestCase drawWindowOf: debugger ].
 	self assert: (refusal notNil and: [ refusal includesSubstring: 'runUntil:' ]) description: 'not refused, or not saying what to do instead'.
 	self
 		assert: (DebugPoint all copyWithoutAll: before) isEmpty
 		description: [ 'installed in the observer: ' , (DebugPoint all copyWithoutAll: before) printString ].
-	(PolyphemusTestCase actionModelOf: debugger) proceedDebugSession ] ensure: [
-		debugger window ifNotNil: [ :window | window close ] ].
+	PolyphemusTestCase inUIProcess: [ (PolyphemusTestCase actionModelOf: debugger) proceedDebugSession ] ] ensure: [
+		PolyphemusTestCase closeWindowOf: debugger ].
 	self
 		assert: ((1 to: 200) anySatisfy: [ :each |
 				 (self spikeDirectory / 'released') exists or: [ (Delay forMilliseconds: 100) wait. false ] ])

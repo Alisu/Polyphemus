@@ -11,15 +11,15 @@ testAStepAfterTheImageEndedIsSaidInTheObserver
 	Polyphemus putAWatcherInto: pid watchedIn: self spikeDirectory.
 	session := Polyphemus holdProcess: pid watchedIn: self spikeDirectory.
 	self assert: (session runUntil: 'Counter >> #tick:').
-	debugger := StDebugger openOn: session withFullView: true.
+	debugger := PolyphemusTestCase inUIProcess: [ StDebugger openOn: session withFullView: true ].
 	[
-	PolyphemusTestCase drawWindowOf: debugger.
+	PolyphemusTestCase inUIProcess: [ PolyphemusTestCase drawWindowOf: debugger ].
 	LibC system: 'kill -9 ' , pid printString.
 	self assert: (self waitFor: [ (LibC system: 'kill -0 ' , pid printString , ' 2>/dev/null') ~= 0 ]).
-	[ (PolyphemusTestCase actionModelOf: debugger) stepOver: session interruptedContext ]
+	[ PolyphemusTestCase inUIProcess: [ (PolyphemusTestCase actionModelOf: debugger) stepOver: session interruptedContext ] ]
 		on: PolyphemusChannelError
 		do: [ :error | gone := error ].
 	self assert: gone class equals: HeldImageGone.
 	self assert: (gone messageText includesSubstring: 'gone') ] ensure: [
-		debugger window ifNotNil: [ :window | window close ] ] ] ensure: [
+		PolyphemusTestCase closeWindowOf: debugger ] ] ensure: [
 		LibC system: 'kill -9 ' , pid printString ]

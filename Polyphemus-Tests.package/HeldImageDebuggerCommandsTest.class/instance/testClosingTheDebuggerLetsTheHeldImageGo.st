@@ -12,9 +12,9 @@ testClosingTheDebuggerLetsTheHeldImageGo
 	session := Polyphemus holdProcess: pid watchedIn: self spikeDirectory.
 	self assert: (session runUntil: 'Counter >> #tick:').
 	(self spikeDirectory / 'released') ensureDelete.
-	debugger := StDebugger openOn: session withFullView: true.
-	PolyphemusTestCase drawWindowOf: debugger.
-	debugger window close.
+	debugger := PolyphemusTestCase inUIProcess: [ StDebugger openOn: session withFullView: true ].
+	PolyphemusTestCase inUIProcess: [ PolyphemusTestCase drawWindowOf: debugger ].
+	PolyphemusTestCase inUIProcess: [ debugger window close ].
 	self
 		assert: ((1 to: 200) anySatisfy: [ :each |
 				 (self spikeDirectory / 'released') exists or: [ (Delay forMilliseconds: 100) wait. false ] ])

@@ -8,11 +8,11 @@ testPrintItInTheDebuggerOfAHeldImageSaysWhatTheImageAnswers
 	pid := self launchCounter.
 	[
 	session := self heldAtTickOf: pid.
-	debugger := StDebugger openOn: session withFullView: true.
+	debugger := PolyphemusTestCase inUIProcess: [ StDebugger openOn: session withFullView: true ].
 	[
-	PolyphemusTestCase drawWindowOf: debugger.
-	result := debugger code evaluate: '{ self class name. n class name }' onCompileError: [ nil ] onError: [ :error | error ].
+	PolyphemusTestCase inUIProcess: [ PolyphemusTestCase drawWindowOf: debugger ].
+	result := PolyphemusTestCase inUIProcess: [ debugger code evaluate: '{ self class name. n class name }' onCompileError: [ nil ] onError: [ :error | error ] ].
 	self assert: (result isKindOf: HeldEvaluation).
 	self assert: result printString equals: '#(#Counter #SmallInteger)' ] ensure: [
-		debugger window ifNotNil: [ :window | window close ] ].
+		PolyphemusTestCase closeWindowOf: debugger ].
 	session resume ] ensure: [ LibC system: 'kill -9 ' , pid printString ]
