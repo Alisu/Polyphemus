@@ -1,7 +1,7 @@
 tests
 testItMakesTheLiteralsOfANewMethodInTheRunningImage
 
-	"What a new method names goes where the method goes: a string made in eden, as the machine
+	"What a new method names goes where the method goes: a string made in new space, as the machine
 	makes one. The image collects its garbage before answering, so a young object nothing
 	remembered would be gone by then -- and the answer is ten and thirty-two."
 

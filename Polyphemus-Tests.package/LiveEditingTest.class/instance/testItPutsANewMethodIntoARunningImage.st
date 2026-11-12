@@ -1,8 +1,8 @@
 tests
 testItPutsANewMethodIntoARunningImage
 
-	"A method the class never had, made in a running image: in its eden, where the machine
-	allocates too, with the dictionary now pointing at it remembered. It is asked to collect
+	"A method the class never had, made in a running image: in its new space, after the
+	survivors, with the dictionary now pointing at it remembered. It is asked to collect
 	before answering, so a pointer nothing remembered would be gone."
 
 	| pid reader selector |
