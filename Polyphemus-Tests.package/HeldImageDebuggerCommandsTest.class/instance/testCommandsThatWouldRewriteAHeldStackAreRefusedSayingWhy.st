@@ -14,11 +14,11 @@ testCommandsThatWouldRewriteAHeldStackAreRefusedSayingWhy
 	session := Polyphemus holdProcess: pid watchedIn: self spikeDirectory.
 	self assert: (session runUntil: 'Counter >> #tick:').
 	before := (session heldProcess ask: 'Smalltalk at: #PolyphemusN') asNumber.
-	debugger := StDebugger openOn: session withFullView: true.
+	debugger := PolyphemusTestCase inUIProcess: [ StDebugger openOn: session withFullView: true ].
 	[
-	PolyphemusTestCase drawWindowOf: debugger.
-	(PolyphemusTestCase actionModelOf: debugger) stepOver: session interruptedContext.
-	PolyphemusTestCase drawWindowOf: debugger.
+	PolyphemusTestCase inUIProcess: [ PolyphemusTestCase drawWindowOf: debugger ].
+	PolyphemusTestCase inUIProcess: [ (PolyphemusTestCase actionModelOf: debugger) stepOver: session interruptedContext ].
+	PolyphemusTestCase inUIProcess: [ PolyphemusTestCase drawWindowOf: debugger ].
 	refusals := OrderedCollection new.
 	refusals add: ([ session restart: session interruptedContext. nil ] on: NotOnAReading do: [ :error | error ]).
 	refusals add: ([ session returnValue: 5000 from: session interruptedContext. nil ] on: NotOnAReading do: [ :error | error ]).
@@ -28,8 +28,8 @@ testCommandsThatWouldRewriteAHeldStackAreRefusedSayingWhy
 		description: [ 'not all refused: ' , (refusals collect: [ :each | each printString ]) asArray printString ].
 	self assert: session interruptedContext selector equals: #tick:.
 	self assert: (session interruptedContext tempNamed: #step) printString equals: '1'.
-	(PolyphemusTestCase actionModelOf: debugger) proceedDebugSession ] ensure: [
-		debugger window ifNotNil: [ :window | window close ] ].
+	PolyphemusTestCase inUIProcess: [ (PolyphemusTestCase actionModelOf: debugger) proceedDebugSession ] ] ensure: [
+		PolyphemusTestCase closeWindowOf: debugger ].
 	(Delay forSeconds: 2) wait.
 	session := Polyphemus holdProcess: pid watchedIn: self spikeDirectory.
 	after := (session heldProcess ask: 'Smalltalk at: #PolyphemusN') asNumber.

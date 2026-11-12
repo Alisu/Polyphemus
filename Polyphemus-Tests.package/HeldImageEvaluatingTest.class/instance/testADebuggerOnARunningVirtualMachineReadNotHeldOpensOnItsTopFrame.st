@@ -8,8 +8,8 @@ testADebuggerOnARunningVirtualMachineReadNotHeldOpensOnItsTopFrame
 	pid := self launchCounter.
 	[
 	memory := Polyphemus readProcess: pid.
-	debugger := Polyphemus debugProcessNamed: 'counter' in: memory.
+	debugger := PolyphemusTestCase inUIProcess: [ Polyphemus debugProcessNamed: 'counter' in: memory ].
 	[
-	PolyphemusTestCase drawWindowOf: debugger.
+	PolyphemusTestCase inUIProcess: [ PolyphemusTestCase drawWindowOf: debugger ].
 	self assert: debugger stackTable selection selectedItem notNil ] ensure: [
-		debugger window ifNotNil: [ :window | window close ] ] ] ensure: [ LibC system: 'kill -9 ' , pid printString ]
+		PolyphemusTestCase closeWindowOf: debugger ] ] ensure: [ LibC system: 'kill -9 ' , pid printString ]

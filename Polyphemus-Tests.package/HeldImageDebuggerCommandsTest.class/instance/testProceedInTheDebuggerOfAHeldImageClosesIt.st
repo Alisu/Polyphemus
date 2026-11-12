@@ -11,11 +11,11 @@ testProceedInTheDebuggerOfAHeldImageClosesIt
 	Polyphemus putAWatcherInto: pid watchedIn: self spikeDirectory.
 	session := Polyphemus holdProcess: pid watchedIn: self spikeDirectory.
 	self assert: (session runUntil: 'Counter >> #tick:').
-	debugger := StDebugger openOn: session withFullView: true.
+	debugger := PolyphemusTestCase inUIProcess: [ StDebugger openOn: session withFullView: true ].
 	[
-	PolyphemusTestCase drawWindowOf: debugger.
-	debugger proceedDebugSession.
+	PolyphemusTestCase inUIProcess: [ PolyphemusTestCase drawWindowOf: debugger ].
+	PolyphemusTestCase inUIProcess: [ debugger proceedDebugSession ].
 	self assert: (self waitFor: [ (self spikeDirectory / 'released') exists ]) description: 'the image was never let go'.
 	self deny: (debugger window notNil and: [ debugger window isOpen ]) ] ensure: [
-		debugger window ifNotNil: [ :window | window isOpen ifTrue: [ window close ] ] ] ] ensure: [
+		PolyphemusTestCase inUIProcess: [ debugger window ifNotNil: [ :window | window isOpen ifTrue: [ window close ] ] ] ] ] ensure: [
 		LibC system: 'kill -9 ' , pid printString ]
