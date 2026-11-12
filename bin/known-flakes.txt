@@ -20,4 +20,3 @@ HeldImageRingTest>>testATrapFiringAsItsDeadlinePassesIsHeldOnce | PolyphemusChan
 HeldImageSteppingTest | BROKEN no result | #31
 HeldImageSteppingTest>>testAScriptsLoopIsSteppedLive | PolyphemusChannelError the image did not answer within | #137
 LiveReadingBackTest>>testAReReadTakesTheHeapFromTheLastWithoutWalkingIt | SpurCannotRead cannot read heap: piecesTooFarApartForOneCopy | #144
-LiveReadingBackTest>>testAReadingLeavesOutMemoryTheVMDoesNotRead | TestFailure Denial failed | #185
