@@ -3,7 +3,6 @@
 # with another message is new. Fix a flake, take its line out.
 HeldImageRingTest>>testATrapFiringAsItsDeadlinePassesIsHeldOnce | HoldFailed the image never took the interrupt | #137
 MacProcessMemoryTest>>testAVirtualMachineCaughtInMachineCodeShowsItsRunningProcess | TestFailure Assertion failed | #136
-WatcherInjectionTest>>testItWritesOnlyAtAMomentItsHeapReadsWhole | SpurCannotRead cannot read bytes: itWasNeverStoppedAtASafeMoment | #31
 HeldImageDebuggerCommandsTest>>testAHoldLeftPastItsLimitLetsTheImageAndTheProcessGo | PolyphemusChannelError the hold ended after 30.0 seconds | #31
 LiveDebuggingTest>>testItOpensOnWhatTheImageWasBusyWith | TestFailure Got 'false' instead of 'true' | #147
 LiveDebuggingTest>>testItOpensOnWhatTheImageWasBusyWith | NotInTheReading the image no longer holds that process | #147
@@ -14,25 +13,11 @@ HeldImageDebuggerCommandsTest>>testAPingPongIsDebuggedLiveFromTheMethodItWasRunT
 HeldImageRingTest>>testATrapFiringAsItsDeadlinePassesIsHeldOnce | TestFailure a heap it read or wrote breaks an invariant: #freeSpace | #165
 HeldImageEditingTest>>testACounterHeldTwiceSteppedAndEditedEachTimeCountsOn | TestFailure a heap it read or wrote breaks an invariant: #freeSpace | #165
 HeldImageRingTest>>testATrapFiringAsItsDeadlinePassesIsHeldOnce | PolyphemusChannelError Error: method can only be set to aCompiledMethod | #164
-HeldImageDebuggerCommandsTest>>testProceedInTheDebuggerOfAHeldImageClosesIt | PolyphemusChannelError MessageNotUnderstood: receiver of "sender" is nil | #164
-StopHelperTest>>testItResumesWhenTold | CannotDeleteFileException | #164
-StopHelperTest>>testItResumesWhenItsObserverDiesThoughItsPipeLivesOn | CannotDeleteFileException | #164
-HeldImageEvaluatingTest>>testADebuggerOnARunningVirtualMachineReadNotHeldOpensOnItsTopFrame | TestTookTooMuchTime | #164
-HeldImageDebuggerCommandsTest>>testAnImageThatEndsWhileHeldIsSaidAtOnce | PolyphemusChannelError MessageNotUnderstood: receiver of "sender" is nil | #164
-HeldImageSavingTest>>testASaveThatDoesNotCompileIsShownInThePaneAtTheError | PolyphemusChannelError MessageNotUnderstood: receiver of "sender" is nil | #164
 LinuxRootObserverTest>>testAStockVirtualMachineIsHeldAsRoot | TestFailure the target never started as runner | #31
-HeldImageSavingTest>>testASaveRemembersNoYoungObject | PolyphemusChannelError MessageNotUnderstood: receiver of "sender" is nil | #164
 HeldImageEditingTest>>testACounterSteppedFromItsLoopsFrameThenEditedCountsOn | TestFailure a heap it read or wrote breaks an invariant: #freeSpace | #165
-HeldImageEditingTest>>testACounterEditedLiveCountsOnAndTheImageWithIt | TestTookTooMuchTime | #164
 HeldImageRingTest>>testATrapFiringAsItsDeadlinePassesIsHeldOnce | PolyphemusChannelError the image did not answer within | #137
 HeldImageRingTest>>testATrapFiringAsItsDeadlinePassesIsHeldOnce | PolyphemusChannelError Error: 0 processes have that hash | #137
-HeldImageEditingTest>>testACounterSteppedIntoRoundItsLoopEditedCountsOn | PolyphemusChannelError MessageNotUnderstood: receiver of "sender" is nil | #168
-HeldImageEditingTest>>testTheFrameSavedInRunsTheNewCode | PolyphemusChannelError MessageNotUnderstood: receiver of "sender" is nil | #168
-HeldImageSavingTest>>testASaveThatChangesThePragmasIsCompiledByTheImage | PolyphemusChannelError MessageNotUnderstood: receiver of "sender" is nil | #168
-HeldImageDebuggerCommandsTest>>testAWatcherIsRefusedWhileRunUntilHoldsItsImage | PolyphemusChannelError MessageNotUnderstood: receiver of "sender" is nil | #168
 HeldImageSteppingTest | BROKEN no result | #31
-HeldImageDebuggerCommandsTest>>testADebuggerDoneWithAHeldImageKeepsNoReadingOfIt | TestTookTooMuchTime | #164
 HeldImageSteppingTest>>testAScriptsLoopIsSteppedLive | PolyphemusChannelError the image did not answer within | #137
 LiveReadingBackTest>>testAReReadTakesTheHeapFromTheLastWithoutWalkingIt | SpurCannotRead cannot read heap: piecesTooFarApartForOneCopy | #144
-HeldImageRingTest>>testATrapFiringAsItsDeadlinePassesIsHeldOnce | SpurCannotRead cannot read bytes: itWasNeverStoppedAtASafeMoment | #137
 LiveReadingBackTest>>testAReadingLeavesOutMemoryTheVMDoesNotRead | TestFailure Denial failed | #185
