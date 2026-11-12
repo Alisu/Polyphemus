@@ -15,7 +15,7 @@ testStopOnAnImageHeldIdleLetsItGoWithItsIdleProcess
 			session := Polyphemus holdProcess: pid watchedIn: self spikeDirectory.
 			idle := (session heldProcess ask:
 				         '((self at: #process) == (ProcessorScheduler classPool at: #BackgroundProcess)) printString')
-			        = 'true'.
+				        includesSubstring: 'true'.
 			idle ifFalse: [
 				session letTheImageGo.
 				self waitFor: [ (self spikeDirectory / 'released') exists ] ] ] ].
