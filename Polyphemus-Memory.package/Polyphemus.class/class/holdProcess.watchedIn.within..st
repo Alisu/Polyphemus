@@ -6,8 +6,7 @@ holdProcess: aPid watchedIn: aDirectory within: aDuration
 	Steps are taken there, runUntil: lets it run to a method; proceeding lets it go."
 
 	| image |
-	image := HeldImage on: aPid watchedIn: aDirectory.
-	image holdWithin: aDuration.
+	image := HeldImage holding: aPid watchedIn: aDirectory within: aDuration.
 	^ (ReifiedDebugSession
 		   named: 'Polyphemus'
 		   on: nil

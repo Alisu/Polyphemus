@@ -1,0 +1,1 @@
+A held image whose hold finds, the first times it is asked, that the process it caught had ended: how often is the class's to say, each try being another instance (#172).

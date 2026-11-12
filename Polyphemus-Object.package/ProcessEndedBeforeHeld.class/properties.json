@@ -1,0 +1,11 @@
+{
+	"commentStamp": "",
+	"super": "HoldFailed",
+	"category": "Polyphemus-Object",
+	"classinstvars": [],
+	"pools": [],
+	"classvars": [],
+	"instvars": [],
+	"name": "ProcessEndedBeforeHeld",
+	"type": "normal"
+}

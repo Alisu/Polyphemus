@@ -9,5 +9,9 @@ setChannel: aChannel reader: aProcessMemory identityHash: anInteger startingAt: 
 	hash := anInteger.
 	heldReading := HeldReading on: aProcessMemory identityHash: anInteger.
 	self request: PolyphemusAgent helpersSource.
-	self request: '(self at: #hold) value: ' , hash printString , ' value: (' , (aMethodSourceOrNil ifNil: [ 'nil' ]) , '). nil'.
+	[ self request: '(self at: #hold) value: ' , hash printString , ' value: (' , (aMethodSourceOrNil ifNil: [ 'nil' ]) , '). nil' ]
+		on: PolyphemusChannelError
+		do: [ :error |
+			(error messageText includesSubstring: ' 0 processes have that hash') ifFalse: [ error pass ].
+			ProcessEndedBeforeHeld signal: 'the process running when the image was stopped had ended before it was held' ].
 	(self request: '(self at: #processSlot)') ifNotNil: [ :slot | heldReading lookFirstInExternalSlot: slot asNumber ]

@@ -1,0 +1,14 @@
+{
+	"commentStamp": "",
+	"super": "HeldImage",
+	"category": "Polyphemus-Tests",
+	"classinstvars": [
+		"endings",
+		"holds"
+	],
+	"pools": [],
+	"classvars": [],
+	"instvars": [],
+	"name": "HeldImageWhoseProcessEnds",
+	"type": "normal"
+}

@@ -1,0 +1,1 @@
+The process that had the processor when the image was stopped had ended when the agent looked for it: one of the image's short-lived ones, a request's or our own let-go's. Holding again catches what the image is busy with (#172).

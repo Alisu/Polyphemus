@@ -8,7 +8,7 @@
 	"instvars": [
 		"failing",
 		"letGo",
-		"expired"
+		"expired", "failure"
 	],
 	"name": "ChannelDouble",
 	"type": "normal"

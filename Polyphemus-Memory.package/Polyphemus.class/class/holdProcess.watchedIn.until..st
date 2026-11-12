@@ -5,8 +5,7 @@ holdProcess: aPid watchedIn: aDirectory until: aMethodSource
 	(#114). Not reached within a minute, it is held where it got to."
 
 	| image |
-	image := HeldImage on: aPid watchedIn: aDirectory.
-	image holdWithin: 1 minute.
+	image := HeldImage holding: aPid watchedIn: aDirectory within: 1 minute.
 	image runUntil: aMethodSource within: 1 minute.
 	^ (ReifiedDebugSession
 		   named: 'Polyphemus'

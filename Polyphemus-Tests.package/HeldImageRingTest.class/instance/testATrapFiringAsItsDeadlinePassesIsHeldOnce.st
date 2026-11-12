@@ -12,8 +12,7 @@ testATrapFiringAsItsDeadlinePassesIsHeldOnce
 	Polyphemus putAWatcherInto: pid watchedIn: self spikeDirectory.
 	"The race is won either way now and then: five tries."
 	5 timesRepeat: [
-		image := HeldImage on: pid watchedIn: self spikeDirectory.
-		image holdWithin: 1 minute.
+		image := HeldImage holding: pid watchedIn: self spikeDirectory within: 1 minute.
 		image runUntil: 'Counter >> #tick:' within: 0 seconds.
 		self assert: (image process ask: '3 + 4') equals: '7'.
 		image letGo.
