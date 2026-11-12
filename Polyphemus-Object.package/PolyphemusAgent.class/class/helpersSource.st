@@ -3,7 +3,7 @@ helpersSource
 
 	"What a held image is asked to do, as blocks in the agent's workspace, called by name with
 	literal values (HeldProcess>>call:with:) (#118). The held process is unregistered once the image
-	runs again: held inside the table's lock, waiting for it would hold the image for ever (#162)."
+	runs again, not inside the table's lock (#162); Stop leaves the idle process be (#170)."
 
 	^ 'self at: #keepStill put: [
 	((Processor instVarNamed: #quiescentProcessLists) includes: ((self at: #process) instVarNamed: #myList))
@@ -18,9 +18,12 @@ self at: #letGo put: [
 self at: #stop put: [
 	| process |
 	process := self at: #process.
-	self removeKey: #suspended ifAbsent: [ nil ].
-	(self at: #session) terminate.
-	[ Smalltalk unregisterExternalObject: process ] forkAt: Processor userBackgroundPriority ].
+	process == (ProcessorScheduler classPool at: #BackgroundProcess)
+		ifTrue: [ (self at: #letGo) value ]
+		ifFalse: [
+			self removeKey: #suspended ifAbsent: [ nil ].
+			(self at: #session) terminate.
+			[ Smalltalk unregisterExternalObject: process ] forkAt: Processor userBackgroundPriority ] ].
 self at: #frameBelow put: [ :depth |
 	| context |
 	context := (self at: #session) interruptedContext.
