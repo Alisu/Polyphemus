@@ -15,7 +15,10 @@ testAReadingLeavesOutMemoryTheVMDoesNotRead
 Smalltalk garbageCollect.'.
 	pid := self launchTargetRunning: script.
 	self withAnAgentIn: pid do: [ :channel :reader |
-		| held |
+		| held outside |
 		held := HeldProcess on: channel reader: reader identityHash: (self runawayHashIn: reader).
 		held topContext.
-		self deny: (held dumped raw space hasAddress: (self spikeDirectory / 'outside') contents trimBoth asNumber + 4096) ]
+		outside := (self spikeDirectory / 'outside') contents trimBoth asNumber + 4096.
+		self
+			deny: (held dumped raw space hasAddress: outside)
+			description: [ self whereTheReadingOf: held holds: outside in: pid ] ]
