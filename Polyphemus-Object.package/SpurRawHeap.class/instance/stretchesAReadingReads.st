@@ -5,7 +5,7 @@ stretchesAReadingReads
 	the stack pages, as the VM says now (#122)."
 
 	| stretches |
-	stretches := OrderedCollection with: mappingStart -> mappingLimit.
+	stretches := OrderedCollection withAll: self oldSpaceStretches.
 	youngMappingStart ifNotNil: [ stretches add: youngMappingStart -> youngMappingLimit ].
 	self codeZone == false ifFalse: [ stretches add: self codeZone ].
 	[
