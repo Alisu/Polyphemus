@@ -16,14 +16,13 @@ self at: #letGo put: [
 		process resume ].
 	[ Smalltalk unregisterExternalObject: process ] forkAt: Processor userBackgroundPriority ].
 self at: #stop put: [
-	| process |
+	| process suspended |
 	process := self at: #process.
+	suspended := self removeKey: #suspended ifAbsent: [ false ].
 	process == (ProcessorScheduler classPool at: #BackgroundProcess)
-		ifTrue: [ (self at: #letGo) value ]
-		ifFalse: [
-			self removeKey: #suspended ifAbsent: [ nil ].
-			(self at: #session) terminate.
-			[ Smalltalk unregisterExternalObject: process ] forkAt: Processor userBackgroundPriority ] ].
+		ifTrue: [ suspended ifTrue: [ process resume ] ]
+		ifFalse: [ (self at: #session) terminate ].
+	[ Smalltalk unregisterExternalObject: process ] forkAt: Processor userBackgroundPriority ].
 self at: #frameBelow put: [ :depth |
 	| context |
 	context := (self at: #session) interruptedContext.
