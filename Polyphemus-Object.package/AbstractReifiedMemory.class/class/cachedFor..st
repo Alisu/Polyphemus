@@ -1,9 +1,10 @@
 instance creation
 cachedFor: aMemory
 
-	"The reified memory already made for that simulated memory, or nil. The cache holds them
-	weakly: one may be collected during the search itself, and is passed over."
+	"The reading of this kind already made for that simulated memory, or nil: full and lazy ones
+	share the cache (#118). Held weakly, one may be collected during the search, and is passed over."
 
 	^ MemoryCache
-		  detect: [ :aReifiedMemory | aReifiedMemory notNil and: [ aReifiedMemory simulator = aMemory ] ]
+		  detect: [ :aReifiedMemory |
+			  aReifiedMemory notNil and: [ (aReifiedMemory isKindOf: self) and: [ aReifiedMemory simulator = aMemory ] ] ]
 		  ifNone: [ nil ]
