@@ -379,11 +379,13 @@ space, at `pastSpaceStart`, since), and the stop it writes at.
 | eden | outside a collection | fails | fails |
 | eden | and outside machine code (#163's guard) | fails | fails |
 | eden | and outside the VM's remembering | fails | holds |
+| eden | outside a collection, in machine code or at rest | fails | holds |
 | eden | quiet: at rest in the kernel | holds | holds |
 | past space | any | fails | fails |
 | past space | outside a collection | holds | fails |
-| past space | and outside machine code (the code now) | holds | fails |
+| past space | and outside machine code (the code until #167's guard) | holds | fails |
 | past space | and outside the VM's remembering (not in the code) | holds | holds |
+| past space | outside a collection, in machine code or at rest (the code now) | holds | holds |
 | past space | quiet | holds | holds |
 
 What it says:
@@ -392,12 +394,19 @@ What it says:
   allocation is in flight outside machine code too, and there it is O that writes over I's
   header. #137's flake was the JIT's case, I writing over O's.
 - **At the end of past space, outside a collection is enough for objects.** The guard against
-  machine code adds nothing there; it can go.
-- **The remembered set is still open at every stop that is not quiet**, wherever objects are
-  made. Stopped inside the VM's remembering, O's entry and I's land at the same index: one is
-  lost, and an old object then names a young one the scavenger is not told of. Not seen; the
-  window is a few instructions of C. The row that closes it refuses a stop whose instruction
-  pointer is inside that routine, which the VM's symbols place. It is not in the code.
+  machine code added nothing there.
+- **The remembered set was open at every stop that is not quiet**, wherever objects are made.
+  Stopped inside the VM's remembering, O's entry and I's land at the same index: one is lost,
+  and an old object then names a young one the scavenger is not told of. Not seen; the window
+  is a few instructions of C.
+- **The guard turned round closes it.** Remembering is C, reached from machine code through a
+  trampoline (`genStoreCheckReceiverReg:valueReg:scratchReg:inFrame:` only tests the object's
+  bit): a VM stopped in machine code is in none of its own routines. So O makes objects and
+  remembers at a stop outside a collection where the VM is in machine code or at rest, and
+  refuses one in the VM's own code (`ProcessMemory class>>whyNotToAllocateIn:`, since
+  2026-11-12; #163's guard refused machine code and let the VM's own code through). The row
+  that refuses only the remembering routine needs its place from the VM's symbols and trusts
+  the compiler not to have put it inline elsewhere; it is not in the code.
 
 The model has one VM thread, three words and whose object is where; no heap, no free lists (so
 nothing of #165), and no reader walking past space with an end it read before the stop, which
@@ -410,5 +419,5 @@ cd docs/model && ./check_all.sh
 ```
 
 It needs Java and `tools/tla2tools.jar` (TLA+ 1.7.4, from the TLA+ releases on GitHub,
-github.com/tlaplus/tlaplus), which is not kept in the repository. About five minutes on four cores for all 281 checks.
+github.com/tlaplus/tlaplus), which is not kept in the repository. About five minutes on four cores for all 285 checks.
 To read a counterexample: `python3 trace.py results/<the check's file>.txt`.

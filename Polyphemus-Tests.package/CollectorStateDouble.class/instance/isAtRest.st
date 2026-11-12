@@ -1,0 +1,4 @@
+accessing
+isAtRest
+
+	^ atRest == true

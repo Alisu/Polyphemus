@@ -131,7 +131,7 @@ done
 # Writes: an observer making an object and remembering it in a VM stopped wherever it is (#167,
 # #137): objects made in eden or at the end of past space, at each kind of stop.
 for where in eden past; do
-  for when in any outsideCollection outsideMachineCode outsideRemembering quiet; do
+  for when in any outsideCollection outsideMachineCode outsideRemembering machineCodeOrQuiet quiet; do
     for prop in "INVARIANT NoObjectWrittenOver" "INVARIANT NoRememberedLost"; do
       check Writes "$prop" "made in=$where stop=$when" "Where=\"$where\"" "StopWhen=\"$when\"" MaxOps=3 MaxWrites=2
     done
