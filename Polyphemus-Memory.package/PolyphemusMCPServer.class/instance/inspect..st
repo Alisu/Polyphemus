@@ -7,7 +7,7 @@ inspect: someArguments
 	object := [ reified reifyOop: address ] on: Error do: [ :e | nil ].
 	(object notNil and: [ [ object isObjectOop and: [ object isReadable ] ] on: Error do: [ :e | false ] ]) ifFalse: [
 		ToolCallFailed signal: 'No object at ' , address printString , ' in ' , (someArguments at: 'handle') ].
-	names := [ object oopClass instanceVariableNames asArray ] on: Error do: [ :e | #(  ) ].
+	names := [ object oopClass allInstVarNames asArray ] on: Error do: [ :e | #(  ) ].
 	slots := OrderedCollection new.
 	(object oopFormat between: 0 and: 5) ifTrue: [
 		limit := (someArguments at: 'limit' ifAbsent: [ 20 ]) max: 0.
