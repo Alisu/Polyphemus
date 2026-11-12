@@ -6,7 +6,8 @@
 	"pools": [],
 	"classvars": [],
 	"instvars": [
-		"collecting"
+		"collecting",
+		"stopped"
 	],
 	"name": "StoppedVMDouble",
 	"type": "normal"
