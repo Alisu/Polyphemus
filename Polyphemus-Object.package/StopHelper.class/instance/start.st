@@ -1,10 +1,11 @@
 stopping
 start
 
-	"Answers whether it holds the process stopped, once another observer's stop has ended."
+	"Answers whether it holds the process stopped, once another observer's stop has ended. A
+	helper that says nothing within #silenceLimit never started, and is given up (#31)."
 
-	| helper deadline |
-	helper := self class helperFile ifNil: [ ^ false ].
+	| helper deadline silent |
+	helper := program ifNil: [ self class helperFile ifNil: [ ^ false ] ].
 	state := directory / (pid printString , '-' , UUID new asString , '.state').
 	pipe := LibC
 		        pipe: 'exec ''' , helper fullName , ''' ' , pid printString , ' ' , bound asSeconds printString , ' '''
@@ -14,8 +15,12 @@ start
 		pipe := nil.
 		^ false ].
 	deadline := DateAndTime now + bound + 10 seconds.
-	[ (#( '' 'waiting' ) includes: self said) not or: [ DateAndTime now > deadline ] ] whileFalse: [
-		(Delay forMilliseconds: 2) wait ].
+	silent := DateAndTime now + self silenceLimit.
+	[
+	| said |
+	said := self said.
+	(said = 'waiting' and: [ DateAndTime now <= deadline ]) or: [ said isEmpty and: [ DateAndTime now <= silent ] ] ]
+		whileTrue: [ (Delay forMilliseconds: 2) wait ].
 	self said = 'stopped' ifTrue: [ ^ true ].
 	self end.
 	^ false
