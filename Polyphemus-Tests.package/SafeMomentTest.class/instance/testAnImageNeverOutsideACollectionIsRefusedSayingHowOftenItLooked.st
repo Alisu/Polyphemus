@@ -1,9 +1,12 @@
 tests
 testAnImageNeverOutsideACollectionIsRefusedSayingHowOftenItLooked
 
+	"A second of looking, twenty milliseconds apart: well past five stops even where a wait of
+	twenty lasts thirty (Windows)."
+
 	| stops |
 	stops := 0.
-	memory safeMomentWait: 200 milliSeconds.
+	memory safeMomentWait: 1 second.
 	self
 		should: [
 			memory
