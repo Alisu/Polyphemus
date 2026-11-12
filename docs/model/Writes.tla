@@ -24,7 +24,9 @@ CONSTANTS
     Where,      \* "eden": objects made at freeStart (until 2026-11-12); "past": at pastSpaceStart
     StopWhen,   \* the stop a write is made at: "any" | "outsideCollection" |
                 \*   "outsideMachineCode" (and outside a collection) |
-                \*   "outsideRemembering" (and outside a collection; not in the code yet) | "quiet"
+                \*   "outsideRemembering" (and outside a collection; not in the code) |
+                \*   "machineCodeOrQuiet" (outside a collection: in machine code the VM is in none
+                \*   of its own routines) | "quiet"
     MaxOps,     \* operations the VM starts
     MaxWrites   \* stops at which the observer writes
 
@@ -150,6 +152,7 @@ MayWrite ==
       [] StopWhen = "outsideCollection" -> ~gc
       [] StopWhen = "outsideMachineCode" -> ~gc /\ ~InMachineCode
       [] StopWhen = "outsideRemembering" -> ~gc /\ ~Remembering
+      [] StopWhen = "machineCodeOrQuiet" -> ~gc /\ (InMachineCode \/ pc = "kernel")
       [] StopWhen = "quiet" -> pc = "kernel"
 
 Stop ==

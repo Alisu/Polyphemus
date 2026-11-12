@@ -7,7 +7,8 @@
 	"classvars": [],
 	"instvars": [
 		"values",
-		"machineCode"
+		"machineCode",
+		"atRest"
 	],
 	"name": "CollectorStateDouble",
 	"type": "normal"

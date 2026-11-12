@@ -1,10 +1,13 @@
 holding it still
 whyNotToAllocateIn: someVMVariables
 
-	"Why objects made in eden now could be written over: a collection, or the JIT's own allocation
-	in flight, freeStart in a register, which a stop in machine code may cut (#163, #167)."
+	"Why an object made now, or an old one remembered, could be lost: a collection; or the VM in
+	its own code and not at rest, where it may be remembering one, the set's size in a register
+	(#167). In machine code it is in none of its routines, and nothing is made where the JIT
+	makes its own (#137). Registers that do not tell are not machine code."
 
 	(self whyCollectingIn: someVMVariables) ifNotNil: [ :why | ^ why ].
-	^ someVMVariables wasRunningMachineCode == true
-		  ifTrue: [ 'running machine code, where the JIT may be making an object' ]
-		  ifFalse: [ nil ]
+	someVMVariables wasRunningMachineCode == true ifTrue: [ ^ nil ].
+	^ someVMVariables isAtRest
+		  ifTrue: [ nil ]
+		  ifFalse: [ 'in its own code and not at rest, where the VM may be remembering an object' ]
