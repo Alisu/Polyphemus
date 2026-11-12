@@ -3,9 +3,10 @@ sourceServing: aDirectory bell: aSource limit: aDurationOrNil
 
 	"The agent: request.N in, run apart, stopped at the request limit (#161), answer.N out; go to end,
 	or ends itself after aDurationOrNil idle or its observer's heartbeat silent (#163). Always spins,
-	the image never left without a runnable process, on the bell's third slot (#49); nil: its own."
+	the image never left without a runnable process, on the bell's third slot (#49); nil: its own.
+	It waits in a block of its own: small enough for the JIT, which compiles nothing this long (#167)."
 
-	^ '| dir count going workspace bell limit requestLimit last now silence beat silent |
+	^ '| dir count going workspace bell limit requestLimit last now silence beat silent wait |
 dir := ' , aDirectory asFileReference fullName printString , ' asFileReference.
 [ dir exists ] whileFalse: [ [ dir ensureCreateDirectory ] on: DirectoryExists do: [ :e | ] ].
 count := 0.
@@ -22,8 +23,7 @@ silent := false.
 going := (dir / ''go'') exists.
 going ifFalse: [ (dir / ''serving'') ensureCreateFile ].
 last := Time millisecondClockValue.
-[ going ] whileFalse: [
-	| request |
+wait := [
 	[ (bell instVarAt: 3) > 0 or: [ (limit notNil and: [
 		now := Time millisecondClockValue.
 		now < last ifTrue: [ last := now ].
@@ -32,7 +32,10 @@ last := Time millisecondClockValue.
 		now - last > silence and: [ (now - beat) abs > 1000 and: [
 			beat := now.
 			silent := (dir / ''alive'') exists and: [
-				(DateAndTime now - (dir / ''alive'') modificationTime) asMilliSeconds > silence ] ] ] ] ] ] whileFalse: [ ].
+				(DateAndTime now - (dir / ''alive'') modificationTime) asMilliSeconds > silence ] ] ] ] ] ] whileFalse: [ ] ].
+[ going ] whileFalse: [
+	| request |
+	wait value.
 	(bell instVarAt: 3) > 0
 		ifTrue: [
 			bell instVarAt: 3 put: 0.
