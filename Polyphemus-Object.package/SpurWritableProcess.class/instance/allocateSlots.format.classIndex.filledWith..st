@@ -1,10 +1,9 @@
 objects
 allocateSlots: aCount format: aFormat classIndex: anIndex filledWith: aWord
 
-	"At the end of past space, where the VM makes nothing until it scavenges: in eden its own
-	allocation holds freeStart through a stop and writes over what was made there (#137, #167).
-	Each slot aWord, then pastSpaceStart moved past it: whole before the VM sees it (#163). From
-	255 slots the header says 255, the real count in an overflow word before it."
+	"At the end of past space: in eden the VM's allocation holds freeStart through a stop and
+	writes over what was made (#137, #167). Each slot aWord, pastSpaceStart moved past it once
+	whole (#163); from 255 slots the real count goes in an overflow word before the header."
 
 	| start address bytes |
 	start := self variables at: 'pastSpaceStart'.
