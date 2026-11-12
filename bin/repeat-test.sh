@@ -26,6 +26,17 @@ for (( i = 1; i <= times; i++ )); do
   else
     failed=$(( failed + 1 ))
     cp "$WORK/.class-logs/$class.log" "$out/run-$i.log" 2>/dev/null
+    # What the class's target left where it ran, its images apart: its log, the files of the
+    # hold, the channel. The next run clears it (#164).
+    scratch=$(grep -a -m1 '^SCRATCH /' "$out/run-$i.log" 2>/dev/null | cut -c9- | tr -d '\r')
+    # The class is run again in its image after a failure: "-before" is the failed run's.
+    for kept in "" "-before"; do
+      if [ -n "$scratch" ] && [ -d "$scratch/polyphemus-target-$class$kept" ]; then
+        mkdir -p "$out/run-$i-target$kept"
+        ( cd "$scratch/polyphemus-target-$class$kept" && ls -la --time-style=full-iso . channel 2>/dev/null > "$out/run-$i-target$kept/listing.txt"
+          tar -cf - --exclude='*.image' --exclude='*.changes' --exclude='*.sources' . 2>/dev/null ) | tar -C "$out/run-$i-target$kept" -xf - 2>/dev/null
+      fi
+    done
     first=$(grep -aE '^    (FAIL|ERROR)|^RES [A-Za-z0-9_]+ (BROKEN|TIMEOUT)' <<<"$run" | head -1 | cut -c1-300)
     echo "run $i: RED $first"
     echo "$first" >> "$out/failures.txt"

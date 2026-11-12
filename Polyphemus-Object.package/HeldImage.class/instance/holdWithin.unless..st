@@ -17,10 +17,12 @@ holdWithin: aDuration unless: aCondition
 			        self activeProcessHash ] ].
 	held ifFalse: [ ^ false ].
 	(self waitFor: 'interrupted' within: aDuration) ifFalse: [
+		| why |
+		why := self whyTheInterruptWasNotTaken.
 		reader close.
 		(HoldLock on: directory) release.
 		^ HoldFailed signal: 'the image never took the interrupt: is it running the watcher on '
-			  , directory fullName , '?' ].
+			  , directory fullName , '?' , why ].
 	self serveAndHold: hash startingAt: nil.
 	self checkItsVersion.
 	^ true

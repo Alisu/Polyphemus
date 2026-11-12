@@ -9,7 +9,7 @@ launchTargetRunning: aScript restartsLeft: aCount
 	shim exists ifFalse: [ ^ self skip: 'build bin/pharo-debuggable first' ].
 	target := PharoImageAccessor pathToTargetImage asFileReference.
 	target exists ifFalse: [ ^ self skip: 'the pinned target image has not been downloaded' ].
-	self spikeDirectory ensureDeleteAll.
+	self keepTheLastTargetsDirectory.
 	self spikeDirectory ensureCreateDirectory.
 	target := self privateCopyOfTheTarget.
 	(self spikeDirectory / 'quiet.st') writeStreamDo: [ :stream | stream nextPutAll: self quietTargetSource ].
