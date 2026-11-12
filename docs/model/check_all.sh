@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Check every property of the four models, in each design, with TLC. One line per check; the
+# Check every property of the five models, in each design, with TLC. One line per check; the
 # counterexamples are left in results/, and trace.py prints one step by step.
 #
 #   ./check_all.sh
@@ -52,7 +52,8 @@ for stop in FALSE TRUE; do
         MaxAsks=1 WithTrap=TRUE HoldLimit=TRUE FastObserver=TRUE SeparateBell=$bell \
         BellEndedGuard=$guard FallbackSeesTrap=$sees WatcherWaitsForDoSt=$waits WatcherChecksToken=$token TrapClaims=$claims AsyncSignal=TRUE \
         AnyDeadline=TRUE StopEndsWithObserver=$stop RequestsMayHang=FALSE RequestApart=FALSE \
-        TrapPassesRequests=FALSE AgentSleeps=FALSE
+        TrapPassesRequests=FALSE AgentSleeps=FALSE RingMayBeRefused=FALSE RingRetries=FALSE \
+        WatcherMayBeLost=FALSE
     done
   done
 done
@@ -70,7 +71,26 @@ for design in "FALSE FALSE FALSE FALSE" "TRUE FALSE FALSE FALSE" "TRUE TRUE TRUE
       WithTrap=TRUE HoldLimit=TRUE FastObserver=TRUE SeparateBell=TRUE BellEndedGuard=TRUE \
       FallbackSeesTrap=TRUE WatcherWaitsForDoSt=TRUE WatcherChecksToken=TRUE TrapClaims=TRUE \
       AsyncSignal=TRUE AnyDeadline=TRUE StopEndsWithObserver=TRUE RequestsMayHang=$hang \
-      RequestApart=$apart TrapPassesRequests=$passes AgentSleeps=$sleeps
+      RequestApart=$apart TrapPassesRequests=$passes AgentSleeps=$sleeps RingMayBeRefused=FALSE \
+      RingRetries=FALSE WatcherMayBeLost=FALSE
+  done
+done
+
+# Hold, version 8 (2026-11-12): version 7's final design, with a ring that a collection may
+# refuse, dropped (#186) or made again, and a watcher that the image may have written over (#137);
+# then two plain holds in a row, which is what holding again does when the process caught at the
+# stop had ended (#172).
+for design in "TRUE FALSE FALSE TRUE" "TRUE TRUE FALSE TRUE" "FALSE FALSE TRUE TRUE" "TRUE TRUE FALSE FALSE"; do
+  set -- $design; refused=$1 retries=$2 lost=$3 trap=$4
+  for prop in "INVARIANT NoLostRing" "INVARIANT NoStrayHold" "INVARIANT NoTrapLeft" "INVARIANT NoBadWrite" \
+              "INVARIANT NoLostHold" "INVARIANT NoUnservedHold" "INVARIANT NoBadRemove" "INVARIANT NoOwnTrap" \
+              "INVARIANT NoAbort" "PROPERTY AskEnds" "PROPERTY FreeIfObserverDies" "PROPERTY FreeWhenThrough"; do
+    check Hold "$prop" "refused=$refused retries=$retries lost=$lost trap=$trap" MaxHolds=2 MaxAsks=1 \
+      WithTrap=$trap HoldLimit=TRUE FastObserver=TRUE SeparateBell=TRUE BellEndedGuard=TRUE \
+      FallbackSeesTrap=TRUE WatcherWaitsForDoSt=TRUE WatcherChecksToken=TRUE TrapClaims=TRUE \
+      AsyncSignal=TRUE AnyDeadline=TRUE StopEndsWithObserver=TRUE RequestsMayHang=TRUE \
+      RequestApart=TRUE TrapPassesRequests=TRUE AgentSleeps=FALSE RingMayBeRefused=$refused \
+      RingRetries=$retries WatcherMayBeLost=$lost
   done
 done
 
@@ -92,6 +112,29 @@ done
 # StopHelper: the stop helper of #137, two observers, helpers that may be killed.
 for kill in FALSE TRUE; do
   for prop in "INVARIANT NoBadReadOrWrite" "INVARIANT OneHolder" "PROPERTY NeverStoppedForEver"; do
-    check StopHelper "$prop" "helpers killable=$kill" RecoverStale=TRUE MaxTries=2 HelpersKillable=$kill
+    check StopHelper "$prop" "helpers killable=$kill" RecoverStale=TRUE MaxTries=2 HelpersKillable=$kill \
+      BuiltInPlace=FALSE GiveUpSilent=TRUE
   done
 done
+
+# StopHelper, the helper's program built by the observers (#187): in place or renamed whole, a
+# helper that says nothing waited for or given up.
+for design in "TRUE FALSE" "TRUE TRUE" "FALSE FALSE" "FALSE TRUE"; do
+  set -- $design; inplace=$1 giveup=$2
+  for prop in "INVARIANT NoBadReadOrWrite" "INVARIANT OneHolder" "PROPERTY NeverStoppedForEver" \
+              "PROPERTY EveryObserverThrough"; do
+    check StopHelper "$prop" "built in place=$inplace silent given up=$giveup" RecoverStale=TRUE MaxTries=2 \
+      HelpersKillable=FALSE BuiltInPlace=$inplace GiveUpSilent=$giveup
+  done
+done
+
+# Writes: an observer making an object and remembering it in a VM stopped wherever it is (#167,
+# #137): objects made in eden or at the end of past space, at each kind of stop.
+for where in eden past; do
+  for when in any outsideCollection outsideMachineCode outsideRemembering quiet; do
+    for prop in "INVARIANT NoObjectWrittenOver" "INVARIANT NoRememberedLost"; do
+      check Writes "$prop" "made in=$where stop=$when" "Where=\"$where\"" "StopWhen=\"$when\"" MaxOps=3 MaxWrites=2
+    done
+  done
+done
+
