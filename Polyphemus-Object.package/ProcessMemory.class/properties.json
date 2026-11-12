@@ -11,7 +11,8 @@
 		"stopHelper",
 		"stopBound",
 		"stopLasted",
-	 "mappedFiles"
+	 "mappedFiles",
+		"safeMomentWait"
 	],
 	"name": "ProcessMemory",
 	"type": "normal"

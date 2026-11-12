@@ -43,7 +43,7 @@ do instead, and the issue that tracks it. When one is lifted, its entry goes.
 | looping at a priority below 70 (the usual frozen image) | yes: never quiet, it is copied at a moment no garbage collection runs (#113) | yes: the watcher goes in at a safe moment and holds it |
 | looping at priority 70 or above | yes, as above | **no**: the watcher, at 70, never runs |
 | stuck in C (an FFI call, a primitive) | yes; `where_stuck` names the call and what it waits on (#159), `whereIsStuck:reading:` the Smalltalk process and method above it, with the gdb command for the C side (#18) | **no**: nothing is interpreted, so the watcher never runs; `debugInC:` opens Pharo's debugger on that process as read (#18) |
-| allocating without pause | yes, at a moment outside a collection; refused if five tries all land in one (#31) | sometimes (#98) |
+| allocating without pause | yes, at a moment outside a collection; refused if none is found within five seconds (#31) | sometimes (#98) |
 
 **A damaged heap** is read level by level, each saying whether it reads (bytes, heap, objects, free
 space, classes, special objects); the watcher is not put in unless the classes and special objects
