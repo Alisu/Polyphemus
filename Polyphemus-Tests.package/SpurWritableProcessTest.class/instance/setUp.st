@@ -1,11 +1,14 @@
 running
 setUp
 
+	"New space from 16r11000 to 16r13000: past space its first quarter, holding 16r100 bytes of
+	survivors, eden its second half, empty."
+
 	| names |
 	super setUp.
 	process := ProcessMemoryOfBytes on: (ByteArray new: 16r4000) at: 16r10000.
-	names := #( 'newSpaceStart' 'newSpaceEnd' 'rememberedSet' 'rememberedSetSize' 'rememberedSetLimit' 'freeStart' 'scavengeThreshold' ).
-	{ 16r11000. 16r13000. 16r10100. 0. 8. 16r11000. 16r13000 } withIndexDo: [ :each :index |
+	names := #( 'newSpaceStart' 'newSpaceEnd' 'rememberedSet' 'rememberedSetSize' 'rememberedSetLimit' 'freeStart' 'scavengeThreshold' 'pastSpaceStart' 'pastSpace' 'pastSpaceLimit' ).
+	{ 16r11000. 16r13000. 16r10100. 0. 8. 16r12000. 16r13000. 16r11100. 16r11000. 16r11800 } withIndexDo: [ :each :index |
 		process storeWord: each at: 16r10000 + (index - 1 * 8) ].
 	memory := SpurWritableProcess on: process.
 	memory instVarNamed: 'variables' put: (VMVariablesDouble

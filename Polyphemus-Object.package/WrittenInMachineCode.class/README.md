@@ -1,1 +1,1 @@
-Signalled when an injection had to write into eden while the image ran machine code, where the JIT may have been making an object: it was never stopped outside it. Unhandled, nothing happens; the risk is #167's to remove (#163, risk 3).
+Signalled when an injection had to make objects while the image ran machine code, where the JIT may have been making an object: it was never stopped outside it. Unhandled, nothing happens; the risk is #167's to remove (#163, risk 3).

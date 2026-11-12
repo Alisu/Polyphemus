@@ -223,9 +223,13 @@ once asked for `#itor`.
 ### A method the running image never had
 
 Old space in a running image ends at its bridge -- measured on a held target, `freeOldSpaceStart`
-and `endOfMemory` were the same address, nothing between them. So what is made goes where the
-machine itself allocates: **eden**, at `freeStart`, which is then moved past it. There was four
-megabytes free of sixteen.
+and `endOfMemory` were the same address, nothing between them. So what is made goes in new space.
+Until 2026-11-12 that was **eden**, at `freeStart`, where the machine itself allocates; the JIT's
+own allocation loads `freeStart` into a register, and a stop inside it had the VM write its next
+object over ours once it ran on (#137: one injection in ten into a loop that allocates). Now it is
+the **end of past space**, at `pastSpaceStart`, moved past what is made: the VM writes there only
+while it scavenges, no machine code reads that variable, and the next scavenge takes what we made
+for survivors like the rest.
 
 That makes the new method *young*, and the method dictionary that now points at it *old*, which
 is the whole difficulty: a scavenge would take an unremembered young object for garbage. So the

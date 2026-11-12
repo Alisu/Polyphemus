@@ -16,13 +16,13 @@ plan for what does not.
 | hold it there | a watcher of ours, above the wedged process, that does not yield until a word changes | same |
 | read it whole while held | SIGSTOP, then the ordinary ladder -- 844,508 objects, no rung refused | same |
 | fix a method in it | the passes of `docs/editing-an-image.md`, aimed at `/proc/<pid>/mem` | that doc |
-| add a method it never had | allocated in eden, with the dictionary remembered | that doc |
+| add a method it never had | allocated in new space, with the dictionary remembered | that doc |
 | discard the machine code of a method | ask the held image to run `voidCogVMState` | that doc |
 | let it go | write one word; the image runs on, and answers | same |
 
 Two numbers worth keeping: the VM reaches its interrupt check about **70 times a second** while
 idle (the heartbeat smashing `stackLimit`), so "soon" means milliseconds; and old space in a
-running image ends at its bridge, so anything made there goes in **eden**, with the collector told
+running image ends at its bridge, so anything made there goes in **new space**, with the collector told
 about any old object that comes to point at it.
 
 ## What stage 3 still has to do
@@ -109,8 +109,9 @@ Since #91 the watcher is put in at a safe moment (`WatcherInjection>>whileStoppe
 a quiet stop if one comes within about two seconds, else -- a spinning image is never quiet -- one
 with no collection going (`gcPhaseInProgress`), and either way the classes and special objects
 reading whole; each try through a reader of its own, and a refusal says what the last try saw.
-Left: its objects are written in eden, which a busy image could write over if stopped inside an
-allocation of its own (#99, not seen); and the hold itself still stops at any moment (#98).
+Its objects were written in eden, which a busy image wrote over when stopped inside an allocation
+of its own (#99; seen in #137, one injection in ten); since 2026-11-12 they go at the end of past
+space (`docs/editing-an-image.md`). Left: the hold itself still stops at any moment (#98).
 
 **What a user sees while an image is held.** The whole image stands still, not only the process
 the debugger shows: the agent spins at priority 70 without yielding, so nothing below it runs --
