@@ -6,7 +6,7 @@ nameOfProcess: aProcess
 
 	^ [
 	  | index value |
-	  index := aProcess oopClass instanceVariableNames indexOf: 'name'.
+	  index := aProcess oopClass allInstVarNames indexOf: 'name'.
 	  index = 0
 		  ifTrue: [ nil ]
 		  ifFalse: [
