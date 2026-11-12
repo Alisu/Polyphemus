@@ -110,10 +110,20 @@ Liveness (something good eventually happens):
     out (the second `uninstall` is an error).
 15. **No process of ours takes the trap**: neither A nor a request A runs (#161).
 16. **Never nothing to run**: while the image is held, some process can always run (#161).
+17. **No object written over**: nothing O makes in I's memory is written over by I's own objects,
+    nor the other way round (#137, #167). In `Writes.tla`.
+18. **No remembered entry lost**: an entry O adds to the remembered set stays in it, and takes the
+    place of none of I's (#167). In `Writes.tla`.
+19. **Every observer gets through its stop**, or is refused after its tries (#187). In
+    `StopHelper.tla`.
 
 ## What the model leaves out
 
-- Memory, readings, copies: no Spur, no heap. That side is for the invariants in tests.
+- Memory, readings, copies: no Spur, no heap in `Hold.tla`. Since 2026-11-12 `Writes.tla` has the
+  three words O writes that I reads and writes back itself (`freeStart`, `pastSpaceStart`,
+  `rememberedSetSize`) and nothing else of the heap. That side is for the invariants in tests.
+- The process a hold names. Held again when the one caught at the stop had ended (#172) is a let
+  go and another plain hold, which the two holds in a row of version 8's last row cover.
 - Timing beyond order and timeouts: a timeout is a step that may happen when its condition holds.
 - What a request does inside the image, beyond ending, never ending, and meeting the trap
   (version 7). Locks taken inside the image (#162's) are not in it.
@@ -234,6 +244,38 @@ try ("scheduler could not find a runnable process"); the trap taken by a request
 CI. Property 16 is close to built in (the abort is a step of the model when its condition holds):
 it records the lesson rather than finding it.
 
+## Version 8: what the flakes of 2026-11-12 showed
+
+Three flakes fixed that day were steps the model took for whole, or for done. Version 8 puts two
+of them in `Hold.tla`, on top of version 7's final design (the third is #187, in `StopHelper.tla`
+below; what was behind the second is `Writes.tla`'s).
+
+- **A ring can be refused** (#186). A ring writes into the semaphore, which a collection may be
+  moving: its stop is taken outside a collection, and one that lands in one writes nothing. From
+  2026-11-10 to 11-12 the code then went on as if it had rung. The model's ring may be refused
+  twice in a run, and is then made again or dropped. Property 3 (no lost ring) is checked for the
+  first time: while O waits for an answer and A serves, A's bell is rung.
+- **The watcher can be gone** (#137). Made in eden, it was written over by the image's own
+  objects before it first woke, one injection in ten into a loop that makes objects; the slot its
+  index names holds an object that is no semaphore, and the VM signals nothing there. The model
+  may start with the watcher gone.
+
+| Design | 3 lost ring | 12 lost hold | 13 unserved hold | 6 trap left | others |
+|---|---|---|---|---|---|
+| Rings always land, the watcher is there (version 7) | holds | holds | holds | holds | hold |
+| A ring refused is dropped (2026-11-10 to 11-12, #186) | fails (14) | fails (10) | fails (10) | fails (46) | hold |
+| A ring refused is made again (now) | holds | holds | holds | holds | hold |
+| The watcher made in eden may be gone (until 2026-11-12, #137) | holds | fails (5) | holds | holds | hold |
+| Two plain holds in a row, rings made again (#172's hold again) | holds | holds | holds | n/a | hold |
+
+The dropped ring's ten steps are the failure CI showed, "the image did not answer: nothing was
+serving": W woke and wrote `interrupted`, O left `do.st` and its ring was refused, W span with
+nobody ringing. The forty-six steps are one CI did not show: the hold `runUntil:` falls back to
+loses its ring the same way, and O gives up with the trap still in the image. The lost watcher's
+five steps are "the image never took the interrupt". Nothing in `Hold.tla` can keep a watcher
+from being written over; the fix is where it is made (`Writes.tla`, below), and the row stays
+as the record of what its loss looks like from the protocol.
+
 ## Two observers holding each other (#117): `HoldPair.tla`
 
 Image A's observer holds B, B's observer holds A. An observer is a user process of its image: it
@@ -295,6 +337,72 @@ The last case cannot be fixed from inside: a killed process does not clean up. T
 for whoever comes next (a helper or an observer resumes an image a dead helper's mark says is
 stopped); otherwise `kill -CONT` by hand.
 
+**The helper's program** (#187, 2026-11-12). The model had helpers that start; the code builds the
+program first, when it is not there, and two test images starting together on a fresh machine
+each did. Built in place, it is there from its first byte, and the other observer starts it half
+written: a helper that says nothing. The observer waited for it as for another observer's stop,
+five minutes. In the model an observer builds the program when there is none (in place, or under
+another name and renamed), and a helper started from a half-written one is silent for ever.
+
+| Design | 19 every observer through | the three above |
+|---|---|---|
+| Built in place, a silent helper waited for (before #187) | fails (5) | hold |
+| Built in place, a silent helper given up | holds | hold |
+| Renamed whole, a silent helper waited for | holds | hold |
+| Renamed whole, a silent helper given up (now) | holds | hold |
+
+Either half of #187's fix is enough in the model; the code has both.
+
+## Writes into a running VM: `Writes.tla`
+
+What `Hold.tla` leaves out, and where #137's last flake was. O stops I wherever it is and writes
+into its new space: an object (the watcher, a method, a literal) and an entry of the remembered
+set for the old object that now names it. I reads, changes and writes back the same words in more
+than one instruction; stopped between, it goes on with what its register held (#167; risk 3 of
+#163). The VM's steps are VMMaker's, read on 2026-11-12:
+
+- the JIT's primitive new loads `freeStart`, stores it moved on, then writes the header
+  (`CogObjectRepresentationFor64BitSpur>>genPrimitiveNew`: "get freeStart as early as possible");
+- C's allocation reads `freeStart`, writes the header, then stores `freeStart`
+  (`SpurMemoryManager>>allocateNewSpaceSlots:format:classIndex:`);
+- remembering, in C and called from machine code's store check, reads the size, stores the entry,
+  then stores the size (`VMRememberedSet>>rememberWithoutMarkingAsRemembered:`);
+- a scavenge sets `gcPhaseInProgress`, copies survivors, stores `pastSpaceStart` from where the
+  copying ended, and clears the flag (`SpurMemoryManager>>doScavenge:`).
+
+Two switches: where O makes its object (eden, at `freeStart`, until 2026-11-12; the end of past
+space, at `pastSpaceStart`, since), and the stop it writes at.
+
+| Made in | The stop written at | 17 no object written over | 18 no remembered entry lost |
+|---|---|---|---|
+| eden | any | fails | fails |
+| eden | outside a collection | fails | fails |
+| eden | and outside machine code (#163's guard) | fails | fails |
+| eden | and outside the VM's remembering | fails | holds |
+| eden | quiet: at rest in the kernel | holds | holds |
+| past space | any | fails | fails |
+| past space | outside a collection | holds | fails |
+| past space | and outside machine code (the code now) | holds | fails |
+| past space | and outside the VM's remembering (not in the code) | holds | holds |
+| past space | quiet | holds | holds |
+
+What it says:
+
+- **In eden, no stop short of a quiet one is safe**, the guard against machine code included: C's
+  allocation is in flight outside machine code too, and there it is O that writes over I's
+  header. #137's flake was the JIT's case, I writing over O's.
+- **At the end of past space, outside a collection is enough for objects.** The guard against
+  machine code adds nothing there; it can go.
+- **The remembered set is still open at every stop that is not quiet**, wherever objects are
+  made. Stopped inside the VM's remembering, O's entry and I's land at the same index: one is
+  lost, and an old object then names a young one the scavenger is not told of. Not seen; the
+  window is a few instructions of C. The row that closes it refuses a stop whose instruction
+  pointer is inside that routine, which the VM's symbols place. It is not in the code.
+
+The model has one VM thread, three words and whose object is where; no heap, no free lists (so
+nothing of #165), and no reader walking past space with an end it read before the stop, which
+misses what O made and is not harmed by it.
+
 ## Running the checks
 
 ```bash
@@ -302,5 +410,5 @@ cd docs/model && ./check_all.sh
 ```
 
 It needs Java and `tools/tla2tools.jar` (TLA+ 1.7.4, from the TLA+ releases on GitHub,
-github.com/tlaplus/tlaplus), which is not kept in the repository. About ten minutes for all 142 checks.
+github.com/tlaplus/tlaplus), which is not kept in the repository. About five minutes on four cores for all 281 checks.
 To read a counterexample: `python3 trace.py results/<the check's file>.txt`.

@@ -13,7 +13,11 @@
    Version 7, after #161 (2026-11-09): what a request does is no longer one step. It starts, then
    ends or hangs (a loop, a wait that never ends); run apart (#161), a watchdog stops a hung one;
    while it runs it may meet the trap; and with the agent asleep meanwhile, a hung request that
-   blocks leaves the VM nothing to run when the held process is its idle process. *)
+   blocks leaves the VM nothing to run when the held process is its idle process.
+   Version 8, after the flakes of 2026-11-12: a ring's stop may land in a collection, where it
+   writes nothing, and is then made again or (#186, from 11-10 to 11-12) dropped without a word;
+   and the watcher, made in eden, may have been written over by the image's own objects before
+   it first woke (#137), its semaphore's slot naming an object that is none. *)
 
 EXTENDS Naturals
 
@@ -35,13 +39,16 @@ CONSTANTS
     RequestsMayHang,      \* TRUE: a plain request (a step, an expression) may never end
     RequestApart,         \* TRUE (#161): a request runs in a process of its own, a watchdog stops it if it hangs
     TrapPassesRequests,   \* TRUE: the trap lets the agent's request processes through, not only the agent
-    AgentSleeps           \* TRUE: the agent sleeps while a request runs (#161's first try); FALSE: it spins
+    AgentSleeps,          \* TRUE: the agent sleeps while a request runs (#161's first try); FALSE: it spins
+    RingMayBeRefused,     \* TRUE: a ring's stop may land in a collection, and writes nothing then
+    RingRetries,          \* TRUE: a ring refused is made again; FALSE (#186): it is dropped without a word
+    WatcherMayBeLost      \* TRUE (#137): made in eden, the watcher may be written over before it first wakes
 
 VARIABLES
     excess,      \* the watcher's semaphore: signals counted
     bell,        \* the agent's own bell, when SeparateBell
     stopped,     \* the image is stopped by the observer
-    w,           \* watcher: waiting | woken | spin | agent | after
+    w,           \* watcher: waiting | woken | spin | agent | after | gone (written over, #137)
     a,           \* agent: none | starting | serving | running (a request) | hung (one that never ends) | ended
     intent,      \* holds signalled for (by the observer or the trap) not yet taken
     trapOn,      \* the trap: off | on (installed) | firing (taken out, its file and signal to come)
@@ -55,7 +62,8 @@ VARIABLES
     pending,     \* signals the observer asked for that the VM has not delivered yet
     hist         \* [badWrite: a ring written past nil, lost: the observer gave up on a live image,
                  \*  badRemove: the removal took out a trap already taking itself out,
-                 \*  ownTrap: a request of ours took the trap, abort: the VM found nothing to run]
+                 \*  ownTrap: a request of ours took the trap, abort: the VM found nothing to run,
+                 \*  refusals: rings whose stop landed in a collection, so far]
 
 vars == <<hist, pending, excess, bell, stopped, w, a, intent, trapOn, installing, removing, removed, f, reqN, ansN,
           oPc, ringNext, oAlive, iAlive, holds, asks>>
@@ -65,18 +73,22 @@ NoFiles == [interrupted |-> FALSE, doSt |-> FALSE, serving |-> FALSE, go |-> FAL
             bellIndex |-> FALSE, bellEnded |-> FALSE, hold |-> FALSE]
 
 Init ==
-    /\ excess = 0 /\ bell = 0 /\ stopped = FALSE /\ w = "waiting" /\ a = "none" /\ intent = 0
+    /\ excess = 0 /\ bell = 0 /\ stopped = FALSE /\ a = "none" /\ intent = 0
+    /\ w \in (IF WatcherMayBeLost THEN {"waiting", "gone"} ELSE {"waiting"})
     /\ trapOn = "off" /\ installing = FALSE /\ removing = FALSE /\ removed = "removed" /\ f = NoFiles
     /\ reqN = 0 /\ ansN = 0
     /\ oPc = "idle" /\ ringNext = "idle" /\ oAlive = TRUE /\ iAlive = TRUE /\ holds = 0 /\ asks = 0
-    /\ hist = [badWrite |-> FALSE, lost |-> FALSE, badRemove |-> FALSE, ownTrap |-> FALSE, abort |-> FALSE]
+    /\ hist = [badWrite |-> FALSE, lost |-> FALSE, badRemove |-> FALSE, ownTrap |-> FALSE, abort |-> FALSE,
+               refusals |-> 0]
     /\ pending = 0
 
 (* A signal on the watcher's semaphore, taken by the VM when the image runs: it resumes the
-   watcher if the watcher waits on it, else it is counted. *)
+   watcher if the watcher waits on it, else it is counted. Where the slot names no semaphore any
+   more (the watcher written over), the VM signals nothing. *)
 Signal ==
-    IF w = "waiting" THEN w' = "woken" /\ UNCHANGED excess
-                     ELSE excess' = excess + 1 /\ UNCHANGED w
+    CASE w = "waiting" -> w' = "woken" /\ UNCHANGED excess
+      [] w = "gone" -> UNCHANGED <<w, excess>>
+      [] OTHER -> excess' = excess + 1 /\ UNCHANGED w
 
 \* signalExternalSemaphore: from the observer, queued for the VM's next check when AsyncSignal.
 ObserverSignal ==
@@ -286,8 +298,19 @@ RingResume ==
          [] SeparateBell /\ f.bellIndex ->
               IF BellRegistered THEN bell' = 1 /\ UNCHANGED <<hist, pending, excess>>
               ELSE hist' = [hist EXCEPT !.badWrite = TRUE] /\ UNCHANGED <<excess, bell>>
+         [] w = "gone" -> hist' = [hist EXCEPT !.badWrite = TRUE] /\ UNCHANGED <<excess, bell>>
          [] OTHER -> excess' = 1 /\ UNCHANGED <<hist, pending, bell>>
     /\ UNCHANGED <<pending, w, a, intent, trapOn, f, Channel, ringNext, holds, asks, oAlive, iAlive>>
+
+(* Version 8 (#186): the ring's stop lands in a collection, where the semaphore may be moving, and
+   nothing is written. The ring is made again, a collection ending; or, as the code did from
+   2026-11-10 to 11-12, the observer goes on as if it had rung. *)
+RingRefused ==
+    /\ RingMayBeRefused /\ OStep("ringResume") /\ hist.refusals < 2
+    /\ stopped' = FALSE
+    /\ hist' = [hist EXCEPT !.refusals = @ + 1]
+    /\ oPc' = IF RingRetries THEN "ringStop" ELSE ringNext
+    /\ UNCHANGED <<pending, Image, f, Channel, ringNext, holds, asks, oAlive, iAlive>>
 
 AskOrLetGo ==
     /\ OStep("askOrLetGo")
@@ -391,7 +414,7 @@ ObserverDies ==
     /\ UNCHANGED <<hist, pending, Image, f, Channel, Observer, iAlive>>
 
 ObserverSteps ==
-    \/ HoldStop \/ HoldResume \/ SeeInterrupted \/ RingStop \/ RingResume \/ AskOrLetGo
+    \/ HoldStop \/ HoldResume \/ SeeInterrupted \/ RingStop \/ RingResume \/ RingRefused \/ AskOrLetGo
     \/ AskWrite \/ SeeAnswer("askWaitAnswer", "askOrLetGo") \/ LetGo("letGoWaitServing", "done")
     \/ TrapAskWrite \/ SeeAnswer("trapWaitInstalled", "trapLetGo") \/ LetGo("trapLetGo", "waitTrap")
     \/ SeeTrap \/ SeeTrapHeld \/ TrapFallback \/ FallbackResume
@@ -413,7 +436,14 @@ Spec ==
 ----------------------------------------------------------------------------
 (* Properties, numbered as in protocol.md. *)
 
-UserRuns == iAlive /\ ~stopped /\ w = "waiting"
+UserRuns == iAlive /\ ~stopped /\ w \in {"waiting", "gone"}
+
+\* 3. A request the observer wrote and rang for is seen: while it waits for the answer and the
+\* agent serves, the agent's bell is rung.
+NoLostRing ==
+    (oAlive /\ iAlive /\ reqN > ansN /\ a = "serving"
+     /\ oPc \in {"askWaitAnswer", "trapWaitInstalled", "removeWaitAnswer"})
+        => (IF SeparateBell THEN bell > 0 ELSE excess > 0)
 
 \* 5. Every hold the watcher takes was signalled for, by the observer or the trap.
 NoStrayHold == w = "woken" => intent > 0
