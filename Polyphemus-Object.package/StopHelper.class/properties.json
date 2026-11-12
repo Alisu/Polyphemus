@@ -13,7 +13,9 @@
 		"directory",
 		"bound",
 		"pipe",
-		"state"
+		"state",
+		"program",
+		"silenceLimit"
 	],
 	"name": "StopHelper",
 	"type": "normal"
