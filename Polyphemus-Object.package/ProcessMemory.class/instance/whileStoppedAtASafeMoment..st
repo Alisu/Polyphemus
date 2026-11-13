@@ -1,10 +1,9 @@
 holding it still
 whileStoppedAtASafeMoment: aBlock
 
-	"aBlock's value on a copy of its heap and the reader holding it still, at a safe moment: quiet
-	and outside a collection within about two seconds, else outside one and in machine code, where
-	the VM is in none of its own routines (whyNotToAllocateIn:, #167), looked for until
-	#safeMomentWait has passed. Else refused, saying how often it looked and what the last stop saw (#91)."
+	"aBlock's value on a copy of its heap and the reader holding it still, at a safe moment: quiet and
+	outside a collection within about two seconds, else as whyNotToAllocateIn: allows (#167), looked
+	for until #safeMomentWait has passed. Else refused, saying what the last stop saw (#91)."
 
 	| tried stops deadline |
 	40 timesRepeat: [
