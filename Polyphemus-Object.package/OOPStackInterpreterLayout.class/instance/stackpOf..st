@@ -1,11 +1,7 @@
 reading
 stackpOf: aFrame
 
-	^ [ (self isActiveFrame: aFrame framePointer)
-		  ifTrue: [
-			  memory interpreter
-				  stackPointerIndexForFrame: aFrame framePointer
-				  WithSP: memory interpreter stackPointer ]
-		  ifFalse: [ memory interpreter stackPointerIndexForFrame: aFrame framePointer ] ]
-		  on: Error
-		  do: [ :e | nil ]
+	"Its arguments and the words of its stack, as a context counts them: what the VM's
+	stackPointerIndexForFrame:WithSP: answers for it (#176)."
+
+	^ (self flagsOf: aFrame framePointer) numArgs + aFrame stackWords size

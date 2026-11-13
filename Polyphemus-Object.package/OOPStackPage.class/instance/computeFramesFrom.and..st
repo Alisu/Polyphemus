@@ -11,7 +11,7 @@ computeFramesFrom: aCogStackPage and: aMemory
 			            OOPAbstractStackFrame
 				            newTopFrameFrom: aCogStackPage
 				            startingAt: interpreter framePointer
-				            endingAt: interpreter stackPointer
+				            endingAt: interpreter stackPointer - aMemory wordSize
 				            on: aMemory ]
 		            ifFalse: [ 
 			            OOPAbstractStackFrame
