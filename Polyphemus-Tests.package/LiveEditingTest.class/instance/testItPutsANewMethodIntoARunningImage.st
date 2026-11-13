@@ -10,7 +10,7 @@ testItPutsANewMethodIntoARunningImage
 	[
 	reader := LinuxProcessMemory on: pid.
 	self holdWithTheInterrupt: reader.
-	reader whileStopped: [
+	reader whileStoppedToRemember: [
 		| dumped reading integer |
 		dumped := SpurDumpedMemory on: reader.
 		reading := dumped reifiedMemory.
