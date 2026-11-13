@@ -116,6 +116,8 @@ Liveness (something good eventually happens):
     place of none of I's (#167). In `Writes.tla`.
 19. **Every observer gets through its stop**, or is refused after its tries (#187). In
     `StopHelper.tla`.
+20. **No half-made object read**: a reading takes no object I has not finished making (#167). In
+    `Writes.tla`.
 
 ## What the model leaves out
 
@@ -373,20 +375,23 @@ than one instruction; stopped between, it goes on with what its register held (#
 Two switches: where O makes its object (eden, at `freeStart`, until 2026-11-12; the end of past
 space, at `pastSpaceStart`, since), and the stop it writes at.
 
-| Made in | The stop written at | 17 no object written over | 18 no remembered entry lost |
-|---|---|---|---|
-| eden | any | fails | fails |
-| eden | outside a collection | fails | fails |
-| eden | and outside machine code (#163's guard) | fails | fails |
-| eden | and outside the VM's remembering | fails | holds |
-| eden | outside a collection, in machine code or at rest | fails | holds |
-| eden | quiet: at rest in the kernel | holds | holds |
-| past space | any | fails | fails |
-| past space | outside a collection | holds | fails |
-| past space | and outside machine code (the code until #167's guard) | holds | fails |
-| past space | and outside the VM's remembering (not in the code) | holds | holds |
-| past space | outside a collection, in machine code or at rest (the code now) | holds | holds |
-| past space | quiet | holds | holds |
+| Made in | The stop | 17 no object written over | 18 no remembered entry lost | 20 no half-made object read |
+|---|---|---|---|---|
+| eden | any | fails | fails | fails |
+| eden | outside a collection | fails | fails | fails |
+| eden | and outside machine code (#163's guard) | fails | fails | fails |
+| eden | and outside the VM's remembering | fails | holds | fails |
+| eden | outside a collection, in machine code or at rest | fails | holds | fails |
+| eden | a real safe point: the VM between two things it does (not in the code) | holds | holds | holds |
+| eden | quiet: at rest in the kernel | holds | holds | holds |
+| past space | any | fails | fails | fails |
+| past space | outside a collection | holds | fails | fails |
+| past space | and outside machine code (the code until #167's guard) | holds | fails | fails |
+| past space | and outside the VM's remembering (not in the code) | holds | holds | fails |
+| past space | outside a collection, in machine code or at rest (writes, now) | holds | holds | fails |
+| past space | a real safe point (not in the code) | holds | holds | holds |
+| past space | quiet | holds | holds | holds |
+| past space | outside a collection, the reading leaving out eden's newest object (not in the code) | | | holds |
 
 What it says:
 
@@ -407,6 +412,19 @@ What it says:
   2026-11-12; #163's guard refused machine code and let the VM's own code through). The row
   that refuses only the remembering routine needs its place from the VM's symbols and trusts
   the compiler not to have put it inline elsewhere; it is not in the code.
+- **A reading of a VM that is not at rest can take a half-made object** (property 20, added
+  2026-11-13). The JIT stores `freeStart` moved on, then writes the header, then fills the slots;
+  C's allocation leaves the filling to its caller. Until then the newest object of eden is there
+  for a reading with the bytes eden held before. A reading is taken quiet within two seconds,
+  else at any stop outside a collection (`whileStoppedToRead:`), and walks eden up to
+  `freeStart` (`SpurRawHeap>>youngObjectsDo:`). Not seen as such.
+- **Only the newest can be half made**: the VM fills an object before it makes the next, or its
+  own collector would meet it. A reading that leaves out eden's newest object when its VM is not
+  at rest takes none, at any stop outside a collection. That is not in the code.
+- **What a real safe point would still bring**, with objects in past space, the guard turned
+  round and that reading: nothing in this model. Outside it are the structures the image itself
+  keeps in more than one step (its symbol table, a method dictionary being grown), which a stop
+  between two bytecodes does not make whole either.
 
 The model has one VM thread, three words and whose object is where; no heap, no free lists (so
 nothing of #165), and no reader walking past space with an end it read before the stop, which
@@ -419,5 +437,5 @@ cd docs/model && ./check_all.sh
 ```
 
 It needs Java and `tools/tla2tools.jar` (TLA+ 1.7.4, from the TLA+ releases on GitHub,
-github.com/tlaplus/tlaplus), which is not kept in the repository. About five minutes on four cores for all 285 checks.
+github.com/tlaplus/tlaplus), which is not kept in the repository. About five minutes on four cores for all 310 checks.
 To read a counterexample: `python3 trace.py results/<the check's file>.txt`.
