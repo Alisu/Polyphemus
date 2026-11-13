@@ -1,6 +1,9 @@
 context protocol
 executedPC
 
-	"A frame's pc is where it is about to execute, which is what a context answers too."
+	"The bytecode it is executing, as Pharo's Context answers: one before its pc, where a method
+	records each instruction at its last byte; its start at the start; before its end when dead."
 
-	^ self pc
+	self pc ifNil: [ ^ self endPC - 1 ].
+	self pc = self startpc ifTrue: [ ^ self startpc ].
+	^ self pc - 1
