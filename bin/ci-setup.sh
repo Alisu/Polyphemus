@@ -92,7 +92,7 @@ cat > load.st <<ST
  stops part way leaves the rest out, and the suite then runs without them (#178)."
 [ | organizer |
   organizer := (Smalltalk globals at: #RPackageOrganizer ifAbsent: [ Smalltalk globals at: #PackageOrganizer ]) default.
-  ('MISSING ' , ((BaselineOfPolyphemus project version packages collect: [ :each | each name ])
+  ('MISSING ' , (((Smalltalk globals at: #BaselineOfPolyphemus) project version packages collect: [ :each | each name ])
 	reject: [ :each | (organizer packageNamed: each ifAbsent: [ nil ]) notNil ]) asArray printString) traceCr ]
 	on: Error do: [ :e | ('MISSING_ERR ' , e class name , ' ' , e messageText asString) traceCr ].
 Smalltalk snapshot: true andQuit: true
