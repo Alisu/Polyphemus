@@ -6,6 +6,6 @@ imageTheVMRan
 
 	| path |
 	path := #( 'imageName' '_imageName' ) inject: nil into: [ :found :each |
-		        found ifNil: [ [ raw vmVariables stringAt: each ] on: Error do: [ :e | nil ] ] ].
+		        found ifNil: [ raw statedText: each ] ].
 	(path isEmptyOrNil or: [ path asFileReference isFile not ]) ifTrue: [ ^ nil ].
 	^ path asFileReference fullName
