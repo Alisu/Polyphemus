@@ -1,0 +1,4 @@
+testing
+isYoungOop
+
+	^ true

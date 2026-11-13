@@ -1,0 +1,1 @@
+What a reading asks of the wrapper of a class still in new space, where the next scavenge moves it from (#189). Not a wrapper itself: a reading picks its wrappers among their subclasses.

@@ -7,6 +7,8 @@ fix: aReifiedMethod to: aSource restartingAt: aDepth
 
 	| class className selector |
 	class := aReifiedMethod oopMethodClass.
+	class hasAReadableName ifFalse: [
+		^ NotInTheReading signal: 'the class of that method does not name itself in this reading: nothing was compiled' ].
 	className := class oopName.
 	selector := aReifiedMethod oopSelector asSymbol.
 	(self reading compileHostSource: aSource for: class) ifNil: [
