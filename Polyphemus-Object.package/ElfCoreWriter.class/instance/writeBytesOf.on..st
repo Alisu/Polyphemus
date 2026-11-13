@@ -1,9 +1,8 @@
 dumping
 writeBytesOf: aSegment on: aStream
 
-	"In blocks, because a region can be hundreds of megabytes. A read that fails part way
-	through leaves zeros behind rather than a short segment, so that every later offset in
-	the file still means what the program header said it means."
+	"In blocks, because a region can be hundreds of megabytes, up to the first that does not read:
+	its header then says the file ends the region there (#182). Answers how many bytes it wrote."
 
 	| written |
 	written := 0.
@@ -11,5 +10,7 @@ writeBytesOf: aSegment on: aStream
 		| want got |
 		want := 4194304 min: aSegment sizeInFile - written.
 		got := memory bytesAt: aSegment address + written count: want.
-		aStream nextPutAll: (got ifNil: [ ByteArray new: want ]).
-		written := written + want ]
+		got ifNil: [ ^ written ].
+		aStream nextPutAll: got.
+		written := written + want ].
+	^ written
