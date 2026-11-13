@@ -22,10 +22,26 @@ class=$(grep -ao "RES [A-Za-z0-9]* '" "$script" | head -1 | awk '{print $2}')
 [ -n "${STUB_COLOUR:-}" ] && printf '\033[0m'   # a colour reset left by the VM's output, then the line
 # A class whose image dies says nothing, its log ending mid-line (#51).
 [ "$class" = "${STUB_SILENT:-}" ] && { printf 'a stack, then\033[0m'; exit 1; }
+# A test that fails, then is skipped when run again alone: the retry runs one selector.
+if [ -n "${STUB_FAIL_THEN_SKIP:-}" ]; then
+  if grep -q "selector: #" "$script"; then echo "RES $class 1 run 0 failures 0 errors 1 skipped"
+  else echo "RES $class 1 run 1 failures 0 errors"; echo "    FAIL  $class>>testX -- boom"; fi
+  exit 0
+fi
 if [ -n "${STUB_SKIPPED:-}" ]; then echo "RES $class 3 run 0 failures 0 errors 2 skipped"
 else echo "RES $class 1 run 0 failures 0 errors"; fi
 STUB
 chmod +x "$dir/pharo"
+
+# A failure skipped when run again alone did not pass: it stays a failure, not a flake (#177).
+out=$(WORK="$dir" STUB_FAIL_THEN_SKIP=1 "$HERE/run-tests.sh" -c SkipTest -j 1 2>&1); rc=$?
+check "a failure whose retry is skipped is no flake" "! grep -q 'FLAKY SkipTest' <<<\"\$out\" && grep -q 'still failing: SkipTest>>testX' <<<\"\$out\""
+check "and the run is red" "[ $rc -ne 0 ]"
+
+# Classes asked for, none of them in this image, run nothing: not the whole suite (#177).
+out=$(WORK="$dir" STUB_CLASSES="ATest BTest" "$HERE/run-tests.sh" -c XTest -c YTest -j 1 2>&1)
+check "asked-for classes none of which is here run no other class" "! grep -q '^RES ATest' <<<\"\$out\" && ! grep -q '^RES BTest' <<<\"\$out\""
+check "it says none was here" "grep -q 'none of the classes asked for is in this image' <<<\"\$out\""
 
 # The workers are fresh shells: every function they call must reach them.
 out=$(WORK="$dir" "$HERE/run-tests.sh" -c FakeTest -j 1 2>&1)

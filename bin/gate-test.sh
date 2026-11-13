@@ -19,6 +19,8 @@ tree() {  # a fresh made-up ROOT, its stub tdd.sh logging to $ROOT/calls
 echo "$(basename "$WORK") start $(date +%s.%N) $*" >> "$(dirname "$0")/../../calls"
 sleep 1
 echo "$(basename "$WORK") end $(date +%s.%N)" >> "$(dirname "$0")/../../calls"
+# The fast tier refused, by the lock say: it ends before its totals.
+case " $* " in *" --fast "*) [ -n "${STUB_FAST_NO_TOTALS:-}" ] && exit 1 ;; esac
 if [ -n "${STUB_ZERO:-}" ]; then echo "== totals: 0 run, 0 failures, 0 errors, 0 broken, 0 flaky =="
 else echo "== totals: 1 run, 0 failures, 0 errors, 0 broken, 0 flaky =="; fi
 STUB
@@ -70,6 +72,14 @@ tree
 ROOT="$ROOT" JOBS=2 STUB_ZERO=1 "$GATE" --commit --classes "AlphaTest" 13 > "$ROOT/out" 2>&1
 rc=$?
 check "a run of no test makes the gate red" "[ $rc -ne 0 ]"
+rm -rf "$ROOT"
+
+# Each run of a commit gate says its totals: a fast tier that ended before its own is no green,
+# though the slow classes ran green after it (#177).
+tree
+ROOT="$ROOT" JOBS=2 STUB_FAST_NO_TOTALS=1 "$GATE" --commit --classes "AlphaTest" 13 > "$ROOT/out" 2>&1
+rc=$?
+check "a fast tier without its totals makes the gate red" "[ $rc -ne 0 ] && [ ! -f $ROOT/pharo13/.last-green ]"
 rm -rf "$ROOT"
 
 # The tests a change reaches, asked of the image: if it does not answer, the gate cannot say
