@@ -4,11 +4,13 @@ classTableProblemsFrom: anAddress upTo: aLimit
 	"Class table problems, as reason -> address when structural, or reason -> class index for
 	a bad entry. Only pages in use are checked."
 
-	| problems hiddenRoots pages |
+	| problems hiddenRoots header pages |
 	problems := OrderedCollection new.
 	hiddenRoots := self hiddenRootsFrom: anAddress.
-	(hiddenRoots notNil and: [
-		 (self formatIn: (self headerAt: hiddenRoots)) = 2 and: [
+	"Past the mapping when the free lists object claims more slots than it holds (#182)."
+	header := hiddenRoots ifNotNil: [ self headerAt: hiddenRoots ].
+	(header notNil and: [
+		 (self formatIn: header) = 2 and: [
 			 (self slotsAt: hiddenRoots) >= self classTableRootSlots ] ]) ifFalse: [
 		problems add: #hiddenRootsAreNotWhereTheHeapSaysTheyAre -> anAddress.
 		^ problems ].
