@@ -10,7 +10,8 @@
 	 "segments",
 	 "stream",
 	 "cacheStart",
-	 "cacheBytes"
+	 "cacheBytes",
+	 "cutShort"
 	],
 	"name": "FileAddressSpace",
 	"type": "normal"
