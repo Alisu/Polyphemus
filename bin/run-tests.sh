@@ -253,7 +253,8 @@ retry_fresh() {
     [ -z "$kind" ] && continue
     echo "$kind $c $sel" >> "$RESULTS.retried"
     out=$(ONLY_TEST="$sel" run_class "$c" < /dev/null)
-    grep -a -q "^RES $c 1 run 0 failures 0 errors" <<<"$out" || { echo "    still failing: $c>>$sel"; continue; }
+    # Passed, not skipped: a skipped line starts the same way (#177).
+    grep -a -qE "^RES $c 1 run 0 failures 0 errors( \(|$)" <<<"$out" || { echo "    still failing: $c>>$sel"; continue; }
     echo "    FLAKY $c>>$sel"
     awk -v k="$kind" -v c="$c" -v s="$sel" '
       !done && index($0, "    " (k == "FAIL" ? "FAIL  " : "ERROR ") c ">>" s " ") == 1 {
@@ -321,9 +322,14 @@ if [ ${#SELECTED[@]} -gt 1 ] && [ -n "$COLLECTED" ]; then
     if all_classes | grep -qx "$c"; then HELD+=("$c"); else echo "== not in this image, skipped: $c"; fi
   done
   SELECTED=(${HELD[@]+"${HELD[@]}"})
+  # None held: nothing runs. Left empty, it would read as no selection, the whole suite (#177).
+  [ ${#SELECTED[@]} -eq 0 ] && echo "== none of the classes asked for is in this image: nothing run"
+  ASKED=yes
 fi
 if [ ${#SELECTED[@]} -gt 0 ]; then
   run_set "selected" "${SELECTED[@]}"
+elif [ -n "${ASKED:-}" ]; then
+  :
 else
   ALL=(); while IFS= read -r c; do ALL+=("$c"); done < <(all_classes)   # no mapfile in bash 3.2 (macOS)
   if [ -n "$SHARD" ]; then

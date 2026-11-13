@@ -20,7 +20,9 @@ judge() {  # one job's log on stdin: what failed, then VERDICT green|known|infra
       while ((getline line < known) > 0) {
         if (line ~ /^#/ || split(line, f, "|") < 3) continue
         k++; ktest[k] = trim(f[1]); kmsg[k] = trim(f[2]); kissue[k] = trim(f[3]) } }
-    /== totals/ { totals = 1; if ($0 ~ /== totals: 0 run/) nothing = 1 }
+    /== totals/ { totals = 1; if ($0 ~ /== totals: 0 run/) nothing = 1
+      counted = $0; sub(/.* run, /, "", counted); split(counted, c, ", ")
+      tfail = c[1] + 0; terr = c[2] + 0; tbroken = c[3] + 0 }
     /^!! / { if (!bang) bang = $0 }
     /WARM ERR|Could not|##\[error\]|prepare BROKEN/ { if (!evidence) evidence = $0 }
     /^    FLAKY / {
@@ -32,8 +34,8 @@ judge() {  # one job's log on stdin: what failed, then VERDICT green|known|infra
       rest = $0; sub(/^    (FAIL |ERROR) +/, "", rest)
       at = index(rest, " -- "); t = at ? substr(rest, 1, at - 1) : rest; m = at ? substr(rest, at + 4) : ""
       if (!(t in msg)) { order[++n] = t; msg[t] = m }; next }
-    /^RES [A-Za-z0-9]+ BROKEN/ {
-      t = $2; if (!(t in msg)) { order[++n] = t; msg[t] = "BROKEN" substr($0, index($0, "BROKEN") + 6) } }
+    /^RES [A-Za-z0-9]+ (BROKEN|TIMEOUT)/ {
+      t = $2; if (!(t in msg)) { order[++n] = t; msg[t] = substr($0, length("RES " t " ") + 1) } }
     END {
       if (!totals) { print "INFRA " (evidence ? evidence : "no suite ran"); print "VERDICT infra"; exit 2 }
       if (nothing) { print "INFRA the suite ran no test"; print "VERDICT infra"; exit 2 }
@@ -43,7 +45,11 @@ judge() {  # one job's log on stdin: what failed, then VERDICT green|known|infra
         issue = ""
         for (j = 1; j <= k; j++) if (ktest[j] == t && index(msg[t], kmsg[j]) == 1) issue = kissue[j]
         if (issue != "") { print "KNOWN " issue " " t again; if (verdict == "green") verdict = "known" }
-        else { print "NEW " t again (msg[t] ~ /^BROKEN/ ? " " : " -- ") msg[t]; verdict = "new" } }
+        else { print "NEW " t again (msg[t] ~ /^(BROKEN|TIMEOUT)/ ? " " : " -- ") msg[t]; verdict = "new" }
+        if (!(t in flaky)) named++ }
+      # Counted but named by no line: a red run would read green on what it does not say (#177).
+      if (tfail + terr + tbroken > 0 && !named) {
+        print "NEW the totals count " tfail " failures, " terr " errors, " tbroken " broken"; verdict = "new" }
       if (bang) { print "NEW " bang; verdict = "new" }
       print "VERDICT " verdict
       exit (verdict == "new") }'

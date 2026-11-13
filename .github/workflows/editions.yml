@@ -38,6 +38,16 @@ jobs:
       skip: ${{ steps.verdict.outputs.skip }}
     steps:
       - uses: actions/checkout@v4
+      # The scripts that decide red and green, tested before anything runs on them (#177): a
+      # broken verdict or gate would read every job wrongly. No Pharo; under a minute.
+      - name: The scripts' own tests
+        run: |
+          bad=0
+          for t in bin/*-test.sh; do
+            [ "$t" = bin/repeat-test.sh ] && continue   # it runs a test of the suite, in Pharo
+            out=$(bash "$t" 2>&1) || { grep -E "^FAIL" <<<"$out"; echo "!! $t"; bad=1; }
+          done
+          exit $bad
       - id: verdict
         env:
           GH_TOKEN: ${{ github.token }}
@@ -148,8 +158,7 @@ jobs:
         if: matrix.shard == 1 && needs.judged.outputs.skip != 'true'
         run: |
           sudo WORK="$HOME/setup" TMO=1800 bin/run-tests.sh -c LinuxRootObserverTest 2>&1 | tee root.log | grep -aE "^RES|^    (FAIL|ERROR)" || true
-          [ "$(grep -ac "^RES " root.log)" -eq 1 ] || { echo "!! the class did not answer"; exit 1; }
-          ! grep -aE "^RES .*(BROKEN| [1-9][0-9]* (failures|errors))" root.log
+          bin/check-root.sh root.log 1
 
       - name: Keep the core when the suite fails
         if: failure() && needs.judged.outputs.skip != 'true'
@@ -273,8 +282,7 @@ jobs:
           for class in MacProcessMemoryTest MacStuckReportTest MacHoldTest MacMCPToolsTest; do
             sudo WORK="$HOME/setup" TMO=1800 bin/run-tests.sh -c "$class" 2>&1 | tee -a root.log | grep -aE "^RES|^    (FAIL|ERROR)" || true
           done
-          [ "$(grep -ac "^RES " root.log)" -eq 4 ] || { echo "!! not every class answered"; exit 1; }
-          ! grep -aE "^RES .*(BROKEN| [1-9][0-9]* (failures|errors))" root.log
+          bin/check-root.sh root.log 4
 
       - name: Keep the log
         if: always()

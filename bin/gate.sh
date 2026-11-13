@@ -128,6 +128,7 @@ for n in "${EDITIONS[@]}"; do
   jobs=$(jobs_of "$n")
   grep -q "^RES prepare BROKEN" "$setup/.gate.log" && { echo 0 > "$setup/.gate.seconds"; continue; }
   ( began=$(date +%s)
+    echo 1 > "$setup/.gate.runs"
     if [ -n "$COMMIT_GATE" ]; then
       ( cd "$setup" && WORK="$setup" GATE_OWNED=1 SKIP_PREPARE=1 "$setup/Polyphemus/bin/tdd.sh" --fast -j "$jobs" >> "$setup/.gate.log" 2>&1 )
       # Only the slow ones: the fast tier has run every other. A class never timed counts as slow;
@@ -137,7 +138,8 @@ for n in "${EDITIONS[@]}"; do
         t=$(best_time_of "$c" "$setup/.test-timings")
         { [ -n "$NAMED_CLASSES" ] || [ -z "$t" ] || [ "$t" -ge "${SLOW_THRESHOLD:-8}" ]; } && slow+=(-c "$c")
       done
-      [ ${#slow[@]} -gt 0 ] && ( cd "$setup" && WORK="$setup" GATE_OWNED=1 SKIP_PREPARE=1 "$setup/Polyphemus/bin/tdd.sh" "${slow[@]}" -j "$jobs" >> "$setup/.gate.log" 2>&1 )
+      [ ${#slow[@]} -gt 0 ] && echo 2 > "$setup/.gate.runs" &&
+        ( cd "$setup" && WORK="$setup" GATE_OWNED=1 SKIP_PREPARE=1 "$setup/Polyphemus/bin/tdd.sh" "${slow[@]}" -j "$jobs" >> "$setup/.gate.log" 2>&1 )
     else
       ( cd "$setup" && WORK="$setup" GATE_OWNED=1 SKIP_PREPARE=1 "$setup/Polyphemus/bin/tdd.sh" --all -j "$jobs" >> "$setup/.gate.log" 2>&1 )
     fi
@@ -159,8 +161,10 @@ for n in "${EDITIONS[@]}"; do
   # the slow classes it selected.
   # A class without its comment compiles here, but a user's Metacello load fails on it; a method
   # comment over three lines breaks the working agreement (bin/long-comments.py).
-  # A run of no test is no green: an image that did not start reads as 0 run, 0 failures.
-  if ! grep -qa "^== totals" "$setup/.gate.log" || grep -qaE "^(NO|LONG) COMMENT" "$setup/.gate.log" ||
+  # A run of no test is no green: an image that did not start reads as 0 run, 0 failures. And
+  # each run made says its totals: one that ended before them was not green (#177).
+  if [ "$(grep -ca "^== totals" "$setup/.gate.log")" -lt "$(cat "$setup/.gate.runs" 2>/dev/null || echo 1)" ] ||
+     grep -qaE "^(NO|LONG) COMMENT" "$setup/.gate.log" ||
      grep -qa "^== totals: 0 run" "$setup/.gate.log" ||
      grep -a "^== totals" "$setup/.gate.log" | grep -qv " 0 failures, 0 errors, 0 broken"; then
     status=1; summary="$summary ${n#pharo}:red"

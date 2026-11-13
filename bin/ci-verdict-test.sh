@@ -40,6 +40,17 @@ LOG
 check "a listed message counts only at the start of the failure's (#164)" "[ \$(verdict) -eq 1 ] && grep -q 'NEW RingTest>>testRace' $dir/out"
 
 log <<'LOG'
+RES FooTest TIMEOUT 1800s
+== totals: 5 run, 0 failures, 0 errors, 1 broken, 0 flaky ==
+LOG
+check "a class that timed out is new (#177)" "[ \$(verdict) -eq 1 ] && grep -q 'NEW FooTest TIMEOUT' $dir/out"
+
+log <<'LOG'
+== totals: 5 run, 2 failures, 0 errors, 0 broken, 0 flaky ==
+LOG
+check "totals that count failures no line names are new (#177)" "[ \$(verdict) -eq 1 ] && grep -q 'NEW the totals count 2 failures, 0 errors, 0 broken' $dir/out"
+
+log <<'LOG'
 == totals: 0 run, 0 failures, 0 errors, 0 broken, 0 flaky ==
 LOG
 check "a suite that ran nothing is no green (#164)" "[ \$(verdict) -eq 2 ] && grep -q '^VERDICT infra' $dir/out"
