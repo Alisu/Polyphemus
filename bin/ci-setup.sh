@@ -88,10 +88,19 @@ cat > load.st <<ST
 [ (IceRepositoryCreator new location: '$CHECKOUT_FOR_PHARO' asFileReference; createRepository) register ]
 	on: Error do: [ :e | ('REGISTER_ERR ' , e class name , ' ' , e messageText asString) traceCr ].
 ('LOADED ' , (Smalltalk globals includesKey: #PolyphemusEdition) printString) traceCr.
+"Every package the baseline wants on this edition and host, not only the first: a load that
+ stops part way leaves the rest out, and the suite then runs without them (#178)."
+[ | organizer |
+  organizer := (Smalltalk globals at: #RPackageOrganizer ifAbsent: [ Smalltalk globals at: #PackageOrganizer ]) default.
+  ('MISSING ' , ((BaselineOfPolyphemus project version packages collect: [ :each | each name ])
+	reject: [ :each | (organizer packageNamed: each ifAbsent: [ nil ]) notNil ]) asArray printString) traceCr ]
+	on: Error do: [ :e | ('MISSING_ERR ' , e class name , ' ' , e messageText asString) traceCr ].
 Smalltalk snapshot: true andQuit: true
 ST
-timeout 3600 ./pharo dev.image --no-default-preferences st load.st 2>&1 | tr -d '\033' | tee load.log | grep -E "LOAD_ERR|REGISTER_ERR|LOADED" || true
+timeout 3600 ./pharo dev.image --no-default-preferences st load.st 2>&1 | tr -d '\033' | tee load.log | grep -E "LOAD_ERR|REGISTER_ERR|LOADED|MISSING" || true
 grep -q "LOADED true" load.log || { echo "!! Polyphemus did not load"; tail -40 load.log; exit 1; }
+! grep -q "LOAD_ERR" load.log || { echo "!! the load stopped part way: what came after is missing"; exit 1; }
+grep -q "^MISSING #()" load.log || { echo "!! packages the baseline wants are not in the image"; exit 1; }
 ! grep -q "REGISTER_ERR" load.log || { echo "!! the checkout is not registered in Iceberg (a shallow clone?)"; exit 1; }
 
 cat > polyphemus.env <<ENV
