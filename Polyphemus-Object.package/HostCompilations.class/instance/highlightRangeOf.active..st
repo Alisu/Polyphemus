@@ -6,7 +6,7 @@ highlightRangeOf: anActivation active: contextIsActive
 
 	| thePC code host fileCode mapped |
 	thePC := ([ anActivation isDead ] on: Error do: [ :e | false ])
-		         ifTrue: [ [ anActivation compiledCode endPC ] on: Error do: [ :e | anActivation pc ] ]
+		         ifTrue: [ [ anActivation endPC ] on: Error do: [ :e | anActivation pc ] ]
 		         ifFalse: [ anActivation pc ].
 	thePC ifNil: [ ^ 1 to: 0 ].
 	contextIsActive ifFalse: [ thePC := thePC - 1 ].
