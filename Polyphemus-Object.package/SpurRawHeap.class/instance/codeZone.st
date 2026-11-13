@@ -5,9 +5,5 @@ codeZone
 	10, codeBase to limitAddress on VM 9 (as StuckReport>>codeZoneOf:); false where it says nothing."
 
 	^ codeZone ifNil: [
-		  codeZone := [ (vmVariables at: 'codeZoneStart') -> (vmVariables at: 'codeZoneEnd') ]
-			              on: Error
-			              do: [ :e |
-				              [ (vmVariables at: 'codeBase') -> (vmVariables at: 'limitAddress') ]
-					              on: Error
-					              do: [ :e2 | false ] ] ]
+		  codeZone := (self statedFrom: 'codeZoneStart' to: 'codeZoneEnd') ifNil: [
+			              (self statedFrom: 'codeBase' to: 'limitAddress') ifNil: [ false ] ] ]

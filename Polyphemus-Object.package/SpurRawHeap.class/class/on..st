@@ -14,7 +14,7 @@ on: aDump
 			          detect: [ :each | each holdsAddress: stated ]
 			          ifNone: [ nil ] ]) ifNil: [
 		         aDump loadableSegments detectMax: [ :each | each sizeInFile ] ].
-	end := [ variables at: 'endOfMemory' ] on: Error do: [ :error | nil ].
+	end := self whereTheVMSays: [ variables at: 'endOfMemory' ].
 	(end isInteger and: [ end > first address ]) ifFalse: [ end := nil ].
 	^ (self on: aDump from: first address to: (self limitOf: first in: aDump endingBy: end))
 		  setVMVariables: variables;

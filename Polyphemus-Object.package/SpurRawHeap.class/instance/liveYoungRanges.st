@@ -4,7 +4,7 @@ liveYoungRanges
 	"Past space from its start to pastSpaceStart, eden from its start to freeStart, as the
 	VM kept them; nil unless both lie in new space."
 
-	^ [
+	^ self class whereTheVMSays: [
 	  | variables ranges |
 	  variables := self vmVariables.
 	  ranges := {
@@ -15,5 +15,3 @@ liveYoungRanges
 			   each key <= each value and: [ each value <= self newSpaceLimit ] ] ])
 		  ifTrue: [ ranges ]
 		  ifFalse: [ nil ] ]
-		  on: Error
-		  do: [ :e | nil ]
