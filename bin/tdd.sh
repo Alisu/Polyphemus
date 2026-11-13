@@ -73,9 +73,20 @@ else
 echo "== rebuilding warm.image =="
 cp -f dev.image warm.image
 cp -f dev.changes warm.changes
-warm=$( { timeout 600 ./pharo warm.image --no-default-preferences st "$HERE/build-warm.st" 2>/dev/null;
+warm=$( { timeout 600 ./pharo warm.image --no-default-preferences st "$HERE/build-warm.st" 2>.warm-stderr;
   echo "EXIT $?"; } | tr -d '\033')
 grep -E 'fixture ready|WARM ERR' <<<"$warm"
+# A virtual machine that ended with no word from the script (a crash, the time limit): its status,
+# the last step done, and the start and end of what it said, on one line bin/ci-verdict.sh quotes.
+if ! grep -q '^WARM ERR' <<<"$warm" && ! grep -q '^EXIT 0$' <<<"$warm"; then
+  echo "WARM ERR its virtual machine ended with status $(sed -n 's/^EXIT //p' <<<"$warm" | tail -n 1)," \
+    "after: $(grep ' ready$' <<<"$warm" | tail -n 1); its last words:" \
+    "$(tr -d '\033\r' < .warm-stderr 2>/dev/null | awk 'NF { l[++n] = $0 }
+      END { for (i = 1; i <= n; i++)
+              if (n <= 13 || i <= 5 || i > n - 8) printf "%s%s", (c++ ? " / " : ""), l[i]
+              else if (i == 6) printf " / [...]" }')"
+fi
+rm -f .warm-stderr
 # Kept as built from this working copy only if it was: a broken one would be reused by every run.
 if grep -q '^WARM ERR' <<<"$warm" || ! grep -q '^EXIT 0$' <<<"$warm"; then
   echo "!! warm.image was not built from the working copy"

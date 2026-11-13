@@ -21,6 +21,11 @@ case "$*" in
     echo "SYNC 0 classes created, 0 methods compiled, 0 removed" ;;
   *build-warm*)
     if [ -n "${STUB_WARM_FAILS:-}" ]; then echo "WARM ERR fixture :: it broke"; exit 1; fi
+    if [ -n "${STUB_WARM_DIES:-}" ]; then
+      echo "stack page fixture ready"; echo "candle snapshot ready"
+      echo "pharo-vm starting" >&2; echo "Segmentation fault" >&2
+      [ -n "${STUB_WARM_SAYS_MUCH:-}" ] && { seq 1 40 >&2; echo "the last frame" >&2; }
+      exit 139; fi
     echo "fixture ready" ;;
 esac
 STUB
@@ -33,6 +38,26 @@ WORK="$WORK" PREPARE_ONLY=1 STUB_WARM_FAILS=1 "$REPO/bin/tdd.sh" > "$WORK/out" 2
 rc=$?
 check "a failed warm build fails" "[ $rc -ne 0 ]"
 check "a failed warm build is not kept as current" "[ ! -f $WORK/.warm-fingerprint ]"
+rm -rf "$WORK"
+
+# One whose virtual machine ended with no word from the script says how: its status, the last
+# step done and the machine's last words, on a line bin/ci-verdict.sh takes as what stopped the job.
+setup
+WORK="$WORK" PREPARE_ONLY=1 STUB_WARM_DIES=1 "$REPO/bin/tdd.sh" > "$WORK/out" 2>&1
+rc=$?
+check "a warm build whose virtual machine died fails" "[ $rc -ne 0 ]"
+check "it says the status it ended with" "grep -q '^WARM ERR .*status 139' $WORK/out"
+check "it says the last step that was done" "grep -q '^WARM ERR .*after: candle snapshot ready' $WORK/out"
+check "it says the machine's last words, on that line" "grep -q '^WARM ERR .*pharo-vm starting / Segmentation fault' $WORK/out"
+rm -rf "$WORK"
+
+# A crash report is long: its start names the signal, its end the last frame; the middle is left out.
+setup
+WORK="$WORK" PREPARE_ONLY=1 STUB_WARM_DIES=1 STUB_WARM_SAYS_MUCH=1 "$REPO/bin/tdd.sh" > "$WORK/out" 2>&1
+check "a long report keeps its start and its end" \
+  "grep -q '^WARM ERR .*pharo-vm starting / Segmentation fault / 1 / 2 / 3 / \[...\] / .* / 40 / the last frame\$' $WORK/out"
+check "and leaves its middle out" "! grep -q ' / 20 / ' $WORK/out"
+check "nothing of it is left in the setup" "[ ! -f $WORK/.warm-stderr ]"
 rm -rf "$WORK"
 
 # One that built is.
