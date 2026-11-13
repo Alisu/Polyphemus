@@ -14,6 +14,5 @@ stackFrom: anActivation ofSize: anInteger
 		seen add: current.
 		activations add: current.
 		current := [ current sender ] on: Error do: [ :e | nil ].
-		(current notNil and: [ [ current isNilOop ] on: Error do: [ :e | false ] ])
-			ifTrue: [ current := nil ] ].
+		(current notNil and: [ current isNilOop ]) ifTrue: [ current := nil ] ].
 	^ activations
