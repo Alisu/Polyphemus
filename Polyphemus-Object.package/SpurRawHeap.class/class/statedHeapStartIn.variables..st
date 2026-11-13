@@ -5,4 +5,4 @@ statedHeapStartIn: aSpace variables: someVMVariables
 	does, in nilObj. nil when neither can be read."
 
 	aSpace oldBaseAddress ifNotNil: [ :start | ^ start ].
-	^ [ someVMVariables at: 'nilObj' ] on: Error do: [ :e | nil ]
+	^ self whereTheVMSays: [ someVMVariables at: 'nilObj' ]

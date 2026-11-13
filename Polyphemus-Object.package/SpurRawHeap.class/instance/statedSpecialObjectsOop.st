@@ -7,7 +7,7 @@ statedSpecialObjectsOop
 
 	| stated |
 	stated := space specialObjectsOop ifNil: [
-		          [ self vmVariables at: 'specialObjectsOop' ] on: Error do: [ :error | ^ nil ] ].
+		          self stated: 'specialObjectsOop' ].
 	^ ((stated isInteger and: [ stated between: mappingStart and: mappingLimit - 1 ]) and: [
 		   self scanner looksLikeTheSpecialObjectsArrayAt: stated from: heapStart ])
 		  ifTrue: [ stated ]

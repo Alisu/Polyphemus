@@ -6,10 +6,10 @@ findYoungMapping
 	VM 9 has it just before old space, in the same mapping."
 
 	| start end |
-	start := [ vmVariables at: 'newSpaceStart' ] on: Error do: [ ^ self ].
+	start := (self stated: 'newSpaceStart') ifNil: [ ^ self ].
 	(start between: mappingStart and: mappingLimit - 1) ifTrue: [ ^ self ].
 	(space hasAddress: start) ifFalse: [ ^ self ].
-	end := [ vmVariables newSpaceEnd ] on: Error do: [ ^ self ].
+	end := (self class whereTheVMSays: [ self vmVariables newSpaceEnd ]) ifNil: [ ^ self ].
 	(end > start and: [ end - start <= (1 bitShift: 32) and: [ space hasAddress: end - 1 ] ]) ifFalse: [
 		^ self ].
 	youngMappingStart := start.

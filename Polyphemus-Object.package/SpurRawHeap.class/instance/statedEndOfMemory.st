@@ -6,7 +6,7 @@ statedEndOfMemory
 	free chunk before the last of them (#46)."
 
 	| stated |
-	stated := [ self vmVariables at: 'endOfMemory' ] on: Error do: [ :error | ^ nil ].
+	stated := self stated: 'endOfMemory'.
 	^ (stated isInteger and: [ stated between: heapStart and: mappingLimit ])
 		  ifTrue: [ stated ]
 		  ifFalse: [ nil ]
