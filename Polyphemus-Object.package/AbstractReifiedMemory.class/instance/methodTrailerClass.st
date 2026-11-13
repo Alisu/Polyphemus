@@ -5,7 +5,7 @@ methodTrailerClass
 	CompiledMethod answers trailerSize -- and Pharo's variable ones before, Candle's too."
 
 	^ self rememberedAt: 'methodTrailerClass' ifAbsentPut: [
-		  ([ (self oopClassNamed: 'CompiledMethod') oopClass methodNamed: 'trailerSize' ]
+		  ([ (self oopClassNamed: 'CompiledMethod') oopClass methodNamed: 'trailerSize' ifAbsent: [ nil ] ]
 			   on: Error
 			   do: [ :e | nil ])
 			  ifNil: [ OOPVariableMethodTrailer ]

@@ -1,9 +1,6 @@
 reading
 isMachineCodeFrame: aFramePointer
 
-	"CoInterpreter>>isMachineCodeFrame:: the method field points below the heap."
+	"Never: the StackInterpreter compiles no machine code, so no frame of its runs any."
 
-	^ [ (self wordAt: aFramePointer - memory wordSize)
-	  < memory interpreter objectMemory startOfMemory ]
-		  on: Error
-		  do: [ :e | false ]
+	^ false
