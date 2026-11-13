@@ -5,4 +5,4 @@ labelForProcess: aProcess
 	  , ' priority '
 	  , ([ (aProcess reifiedSlotAt: reifiedMemory processPrioritySlot) asInteger printString ]
 			 on: Error do: [ :e | '?' ])
-	  , ' (' , (reifiedMemory contextsOfProcess: aProcess) size printString , ' frames)'
+	  , ' (' , (reifiedMemory activationsOfProcess: aProcess) size printString , ' frames)'
