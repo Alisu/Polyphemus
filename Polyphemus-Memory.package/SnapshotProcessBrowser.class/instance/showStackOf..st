@@ -3,4 +3,4 @@ showStackOf: aProcess
 
 	aProcess
 		ifNil: [ frameList items: #(  ) ]
-		ifNotNil: [ frameList items: (reifiedMemory contextsOfProcess: aProcess) asArray ]
+		ifNotNil: [ frameList items: (reifiedMemory activationsOfProcess: aProcess) asArray ]
