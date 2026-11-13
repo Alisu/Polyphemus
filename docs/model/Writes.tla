@@ -16,17 +16,23 @@
      other survivor space, pastSpaceStart stored from what the copying reached, freeStart back at
      eden's start, the flag cleared.
    The observer's writes are those of SpurWritableProcess: allocateSlots:..., remember:. Each is
-   whole within one stop. *)
+   whole within one stop.
+   Since 2026-11-13 a reading too: an object the VM makes is there, below freeStart, before its
+   header is (the JIT) and before its slots are filled (the JIT, and C's callers), so a stop can
+   show the newest one half made. Never more than the newest: the VM fills one before it makes
+   the next, or its own collector would meet it. *)
 
 EXTENDS Naturals
 
 CONSTANTS
     Where,      \* "eden": objects made at freeStart (until 2026-11-12); "past": at pastSpaceStart
-    StopWhen,   \* the stop a write is made at: "any" | "outsideCollection" |
+    ReadsNewest, \* TRUE: a reading takes every object below freeStart; FALSE: all but the newest
+    StopWhen,   \* the stop a write or a reading is made at: "any" | "outsideCollection" |
                 \*   "outsideMachineCode" (and outside a collection) |
                 \*   "outsideRemembering" (and outside a collection; not in the code) |
                 \*   "machineCodeOrQuiet" (outside a collection: in machine code the VM is in none
-                \*   of its own routines) | "quiet"
+                \*   of its own routines) | "safePoint" (the VM between two things it does: the
+                \*   real safe point of #167, not in the code) | "quiet"
     MaxOps,     \* operations the VM starts
     MaxWrites   \* stops at which the observer writes
 
@@ -35,18 +41,21 @@ Cells == 0..5
 VARIABLES
     free,       \* freeStart, as a cell of eden
     past,       \* pastSpaceStart, as a cell of past space
-    eden,       \* [Cells -> "none" | "vm" | "obs"]: whose object starts at that cell
+    eden,       \* [Cells -> "none" | "half" (the VM's, its slots not filled) | "vm" | "obs"]:
+                \*   whose object starts at that cell
     survivors,  \* [Cells -> ...]: the same for past space
     rsSize,     \* rememberedSetSize
     rs,         \* [Cells -> ...]: whose entry is at that index of the remembered set
     gc,         \* gcPhaseInProgress
     pc,         \* the VM: "idle" | "kernel" (at rest in a system call) | "jitLoaded" | "jitStored"
-                \*   | "cLoaded" | "cHeader" | "remLoaded" | "remStored" | "scavCopied"
+                \*   | "jitHeader" | "cLoaded" | "cHeader" | "cStored" | "remLoaded" | "remStored"
+                \*   | "scavCopied"
     reg,        \* what the VM's register holds
     stopped,    \* stopped by the observer
     ops, writes,
     bad         \* [over: an object written over a live one of the other side,
-                \*  lost: an entry of the remembered set written over or left past its size]
+                \*  lost: an entry of the remembered set written over or left past its size,
+                \*  half: a reading took an object with no header yet, or its slots not filled]
 
 vars == <<free, past, eden, survivors, rsSize, rs, gc, pc, reg, stopped, ops, writes, bad>>
 
@@ -55,7 +64,7 @@ None == [c \in Cells |-> "none"]
 Init ==
     /\ free = 0 /\ past = 0 /\ eden = None /\ survivors = None /\ rsSize = 0 /\ rs = None
     /\ gc = FALSE /\ pc = "idle" /\ reg = 0 /\ stopped = FALSE /\ ops = 0 /\ writes = 0
-    /\ bad = [over |-> FALSE, lost |-> FALSE]
+    /\ bad = [over |-> FALSE, lost |-> FALSE, half |-> FALSE]
 
 Over(space, cell) == space[cell] # "none"
 
@@ -83,10 +92,15 @@ JitStore ==
     /\ UNCHANGED <<past, eden, survivors, rsSize, rs, gc, reg, stopped, ops, writes, bad>>
 
 JitHeader ==
-    /\ Runs /\ pc = "jitStored" /\ pc' = "idle"
+    /\ Runs /\ pc = "jitStored" /\ pc' = "jitHeader"
     /\ bad' = [bad EXCEPT !.over = @ \/ Over(eden, reg)]
-    /\ eden' = [eden EXCEPT ![reg] = "vm"]
+    /\ eden' = [eden EXCEPT ![reg] = "half"]
     /\ UNCHANGED <<free, past, survivors, rsSize, rs, gc, reg, stopped, ops, writes>>
+
+JitFill ==
+    /\ Runs /\ pc = "jitHeader" /\ pc' = "idle"
+    /\ eden' = [eden EXCEPT ![reg] = "vm"]
+    /\ UNCHANGED <<free, past, survivors, rsSize, rs, gc, reg, stopped, ops, writes, bad>>
 
 \* C's allocation: freeStart read, the header, then freeStart stored.
 CLoad ==
@@ -96,12 +110,18 @@ CLoad ==
 CHeader ==
     /\ Runs /\ pc = "cLoaded" /\ pc' = "cHeader"
     /\ bad' = [bad EXCEPT !.over = @ \/ Over(eden, reg)]
-    /\ eden' = [eden EXCEPT ![reg] = "vm"]
+    /\ eden' = [eden EXCEPT ![reg] = "half"]
     /\ UNCHANGED <<free, past, survivors, rsSize, rs, gc, reg, stopped, ops, writes>>
 
 CStore ==
-    /\ Runs /\ pc = "cHeader" /\ free' = reg + 1 /\ pc' = "idle"
+    /\ Runs /\ pc = "cHeader" /\ free' = reg + 1 /\ pc' = "cStored"
     /\ UNCHANGED <<past, eden, survivors, rsSize, rs, gc, reg, stopped, ops, writes, bad>>
+
+\* The routine that asked for the object fills its slots.
+CFill ==
+    /\ Runs /\ pc = "cStored" /\ pc' = "idle"
+    /\ eden' = [eden EXCEPT ![reg] = "vm"]
+    /\ UNCHANGED <<free, past, survivors, rsSize, rs, gc, reg, stopped, ops, writes, bad>>
 
 \* Remembering, in C: the size read, the entry stored, the size stored.
 RemLoad ==
@@ -135,14 +155,14 @@ ScavEnd ==
     /\ UNCHANGED <<survivors, rsSize, rs, reg, stopped, ops, writes>>
 
 VMSteps ==
-    Rest \/ JitLoad \/ JitStore \/ JitHeader \/ CLoad \/ CHeader \/ CStore
+    Rest \/ JitLoad \/ JitStore \/ JitHeader \/ JitFill \/ CLoad \/ CHeader \/ CStore \/ CFill
     \/ RemLoad \/ RemEntry \/ RemStore \/ ScavStart \/ ScavEnd
 
 ----------------------------------------------------------------------------
 (* The observer: a stop wherever the VM is, a look at what the stop can tell, and, when that
    allows it, an object made and the old object naming it remembered; then the VM runs on. *)
 
-InMachineCode == pc \in {"jitLoaded", "jitStored"}
+InMachineCode == pc \in {"jitLoaded", "jitStored", "jitHeader"}
 
 \* Inside the VM's routine that remembers: its instruction pointer says so.
 Remembering == pc \in {"remLoaded", "remStored"}
@@ -153,23 +173,31 @@ MayWrite ==
       [] StopWhen = "outsideMachineCode" -> ~gc /\ ~InMachineCode
       [] StopWhen = "outsideRemembering" -> ~gc /\ ~Remembering
       [] StopWhen = "machineCodeOrQuiet" -> ~gc /\ (InMachineCode \/ pc = "kernel")
+      [] StopWhen = "safePoint" -> ~gc /\ pc \in {"idle", "kernel"}
       [] StopWhen = "quiet" -> pc = "kernel"
 
 Stop ==
     /\ ~stopped /\ writes < MaxWrites /\ stopped' = TRUE
     /\ UNCHANGED <<free, past, eden, survivors, rsSize, rs, gc, pc, reg, ops, writes, bad>>
 
-\* allocateSlots:format:classIndex:filledWith:, then remember:, both whole within the stop.
+(* What a reading of eden takes at this stop: every cell below freeStart, or all but the newest.
+   One with no header yet, or its slots not filled, is a half-made object read. *)
+Taken == {c \in Cells : c < (IF ReadsNewest \/ free = 0 THEN free ELSE free - 1)}
+ReadsHalf == \E c \in Taken : eden[c] \in {"none", "half"}
+
+\* A reading, then allocateSlots:format:classIndex:filledWith: and remember:, whole within the stop.
 Write ==
     /\ stopped /\ MayWrite /\ rsSize < 5
     /\ IF Where = "eden"
        THEN /\ free < 5
             /\ eden' = [eden EXCEPT ![free] = "obs"] /\ free' = free + 1
-            /\ bad' = [bad EXCEPT !.over = @ \/ Over(eden, free), !.lost = @ \/ rs[rsSize] # "none"]
+            /\ bad' = [bad EXCEPT !.over = @ \/ Over(eden, free), !.lost = @ \/ rs[rsSize] # "none",
+                                 !.half = @ \/ ReadsHalf]
             /\ UNCHANGED <<past, survivors>>
        ELSE /\ past < 5
             /\ survivors' = [survivors EXCEPT ![past] = "obs"] /\ past' = past + 1
-            /\ bad' = [bad EXCEPT !.over = @ \/ Over(survivors, past), !.lost = @ \/ rs[rsSize] # "none"]
+            /\ bad' = [bad EXCEPT !.over = @ \/ Over(survivors, past), !.lost = @ \/ rs[rsSize] # "none",
+                                 !.half = @ \/ ReadsHalf]
             /\ UNCHANGED <<free, eden>>
     /\ rs' = [rs EXCEPT ![rsSize] = "obs"] /\ rsSize' = rsSize + 1
     /\ writes' = writes + 1 /\ stopped' = FALSE
@@ -191,4 +219,7 @@ NoObjectWrittenOver == ~bad.over
 
 \* No entry of the remembered set is written over, or left beyond its size.
 NoRememberedLost == ~bad.lost
+
+\* No reading takes an object the VM has not finished making.
+NoHalfMadeObjectRead == ~bad.half
 =============================================================================

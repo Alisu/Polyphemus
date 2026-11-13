@@ -128,13 +128,16 @@ for design in "TRUE FALSE" "TRUE TRUE" "FALSE FALSE" "FALSE TRUE"; do
   done
 done
 
-# Writes: an observer making an object and remembering it in a VM stopped wherever it is (#167,
-# #137): objects made in eden or at the end of past space, at each kind of stop.
+# Writes: an observer reading eden, making an object and remembering it in a VM stopped wherever
+# it is (#167, #137): objects made in eden or at the end of past space, at each kind of stop; then
+# a reading that leaves out the newest object of eden.
 for where in eden past; do
-  for when in any outsideCollection outsideMachineCode outsideRemembering machineCodeOrQuiet quiet; do
-    for prop in "INVARIANT NoObjectWrittenOver" "INVARIANT NoRememberedLost"; do
-      check Writes "$prop" "made in=$where stop=$when" "Where=\"$where\"" "StopWhen=\"$when\"" MaxOps=3 MaxWrites=2
+  for when in any outsideCollection outsideMachineCode outsideRemembering machineCodeOrQuiet safePoint quiet; do
+    for prop in "INVARIANT NoObjectWrittenOver" "INVARIANT NoRememberedLost" "INVARIANT NoHalfMadeObjectRead"; do
+      check Writes "$prop" "made in=$where stop=$when" "Where=\"$where\"" "StopWhen=\"$when\"" ReadsNewest=TRUE MaxOps=3 MaxWrites=2
     done
   done
 done
-
+for when in any outsideCollection outsideMachineCode outsideRemembering machineCodeOrQuiet safePoint quiet; do
+  check Writes "INVARIANT NoHalfMadeObjectRead" "newest left out stop=$when" "Where=\"past\"" "StopWhen=\"$when\"" ReadsNewest=FALSE MaxOps=3 MaxWrites=2
+done
