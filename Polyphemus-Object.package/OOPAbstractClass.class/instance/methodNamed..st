@@ -1,3 +1,4 @@
 finding
-methodNamed: aString 
-	^ self reifiedMethods detect: [ :m | m oopSelector asString = aString ]
+methodNamed: aString
+
+	^ self methodNamed: aString ifAbsent: [ NotFound signalFor: aString ]
