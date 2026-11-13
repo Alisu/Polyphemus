@@ -25,4 +25,5 @@ readFrom: aFileReference
 			                       inFile: size
 			                       inMemory: size.
 		            rva := rva + size.
-		            segment ]
+		            segment ].
+	self holdSegmentsToTheFile
