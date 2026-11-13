@@ -9,7 +9,7 @@ remember: anOop
 	(self isYoung: anOop) ifTrue: [ ^ false ].
 	header := self wordAt: anOop.
 	((header bitShift: -29) bitAnd: 1) = 1 ifTrue: [ ^ false ].
-	(ProcessMemory whyNotToAllocateIn: self variables) ifNotNil: [ :why |
+	(process class whyNotToAllocateIn: self variables) ifNotNil: [ :why |
 		^ CannotWriteThere signal: 'that image is not told of an old object now: its VM was stopped ' , why ].
 	size := self variables at: 'rememberedSetSize'.
 	size + 1 >= (self variables at: 'rememberedSetLimit') ifTrue: [ ^ CannotWriteThere signal: 'that image''s remembered set is full' ].

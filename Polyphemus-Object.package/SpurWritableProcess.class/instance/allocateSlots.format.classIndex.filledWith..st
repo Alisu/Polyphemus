@@ -6,7 +6,7 @@ allocateSlots: aCount format: aFormat classIndex: anIndex filledWith: aWord
 	goes in an overflow word before the header. Refused in a collection, which moves that end (#167)."
 
 	| start address bytes |
-	(ProcessMemory whyCollectingIn: self variables) ifNotNil: [ :why |
+	(process class whyCollectingIn: self variables) ifNotNil: [ :why |
 		^ CannotWriteThere signal: 'nothing is made in that image now: its VM was stopped ' , why ].
 	start := self variables at: 'pastSpaceStart'.
 	address := aCount >= 255 ifTrue: [ start + 8 ] ifFalse: [ start ].
