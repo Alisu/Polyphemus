@@ -16,6 +16,7 @@ DamagedCandleImageTest 15
 DamagedPharoImageTest 140
 DebugSessionRepairTest 4
 DebuggerOnAReadingTest 37
+DefectsReadingStacksTest 60
 DirectoryChannelTest 15
 DumpImageCacheKeyTest 4
 ElfCoreDumpTest 4

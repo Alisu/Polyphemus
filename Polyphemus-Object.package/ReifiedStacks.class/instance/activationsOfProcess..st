@@ -12,7 +12,7 @@ activationsOfProcess: aProcessOop
 		           ifUnreadable: [ nil ].
 	context ifNil: [ ^ activations ].
 
-	frames := ([ context isNilOop ] on: Error do: [ :e | false ])
+	frames := context isNilOop
 		          ifTrue: [ self framesOfProcessWithoutContext: aProcessOop ]
 		          ifFalse: [ self framesFromContext: context ].
 	(frames isEmpty and: [ (self isMarriedContext: context) not ]) ifTrue: [

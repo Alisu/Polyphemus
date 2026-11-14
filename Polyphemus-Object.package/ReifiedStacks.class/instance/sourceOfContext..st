@@ -7,5 +7,5 @@ sourceOfContext: anActivation
 	(memory sourceReadability canRead: #source) ifFalse: [ ^ nil ].
 
 	^ [ (self homeMethodOf: anActivation compiledCode) sourceCode ]
-		  on: Error
+		  on: PolyphemusError
 		  do: [ :e | nil ]

@@ -5,6 +5,6 @@ damagedImagePath
 
 	| clean damaged |
 	clean := PharoImageAccessor pathToPharo10 asFileReference.
-	damaged := clean parent / 'cleanP10-damaged-3.image'.
+	damaged := clean parent / 'cleanP10-damaged-4.image'.
 	damaged exists ifFalse: [ self buildDamagedCopyFrom: clean to: damaged ].
 	^ damaged fullName

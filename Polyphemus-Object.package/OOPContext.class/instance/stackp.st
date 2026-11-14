@@ -1,6 +1,6 @@
 context protocol
 stackp
 
-	| slot |
-	slot := self reifiedSlotAt: memory stacks contextStackPointerSlot.
-	^ slot isNilOop ifTrue: [ 0 ] ifFalse: [ slot asInteger ]
+	"How many slots of its stack are in use. Refused when it is no integer (#196)."
+
+	^ self integerInSlot: memory stacks contextStackPointerSlot called: 'stack pointer' ifNil: [ 0 ]

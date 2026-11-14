@@ -2,7 +2,8 @@ contexts
 contextsFrom: aContext
 
 	"Senders from this context down, top first, stopping at nil, at anything that is not a
-	context, and on a context already seen -- all three of which a damaged image can hold."
+	context, at a sender that does not read and on a context already seen -- all of which a
+	damaged image can hold, and #contextInconsistencies says which."
 
 	| contexts seen current nilObject |
 	contexts := OrderedCollection new.
@@ -12,8 +13,8 @@ contextsFrom: aContext
 	[ current isNil
 		or: [ current = nilObject
 		or: [ (seen includes: current)
-		or: [ ([ current isContextOop ] on: Error do: [ :e | false ]) not ] ] ] ] whileFalse: [
+		or: [ current isContextOop not ] ] ] ] whileFalse: [
 		seen add: current.
 		contexts add: current.
-		current := [ self senderOf: current ] on: Error do: [ :e | nil ] ].
+		current := [ self senderOf: current ] on: PolyphemusError do: [ :e | nil ] ].
 	^ contexts
