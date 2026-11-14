@@ -1,0 +1,1 @@
+What VMMaker's memory signals for an address it holds nothing at, named as one thing to catch: `on: OutsideTheSimulatorsMemory do:`. No region for the address is its KeyNotFound; past the bytes of its last region, in Pharo 10's VMMaker, a PrimitiveFailed. A class and not an ExceptionSet made at each read: a slot is read millions of times (#118).
