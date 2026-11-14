@@ -1,7 +1,8 @@
 running
-questionsOf: aContext
+whatIsShownOf: aContext
 
-	"What a stack, a context and the reading are asked about an activation, each named."
+	"What the tools show of an activation, its stack and the reading, each named: these answer,
+	whatever the damage."
 
 	| stacks |
 	stacks := reifiedMemory stacks.
@@ -22,6 +23,5 @@ questionsOf: aContext
 		  ('tempNamesOf:' -> [ reifiedMemory tempNamesOf: aContext ]).
 		  ('processStates' -> [ reifiedMemory processStates ]).
 		  ('processInconsistencies' -> [ reifiedMemory processInconsistencies ]) }
-	  , (#( #sender #pc #stackp #compiledCode #homeMethod #selector #startpc #endPC #isBlockContext
-		     #isDead #receiver #closureOrNil #outerContext #home #method #methodClass #sourceCode
-		     #tempNames #printString ) collect: [ :each | each -> [ aContext perform: each ] ])
+	  , (#( #selector #startpc #endPC #sourceCode #tempNames #printString ) collect: [ :each |
+			   each -> [ aContext perform: each ] ])

@@ -4,7 +4,7 @@ testADefectReadingAFrameIsNotAFrameWithoutHighlight
 	"#118: a bug of our own while a frame was read for its highlight gave a frame with none."
 
 	| memory frame |
-	#( #isDead #isBlockContext ) do: [ :each |
+	#( #isDead #isBlockContext #receiver ) do: [ :each |
 		memory := self memory forgetWhatWasRead; yourself.
 		frame := self frameOf: memory described: self methodFrame.
 		self

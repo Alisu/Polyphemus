@@ -1,0 +1,4 @@
+tests
+testNoDamageOfTheMiddleFrameMakesAQuestionFailWithAnErrorThatIsNotOurs
+
+	self assertEveryQuestionIsAnsweredOrRefusedByNameWithTheFrameDamagedAt: 2

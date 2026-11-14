@@ -1,8 +1,11 @@
 initialization
 computeCaller: aCogStackPage
 
-	caller := OOPAbstractStackFrame
-		          newFrameBelow: self
-		          starting: (self layout wordAt: framePointer)
-		          from: aCogStackPage
-		          on: memory
+	"The frame below, where the saved frame pointer leads down the page to one."
+
+	(self callerFramePointerOn: aCogStackPage) ifNotNil: [ :saved |
+		caller := OOPAbstractStackFrame
+			          newFrameBelow: self
+			          starting: saved
+			          from: aCogStackPage
+			          on: memory ]
