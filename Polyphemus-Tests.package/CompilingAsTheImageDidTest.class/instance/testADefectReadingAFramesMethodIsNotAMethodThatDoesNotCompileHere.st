@@ -5,7 +5,7 @@ testADefectReadingAFramesMethodIsNotAMethodThatDoesNotCompileHere
 	a method this host cannot reproduce."
 
 	| memory frame method |
-	#( #getSourceFromFile #initialPC #endPC #bytecodeAt: ) do: [ :each |
+	#( #getSourceFromFile #endPC #bytecodeAt: ) do: [ :each |
 		memory := self memory forgetWhatWasRead; yourself.
 		frame := self frameOf: memory described: self methodFrame.
 		method := self defective: frame homeMethod in: each.

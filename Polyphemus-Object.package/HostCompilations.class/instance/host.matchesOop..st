@@ -6,7 +6,7 @@ host: aHostCode matchesOop: anOopCode
 
 	| first last ours theirs |
 	^ [
-	  first := [ anOopCode initialPC ] on: PolyphemusError do: [ :e | 1 ].
+	  first := anOopCode initialPC.
 	  last := [ anOopCode endPC ]
 		          on: PolyphemusError
 		          do: [ :e | first + anOopCode numberOfBytecodes - 1 ].

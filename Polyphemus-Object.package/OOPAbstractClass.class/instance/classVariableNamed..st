@@ -7,7 +7,7 @@ classVariableNamed: aName
 	| current wanted |
 	wanted := aName asString.
 	current := self.
-	[ current isNil or: [ [ current isNilOop ] on: PolyphemusError do: [ :e | true ] ] ] whileFalse: [
+	[ current isNil or: [ current isNilOop ] ] whileFalse: [
 		| names |
 		names := [ current oopAllClassVariablesNames collect: [ :each | each asString ] ]
 			         on: PolyphemusError

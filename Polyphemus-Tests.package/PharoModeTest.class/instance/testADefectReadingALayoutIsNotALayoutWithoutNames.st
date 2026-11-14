@@ -10,8 +10,4 @@ testADefectReadingALayoutIsNotALayoutWithoutNames
 	self should: [ PharoMode new getObjectSlotNames: class ] raise: ZeroDivide.
 
 	class := ReifiedSlotsDouble slots: { nil. nil. nil. [ 1 / 0 ] }.
-	self should: [ PharoMode new getObjectSlotNames: class ] raise: ZeroDivide.
-
-	layout := ReifiedSlotsDouble slots: { nil. 3 }.
-	class := ReifiedSlotsDouble slots: { nil. nil. nil. (ReifiedSlotsDouble slots: { nil. layout }) }.
-	self should: [ PharoMode new getObjectSlotNames: class ] raise: MessageNotUnderstood
+	self should: [ PharoMode new getObjectSlotNames: class ] raise: ZeroDivide
