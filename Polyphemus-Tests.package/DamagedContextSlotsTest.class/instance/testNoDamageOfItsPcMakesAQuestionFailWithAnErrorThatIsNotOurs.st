@@ -1,0 +1,4 @@
+tests
+testNoDamageOfItsPcMakesAQuestionFailWithAnErrorThatIsNotOurs
+
+	self assertEveryQuestionIsAnsweredOrRefusedByNameWhenDamaged: reifiedMemory stacks contextPcSlot

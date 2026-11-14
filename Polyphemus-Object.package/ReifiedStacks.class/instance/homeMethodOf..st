@@ -12,5 +12,6 @@ homeMethodOf: aCompiledCodeOop
 		seen add: code.
 		code := code lastLiteral ].
 	(code notNil and: [ code isCompiledMethodOop ]) ifFalse: [
-		^ NotInTheReading signal: 'what this activation runs is no method: ' , code printString ].
+		^ NotInTheReading signal: 'what this activation runs is no method: '
+			  , (code ifNil: [ 'nil' ] ifNotNil: [ code whatItReadsAs ]) ].
 	^ code

@@ -7,6 +7,10 @@ testAContextWhoseMethodIsATaggedWordHasNoHighlightNoNamesAndTheStackGoesOn
 
 	self assert: contexts size equals: 19.
 	self assert: (damaged reifiedSlotAt: reifiedMemory stacks contextMethodSlot) isImmediateOop.
+	self should: [ damaged compiledCode ] raise: NotInTheReading.
+	self assert: damaged startpc equals: 1.
+	self assert: damaged endPC equals: 1.
+	self assert: damaged selector equals: #unknownSelector.
 	self assert: (reifiedMemory highlightRangeOf: damaged active: false) isEmpty.
 	self assert: (reifiedMemory tempNamesOf: damaged) isEmpty.
 	self assert: (reifiedMemory descriptionOfContext: damaged) isString.

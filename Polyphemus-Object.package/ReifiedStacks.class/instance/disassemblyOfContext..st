@@ -9,7 +9,8 @@ disassemblyOfContext: anActivation
 		  | code |
 		  code := anActivation compiledCode.
 		  (code notNil and: [ code isCompiledMethodOop or: [ code isCompiledBlockOop ] ]) ifFalse: [
-			  NotInTheReading signal: 'what this activation runs is no compiled code: ' , code printString ].
+			  NotInTheReading signal: 'what this activation runs is no compiled code: '
+				  , (code ifNil: [ 'nil' ] ifNotNil: [ code whatItReadsAs ]) ].
 		  code allSymbolicBytecodes do: [ :each |
 			  stream
 				  nextPutAll: each printString;

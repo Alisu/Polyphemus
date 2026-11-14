@@ -1,0 +1,4 @@
+tests
+testNoDamageOfItsMethodMakesAQuestionFailWithAnErrorThatIsNotOurs
+
+	self assertEveryQuestionIsAnsweredOrRefusedByNameWhenDamaged: reifiedMemory stacks contextMethodSlot

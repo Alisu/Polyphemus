@@ -1,0 +1,4 @@
+tests
+testNoDamageOfItsReceiverMakesAQuestionFailWithAnErrorThatIsNotOurs
+
+	self assertEveryQuestionIsAnsweredOrRefusedByNameWhenDamaged: reifiedMemory stacks contextReceiverSlot
