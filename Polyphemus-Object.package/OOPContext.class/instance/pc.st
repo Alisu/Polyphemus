@@ -1,6 +1,6 @@
 context protocol
 pc
 
-	| slot |
-	slot := self reifiedSlotAt: memory stacks contextPcSlot.
-	^ slot isNilOop ifTrue: [ nil ] ifFalse: [ slot asInteger ]
+	"Where it is in its code; nil for one that has returned. Refused when it is no integer (#196)."
+
+	^ self integerInSlot: memory stacks contextPcSlot called: 'pc' ifNil: [ nil ]

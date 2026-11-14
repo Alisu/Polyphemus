@@ -2,7 +2,7 @@ contexts
 stackFrom: anActivation ofSize: anInteger
 
 	"An activation and all that called it, top first, frames then contexts. Stops on one already
-	seen: a damaged image may hold a loop a working VM never builds."
+	seen, and where a sender does not read or is no activation: a damaged image may hold those."
 
 	| activations current seen |
 	activations := OrderedCollection new.
@@ -13,6 +13,6 @@ stackFrom: anActivation ofSize: anInteger
 		(seen includes: current) or: [ activations size >= anInteger ] ] ] whileFalse: [
 		seen add: current.
 		activations add: current.
-		current := [ current sender ] on: Error do: [ :e | nil ].
+		current := [ current sender ] on: PolyphemusError do: [ :e | nil ].
 		(current notNil and: [ current isNilOop ]) ifTrue: [ current := nil ] ].
 	^ activations

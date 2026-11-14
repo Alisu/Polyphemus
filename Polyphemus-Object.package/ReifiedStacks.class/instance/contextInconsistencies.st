@@ -13,8 +13,9 @@ contextInconsistencies
 		stack := self contextsOfProcess: process.
 		stack ifNotEmpty: [
 			last := stack last.
-			sender := self senderOf: last.
-			sender = nilObject ifFalse: [
+			sender := [ self senderOf: last ] on: PolyphemusError do: [ :e | nil ].
+			sender ifNil: [ problems add: last -> #senderIsUnreadable ].
+			(sender isNil or: [ sender = nilObject ]) ifFalse: [
 				(stack includes: sender)
 					ifTrue: [ problems add: last -> #stackIsCircular ]
 					ifFalse: [ problems add: last -> #senderIsNotAContext ] ] ].
@@ -22,7 +23,7 @@ contextInconsistencies
 			([ | method |
 			   method := context reifiedSlotAt: self contextMethodSlot.
 			   method isCompiledMethodOop or: [ method isCompiledBlockOop ] ]
-				on: Error do: [ :e | false ]) ifFalse: [
+				on: PolyphemusError do: [ :e | false ]) ifFalse: [
 				problems add: context -> #methodIsNotCompiledCode ] ] ].
 
 	^ problems
