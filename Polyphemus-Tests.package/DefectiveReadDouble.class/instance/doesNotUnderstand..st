@@ -1,4 +1,8 @@
-reflective operations
+message handling
 doesNotUnderstand: aMessage
 
-	^ (replies at: aMessage selector ifAbsent: [ ^ aMessage sendTo: subject ]) value
+	| reply |
+	reply := replies at: aMessage selector ifAbsent: [ ^ aMessage sendTo: subject ].
+	^ reply numArgs = 0
+		  ifTrue: [ reply value ]
+		  ifFalse: [ reply valueWithArguments: aMessage arguments ]

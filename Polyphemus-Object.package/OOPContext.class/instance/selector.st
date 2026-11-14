@@ -1,5 +1,5 @@
 context protocol
 selector
 	^ [ self homeMethod oopSelector asString asSymbol ]
-		  on: Error
+		  on: PolyphemusError
 		  do: [ :e | #unknownSelector ]

@@ -8,8 +8,7 @@ homeMethodOf: aCompiledCodeOop
 	| code seen |
 	code := aCompiledCodeOop.
 	seen := Set new.
-	[ ([ code isCompiledBlockOop ] on: Error do: [ :e | false ])
-		and: [ (seen includes: code) not ] ] whileTrue: [
+	[ code notNil and: [ code isCompiledBlockOop and: [ (seen includes: code) not ] ] ] whileTrue: [
 		seen add: code.
 		code := code lastLiteral ].
 	(code notNil and: [ code isCompiledMethodOop ]) ifFalse: [

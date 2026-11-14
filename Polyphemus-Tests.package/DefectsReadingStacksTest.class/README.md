@@ -1,0 +1,1 @@
+A defect of our own while a stack, a context or its code is read comes through as itself: it is not a stack that ends, a context that is inconsistent or a line saying something is unreadable (#118). The damage itself is read in DamagedPharoImageTest.

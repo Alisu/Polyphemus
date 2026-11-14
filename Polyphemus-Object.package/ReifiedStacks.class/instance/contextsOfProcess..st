@@ -2,7 +2,7 @@ contexts
 contextsOfProcess: aProcessOop
 
 	"The stack of a process, top first, as contexts. Stops at nil, a non-context, a loop or
-	an unreadable slot, rather than raising."
+	an unreadable slot, rather than raising; #contextInconsistencies says which."
 
 	| contexts seen current nilObject |
 	contexts := OrderedCollection new.
@@ -14,8 +14,8 @@ contextsOfProcess: aProcessOop
 		           ifUnreadable: [ nilObject ].
 	[ current = nilObject
 		or: [ (seen includes: current)
-		or: [ ([ current isContextOop ] on: Error do: [ :e | false ]) not ] ] ] whileFalse: [
+		or: [ current isContextOop not ] ] ] whileFalse: [
 		seen add: current.
 		contexts add: current.
-		current := [ self senderOf: current ] on: Error do: [ :e | nilObject ] ].
+		current := [ self senderOf: current ] on: PolyphemusError do: [ :e | nilObject ] ].
 	^ contexts

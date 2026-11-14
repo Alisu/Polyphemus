@@ -5,9 +5,10 @@ highlightRangeOf: anActivation active: contextIsActive
 	rule). Identical code keeps the pc; same sends carry it over (#4); else nothing."
 
 	| thePC code host fileCode mapped |
-	thePC := ([ anActivation isDead ] on: PolyphemusError do: [ :e | false ])
-		         ifTrue: [ [ anActivation endPC ] on: PolyphemusError do: [ :e | anActivation pc ] ]
-		         ifFalse: [ anActivation pc ].
+	thePC := [
+	         anActivation isDead
+		         ifTrue: [ anActivation endPC ]
+		         ifFalse: [ anActivation pc ] ] on: PolyphemusError do: [ :e | nil ].
 	thePC ifNil: [ ^ 1 to: 0 ].
 	contextIsActive ifFalse: [ thePC := thePC - 1 ].
 

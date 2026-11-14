@@ -1,15 +1,20 @@
 contexts
-disassemblyOfContext: aContextOop
+disassemblyOfContext: anActivation
 
-	"The bytecodes a context runs, one per line, its block's own in a block: what a frame can always
-	show when the source is missing, as in a bootstrap image or a script's code."
+	"The bytecodes a frame or a context runs, one per line, its block's own in a block: what it can
+	always show when the source is missing; where they do not read, a line saying why."
 
 	^ String streamContents: [ :stream |
-		  [ (aContextOop reifiedSlotAt: self contextMethodSlot) allSymbolicBytecodes do: [ :each |
-			    stream
-				    nextPutAll: each printString;
-				    cr ] ]
-			  on: Error
+		  [
+		  | code |
+		  code := anActivation compiledCode.
+		  (code notNil and: [ code isCompiledMethodOop or: [ code isCompiledBlockOop ] ]) ifFalse: [
+			  NotInTheReading signal: 'what this activation runs is no compiled code: ' , code printString ].
+		  code allSymbolicBytecodes do: [ :each |
+			  stream
+				  nextPutAll: each printString;
+				  cr ] ]
+			  on: PolyphemusError
 			  do: [ :e |
 				  stream nextPutAll: 'bytecodes unreadable: '.
 				  stream nextPutAll: e messageText asString ] ]
