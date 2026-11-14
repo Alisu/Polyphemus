@@ -10,11 +10,11 @@ allCompiledBlocks
 	walk := nil.
 	walk := [ :code |
 	        | literals |
-	        literals := [ code allLiterals ] on: Error do: [ :e | #(  ) ].
-	        ([ code isCompiledBlockOop ] on: Error do: [ :e | false ]) ifTrue: [
+	        literals := [ code allLiterals ] on: PolyphemusError do: [ :e | #(  ) ].
+	        code isCompiledBlockOop ifTrue: [
 		        literals := literals allButLast ].
 	        literals do: [ :each |
-		        (([ each isCompiledBlockOop ] on: Error do: [ :e | false ]) and: [
+		        (each isCompiledBlockOop and: [
 			         (seen includes: each) not ]) ifTrue: [
 			        seen add: each.
 			        blocks add: each.
