@@ -8,4 +8,4 @@ testAClassIsAskedForAMethodItMayNotHave
 
 	self assert: (class methodNamed: 'noSuchMethodOfIntegers' ifAbsent: [ #none ]) equals: #none.
 	self assert: (class methodNamed: 'even' ifAbsent: [ #none ]) isCompiledMethodOop.
-	self should: [ class methodNamed: 'noSuchMethodOfIntegers' ] raise: NotFound
+	self should: [ class methodNamed: 'noSuchMethodOfIntegers' ] raise: NotInTheReading

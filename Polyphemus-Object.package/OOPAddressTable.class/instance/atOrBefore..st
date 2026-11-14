@@ -5,7 +5,7 @@ atOrBefore: anAddress
 
 	| range from |
 	range := self rangeHolding: anAddress.
-	range ifNil: [ ^ NotFound signal ].
+	range ifNil: [ ^ NotInTheReading signal: 'no object at or before ' , anAddress printStringHex ].
 	from := anAddress - (starts at: range) >> 3 + 1.
 	range to: 1 by: -1 do: [ :each |
 		| array |
@@ -13,4 +13,4 @@ atOrBefore: anAddress
 		(from min: array size) to: 1 by: -1 do: [ :index |
 			(array at: index) ifNotNil: [ :found | ^ found ] ].
 		each > 1 ifTrue: [ from := (slots at: each - 1) size ] ].
-	^ NotFound signal
+	^ NotInTheReading signal: 'no object at or before ' , anAddress printStringHex

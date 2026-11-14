@@ -1,9 +1,15 @@
 instance creation
 canHandle: address memory: memory
-	"We create abnormal objects after the reification.
-	If we encounter an error that should create an abnormal object, we signal the error that will handle it later. not perfect but it will have to do for now"
+
+	"Never itself: abnormal objects are made after the reification. A word whose class index is
+	no object's is refused here, for the reification to make one of it later."
+
 	| classIndexOf |
-	
-	classIndexOf := (memory fetchClassTagOf: address).
-	(classIndexOf < memory arrayClassIndexPun and: [ classIndexOf ~= memory isForwardedObjectClassIndexPun ]) ifTrue: [ Error signal ].
+	classIndexOf := memory fetchClassTagOf: address.
+	(classIndexOf < memory arrayClassIndexPun and: [ classIndexOf ~= memory isForwardedObjectClassIndexPun ])
+		ifTrue: [
+			^ OopIsNotAnObject new
+				  oop: address;
+				  signal: 'the word ' , address printStringHex , ' names no object: its class index is '
+					  , classIndexOf printString ].
 	^ false
