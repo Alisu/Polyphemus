@@ -5,9 +5,9 @@ blockNodeOf: anActivation in: aMethodNode
 	are dropped. nil unless block counts and argument counts agree."
 
 	| nodes blocks index code |
-	code := [ anActivation compiledCode ] on: Error do: [ :e | nil ].
+	code := [ anActivation compiledCode ] on: PolyphemusError do: [ :e | nil ].
 	code ifNil: [ ^ nil ].
-	blocks := [ anActivation homeMethod allCompiledBlocks ] on: Error do: [ :e | #(  ) ].
+	blocks := [ anActivation homeMethod allCompiledBlocks ] on: PolyphemusError do: [ :e | #(  ) ].
 	index := blocks indexOf: code.
 	index isZero ifTrue: [ ^ nil ].
 
@@ -16,7 +16,7 @@ blockNodeOf: anActivation in: aMethodNode
 	nodes size = blocks size ifFalse: [ ^ nil ].
 
 	^ ([ (nodes at: index) arguments size = code numArgs ]
-		   on: Error
+		   on: PolyphemusError
 		   do: [ :e | false ])
 		  ifTrue: [ nodes at: index ]
 		  ifFalse: [ nil ]

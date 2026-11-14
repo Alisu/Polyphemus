@@ -5,8 +5,8 @@ analysedNodeOf: anActivation
 	semantic warnings off to keep our Undeclared clean. Needs the real source. Cached."
 
 	| home receiverClass |
-	home := [ anActivation homeMethod ] on: Error do: [ :e | nil ].
-	receiverClass := [ anActivation receiver oopClass ] on: Error do: [ :e | nil ].
+	home := [ anActivation homeMethod ] on: PolyphemusError do: [ :e | nil ].
+	receiverClass := [ anActivation receiver oopClass ] on: PolyphemusError do: [ :e | nil ].
 	(home isNil or: [ receiverClass isNil ]) ifTrue: [ ^ nil ].
 
 	^ (self

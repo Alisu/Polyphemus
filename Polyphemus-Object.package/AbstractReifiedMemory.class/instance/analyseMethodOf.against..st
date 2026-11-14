@@ -5,7 +5,7 @@ analyseMethodOf: aCompiledMethod against: aClass
 	open."
 
 	| source |
-	source := [ aCompiledMethod getSourceFromFile ] on: Error do: [ :e | nil ].
+	source := [ aCompiledMethod getSourceFromFile ] on: PolyphemusError do: [ :e | nil ].
 	(source isNil or: [ source isEmpty ]) ifTrue: [ ^ nil ].
 
 	^ [

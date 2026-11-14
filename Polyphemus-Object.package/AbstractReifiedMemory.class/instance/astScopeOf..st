@@ -8,7 +8,7 @@ astScopeOf: anActivation
 	node := self analysedNodeOf: anActivation.
 	node ifNil: [ ^ OOPSnapshotScope new ].
 
-	([ anActivation isBlockContext ] on: Error do: [ :e | false ]) ifFalse: [
+	([ anActivation isBlockContext ] on: PolyphemusError do: [ :e | false ]) ifFalse: [
 		^ node scope ].
 
 	^ (self blockNodeOf: anActivation in: node)
