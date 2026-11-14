@@ -11,6 +11,69 @@ its release on GitHub; what is on stage2 since the last tag comes first.
 
 ## Since v0.1.0 (stage2)
 
+- **A damaged image reads on, the damage in its place (#118)**: a slot, a class variable or an
+  instance variable name that does not read stands as unreadable where it is, keeping its index
+  and the reading's reason, where the inspector showed nil or stopped. A class pool that is no
+  object, a context whose method is no method, a process whose list is no object: each is said,
+  and the rest of the image reads (`DamagedPharoImageTest`, an image with five words of its file
+  overwritten). What Polyphemus signals itself is a `PolyphemusError`, raised by name
+  (`NotInTheReading`, `CannotWriteThere`, `StaleReading`, `HoldFailed`, `OnlyRead`, ...), and its
+  handlers catch those only: a defect of its own is no longer shown as damage in the image.
+- **A core or minidump cut short (#182)**: one written to a full disk or under a ulimit reads what
+  it holds and says where it ends (`cutShort`), and the heap check refuses with
+  `#itsFileIsCutShort` when it finds no heap in it. A core Polyphemus writes ends a region where
+  it stopped reading, its header saying how much the file holds, where it wrote zeros. An image
+  written from a dump refuses a VM variable or a stack that does not read, where it wrote 0 or
+  dropped it. A free tree that loops, and a new space whose stated end is not held, no longer
+  misread a damaged dump.
+- **A process whose stack is on more than one page is read whole (#183)**: a process 300 sends
+  deep read as 17 activations, the walk stopping at the first page's married caller. The process
+  browser on a core or a running VM shows, counts and sorts the processes by their activations,
+  the running one included, where it showed it with no frame.
+- **Frames answer as contexts do (#176, #184)**: a frame's operand stack ends where the VM ends it,
+  and `stackp` is the count the VM gives; `executedPC` is the bytecode the frame executes; a
+  block's `home` and `outerContext` are the activation its closure was made in, the outer
+  method's temporaries resolved there; a method says whether it is a primitive, and whether quick;
+  a jitted method counts its arguments and temporaries from its header.
+- **A class made moments ago (#189)**: a reading after a step took the last reading's classes over,
+  a young class among them, which a scavenge had moved: a save into it compiled into
+  `Invalid ClassName`. Young classes are wrapped afresh, and a save into a class whose name does
+  not read is refused before the image is asked anything.
+- **The watcher is made at the end of past space (#167, #137)**: it went in eden, where a VM
+  stopped inside the JIT's own allocation made its next object over it once it ran on (the
+  watcher's semaphore, four first holds in forty in CI). It now goes where only the scavenger
+  writes, and the next scavenge takes it for a survivor. Objects are made and remembered only when
+  the VM is in machine code or at rest, never in its own code, where it may be remembering an
+  object itself. Without such a stop within five seconds, putting the watcher in is refused by
+  name.
+- **A ring or an edit that lands in a collection is tried again (#186)**: from 2026-11-10 one was
+  dropped instead, the observer waiting a minute for an answer, or a slot edit answered as done.
+  Each now tries again for five seconds.
+- **The stop helper is built whole (#187)**: two images started at once on a fresh machine each
+  built `bin/polyphemus-stop` in place, or ran it half written. It is now built under a name of its
+  own and renamed into place, and a helper that says nothing within ten seconds is given up.
+- **A Pharo 10 reading that lost old space (#185)**: a reading copied whatever the process had
+  mapped between old space and a segment VM 9 added far away, and then lost the segment. It now
+  copies old space mapping by mapping. About three runs in a hundred failed this way.
+- **The process held is one the watcher outranks (#172)**: a hold took whatever process had the
+  processor at the stop; caught at the Delay timer's priority, 80, it ran on through the hold and
+  left the debugger at a context long gone (#168). The stop is taken again until a process below
+  the watcher's 70 runs. A process caught at the stop that ended before it was held is held
+  again, three times at most.
+- **Stop lets the image go whatever happens (#170, #171)**: when ending the held process failed (at
+  the request limit), the image stayed held. It is now let go, the error said after; an image held
+  while idle is let go without ending its idle process. A `halt` in a request or a held frame is
+  answered as an error naming it, where Pharo took it: the request waited its 50 s, or a headless
+  image quit.
+- **Safer holds (#163, #168)**: one observer at a time holds an image (`hold.lock` in its
+  directory; a dead observer's is taken over). An image whose observer falls silent for 30 s while
+  held is let go, where it waited the hour. A watcher is taken for ours only when it is. Writes into
+  a running image are ordered so that a stop cut short leaves garbage, not a broken heap. An edit
+  through a reading the image ran a request after is refused.
+- **CI on two runners per Linux edition**: the same ten suites (five Linux editions, four on
+  macOS, Windows), each Linux one split over two runners and read back as one suite with the
+  minimums it had (134 classes, 1000 tests). CI also refuses an extension that replaces a method
+  VMMaker defines, beyond the nine listed in `bin/vmmaker-replaced.txt`.
 - **A request that never ends no longer freezes a held image (#161)**: the agent ran each step or expression itself, at priority 70, so one that never ended (a loop, a wait) held the image for good, the user-interrupt key included. Each now runs in a process of its own, stopped after `PolyphemusAgent requestLimit` (50 s) with "RequestStopped", the image still held and answering. The agent keeps spinning meanwhile: the image is never left without a runnable process, which aborted the VM in a first try.
 - **Letting go of a process held inside the external objects' lock (#162)**: the agent unregistered the held process before resuming it, which waits on `ExternalSemaphoreTable`'s lock, held for ever by the suspended process. It now resumes it (or ends it, for Stop) and unregisters it once the image runs again.
 - **A Machine code tab (#95)**: a method Cog compiled, read from a running VM or a core, has a Machine code tab in the inspector, read only: its CogMethod's address, size, argument count and kind, its map (each machine code pc Cog noted, what it noted there, and the bytecode pc it maps to), and its bytes. Each send says what Cog linked it to: a method (`linked to Number >> #abs`), an inline cache of several classes, or a trampoline while unlinked. No disassembly, which would take FFI or gdb (parked). A method only interpreted, or read from an image file, has no such tab.
