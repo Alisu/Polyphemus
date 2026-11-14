@@ -1,12 +1,13 @@
 context protocol
 tempAt: anIndex
 
-	"The nth argument or temporary, counted as a context counts, arguments first; read
-	through the VM's frame layout and bounded by the temporary count."
+	"The nth argument or temporary, counted as a context counts, arguments first; read through
+	the VM's frame layout and bounded by the temporary count. Refused by name where its code or
+	the word does not read."
 
-	| count word |
-	count := [ self compiledCode numTemps ] on: Error do: [ :e | 0 ].
-	(anIndex between: 1 and: count) ifFalse: [
+	| code word |
+	code := self compiledCode ifNil: [ ^ self signalMachineCode ].
+	(anIndex between: 1 and: code numTemps) ifFalse: [
 		^ NotInTheReading signal: 'this frame has no temporary ' , anIndex printString ].
 	word := self layout temporary: anIndex - 1 in: framePointer.
 	^ (self layout objectAt: word) ifNil: [

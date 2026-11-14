@@ -1,0 +1,1 @@
+A defect of our own while a frame's code is read comes through as itself: it is not a first bytecode, an unknown selector or a frame without temporaries (#118). The damage itself is read in DamagedStackPageTest, on the same fixture.
