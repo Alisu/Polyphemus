@@ -6,4 +6,6 @@ classIsReadableAt: anAddress
 
 	^ anAddress notNil and: [
 		  anAddress ~= 0 and: [
-			  ([ memory formatOf: anAddress ] on: Error do: [ :e | nil ]) = 1 ] ]
+			  ([ self readAt: anAddress through: [ memory formatOf: anAddress ] ]
+				   on: PolyphemusError
+				   do: [ :e | nil ]) = 1 ] ]
