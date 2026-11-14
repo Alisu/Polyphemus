@@ -1,9 +1,7 @@
 accessing
 library
 
-	"The file the memory says it mapped, unless another was given."
+	"The file the memory says it mapped, or a copy of it named for this machine, unless another
+	was given."
 
-	^ library ifNil: [
-		  self mapping path asFileReference exists ifFalse: [
-			  ^ self refuse: #itsVMLibraryIsNotOnThisMachine ].
-		  library := self class parsedLibraryAt: self mapping path ]
+	^ library ifNil: [ library := self class parsedLibraryAt: self libraryPath ]

@@ -81,6 +81,12 @@ the task port (`task_for_pid`, `mach_vm_read_overwrite`, `mach_vm_region_recurse
 - **Cores of a running VM.** `Polyphemus dumpProcess:to:` writes an ELF core (`ElfCoreWriter`,
   shared with Linux; e_machine AArch64, each thread's registers as `NT_PRSTATUS` notes), which
   `readCoreDump:` reads back.
+- **A Linux core read on a Mac.** With `POLYPHEMUS_CORE` naming a core copied from a Linux
+  setup and `POLYPHEMUS_VM_LIBRARY` its `libPharoVMCore.so` (`docs/reading-a-dump.md`), the
+  classes that read a dump run here: measured 2026-11-14 on a Pharo 13 host, `StackOfADumpTest`
+  17 of 17 and `SpurDumpedMemoryTest` 17 of 17 in seconds, `VMVariablesTest` 10 of 12 (two skip),
+  `SpurImageFromDumpTest` 8 of 9: its test that starts a VM on the written image fails, the
+  machine never loading it, which was not looked into. CI's macOS jobs have no core.
 - **Writing, holding, stepping, fixing.** `mach_vm_write`, refused unless the VM is stopped;
   signalling an external semaphore of a running VM; a watcher put into a stock VM's image (#27),
   then held, stepped (Step Over) and a jitted method fixed as the debugger accepts it. The VM is
