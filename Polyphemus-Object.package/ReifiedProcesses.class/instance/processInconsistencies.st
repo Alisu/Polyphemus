@@ -50,6 +50,8 @@ processInconsistencies
 
 	self allReifiedProcesses do: [ :process |
 		| context |
+		(memory readSlot: self processMyListSlot of: process ifUnreadable: [ nilObject ]) isImmediateOop ifTrue: [
+			problems add: process -> #myListIsNoList ].
 		context := memory
 			           readSlot: self processSuspendedContextSlot
 			           of: process

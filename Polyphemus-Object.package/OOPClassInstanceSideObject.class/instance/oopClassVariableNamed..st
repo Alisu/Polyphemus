@@ -1,5 +1,9 @@
-classVariables
-oopClassVariableNamed: aString 
+accessing
+oopClassVariableNamed: aString
+
+	"The value of that class variable, read from its own entry: another entry that does not
+	read costs nothing here."
+
 	| slotIndex |
 	self oopInstanceSide oopAllClassVariablesNames doWithIndex: [ :o :i | o asString = aString ifTrue: [ slotIndex := i ] ].
-	^ slotIndex ifNotNil: [ self oopAllClassVariables at: slotIndex ]
+	^ slotIndex ifNotNil: [ (self oopClassPoolEntries at: slotIndex) oopSlotNamed: #value ]

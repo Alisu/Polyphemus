@@ -1,0 +1,1 @@
+What reads of a Pharo image whose file was damaged in what Candle has not: a layout, a class pool, a context among others on a stack, a process among others. Each test reads through one of the places that answer for what does not read; a handler narrowed there is covered here before it is merged (#118).
