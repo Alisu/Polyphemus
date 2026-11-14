@@ -1,4 +1,5 @@
 accessing
 oopClassVariableNamed: aName
 
-	^ self error: 'its value points nowhere'
+	self failIfIn: #oopClassVariableNamed:.
+	^ NotInTheReading signal: 'its value points nowhere'

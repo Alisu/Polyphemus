@@ -1,1 +1,1 @@
-A reified class with one class variable, Limit, whose value does not read (#118).
+A reified class with one class variable, Limit, whose value does not read; told to, it fails in one of the messages it is read through (#118).

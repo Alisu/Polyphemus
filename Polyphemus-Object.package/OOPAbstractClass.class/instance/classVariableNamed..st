@@ -7,10 +7,10 @@ classVariableNamed: aName
 	| current wanted |
 	wanted := aName asString.
 	current := self.
-	[ current isNil or: [ [ current isNilOop ] on: Error do: [ :e | true ] ] ] whileFalse: [
+	[ current isNil or: [ [ current isNilOop ] on: PolyphemusError do: [ :e | true ] ] ] whileFalse: [
 		| names |
 		names := [ current oopAllClassVariablesNames collect: [ :each | each asString ] ]
-			         on: Error
+			         on: PolyphemusError
 			         do: [ :e | #(  ) ].
 		(names includes: wanted) ifTrue: [
 			| owner |
@@ -21,7 +21,7 @@ classVariableNamed: aName
 					  (Smalltalk at: #ClassVariable ifAbsent: [ GlobalVariable ])
 						  key: wanted asSymbol
 						  value: ([ owner oopClassVariableNamed: wanted ]
-								   on: Error
+								   on: PolyphemusError
 								   do: [ :e | OOPUnreadableSlot named: wanted because: e messageText asString on: memory ]) ] ].
-		current := [ current oopSuperclass ] on: Error do: [ :e | nil ] ].
+		current := [ current oopSuperclass ] on: PolyphemusError do: [ :e | nil ] ].
 	^ nil

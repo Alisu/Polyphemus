@@ -5,7 +5,10 @@
 	"classinstvars": [],
 	"pools": [],
 	"classvars": [],
-	"instvars": [],
+	"instvars": [
+		"failingSelector",
+		"failure"
+	],
 	"name": "OOPClassWithAClassVariableThatDoesNotRead",
 	"type": "normal"
 }
