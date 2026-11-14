@@ -9,6 +9,7 @@
 #   ./run-tests.sh -j 10           parallelism (default 6)
 #   SHARD=1/3 ./run-tests.sh --all one runner's third of the suite, the others run the rest
 #   IMAGE=dev.image ./run-tests.sh run against another image
+#   PROBE_HANDLERS=yes ./run-tests.sh   say which errors reach each catch-all handler (#118)
 #
 # One Pharo process per class: the image is single threaded, the box is not.
 # Each run records per-class seconds in .test-timings, which decides the tiers.
@@ -96,6 +97,13 @@ run_class() {
   # The class's suite, or the one test ONLY_TEST names.
   local suite="$c buildSuite"
   [ -n "${ONLY_TEST:-}" ] && suite="(TestSuite new addTest: ($c selector: #$ONLY_TEST); yourself)"
+  # Asked for, the probe of #118: each class's image counts the errors that reach an
+  # `on: Error do:` of Polyphemus's own code, and says them as NOTE ARRIVAL lines.
+  local probe_in= probe_out=
+  if [ "${PROBE_HANDLERS:-no}" = yes ]; then
+    probe_in="[ Smalltalk compiler evaluate: '$HERE/probe-handlers-install.st' asFileReference contents ] on: Error do: [ :e | (ascii value: '    NOTE PROBE not installed: ', e class name, ' ', e messageText asString) traceCr ]."
+    probe_out="(Smalltalk at: #PolyProbeSeen ifAbsent: [ Bag new ]) in: [ :seen | seen asSet asSortedCollection do: [ :k | (ascii value: '    NOTE ARRIVAL $c | ', (seen occurrencesOf: k) printString, ' | ', k) traceCr ] ]."
+  fi
     cat > "$script" <<INNER
 | run ascii |
 "A line holding a wide character is a WideString, which traceCr writes four bytes a character:
@@ -104,6 +112,7 @@ run_class() {
 ascii := [ :text | String streamContents: [ :s | text do: [ :ch | s nextPut: (ch asInteger < 128 ifTrue: [ ch ] ifFalse: [ Character value: 63 ]) ] ] ].
 "Where its targets run from, so that the runner kills only this setup's (#164)."
 (Smalltalk at: #PolyphemusEdition ifPresent: [ :e | 'SCRATCH ', e current scratch fullName ] ifAbsent: [ 'SCRATCH' ]) traceCr.
+$probe_in
 [ run := (PolyphemusTestRun of: $suite) run.
   '' traceCr. "a line of its own: the simulator leaves its output unfinished (#51)"
   ('RES $c ', run runCount printString, ' run ', run failureCount printString, ' failures ', run errorCount printString, ' errors', (run skippedCount > 0 ifTrue: [ ' ', run skippedCount printString, ' skipped' ] ifFalse: [ '' ])) traceCr.
@@ -120,6 +129,7 @@ ascii := [ :text | String streamContents: [ :s | text do: [ :ch | s nextPut: (ch
     notes do: [ :each | (ascii value: '    NOTE HEAP $c>>', selector, ' -- ', each) traceCr ] ] ]
   on: Error, Warning
   do: [ :e | (ascii value: 'RES $c BROKEN ', e class name, ' ', e messageText asString) traceCr ].
+$probe_out
 Smalltalk exitSuccess
 INNER
   start=$(date +%s)
@@ -179,7 +189,8 @@ kill_targets_of() {  # class log: the targets a class that died left running, it
   echo "    NOTE killed the targets it left running: $pids"
 }
 export -f run_script run_class kill_targets_of
-export WORK IMAGE TMO TIMINGS ONLY_TEST
+export WORK IMAGE TMO TIMINGS ONLY_TEST HERE
+export PROBE_HANDLERS="${PROBE_HANDLERS:-no}"
 
 run_set() {
   local label="$1"; shift
