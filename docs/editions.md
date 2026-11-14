@@ -97,7 +97,9 @@ One directory per host, run with `WORK=<dir>` by `bin/tdd.sh` and `bin/run-tests
    Iceberg (`register-repo.st`) -- the sync and the fixtures find the working copy through it;
 4. `polyphemus.env`, which the runner reads: `POLYPHEMUS_TARGET_VM`, the VM target images run
    on (else the host's own); `POLYPHEMUS_TARGET_PHARO`, the pinned image live tests launch (else
-   Pharo 10's); and `POLYPHEMUS_CORE`, the dump (else `pharo.core` beside the image).
+   Pharo 10's); `POLYPHEMUS_CORE`, the dump (else `pharo.core` beside the image); and, for a dump
+   taken on another machine, `POLYPHEMUS_VM_LIBRARY`, a copy of the VM library it names
+   (`docs/reading-a-dump.md`).
 
 Targets are explicit because they need not be the host's: the first Pharo 11 run launched its
 Pharo 10 targets on VM 10.0.5 by accident, and every live test failed for a reason that was

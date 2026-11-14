@@ -361,6 +361,14 @@ them by name:
   build names some other word.
 - **A variable** is `base + symbol value`, one word (`at:`). For eden, pastSpace and futureSpace,
   `boundsOf:` answers `start -> limit`.
+- **A core read on another machine** names a library that is not there, and every read of a
+  variable is refused (`#itsVMLibraryIsNotOnThisMachine`). Copy the library over with the core
+  and name the copy in `POLYPHEMUS_VM_LIBRARY` (`VMVariables>>libraryPath`): it is taken when the
+  path the core names does not exist, and the build-id check above says whether it is the right
+  one. Measured 2026-11-14: a 223 MB core of a Pharo 13 VM on Linux x86-64, read on an arm64 Mac
+  with its `libPharoVMCore.so` copied beside it, gives its fifteen processes and their frames,
+  and `StackOfADumpTest` and `SpurDumpedMemoryTest` pass there. Nothing in the reader depends on
+  the host: the processor is the core's, and Cog's back end for it is VMMaker's.
 
 On the real core they agree with what the shape found:
 - `newSpaceStart` is where the young walk starts.
