@@ -10,7 +10,7 @@ reifyAllOopsWithUI
 			job title: 'Generating Object at address: ' , anOop printString.
 			self objectAt: anOop put: (OOPAbstractEntity instantiateObject: anOop on: self) ] 
 		]
-		on: Error
+		on: OopIsNotAnObject
 		do: [:e |
 			job value: e oop.
 			job title: 'Generating Objects with visitor, flying blind'.
