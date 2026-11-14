@@ -22,6 +22,8 @@ class=$(grep -ao "RES [A-Za-z0-9]* '" "$script" | head -1 | awk '{print $2}')
 [ -n "${STUB_COLOUR:-}" ] && printf '\033[0m'   # a colour reset left by the VM's output, then the line
 # A class whose image dies says nothing, its log ending mid-line (#51).
 [ "$class" = "${STUB_SILENT:-}" ] && { printf 'a stack, then\033[0m'; exit 1; }
+# The probe of #118, where the runner's script installs it, says what reached a handler.
+grep -q "probe-handlers-install.st" "$script" && echo "    NOTE ARRIVAL $class | 2 | AHandler>>m | KeyNotFound | key 1 | Dictionary>>at:"
 # A test that fails, then is skipped when run again alone: the retry runs one selector.
 if [ -n "${STUB_FAIL_THEN_SKIP:-}" ]; then
   if grep -q "selector: #" "$script"; then echo "RES $class 1 run 0 failures 0 errors 1 skipped"
@@ -46,6 +48,11 @@ check "it says none was here" "grep -q 'none of the classes asked for is in this
 # The workers are fresh shells: every function they call must reach them.
 out=$(WORK="$dir" "$HERE/run-tests.sh" -c FakeTest -j 1 2>&1)
 check "a class run in the pool reports its result" "grep -q '^RES FakeTest 1 run 0 failures 0 errors' <<<\"\$out\""
+
+# The probe of #118 is asked for (PROBE_HANDLERS=yes): no other run installs it.
+check "a run installs no probe of the handlers unasked" "! grep -q 'NOTE ARRIVAL' <<<\"\$out\""
+out=$(WORK="$dir" PROBE_HANDLERS=yes "$HERE/run-tests.sh" -c FakeTest -j 1 2>&1)
+check "PROBE_HANDLERS=yes installs it, and what reached a handler is said" "grep -q 'NOTE ARRIVAL FakeTest | 2 | AHandler>>m | KeyNotFound' <<<\"\$out\""
 
 # A class that dies leaves its targets running, its ensure: blocks never run (#164): the runner
 # kills them, found by the class's spike directory in their command line, before its retry.
