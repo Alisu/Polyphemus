@@ -11,4 +11,4 @@ testASlotItLacksIsRefusedSayingWhichObjectAndWhichSlot
 		withExceptionDo: [ :refusal |
 			self
 				assert: refusal messageText
-				equals: 'the object at ' , object address printStringHex , ' has no slot 4' ]
+				equals: 'the object at ' , (object address printStringRadix: 16) , ' has no slot 4' ]
