@@ -10,6 +10,6 @@ preFindClassNamed: aString
 				class := OOPClassInstanceSideObject on: aClassTableAddress memory: self.
 				(OOPString on: (class slotAt: class slotIndexForClassName) memory: memory) asString = aString
 					ifTrue: [ ^ anIndex + 1 ]]
-				] on: SubscriptOutOfBounds do: [ :e | ]].
+				] on: NotInTheReading do: [ :e | ]].
 		
 	NotFound signal
