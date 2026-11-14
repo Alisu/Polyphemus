@@ -1,0 +1,4 @@
+tests
+testNoDamageOfItsStackPointerMakesAQuestionFailWithAnErrorThatIsNotOurs
+
+	self assertEveryQuestionIsAnsweredOrRefusedByNameWhenDamaged: reifiedMemory stacks contextStackPointerSlot

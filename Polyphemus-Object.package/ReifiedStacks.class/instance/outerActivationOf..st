@@ -11,6 +11,6 @@ outerActivationOf: aClosureOrNil
 	outer isNilOop ifTrue: [ ^ nil ].
 	outer isContextOop ifFalse: [
 		^ NotInTheReading signal: 'the closure at ' , (aClosureOrNil address printStringRadix: 16)
-			  , ' keeps as its outer context what is no context: ' , outer printString ].
+			  , ' keeps as its outer context what is no context: ' , outer whatItReadsAs ].
 	(self isMarriedContext: outer) ifFalse: [ ^ outer ].
 	^ (self framesFromContext: outer) ifEmpty: [ nil ] ifNotEmpty: [ :frames | frames first ]
