@@ -1,4 +1,5 @@
-"Counts, for every `on: Error do:` in Polyphemus code outside its tests, which errors reach it (#118).
+"Counts, for every `on: Error do:` in Polyphemus code outside its tests, which errors reach it (#118),
+ and through which of Polyphemus's own methods, nearest the signal first.
  Context>>handleSignal: keeps its own body under another name, whatever this Pharo's is."
 | compiling |
 (Context includesSelector: #polyOriginalHandleSignal:) ifFalse: [
@@ -6,18 +7,30 @@
 	Smalltalk at: #PolyProbeHomes put: IdentityDictionary new.
 	Smalltalk at: #PolyProbeBusy put: false.
 	compiling := [
+		Context compile: 'polyLabelOf: aMethod
+	^ (Smalltalk at: #PolyProbeHomes) at: aMethod ifAbsentPut: [
+		[ | p | p := aMethod package name.
+		((p beginsWith: ''Polyphemus'') and: [ (p includesSubstring: ''Tests'') not ])
+			ifTrue: [ aMethod methodClass name , ''>>'' , aMethod selector ]
+			ifFalse: [ #no ] ] on: Error do: [ :e | #no ] ]'.
 		Context compile: 'polyNote: anException
 	| home label where key |
 	(Smalltalk at: #PolyProbeBusy) ifTrue: [ ^ self ].
 	Smalltalk at: #PolyProbeBusy put: true.
 	[ [ home := self sender compiledCode method.
-	label := (Smalltalk at: #PolyProbeHomes) at: home ifAbsentPut: [
-		[ | p | p := home package name.
-		((p beginsWith: ''Polyphemus'') and: [ (p includesSubstring: ''Tests'') not ])
-			ifTrue: [ home methodClass name , ''>>'' , home selector ]
-			ifFalse: [ #no ] ] on: Error do: [ :e | #no ] ].
+	label := self polyLabelOf: home.
 	label == #no ifFalse: [
-		where := [ | m | m := anException signalerContext compiledCode method. m methodClass name , ''>>'' , m selector ] on: Error do: [ :e | ''?'' ].
+		where := [ | m near walked |
+			m := anException signalerContext compiledCode method.
+			near := OrderedCollection new.
+			walked := anException signalerContext.
+			[ walked notNil and: [ walked ~~ self and: [ near size < 3 ] ] ] whileTrue: [
+				| name |
+				name := self polyLabelOf: walked compiledCode method.
+				(name == #no or: [ near notEmpty and: [ near last = name ] ]) ifFalse: [ near add: name ].
+				walked := walked sender ].
+			m methodClass name , ''>>'' , m selector
+				, (near isEmpty ifTrue: [ '''' ] ifFalse: [ '' via '' , ('' < '' join: near) ]) ] on: Error do: [ :e | ''?'' ].
 		key := label , '' | '' , anException class name , '' | ''
 			, (anException class == MessageNotUnderstood
 				ifTrue: [ ''#'' , anException message selector , '' to '' , anException receiver class name ]
