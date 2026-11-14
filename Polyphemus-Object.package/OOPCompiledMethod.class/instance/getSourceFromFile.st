@@ -6,9 +6,7 @@ getSourceFromFile
 	| sourceFiles trailer |
 	sourceFiles := memory retrieveSourceFiles.
 	trailer := self trailer.
-	^ [
-	  (sourceFiles sourceCodeAt: (sourceFiles
+	(trailer sourceFileIndex between: 1 and: 2) ifFalse: [ ^ '' ].
+	^ (sourceFiles sourceCodeAt: (sourceFiles
 			    sourcePointerFromFileIndex: trailer sourceFileIndex
-			    andPosition: trailer sourceFilePosition)) ifNil: [ '' ] ]
-		  on: Error
-		  do: [ '' ]
+			    andPosition: trailer sourceFilePosition)) ifNil: [ '' ]

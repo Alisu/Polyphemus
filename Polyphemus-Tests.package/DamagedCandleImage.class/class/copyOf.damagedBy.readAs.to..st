@@ -1,8 +1,8 @@
 building
 copyOf: aCleanFile damagedBy: someWords readAs: aCleanReading to: aTarget
 
-	"A copy of aCleanFile at aTarget with each address -> word of someWords written at the offset
-	of that address in the file, the offsets checked on six objects first."
+	"A copy of aCleanFile at aTarget with each address -> word of someWords, or address -> bytes,
+	written at the offset of that address in the file, the offsets checked on six objects first."
 
 	| header delta offsetOf stream |
 	header := BlankedContextImageResource headerOf: aCleanFile.
@@ -14,7 +14,9 @@ copyOf: aCleanFile damagedBy: someWords readAs: aCleanReading to: aTarget
 	[
 	someWords do: [ :each |
 		stream position: (offsetOf value: each key).
-		stream nextPutAll: (each value asByteArrayOfSize: 8) reversed ] ] ensure: [
+		stream nextPutAll: (each value isInteger
+				 ifTrue: [ (each value asByteArrayOfSize: 8) reversed ]
+				 ifFalse: [ each value ]) ] ] ensure: [
 		stream
 			flush;
 			close ].
