@@ -4,11 +4,12 @@ damagedCopyOf: aCoreFile
 	"A copy of the core in this edition's scratch folder, each word of #damagesIn: written at
 	the offset of its address in the file. Made anew for each run: a core is the setup's own."
 
-	| clean damages copy stream |
-	clean := ElfCoreDump on: aCoreFile.
+	| clean space damages copy stream |
+	clean := Polyphemus readCoreDump: aCoreFile fullName.
+	space := clean vmLayout raw space.
 	damages := (self damagesIn: clean) collect: [ :each |
-		           ((clean segmentHolding: each key) fileOffsetFor: each key) -> each value ].
-	clean close.
+		           ((space segmentHolding: each key) fileOffsetFor: each key) -> each value ].
+	space close.
 	copy := PolyphemusEdition current scratch / 'polyphemus-damaged.core'.
 	copy ensureDelete.
 	aCoreFile copyTo: copy.

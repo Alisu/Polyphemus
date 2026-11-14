@@ -1,0 +1,4 @@
+tests
+testNoDamageOfTheOldestFrameMakesAQuestionFailWithAnErrorThatIsNotOurs
+
+	self assertEveryQuestionIsAnsweredOrRefusedByNameWithTheFrameDamagedAt: (self frames size)

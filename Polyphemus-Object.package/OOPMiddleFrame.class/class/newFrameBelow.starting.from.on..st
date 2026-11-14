@@ -7,7 +7,7 @@ newFrameBelow: aStackFrame starting: start from: aCogStackPage on: aPreReifiedMe
 		framePointer: start;
 		memory: aPreReifiedMemory;
 		computeFields ;
-		computeOperandStack: (aStackFrame layout callerStackEndBelow: aStackFrame framePointer);
+		computeOperandStackBelow: aStackFrame;
 		readSavedIPFrom: aStackFrame;
 		computeCaller: aCogStackPage;
 		frameAbove: aStackFrame.

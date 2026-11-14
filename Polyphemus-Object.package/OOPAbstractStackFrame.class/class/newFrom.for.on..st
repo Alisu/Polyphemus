@@ -6,7 +6,7 @@ newFrom: aCogStackPage for: anAddress on: aPreReifiedMemory
 	than from the interpreter's registers, which describe the active page only."
 
 	^ self
-		  newTopFrameFrom: aCogStackPage
+		  newTopFrameFrom: (OOPStackPageBounds endingAt: aCogStackPage baseFP)
 		  startingAt: aCogStackPage headFP
 		  endingAt: aCogStackPage headSP
 		  on: aPreReifiedMemory

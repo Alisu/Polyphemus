@@ -1,17 +1,8 @@
 instanciation
-newTopFrameFrom: aCogStackPage startingAt: start endingAt: end on: aPreReifiedMemory 
-	
-	"This is ask from the stackpage, the top frame will create the other frames"
-	(self shouldBeBaseFrame: start from: aCogStackPage on: aPreReifiedMemory)
-		ifTrue: [ 
-			^OOPBaseFrame
-				newStart: start
-				end: end
-				from: aCogStackPage
-				on: aPreReifiedMemory ]
-		ifFalse: [ 
-			^OOPTopFrame
-				newStart: start
-				end: end
-				from: aCogStackPage
-				on: aPreReifiedMemory ]
+newTopFrameFrom: somePageBounds startingAt: start endingAt: end on: aPreReifiedMemory
+
+	"The newest frame of a page, which makes the frames below it, no further than the bounds."
+
+	^ ((self shouldBeBaseFrame: start from: somePageBounds on: aPreReifiedMemory)
+		   ifTrue: [ OOPBaseFrame ]
+		   ifFalse: [ OOPTopFrame ]) newStart: start end: end from: somePageBounds on: aPreReifiedMemory

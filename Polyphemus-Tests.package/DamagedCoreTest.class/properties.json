@@ -3,7 +3,8 @@
 	"super": "TestCase",
 	"category": "Polyphemus-Tests-dump",
 	"classinstvars": [
-	 "Memory"
+	 "Memory",
+	 "Damaged"
 	],
 	"pools": [],
 	"classvars": [],

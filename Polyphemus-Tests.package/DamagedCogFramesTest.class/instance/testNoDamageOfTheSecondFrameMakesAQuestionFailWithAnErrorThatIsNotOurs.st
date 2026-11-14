@@ -1,0 +1,4 @@
+tests
+testNoDamageOfTheSecondFrameMakesAQuestionFailWithAnErrorThatIsNotOurs
+
+	self assertEveryQuestionIsAnsweredOrRefusedByNameWithTheFrameDamagedAt: 2

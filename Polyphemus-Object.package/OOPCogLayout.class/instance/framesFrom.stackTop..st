@@ -7,7 +7,7 @@ framesFrom: aFramePointer stackTop: anAddress
 
 	| frames current |
 	current := OOPAbstractStackFrame
-		           newTopFrameFrom: nil
+		           newTopFrameFrom: (self boundsOfThePageHolding: aFramePointer)
 		           startingAt: aFramePointer
 		           endingAt: anAddress
 		           on: memory.

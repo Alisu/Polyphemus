@@ -1,0 +1,1 @@
+How far the frames of one stack page may go, for a chain of frames that is followed from its newest: up to the frame pointer of the page's oldest frame where the virtual machine says it, or else no further than a page could reach from the newest frame. A saved frame pointer past it leads off the page, whatever it points at (#198).

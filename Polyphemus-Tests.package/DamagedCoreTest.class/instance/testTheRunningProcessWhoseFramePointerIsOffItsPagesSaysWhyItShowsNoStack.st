@@ -3,13 +3,14 @@ testTheRunningProcessWhoseFramePointerIsOffItsPagesSaysWhyItShowsNoStack
 
 	"The process that was running has no context: its frames are found from what the VM saved
 	on leaving for C. With that frame pointer damaged it shows no stack, as a process that ended
-	does, and the reading says why; the other stacks read whole."
+	does, and the reading says why; the stacks no damage is on read whole."
 
 	| active others |
 	memory vmLayout raw vmVariables wasRunningMachineCode == false ifFalse: [
 		^ self skip: 'a thread of this core was in machine code: its frames are in its registers, not in what the VM saved' ].
 	active := memory reifiedActiveProcess.
-	others := memory allReifiedProcesses reject: [ :each | each address = active address ].
+	others := memory allReifiedProcesses reject: [ :each |
+		          each address = active address or: [ each = (self class processDamagedIn: #savedFramePointer) ] ].
 
 	self assert: (memory activationsOfProcess: active) isEmpty.
 	self

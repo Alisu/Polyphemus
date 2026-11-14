@@ -15,7 +15,8 @@
 	 "framePointer",
 	 "savedIP",
 	 "stackWords",
-	 "whyNoCaller"
+	 "whyNoCaller",
+	 "whyNoStack"
 	],
 	"name": "OOPAbstractStackFrame",
 	"type": "normal"

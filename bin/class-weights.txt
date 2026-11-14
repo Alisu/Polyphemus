@@ -13,6 +13,7 @@ ClassVariableNamedTest 4
 CompactMemorySpaceTest 7
 CompilingAsTheImageDidTest 49
 DamagedCandleImageTest 15
+DamagedCogFramesTest 300
 DamagedContextSlotsTest 85
 DamagedCoreTest 60
 DamagedPharoImageTest 63

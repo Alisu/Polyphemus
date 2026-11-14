@@ -8,7 +8,7 @@ inspectionItems
 	items := {
 		         (#method -> (self shown: #method reading: [ self oopMethod ])).
 		         (#context -> (self shown: #context reading: [ self oopContext ])).
-		         (#flag -> self oopFlag).
+		         (#flag -> (self shown: #flag reading: [ self oopFlag ])).
 		         (#receiver -> (self shown: #receiver reading: [ self oopReceiver ])) } asOrderedCollection.
 
 	items addAll: self inspectionItemsOperandStack.
