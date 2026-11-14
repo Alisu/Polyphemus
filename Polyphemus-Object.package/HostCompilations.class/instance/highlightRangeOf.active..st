@@ -5,8 +5,8 @@ highlightRangeOf: anActivation active: contextIsActive
 	rule). Identical code keeps the pc; same sends carry it over (#4); else nothing."
 
 	| thePC code host fileCode mapped |
-	thePC := ([ anActivation isDead ] on: Error do: [ :e | false ])
-		         ifTrue: [ [ anActivation endPC ] on: Error do: [ :e | anActivation pc ] ]
+	thePC := ([ anActivation isDead ] on: PolyphemusError do: [ :e | false ])
+		         ifTrue: [ [ anActivation endPC ] on: PolyphemusError do: [ :e | anActivation pc ] ]
 		         ifFalse: [ anActivation pc ].
 	thePC ifNil: [ ^ 1 to: 0 ].
 	contextIsActive ifFalse: [ thePC := thePC - 1 ].
@@ -20,6 +20,6 @@ highlightRangeOf: anActivation active: contextIsActive
 	mapped := [
 	          (SendSequence of: fileCode)
 		          pcIn: (SendSequence of: host)
-		          for: thePC - (self firstBytecodePCOf: fileCode) ] on: Error do: [ :e | nil ].
+		          for: thePC - (self firstBytecodePCOf: fileCode) ] on: PolyphemusError do: [ :e | nil ].
 	mapped ifNil: [ ^ 1 to: 0 ].
 	^ self rangeIn: host at: host initialPC + mapped of: anActivation

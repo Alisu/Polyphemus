@@ -5,7 +5,7 @@ hostMethodFor: anActivation
 	bytecodes equal the file's; nil otherwise. Cached per method."
 
 	| home |
-	home := [ anActivation homeMethod ] on: Error do: [ :e | nil ].
+	home := [ anActivation homeMethod ] on: PolyphemusError do: [ :e | nil ].
 	home ifNil: [ ^ nil ].
 
 	^ (memory

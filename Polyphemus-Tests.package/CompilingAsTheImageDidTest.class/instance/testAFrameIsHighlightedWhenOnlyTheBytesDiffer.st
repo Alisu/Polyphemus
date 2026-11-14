@@ -5,28 +5,15 @@ testAFrameIsHighlightedWhenOnlyTheBytesDiffer
 	long instance variable access, in a method making seven sends -- must still place the
 	highlight on the same send."
 
-	| exact memory frame source compiler tree differing expected |
+	| exact memory frame expected |
 	exact := self memory.
 	expected := exact
-		            highlightRangeOf: (self frameOf: exact described: 'DelaySemaphoreScheduler>>suspendAtTimingPriority')
+		            highlightRangeOf: (self frameOf: exact described: self methodFrame)
 		            active: false.
 
 	memory := self memory forgetWhatWasRead; yourself.
-	frame := self frameOf: memory described: 'DelaySemaphoreScheduler>>suspendAtTimingPriority'.
-	source := frame homeMethod getSourceFromFile.
-	compiler := OpalCompiler new
-		            class: frame receiver oopClass;
-		            source: source;
-		            options: (memory compilerOptionsWith:
-					             #( + optionSkipSemanticWarnings + optionEmbeddSources ))
-				             , #( + optionLongIvarAccessBytecodes );
-		            yourself.
-	tree := compiler parse.
-	compiler doSemanticAnalysis.
-	differing := tree generateWithSource.
-	memory
-		rememberedAt: 'hostCompilation.' , frame homeMethod address printString
-		ifAbsentPut: [ Array with: differing with: tree ].
+	frame := self frameOf: memory described: self methodFrame.
+	self rememberCodeOfOtherBytesFor: frame in: memory.
 
 	self assert: (memory faithfulCodeOf: frame) isNil.
 	self deny: expected isEmpty.

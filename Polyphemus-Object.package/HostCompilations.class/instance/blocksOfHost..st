@@ -6,11 +6,11 @@ blocksOfHost: aCompiledCode
 
 	| blocks literals |
 	blocks := OrderedCollection new.
-	literals := [ aCompiledCode literals ] on: Error do: [ :e | #(  ) ].
+	literals := aCompiledCode literals.
 	(aCompiledCode isCompiledBlock and: [ literals isEmpty not ]) ifTrue: [
 		literals := literals allButLast ].
 	literals do: [ :each |
-		([ each isCompiledBlock ] on: Error do: [ :e | false ]) ifTrue: [
+		each isCompiledBlock ifTrue: [
 			blocks add: each.
 			blocks addAll: (self blocksOfHost: each) ] ].
 	^ blocks

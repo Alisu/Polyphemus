@@ -1,0 +1,14 @@
+{
+	"commentStamp": "",
+	"super": "ProtoObject",
+	"category": "Polyphemus-Tests",
+	"classinstvars": [],
+	"pools": [],
+	"classvars": [],
+	"instvars": [
+		"subject",
+		"replies"
+	],
+	"name": "DefectiveReadDouble",
+	"type": "normal"
+}
