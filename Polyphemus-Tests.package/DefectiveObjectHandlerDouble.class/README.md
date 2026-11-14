@@ -1,0 +1,1 @@
+A handler class for reified objects with a defect of its own: asked whether it handles a word, it divides by zero (#118).

@@ -6,7 +6,7 @@ reifyAllOops
 		self
 			objectAt: anOop
 			put: (OOPAbstractEntity instantiateObject: anOop on: self) ] ]
-		on: Error
+		on: OopIsNotAnObject
 		do: [ :e |
 			self addObjectHandler: OOPAbnormalEntity.
 			lastKnownObject := self findObjectBefore: e oop.
