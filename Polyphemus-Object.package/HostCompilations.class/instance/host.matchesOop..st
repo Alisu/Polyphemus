@@ -6,13 +6,13 @@ host: aHostCode matchesOop: anOopCode
 
 	| first last ours theirs |
 	^ [
-	  first := [ anOopCode initialPC ] on: Error do: [ :e | 1 ].
+	  first := [ anOopCode initialPC ] on: PolyphemusError do: [ :e | 1 ].
 	  last := [ anOopCode endPC ]
-		          on: Error
+		          on: PolyphemusError
 		          do: [ :e | first + anOopCode numberOfBytecodes - 1 ].
 	  ours := (first to: last) collect: [ :each | anOopCode bytecodeAt: each ].
 	  theirs := (aHostCode initialPC to: aHostCode endPC) collect: [ :each |
 		            aHostCode at: each ].
 	  ours asArray = theirs asArray ]
-		  on: Error
+		  on: PolyphemusError
 		  do: [ :e | false ]

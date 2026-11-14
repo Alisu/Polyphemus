@@ -7,16 +7,16 @@ sendMatchedCodeOf: anActivation
 	| host fileCode candidate |
 	host := self hostCompilationOf: anActivation.
 	host ifNil: [ ^ nil ].
-	fileCode := [ anActivation compiledCode ] on: Error do: [ :e | nil ].
+	fileCode := [ anActivation compiledCode ] on: PolyphemusError do: [ :e | nil ].
 	fileCode ifNil: [ ^ nil ].
-	candidate := ([ anActivation isBlockContext ] on: Error do: [ :e | false ])
+	candidate := ([ anActivation isBlockContext ] on: PolyphemusError do: [ :e | false ])
 		             ifTrue: [ self hostBlockFor: anActivation in: host ]
 		             ifFalse: [ host ].
 	candidate ifNil: [ ^ nil ].
 	^ ([
 	   (SendSequence of: candidate) selectors asArray
 	   = (SendSequence of: fileCode) selectors asArray ]
-		   on: Error
+		   on: PolyphemusError
 		   do: [ :e | false ])
 		  ifTrue: [ candidate ]
 		  ifFalse: [ nil ]

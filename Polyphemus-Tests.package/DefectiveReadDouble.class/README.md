@@ -1,0 +1,1 @@
+I stand for an object read from an image, a frame or a method: I answer as it does, but for the messages a test gives me an answer or a defect for (#118).

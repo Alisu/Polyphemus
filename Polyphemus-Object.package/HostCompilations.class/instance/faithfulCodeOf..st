@@ -8,6 +8,6 @@ faithfulCodeOf: anActivation
 	| host |
 	host := self hostMethodFor: anActivation.
 	host ifNil: [ ^ nil ].
-	^ ([ anActivation isBlockContext ] on: Error do: [ :e | false ])
+	^ ([ anActivation isBlockContext ] on: PolyphemusError do: [ :e | false ])
 		  ifTrue: [ self hostBlockOf: anActivation in: host ]
 		  ifFalse: [ host ]

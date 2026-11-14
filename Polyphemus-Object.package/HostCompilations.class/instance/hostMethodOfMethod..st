@@ -7,7 +7,7 @@ hostMethodOfMethod: aReifiedMethod
 	^ (memory
 		   rememberedAt: 'hostMethodOfMethod.' , aReifiedMethod address printString
 		   ifAbsentPut: [
-			   ([ aReifiedMethod getSourceFromFile ] on: Error do: [ :e | nil ])
+			   ([ aReifiedMethod getSourceFromFile ] on: PolyphemusError do: [ :e | nil ])
 				   ifNil: [ false ]
 				   ifNotNil: [ :source |
 					   (self compileHostSource: source for: aReifiedMethod oopMethodClass)
