@@ -1,0 +1,1 @@
+A copy of the Candle image with words overwritten, then read afresh: damage made by something other than the reader and never repaired, as BlankedContextImageResource makes of the pinned image. In the file, as a damaged image file is; or in the memory once loaded, as a dump or a live process is, where no loader shifts or checks the words (#118).

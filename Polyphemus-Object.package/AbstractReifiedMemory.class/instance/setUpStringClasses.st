@@ -7,10 +7,11 @@ setUpStringClasses
 	self isSimulator ifTrue: [ ^ self "There most likely is no string classes instanciated" ].
 	stringClassAddress := mode stringClassAddressFor: memory.
 	
-	memory classTableEntriesDo: [ :aClassTableAddress :anIndex |
-		((memory superclassOf: aClassTableAddress) = stringClassAddress 
-			or: [ ((memory superclassOf: aClassTableAddress) ~= memory nilObject)
-				and: [ (memory superclassOf: (memory superclassOf: aClassTableAddress)) = stringClassAddress ]])
-					ifTrue: [ stringClasses add: aClassTableAddress ]].
+	"A table entry that reads as no class is passed over: one damaged entry is not every string's."
+	memory classTableEntriesDo: [ :aClassTableAddress :anIndex | | parent |
+		parent := self readableSuperclassOf: aClassTableAddress.
+		(parent = stringClassAddress
+			or: [ parent notNil and: [ (self readableSuperclassOf: parent) = stringClassAddress ] ])
+				ifTrue: [ stringClasses add: aClassTableAddress ] ].
 
 	stringClasses collect: [ :anOop | memory rawHashBitsOf: anOop ] into: stringClassIndexes

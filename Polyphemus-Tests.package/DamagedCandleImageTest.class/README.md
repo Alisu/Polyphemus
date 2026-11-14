@@ -1,0 +1,1 @@
+What reads of an image whose bytes were damaged: each test damages a copy of the Candle image, then reads through one of the places that turn a failed read into an answer. A narrowed handler is covered here before it is merged (#118).
