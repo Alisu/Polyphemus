@@ -2,7 +2,8 @@ building
 damagesOfContextsIn: aCleanReading
 
 	"On four stacks no other damage is on, a context's own slots: zeroed, so that they point
-	nowhere once loaded, or pointing at an object that is no context and no integer."
+	nowhere once loaded, or pointing at an object that is no context and no integer. And of a
+	process with one context, the suspended context zeroed."
 
 	| stacks zeroed pointing worker finalising drawing snapshotting |
 	stacks := aCleanReading stacks.
@@ -20,4 +21,7 @@ damagesOfContextsIn: aCleanReading
 		  (zeroed value: stacks contextMethodSlot value: (finalising at: 2)).
 		  (zeroed value: stacks contextSenderSlot value: drawing first).
 		  (zeroed value: stacks contextPcSlot value: (snapshotting at: 2)).
-		  (pointing value: stacks contextStackPointerSlot value: snapshotting first value: snapshotting first receiver) }
+		  (pointing value: stacks contextStackPointerSlot value: snapshotting first value: snapshotting first receiver).
+		  ((DamagedCandleImage
+			    slot: aCleanReading processSuspendedContextSlot
+			    of: (self process: 'FullBlockClosure>>newProcess [block]' in: aCleanReading)) -> 0) }

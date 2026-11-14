@@ -14,6 +14,7 @@ CompactMemorySpaceTest 7
 CompilingAsTheImageDidTest 49
 DamagedCandleImageTest 15
 DamagedContextSlotsTest 85
+DamagedCoreTest 60
 DamagedPharoImageTest 63
 DamagedStackPageTest 212
 DebugSessionRepairTest 4

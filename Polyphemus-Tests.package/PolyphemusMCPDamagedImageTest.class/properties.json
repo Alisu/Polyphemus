@@ -1,0 +1,14 @@
+{
+	"commentStamp": "",
+	"super": "TestCase",
+	"category": "Polyphemus-Tests-mcp",
+	"classinstvars": [
+	 "Server",
+	 "Handle"
+	],
+	"pools": [],
+	"classvars": [],
+	"instvars": [],
+	"name": "PolyphemusMCPDamagedImageTest",
+	"type": "normal"
+}

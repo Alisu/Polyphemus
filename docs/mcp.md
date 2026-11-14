@@ -32,8 +32,8 @@ claude mcp add polyphemus -- ssh worker-box '~/polyphemus/Polyphemus/bin/polyphe
 | `census(handle, top)` | Instances and bytes of each class, the heaviest first (`HeapCensus`) |
 | `packages(handle, top)` | What each package owns, the heaviest first (`PackageFootprint`) |
 | `open_core(path)` | A handle on a core dump of a VM (up to a minute to read), for `processes` and `stack` |
-| `processes(handle)` | Each Smalltalk process, numbered: state, priority, name, depth, the method on top |
-| `stack(handle, process, depth)` | Its frames: method, the statement it was in, receiver, temporaries and values |
+| `processes(handle)` | Each Smalltalk process, numbered: state, priority, name, depth, the method on top, and in `ends` why its stack ends where it does when that is not its oldest activation |
+| `stack(handle, process, depth)` | Its frames: method, the statement it was in, receiver, temporaries and values; `ends` as in `processes`, said after the frames |
 | `inspect(handle, address, limit)` | An object: class, format, named slots and the first indexable ones, a string's characters |
 | `where_stuck(pid)` | Where a running VM is, from `/proc` (on macOS its task port, as root): each thread's system call or pc, what a blocked call waits on (#159), the signals it catches |
 | `hold(pid, directory)` | Holds a running VM on what it is busy with, in its own debugger, our watcher put in first if none waits on `directory` (by default a folder of ours under the temporary folder). A handle, and the held process's frames, top first. It stays held until `let_go`, or an hour without requests |
