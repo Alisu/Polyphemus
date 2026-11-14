@@ -130,7 +130,7 @@ Liveness (something good eventually happens):
 - What a request does inside the image, beyond ending, never ending, and meeting the trap
   (version 7). Locks taken inside the image (#162's) are not in it.
 
-## Results (TLC 2.19, 2026-10-31)
+## Results (TLC 2.19, 2026-10-31; every check run again on 2026-11-14)
 
 `Hold.tla` (version 6) checks properties 5 to 9 and 11 to 14 on a small instance: one observer, one
 image, a plain hold with one request, then a `runUntil:`; either side dying at any step; the
@@ -166,6 +166,10 @@ as a signal, a file saying a hold is wanted, and the trap claimed in one step.
 
 (Steps of the shortest counterexample in brackets. The stop helper alone fixes 8 and nothing
 else; with it, every row is the same except 8.)
+
+All 310 checks of `check_all.sh` were run again on 2026-11-14, on the five models as they are now:
+every verdict in this file stands. A property over a whole run (7, 8, 9) is not always shown by its
+shortest counterexample, and the length changes between runs: in that run 8 failed in 4 to 29 steps.
 
 What the failures are:
 - **5, stray hold:** the observer writes a request; before its ring, the agent reaches its hour and

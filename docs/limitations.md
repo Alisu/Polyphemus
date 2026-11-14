@@ -47,7 +47,9 @@ do instead, and the issue that tracks it. When one is lifted, its entry goes.
 
 **A damaged heap** is read level by level, each saying whether it reads (bytes, heap, objects, free
 space, classes, special objects); the watcher is not put in unless the classes and special objects
-read whole. Holding a damaged image runs our agent's code in it, which can crash the VM: take a
+read whole. What does not read in an object (a slot, a class variable, a name) stands as
+unreadable in its place, and the rest reads on (#118); a core cut short reads what it holds and
+says where it ends (#182). Holding a damaged image runs our agent's code in it, which can crash the VM: take a
 core first (`Polyphemus dumpProcess:to:`), read and repair that, and act live only after.
 
 ## While an image is held
@@ -84,8 +86,6 @@ core first (`Polyphemus dumpProcess:to:`), read and repair that, and act live on
   spins in the other until the hold limit (see above). Two that only stop each other freeze until
   the stop helper's bound lets one go (five minutes; `stopBound:` on the reader), and the reading
   caught in it is refused (`itRanWhileRead`). Hold from one observer at a time (#117).
-- **The watcher is written in eden**: an image busy allocating at the exact moment it is put in
-  could overwrite it. Not seen; an idle image or one waiting on its window is not exposed (#99).
 - **Putting the watcher in again keeps the one there**, and is refused while the image is held:
   close its debugger, or let it go, first.
 - **macOS: two large copies of a held process at once can crash the observer** (Pharo 13, a full

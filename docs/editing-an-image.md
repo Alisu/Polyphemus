@@ -190,7 +190,7 @@ A memory reads back what was written to it, not the bytes it started from: the l
 memories in `mistakes.md`, taken into the protocol rather than left to each caller.
 
 The last two can also make objects (`canMakeObjects`): VMMaker's memory in old space with VMMaker's
-allocator, the process in eden (below). `SpurMethodInstall on:into:` takes either, and refuses at
+allocator, the process at the end of past space (below). `SpurMethodInstall on:into:` takes either, and refuses at
 once a memory that cannot make objects or does not hold the image where the reading shows it --
 the installer writes what it finds by the reading's addresses. A copy of a file therefore takes
 only code that fits, and `SpurMethodFix on:into:` builds its edit and its installer from the one
@@ -246,7 +246,7 @@ Integer flushCache. Smalltalk garbageCollect. "...then answer 3 reset"
 so the image forgets its cached lookups, collects its garbage -- where a pointer we failed to
 remember would be lost -- and only then calls the method. It answers **42**, and goes on running.
 
-Its literals are made the same way, in eden beside it -- strings, arrays, blocks, large integers,
+Its literals are made the same way, beside it -- strings, arrays, blocks, large integers,
 all of them. What a new method names is therefore no longer a reason to refuse it.
 
 **The trap that cost the afternoon:** a header holds a class's **hash**, and `oopClassIndex` is
@@ -299,6 +299,6 @@ answers again looks like from outside.
 | New code naming a whole method of its own | rare, and refused by name |
 | A method whose pragmas change | its state object is the image's, kept as it is |
 | A class whose method dictionary is full | growing one means a bigger array, rehashed by the image's own rules |
-| A new method in a live image whose literals need room | the method is made in eden (below); its literals would each need the same |
+| A new method in a live image whose literals need room | the method is made in new space (below); its literals would each need the same |
 | A held image that cannot run anything | the un-jitting is asked of the image; one too broken to compile would need Cog's zone edited from outside |
 | The old method's source pointer | the installed method carries its new source embedded; the old object is left where it was |
