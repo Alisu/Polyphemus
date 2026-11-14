@@ -3,5 +3,5 @@ inspectionItems
 
 	| items |
 	items := super inspectionItems.
-	items addFirst: #caller -> self oopCaller.
+	items addFirst: #caller -> (caller ifNil: [ whyNoCaller ]).
 	^items

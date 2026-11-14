@@ -1,8 +1,9 @@
 reading
 framesFrom: aFramePointer stackTop: anAddress
 
-	"The frames from aFramePointer down to the base of its page; its own stack ends just above
-	anAddress, or is left unread when anAddress is nil."
+	"The frames from aFramePointer down to the base of its page, or to one whose saved frame
+	pointer leads no further; its own stack ends just above anAddress, or is left unread when
+	anAddress is nil."
 
 	| frames current |
 	current := OOPAbstractStackFrame
@@ -11,7 +12,7 @@ framesFrom: aFramePointer stackTop: anAddress
 		           endingAt: anAddress
 		           on: memory.
 	frames := OrderedCollection with: current.
-	[ current isBaseFrame ] whileFalse: [
+	[ current isLastReadOfItsPage ] whileFalse: [
 		current := current oopCaller.
 		frames add: current ].
 	^ frames

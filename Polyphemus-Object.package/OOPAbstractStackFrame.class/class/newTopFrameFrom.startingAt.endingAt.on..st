@@ -2,7 +2,7 @@ instanciation
 newTopFrameFrom: aCogStackPage startingAt: start endingAt: end on: aPreReifiedMemory 
 	
 	"This is ask from the stackpage, the top frame will create the other frames"
-	(self shouldBeBaseFrame: start on: aPreReifiedMemory)
+	(self shouldBeBaseFrame: start from: aCogStackPage on: aPreReifiedMemory)
 		ifTrue: [ 
 			^OOPBaseFrame
 				newStart: start
