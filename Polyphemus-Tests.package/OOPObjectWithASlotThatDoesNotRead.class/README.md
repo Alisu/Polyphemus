@@ -1,1 +1,1 @@
-A reified object of three slots whose second does not read, as a word pointing nowhere would not (#118).
+A reified object of three slots whose second does not read, as a word pointing nowhere would not, or fails as it is told to (#118).

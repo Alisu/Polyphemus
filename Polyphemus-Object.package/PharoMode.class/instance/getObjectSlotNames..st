@@ -13,11 +13,11 @@ getObjectSlotNames: aClassOop
 	         layout oopNumberOfSlots < 2
 		         ifTrue: [ nil ]
 		         ifFalse: [ layout reifiedSlotAt: 2 ] ]
-		         on: Error
+		         on: PolyphemusError
 		         do: [ :e | nil ].
 	scope ifNil: [ ^ res ].
-	2 to: ([ scope oopNumberOfSlots ] on: Error do: [ :e | 1 ]) do: [ :anIndex |
+	2 to: ([ scope oopNumberOfSlots ] on: PolyphemusError do: [ :e | 1 ]) do: [ :anIndex |
 		[ res add: ((scope reifiedSlotAt: anIndex) reifiedSlotAt: 1) ]
-			on: Error
+			on: PolyphemusError
 			do: [ :e | res add: '(unreadable name)' ] ].
 	^ res

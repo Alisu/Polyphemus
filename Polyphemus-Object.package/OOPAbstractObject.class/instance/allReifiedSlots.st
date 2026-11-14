@@ -6,5 +6,5 @@ allReifiedSlots
 
 	^ (1 to: self oopNumberOfSlots) collect: [ :anIndex |
 		  [ self reifiedSlotAt: anIndex ]
-			  on: Error
+			  on: PolyphemusError
 			  do: [ :e | OOPUnreadableSlot index: anIndex because: e messageText asString on: memory ] ]

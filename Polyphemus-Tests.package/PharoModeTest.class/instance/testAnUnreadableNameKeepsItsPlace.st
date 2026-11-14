@@ -8,7 +8,7 @@ testAnUnreadableNameKeepsItsPlace
 	layout := ReifiedSlotsDouble slots: {
 		          nil.
 		          (ReifiedSlotsDouble slots: { #a }).
-		          [ self error: 'this slot does not read' ].
+		          [ NotInTheReading signal: 'this slot does not read' ].
 		          (ReifiedSlotsDouble slots: { #c }) }.
 	class := ReifiedSlotsDouble slots: { nil. nil. nil. (ReifiedSlotsDouble slots: { nil. layout }) }.
 
