@@ -2,7 +2,7 @@ instance creation
 newFrameBelow: aStackFrame starting: anInteger from: aCogStackPage on: aPreReifiedMemory
 	
 	"This is asked by the frameAbove"
-	(self shouldBeBaseFrame: anInteger on: aPreReifiedMemory)
+	(self shouldBeBaseFrame: anInteger from: aCogStackPage on: aPreReifiedMemory)
 		ifTrue: [ 
 			^OOPBaseFrame
 				newFrameBelow: aStackFrame

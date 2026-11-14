@@ -22,7 +22,7 @@ computeFramesFrom: aCogStackPage and: aMemory
 	currentFrame := topFrame.
 	[ 
 	stackFrames add: currentFrame.
-	currentFrame isBaseFrame
+	currentFrame isLastReadOfItsPage
 		ifTrue: [ true ]
 		ifFalse: [ 
 			currentFrame := currentFrame oopCaller.
