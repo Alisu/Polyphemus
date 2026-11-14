@@ -7,4 +7,4 @@ oopClassPoolEntries
 	| pool |
 	pool := self oopSlotNamed: memory mode classVariablesSlotName.
 	(pool isNil or: [ pool isNilOop ]) ifTrue: [ ^ #(  ) ].
-	^ pool array allReifiedSlots select: [ :o | o isNotNilOop ]
+	^ (pool oopSlotNamed: #array) allReifiedSlots select: [ :o | o isNotNilOop ]

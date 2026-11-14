@@ -1,8 +1,8 @@
 scheduler
 processStates
 
-	"Each process -> #active, #runnable, #waiting, #suspended or #unknown. An unreadable
-	process is #unknown rather than left out."
+	"Each process -> #active, #runnable, #waiting, #suspended or #unknown. A process whose list
+	does not read, or is no object, is #unknown rather than left out or said to wait."
 
 	| states active lists nilObject unreadable |
 	states := Dictionary new.
@@ -19,7 +19,7 @@ processStates
 		state := process = active
 			         ifTrue: [ #active ]
 			         ifFalse: [
-				         myList == unreadable
+				         (myList == unreadable or: [ myList isImmediateOop ])
 					         ifTrue: [ #unknown ]
 					         ifFalse: [
 						         myList = nilObject

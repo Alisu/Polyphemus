@@ -1,3 +1,4 @@
 classVariable
-nameForClassVariable: aClassVariableOop 
-	^ aClassVariableOop name
+nameForClassVariable: aClassVariableOop
+
+	^ aClassVariableOop oopSlotNamed: #name

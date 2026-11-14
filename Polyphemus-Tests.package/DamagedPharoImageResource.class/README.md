@@ -1,0 +1,1 @@
+A copy of the pinned Pharo 10 image with five unrelated words of its file overwritten by a tagged word: a class's layout, a class's pool, one entry of a class pool, a context's method, a process's list. What a Pharo image has and Candle has not, damaged by something other than the reader and never repaired (#118).
