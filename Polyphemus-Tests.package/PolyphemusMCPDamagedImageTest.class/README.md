@@ -1,0 +1,1 @@
+What the MCP tools answer on an image whose file is damaged (the copy of DamagedPharoImageResource): a stack that cannot be read further says why it ends, in `processes` and in `stack`, where it looked like a whole one.

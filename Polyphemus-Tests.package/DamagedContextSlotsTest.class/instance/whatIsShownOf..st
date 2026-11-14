@@ -17,6 +17,7 @@ whatIsShownOf: aContext
 		  ('contextInconsistencies' -> [ stacks contextInconsistencies ]).
 		  ('marriedContexts' -> [ stacks marriedContexts ]).
 		  ('stackDescriptionOfProcess:' -> [ stacks stackDescriptionOfProcess: process ]).
+		  ('whyTheStackEndsOfProcess:' -> [ stacks whyTheStackEndsOfProcess: process ]).
 		  ('isMarriedContext:' -> [ stacks isMarriedContext: aContext ]).
 		  ('highlightRangeOf:active: false' -> [ reifiedMemory highlightRangeOf: aContext active: false ]).
 		  ('highlightRangeOf:active: true' -> [ reifiedMemory highlightRangeOf: aContext active: true ]).

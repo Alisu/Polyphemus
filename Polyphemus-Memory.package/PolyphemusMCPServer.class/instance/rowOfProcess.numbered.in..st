@@ -1,8 +1,16 @@
 tools
 rowOfProcess: aProcess numbered: aNumber in: aReifiedMemory
 
-	| activations |
-	activations := [ aReifiedMemory activationsOfProcess: aProcess ] on: Error do: [ :e | #(  ) ].
+	| activations ends |
+	activations := [ aReifiedMemory activationsOfProcess: aProcess ]
+		               on: Error
+		               do: [ :e |
+			               ends := e messageText asString.
+			               #(  ) ].
+	ends ifNil: [
+		ends := [ aReifiedMemory stacks whyTheStack: activations endsForProcess: aProcess ]
+			        on: Error
+			        do: [ :e | e messageText asString ] ].
 	^ Dictionary new
 		  at: 'process' put: aNumber;
 		  at: 'address' put: aProcess address;
@@ -11,4 +19,5 @@ rowOfProcess: aProcess numbered: aNumber in: aReifiedMemory
 		  at: 'name' put: (self nameOfProcess: aProcess);
 		  at: 'depth' put: activations size;
 		  at: 'top' put: (activations ifEmpty: [ nil ] ifNotEmpty: [ activations first printString ]);
+		  at: 'ends' put: ends;
 		  yourself

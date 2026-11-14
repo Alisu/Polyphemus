@@ -1,0 +1,15 @@
+{
+	"commentStamp": "",
+	"super": "TestCase",
+	"category": "Polyphemus-Tests-dump",
+	"classinstvars": [
+	 "Memory"
+	],
+	"pools": [],
+	"classvars": [],
+	"instvars": [
+	 "memory"
+	],
+	"name": "DamagedCoreTest",
+	"type": "normal"
+}

@@ -11,6 +11,8 @@ whatIsShownOfFrame: anIndex
 		  ('the page''s frames' -> [ self frames ]).
 		  ('livePages' -> [ stacks livePages ]).
 		  ('activationsOfProcess:' -> [ stacks activationsOfProcess: reifiedMemory reifiedActiveProcess ]).
+		  ('whyTheStackEndsOfProcess:' -> [ stacks whyTheStackEndsOfProcess: reifiedMemory reifiedActiveProcess ]).
+		  ('whyTheStackEndsAfter:' -> [ frame value ifNotNil: [ :it | stacks whyTheStackEndsAfter: it ] ]).
 		  ('descriptionOfContext:' -> [ frame value ifNotNil: [ :it | stacks descriptionOfContext: it ] ]).
 		  ('sourceOfContext:' -> [ frame value ifNotNil: [ :it | stacks sourceOfContext: it ] ]).
 		  ('disassemblyOfContext:' -> [ frame value ifNotNil: [ :it | stacks disassemblyOfContext: it ] ]).

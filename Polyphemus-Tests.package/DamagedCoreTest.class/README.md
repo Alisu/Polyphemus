@@ -1,0 +1,1 @@
+A copy of the setup's core with words of it overwritten in the file, and read: what a dump of a damaged virtual machine gives (#118). By something other than the reader, and never repaired, as DamagedPharoImageTest does for an image file. The damage so far: the frame pointer the VM saved on leaving for C, set off its stack pages. Skips where the setup has no ELF core.
