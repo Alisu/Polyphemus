@@ -13,12 +13,13 @@ ClassVariableNamedTest 4
 CompactMemorySpaceTest 7
 CompilingAsTheImageDidTest 49
 DamagedCandleImageTest 15
-DamagedContextSlotsTest 110
-DamagedPharoImageTest 140
-DamagedStackPageTest 250
+DamagedContextSlotsTest 85
+DamagedPharoImageTest 63
+DamagedStackPageTest 212
 DebugSessionRepairTest 4
 DebuggerOnAReadingTest 37
-DefectsReadingStacksTest 60
+DefectsReadingFramesTest 30
+DefectsReadingStacksTest 36
 DirectoryChannelTest 15
 DumpImageCacheKeyTest 4
 ElfCoreDumpTest 4
