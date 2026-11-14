@@ -1,0 +1,15 @@
+{
+	"commentStamp" : "",
+	"super" : "AbstractInspectorsTest",
+	"category" : "Polyphemus-Tests-reifiedMemory",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [
+		"process",
+		"contexts",
+		"victim"
+	],
+	"name" : "DamagedContextSlotsTest",
+	"type" : "normal"
+}

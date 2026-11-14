@@ -9,5 +9,5 @@ sender
 	caller isNilOop ifTrue: [ ^ nil ].
 	caller isContextOop ifFalse: [
 		^ NotInTheReading signal: 'the sender of the context at ' , (address printStringRadix: 16)
-			  , ' is no context: ' , caller printString ].
+			  , ' is no context: ' , caller whatItReadsAs ].
 	^ caller

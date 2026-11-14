@@ -1,0 +1,4 @@
+tests
+testNoDamageOfItsClosureMakesAQuestionFailWithAnErrorThatIsNotOurs
+
+	self assertEveryQuestionIsAnsweredOrRefusedByNameWhenDamaged: reifiedMemory stacks contextClosureSlot
