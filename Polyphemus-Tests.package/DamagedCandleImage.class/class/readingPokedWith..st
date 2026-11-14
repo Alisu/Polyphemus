@@ -6,9 +6,7 @@ readingPokedWith: aBlock
 
 	| clean loaded |
 	clean := self readingOf: self cleanFile.
-	loaded := AbstractInspectorsTest new.
-	loaded imagePath: self cleanFile fullName.
-	loaded setUpUsingImageMarrying: false.
+	loaded := self loadedClean.
 	(aBlock value: clean) do: [ :each | (loaded instVarNamed: 'memory') long64At: each key put: each value ].
 	loaded postImageLoad.
 	^ loaded instVarNamed: 'reifiedMemory'

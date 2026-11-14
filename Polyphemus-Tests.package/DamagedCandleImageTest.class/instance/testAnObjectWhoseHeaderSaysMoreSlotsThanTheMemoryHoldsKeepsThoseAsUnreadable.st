@@ -1,23 +1,26 @@
 tests
 testAnObjectWhoseHeaderSaysMoreSlotsThanTheMemoryHoldsKeepsThoseAsUnreadable
 
-	"#118: the last object of the heap overwritten, in the memory once loaded, into an Array whose
-	slot count runs past the end of the memory. A slot past that end stands as unreadable, in its
-	place, where VMMaker says only that it has no such key."
+	"#118: an Array made in the loaded memory, then its slot count overwritten there so that its
+	slots run past the end of the memory, as in a process whose memory was damaged after it was
+	read. A slot past that end stands as unreadable, where VMMaker says only that it has no such key."
 
-	| victim memory object slots |
-	memory := DamagedCandleImage readingPokedWith: [ :clean |
-		          | arrayTag |
-		          clean allOldSpaceObjectsDo: [ :each | victim := each ].
-		          self assert: (clean numSlotsOf: victim) >= 255 description: 'its slot count is in the word before its header'.
-		          arrayTag := (clean oopClassNamed: 'PCArray') instancesOop first oopClassTag.
-		          {
-			          (victim - 8 -> ((255 bitShift: 56) + 20000)).
-			          (victim -> ((255 bitShift: 56) + (2 bitShift: 24) + arrayTag)) } ].
-	object := memory reifyOop: victim.
+	| loaded vm array count memory object slots |
+	loaded := DamagedCandleImage loadedClean.
+	vm := loaded instVarNamed: 'memory'.
+	array := loaded
+		         newOldSpaceObjectWithSlots: 300
+		         format: vm arrayFormat
+		         classIndex: (vm classIndexOf: vm specialObjectsOop).
+	loaded postImageLoad.
+	memory := loaded instVarNamed: 'reifiedMemory'.
+	count := vm endOfMemory - array // 8 + 600.
+	vm long64At: array - 8 put: (255 bitShift: 56) + count.
+	object := memory reifyOop: array.
 	slots := object allReifiedSlots.
 
-	self assert: slots size equals: 20000.
+	self assert: slots size equals: count.
+	self deny: ((slots first: 300) anySatisfy: [ :each | each isUnreadableSlot ]).
 	self assert: slots last isUnreadableSlot.
-	self assert: (memory readSlot: 20000 of: object ifUnreadable: [ #unreadable ]) equals: #unreadable.
-	self should: [ object reifiedSlotAt: 20000 ] raise: NotInTheReading
+	self assert: (memory readSlot: count of: object ifUnreadable: [ #unreadable ]) equals: #unreadable.
+	self should: [ object reifiedSlotAt: count ] raise: NotInTheReading
