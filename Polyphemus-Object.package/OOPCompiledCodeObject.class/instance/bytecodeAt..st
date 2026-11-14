@@ -1,4 +1,5 @@
 accessing-bytecodes
 bytecodeAt: anIndex 
-	(anIndex between: 1 and: self numberOfBytecodes) ifFalse: [ ^ self refuseItsLacking: 'bytecode' at: anIndex ].
+	anIndex < 1 ifTrue: [ ^ self errorSubscriptBounds: anIndex ].
+	anIndex > self numberOfBytecodes ifTrue: [ ^ self refuseItsLacking: 'bytecode' at: anIndex ].
 	^ memory fetchByte: (self indexForBytecode: anIndex) ofObject: address

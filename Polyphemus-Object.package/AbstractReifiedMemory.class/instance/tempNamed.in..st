@@ -19,6 +19,6 @@ tempNamed: aName in: anActivation
 		var := [ scope lookupVar: name ] on: Error do: [ :e | nil ].
 		(var notNil and: [ self activation: current holds: var inScope: scope ])
 			ifTrue: [ ^ self read: var ofScope: scope in: current ].
-		current := [ current outerContext ] on: PolyphemusError do: [ :e | nil ] ].
+		current := current outerContext ].
 
 	^ NotInTheReading signal: 'no temporary named ' , name asString , ' in this frame'

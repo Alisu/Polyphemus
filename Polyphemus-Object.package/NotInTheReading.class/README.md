@@ -1,1 +1,1 @@
-Asked for something the reading does not have, or no longer has: an address no space read maps, a temporary, a process, a global, a C call (#118).
+Asked for something the reading does not have, or no longer has: an address no space read maps, a word that is no address, a slot, a literal or a bytecode past an object's own, slots of what has none, a class or a method by a name the image lacks, a temporary, a process, a global, a C call (#118).

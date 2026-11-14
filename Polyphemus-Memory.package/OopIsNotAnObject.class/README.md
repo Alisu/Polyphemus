@@ -1,0 +1,1 @@
+A word that names no object: a zeroed header met by the walk of old space, or a class index no object has. It carries the word, which the reification then reads as an abnormal entity (#118).

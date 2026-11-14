@@ -10,6 +10,6 @@ canHandle: address memory: memory
 		ifTrue: [
 			^ OopIsNotAnObject new
 				  oop: address;
-				  signal: 'the word ' , address printStringHex , ' names no object: its class index is '
+				  signal: 'the word ' , (address printStringRadix: 16) , ' names no object: its class index is '
 					  , classIndexOf printString ].
 	^ false
