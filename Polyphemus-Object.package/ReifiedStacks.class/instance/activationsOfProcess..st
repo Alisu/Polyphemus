@@ -23,7 +23,7 @@ activationsOfProcess: aProcessOop
 	seen := Set new.
 	[ frames isEmpty ] whileFalse: [
 		activations addAll: frames.
-		context := [ frames last oopPageCaller ] on: Error do: [ :e | nil ].
+		context := [ frames last oopPageCaller ] on: PolyphemusError do: [ :e | nil ].
 		frames := (context notNil and: [ (seen includes: context) not and: [ self isMarriedContext: context ] ])
 			          ifTrue: [ seen add: context. self framesFromContext: context ]
 			          ifFalse: [ #(  ) ] ].

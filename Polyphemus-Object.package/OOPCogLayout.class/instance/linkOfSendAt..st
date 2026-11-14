@@ -8,9 +8,11 @@ linkOfSendAt: aReturnAddress
 	target := [ self cogit backEnd callTargetFromReturnAddress: aReturnAddress ] on: Error do: [ :e | ^ nil ].
 	(self nameOfCodeAddress: target) ifNotNil: [ :name | ^ 'unlinked (' , name , ')' ].
 	(raw isMachineCodeAddress: target) ifFalse: [ ^ 'calls 16r' , target printStringHex ].
-	([ target < (raw vmVariables at: 'methodZoneBase') ] on: Error do: [ :e | false ]) ifTrue: [
+	([ target < (raw vmVariables at: 'methodZoneBase') ] on: SpurCannotRead do: [ :unsaid | false ]) ifTrue: [
 		^ 'unlinked (a trampoline at 16r' , target printStringHex , ')' ].
-	entry := [ self cogit instVarNamed: #cmEntryOffset ] on: Error do: [ :e | ^ 'calls 16r' , target printStringHex ].
+	entry := (self cogit class allInstVarNames anySatisfy: [ :each | each asString = 'cmEntryOffset' ]) ifTrue: [
+		         self cogit instVarNamed: #cmEntryOffset ].
+	entry ifNil: [ ^ 'calls 16r' , target printStringHex ].
 	cogMethod := self cogit cogMethodSurrogateAt: target - entry.
 	type := self nameOfMethodType: cogMethod cmType.
 	type = 'a Method' ifTrue: [ ^ 'linked to ' , (self objectAt: cogMethod methodObject) printString ].

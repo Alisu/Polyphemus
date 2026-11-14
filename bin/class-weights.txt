@@ -20,6 +20,8 @@ DamagedPharoImageTest 63
 DamagedStackPageTest 212
 DebugSessionRepairTest 4
 DebuggerOnAReadingTest 37
+DamagedVMLibraryTest 40
+DefectsReadingCogFramesTest 40
 DefectsReadingFramesTest 30
 DefectsReadingStacksTest 36
 DirectoryChannelTest 15

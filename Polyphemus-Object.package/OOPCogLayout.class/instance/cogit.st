@@ -35,6 +35,6 @@ cogit
 			  :each |
 			  (cogit class allInstVarNames includes: each) ifTrue: [
 				  [ cogit instVarNamed: each put: (raw vmVariables at: each) ]
-					  on: Error
-					  do: [ :e | nil ] ] ].
+					  on: SpurCannotRead
+					  do: [ :unsaid | nil ] ] ].
 		  cogit ]

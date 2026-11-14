@@ -1,0 +1,17 @@
+{
+	"commentStamp": "",
+	"super": "TestCase",
+	"category": "Polyphemus-Tests-dump",
+	"classinstvars": [
+	 "Memory"
+	],
+	"pools": [],
+	"classvars": [],
+	"instvars": [
+	 "memory",
+	 "process",
+	 "context"
+	],
+	"name": "DefectsReadingCogFramesTest",
+	"type": "normal"
+}

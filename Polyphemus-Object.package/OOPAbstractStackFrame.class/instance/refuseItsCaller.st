@@ -6,7 +6,5 @@ refuseItsCaller
 	^ (SpurCannotRead new
 		   level: #frame reason: whyNoCaller;
 		   detail: 'the frame at ' , (framePointer printStringRadix: 16) , ' saves '
-			   , ([ (self layout wordAt: framePointer) printStringRadix: 16 ]
-					    on: NotInTheReading
-					    do: [ :refusal | 'a word that is not read' ]);
+			   , ((self layout wordAt: framePointer) printStringRadix: 16);
 		   yourself) signal

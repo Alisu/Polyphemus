@@ -7,7 +7,7 @@ framesFromContext: aContext
 
 	| fp page frames |
 	fp := (self framePointerOf: aContext) ifNil: [ ^ #(  ) ].
-	page := [ raw vmVariables pageWithHeadFP: fp ] on: Error do: [ :e | nil ].
+	page := [ raw vmVariables pageWithHeadFP: fp ] on: SpurCannotRead do: [ :unsaid | nil ].
 	frames := self framesFrom: fp stackTop: (page ifNotNil: [ page headSP ]).
 	page ifNotNil: [ frames first setSavedIP: (self wordAt: page headSP) ].
 	^ frames

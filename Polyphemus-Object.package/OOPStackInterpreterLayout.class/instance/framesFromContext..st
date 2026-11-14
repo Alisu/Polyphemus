@@ -7,6 +7,5 @@ framesFromContext: aContext
 		| frames |
 		frames := page frames.
 		1 to: frames size do: [ :index |
-			([ (frames at: index) oopContext = aContext ] on: Error do: [ :e | false ])
-				ifTrue: [ ^ frames copyFrom: index to: frames size ] ] ].
+			((frames at: index) hasContextThatIs: aContext) ifTrue: [ ^ frames copyFrom: index to: frames size ] ] ].
 	^ #(  )

@@ -8,5 +8,5 @@ instructionPointer
 	(self isMachineCodeFrame and: [ self readsMachineCodePC not ]) ifTrue: [
 		self signalMachineCode ].
 	^ self isActiveFrame
-		  ifTrue: [ [ memory interpreter instructionPointer ] on: Error do: [ :e | nil ] ]
+		  ifTrue: [ memory interpreter instructionPointer ]
 		  ifFalse: [ savedIP ]

@@ -5,4 +5,4 @@ stackp
 	its stack pointer is not known. Refused for a JIT frame."
 
 	self isMachineCodeFrame ifTrue: [ self signalMachineCode ].
-	^ [ self layout stackpOf: self ] on: Error do: [ :e | nil ]
+	^ self layout stackpOf: self
