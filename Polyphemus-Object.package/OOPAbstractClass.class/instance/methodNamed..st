@@ -1,4 +1,6 @@
 finding
 methodNamed: aString
 
-	^ self methodNamed: aString ifAbsent: [ NotFound signalFor: aString ]
+	^ self
+		  methodNamed: aString
+		  ifAbsent: [ NotInTheReading signal: 'no method named ' , aString , ' in this class' ]

@@ -5,5 +5,6 @@ setUpCompiledBlockClass
 	Pharo 14's FFICompiledMethod for an FFI call (#150)."
 
 	#( 'CompiledBlock' 'PCCompiledBlock' ) do: [ :each |
-		[ ^ compiledBlockClassIndex := (self preFindClassNamed: each) - 1 ] on: NotFound do: [ :e |  ] ].
+		(self preFindClassNamed: each ifAbsent: [ nil ]) ifNotNil: [ :index |
+			^ compiledBlockClassIndex := index - 1 ] ].
 	compiledBlockClassIndex := nil
