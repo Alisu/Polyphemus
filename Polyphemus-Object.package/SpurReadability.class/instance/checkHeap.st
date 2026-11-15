@@ -1,9 +1,8 @@
 checking
 checkHeap
 
-	^ ([ heap heapStart ] on: Error do: [ :e | nil ])
-		  ifNil: [
-			  ([ heap space cutShort ] on: Error do: [ :e | nil ])
-				  ifNil: [ #noSpurHeapHere ]
-				  ifNotNil: [ #itsFileIsCutShort ] ]
+	"No heap found in this memory: its file cut short where the file says so, else none here."
+
+	^ ([ heap heapStart ] on: PolyphemusError do: [ :refusal | nil ])
+		  ifNil: [ heap space cutShort ifNil: [ #noSpurHeapHere ] ifNotNil: [ #itsFileIsCutShort ] ]
 		  ifNotNil: [ nil ]

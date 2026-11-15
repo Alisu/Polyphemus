@@ -29,6 +29,7 @@ DefectsReadingClassesTest 36
 DefectsReadingCogFramesTest 40
 DefectsReadingFramesTest 30
 DefectsReadingMethodsTest 36
+DefectsReadingSourceTest 36
 DefectsReadingStacksTest 36
 DirectoryChannelTest 15
 DumpImageCacheKeyTest 4

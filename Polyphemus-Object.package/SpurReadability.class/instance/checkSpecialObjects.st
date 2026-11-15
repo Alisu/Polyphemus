@@ -1,6 +1,4 @@
 checking
 checkSpecialObjects
 
-	^ ([ heap specialObjectsOop ] on: Error do: [ :e | nil ])
-		  ifNil: [ #noSpecialObjectsArray ]
-		  ifNotNil: [ nil ]
+	^ heap specialObjectsOop ifNil: [ #noSpecialObjectsArray ] ifNotNil: [ nil ]

@@ -1,0 +1,1 @@
+A defect of our own while the two ladders are climbed, a heap's and a reading's source, comes through as itself: it is not a memory without a heap, a method that does not read as its source, or an image whose running methods do not read (#118). The damage itself is read in SpurImageFileTest, DamagedCandleImageTest and DamagedPharoImageTest.

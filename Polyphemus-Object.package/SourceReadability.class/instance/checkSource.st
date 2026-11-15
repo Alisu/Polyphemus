@@ -1,12 +1,12 @@
 checking
 checkSource
 
-	"nil when a sources file is there and some sampled method reads as its own source."
+	"nil when the methods the processes run can be sampled, a sources file is there and some
+	sampled method reads as its own source; nil too where no process runs a method to ask."
 
 	| sample |
-	([ memory retrieveSourceFiles sourcesFileStream ] on: Error do: [ :e | nil ]) ifNil: [
-		^ #noSourcesFile ].
-	sample := self sampleMethods.
+	sample := [ self sampleMethods ] on: PolyphemusError do: [ :refusal | ^ #itsRunningMethodsDoNotRead ].
+	memory retrieveSourceFiles sourcesFileStream ifNil: [ ^ #noSourcesFile ].
 	sample ifEmpty: [ ^ nil ].
 	^ (sample anySatisfy: [ :each | self readsAsItsOwnSource: each ])
 		  ifTrue: [ nil ]
