@@ -275,6 +275,16 @@ pinned image). It refuses, with the level and the reason, a file that fails `byt
 `objects` or `classes`: a file that is no image, or one cut short. Damage inside an object, like
 the blanked-context fixture, still opens.
 
+**One damage inside an object does not open, and is refused at `objects`** (#207). The simulator
+moves every pointer of the file to where the image is loaded, and reads each method's header to
+know how many of its words are pointers; VMMaker asserts that the header is an integer. So for
+an image file the walk also notes the first method whose header is none
+(`SpurRawHeap>>expectingIntegerMethodHeaders`), and the file is refused as
+`cannot read objects: aMethodsHeaderIsNoInteger (the method at 16r... in the file)`. Not asked of
+a dump, where a jitted method's header slot holds its CogMethod. On every pinned image the check
+refuses nothing, and the walk takes the same 0.3 to 0.4 s with it as without. Reading on past
+such a method is the next step of #207, not done.
+
 **`source` is a rung of its own**, above the heap, because it needs reified methods. It fails
 - with `#noSourcesFile`, or
 - with `#itsMethodsDoNotReadAsTheirSource`, when none of the methods on the processes' stacks

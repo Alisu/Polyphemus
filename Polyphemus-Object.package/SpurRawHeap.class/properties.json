@@ -7,7 +7,7 @@
 	"classvars": [],
 	"instvars": [ "space", "scanner", "mappingStart", "mappingLimit", "heapStart", "liveEnd",
 		"specialObjectsOop", "walk", "readability", "classTableProblems", "pieces", "youngStart", "vmVariables",
-		"youngMappingStart", "youngMappingLimit", "youngBytes", "codeZone" ],
+		"youngMappingStart", "youngMappingLimit", "youngBytes", "codeZone", "integerMethodHeaders", "methodWithoutAHeader" ],
 	"name": "SpurRawHeap",
 	"type": "normal"
 }

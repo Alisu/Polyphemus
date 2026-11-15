@@ -12,6 +12,6 @@ findHeap
 	liveEnd := self statedEndOfMemory.
 	specialObjectsOop := self statedSpecialObjectsOop.
 	(liveEnd notNil and: [ specialObjectsOop notNil ]) ifTrue: [ ^ self ].
-	walk := self scanner walkFrom: heapStart upTo: mappingLimit.
+	walk := self walkTheHeap.
 	liveEnd ifNil: [ liveEnd := walk lastLiveEnd ifNil: [ heapStart ] ].
 	specialObjectsOop ifNil: [ specialObjectsOop := walk specialObjectsArray ]

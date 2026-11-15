@@ -6,4 +6,4 @@ heapWalk
 	taken from an earlier reading (assumeTheHeapOf:)."
 
 	self findHeap.
-	^ walk ifNil: [ walk := self scanner walkFrom: heapStart upTo: mappingLimit ]
+	^ walk ifNil: [ walk := self walkTheHeap ]
