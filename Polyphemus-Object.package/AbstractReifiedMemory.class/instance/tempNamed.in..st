@@ -16,7 +16,7 @@ tempNamed: aName in: anActivation
 			^ NotInTheReading signal: 'cannot read ' , name asString
 				, ': this host does not reproduce the code of that frame (#6)' ].
 		scope := self astScopeOf: current.
-		var := [ scope lookupVar: name ] on: Error do: [ :e | nil ].
+		var := ForeignCode askingPharo: [ scope lookupVar: name ] ifItFails: [ nil ].
 		(var notNil and: [ self activation: current holds: var inScope: scope ])
 			ifTrue: [ ^ self read: var ofScope: scope in: current ].
 		current := current outerContext ].

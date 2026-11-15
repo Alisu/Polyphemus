@@ -7,6 +7,6 @@ lookupTempVar: aName in: anActivation
 	| var |
 	var := self lookupVar: aName in: anActivation.
 	var ifNil: [ ^ nil ].
-	^ ([ var isLocalVariable ] on: Error do: [ :e | false ])
+	^ (ForeignCode askingPharo: [ var isLocalVariable ] ifItFails: [ false ])
 		  ifTrue: [ var ]
 		  ifFalse: [ nil ]

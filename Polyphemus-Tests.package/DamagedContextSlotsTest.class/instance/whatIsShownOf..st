@@ -24,5 +24,5 @@ whatIsShownOf: aContext
 		  ('tempNamesOf:' -> [ reifiedMemory tempNamesOf: aContext ]).
 		  ('processStates' -> [ reifiedMemory processStates ]).
 		  ('processInconsistencies' -> [ reifiedMemory processInconsistencies ]) }
-	  , (#( #selector #startpc #endPC #sourceCode #tempNames #printString ) collect: [ :each |
+	  , (#( #selector #startpc #endPC #sourceCode #sourceNodeExecuted #tempNames #printString ) collect: [ :each |
 			   each -> [ aContext perform: each ] ])

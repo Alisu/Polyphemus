@@ -5,9 +5,9 @@ statementPutInto: aSource source: aStatement
 	which is where Pharo's own parser says they start."
 
 	| body |
-	body := [ (AbstractReifiedMemory parserClass parseMethod: aSource) body ]
-		        on: AbstractReifiedMemory syntaxErrors
-		        do: [ :e | nil ].
+	body := ForeignCode
+		        askingPharo: [ (AbstractReifiedMemory parserClass parseMethod: aSource) body ]
+		        ifItFails: [ nil ].
 	(body isNil or: [ body statements isEmpty ]) ifTrue: [ ^ aSource ].
 	^ (aSource first: body statements first start - 1) , aStatement
 	  , (aSource allButFirst: body statements first start - 1)

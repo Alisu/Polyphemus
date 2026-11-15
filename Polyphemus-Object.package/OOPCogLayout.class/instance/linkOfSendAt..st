@@ -4,8 +4,11 @@ linkOfSendAt: aReturnAddress
 	"What the send whose call returns there is linked to, read from the call's target: a method,
 	an inline cache of several classes, or a trampoline while unlinked (#95)."
 
-	| target entry cogMethod type |
-	target := [ self cogit backEnd callTargetFromReturnAddress: aReturnAddress ] on: Error do: [ :e | ^ nil ].
+	| target entry cogMethod type theCogit |
+	theCogit := self cogit.
+	target := ForeignCode
+		          askingVMMaker: [ theCogit backEnd callTargetFromReturnAddress: aReturnAddress ]
+		          ifItFails: [ ^ nil ].
 	(self nameOfCodeAddress: target) ifNotNil: [ :name | ^ 'unlinked (' , name , ')' ].
 	(raw isMachineCodeAddress: target) ifFalse: [ ^ 'calls 16r' , target printStringHex ].
 	([ target < (raw vmVariables at: 'methodZoneBase') ] on: SpurCannotRead do: [ :unsaid | false ]) ifTrue: [

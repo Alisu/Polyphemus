@@ -6,4 +6,4 @@ activation: anActivation holds: aVariable inScope: aScope
 	else answers whatever happens to sit at that position."
 
 	(self vectorHolding: aVariable inScope: aScope) ifNotNil: [ ^ true ].
-	^ [ aVariable scope == aScope ] on: Error do: [ :e | false ]
+	^ ForeignCode askingPharo: [ aVariable scope == aScope ] ifItFails: [ false ]

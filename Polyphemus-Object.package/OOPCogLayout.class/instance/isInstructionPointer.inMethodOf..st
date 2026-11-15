@@ -5,13 +5,12 @@ isInstructionPointer: anAddress inMethodOf: aFramePointer
 	(a machine code pc, #62). A method field outside the code zone, or whose size cannot be read,
 	holds no pc: a frame caught while being built may still hold what the stack held (#17)."
 
-	| method start size |
+	| method start size theCogit |
 	(self isMachineCodeFrame: aFramePointer) ifTrue: [
 		start := self cogMethodOf: aFramePointer.
 		(raw isMachineCodeAddress: start) ifFalse: [ ^ false ].
-		size := [ (self cogit cogMethodSurrogateAt: start) blockSize ]
-			        on: Error
-			        do: [ :e | ^ false ].
+		theCogit := self cogit.
+		size := ForeignCode askingVMMaker: [ (theCogit cogMethodSurrogateAt: start) blockSize ] ifItFails: [ ^ false ].
 		^ anAddress > start and: [ anAddress < (start + size) ] ].
 	method := self methodOf: aFramePointer.
 	^ anAddress > method and: [

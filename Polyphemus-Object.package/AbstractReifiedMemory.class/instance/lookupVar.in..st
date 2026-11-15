@@ -6,4 +6,4 @@ lookupVar: aName in: anActivation
 
 	| scope |
 	scope := self astScopeOf: anActivation.
-	^ [ scope lookupVar: aName asString asSymbol ] on: Error do: [ :e | nil ]
+	^ ForeignCode askingPharo: [ scope lookupVar: aName asString asSymbol ] ifItFails: [ nil ]

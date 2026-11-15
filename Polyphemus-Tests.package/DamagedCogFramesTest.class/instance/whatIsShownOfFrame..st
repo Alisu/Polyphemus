@@ -20,6 +20,6 @@ whatIsShownOfFrame: anIndex
 		  ('highlightRangeOf:active: false' -> [ frame value ifNotNil: [ :it | memory highlightRangeOf: it active: false ] ]).
 		  ('highlightRangeOf:active: true' -> [ frame value ifNotNil: [ :it | memory highlightRangeOf: it active: true ] ]).
 		  ('tempNamesOf:' -> [ frame value ifNotNil: [ :it | memory tempNamesOf: it ] ]) }
-	  , (#( #selector #startpc #endPC #isBlockContext #sourceCode #tempNames #printString #isReadable
+	  , (#( #selector #startpc #endPC #isBlockContext #sourceCode #sourceNodeExecuted #tempNames #printString #isReadable
 		     #isMachineCodeFrame #isActiveFrame #isDead #inspectionItems #readsMachineCodePC ) collect: [ :each |
 			   each -> [ frame value ifNotNil: [ :it | it perform: each ] ] ])

@@ -6,18 +6,16 @@ vectorHolding: aVariable inScope: aScope
 
 	| owningScope vectorVar |
 	aVariable class name = #OCVectorTempVariable ifFalse: [ ^ nil ].
-	owningScope := [ aVariable scope ] on: Error do: [ :e | nil ].
+	owningScope := ForeignCode askingPharo: [ aVariable scope ] ifItFails: [ nil ].
 	owningScope ifNil: [ ^ nil ].
 
-	vectorVar := [ aScope lookupVar: owningScope tempVectorName ]
-		             on: Error
-		             do: [ :e | nil ].
+	vectorVar := ForeignCode askingPharo: [ aScope lookupVar: owningScope tempVectorName ] ifItFails: [ nil ].
 	vectorVar ifNil: [
-		vectorVar := [ aScope lookupVar: owningScope tempVectorName asSymbol ]
-			             on: Error
-			             do: [ :e | nil ] ].
+		vectorVar := ForeignCode
+			             askingPharo: [ aScope lookupVar: owningScope tempVectorName asSymbol ]
+			             ifItFails: [ nil ] ].
 	vectorVar ifNil: [ ^ nil ].
 
-	^ ([ vectorVar scope == aScope ] on: Error do: [ :e | false ])
+	^ (ForeignCode askingPharo: [ vectorVar scope == aScope ] ifItFails: [ false ])
 		  ifTrue: [ vectorVar ]
 		  ifFalse: [ nil ]

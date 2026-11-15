@@ -4,10 +4,11 @@ machineCodeTextOf: aMethodAddress
 	"The CogMethod Cog compiled of the method at that address, read only: header, map from
 	machine code pcs to bytecode pcs, bytes (#95). nil when its header holds no CogMethod."
 
-	| header cogMethod start |
+	| header cogMethod start theCogit |
 	header := self wordAt: aMethodAddress + memory wordSize.
 	((header bitAnd: 1) = 0 and: [ raw isMachineCodeAddress: header ]) ifFalse: [ ^ nil ].
-	cogMethod := self cogit cogMethodSurrogateAt: header.
+	theCogit := self cogit.
+	cogMethod := theCogit cogMethodSurrogateAt: header.
 	start := memory interpreter startPCOfMethodHeader: cogMethod methodHeader.
 	^ String streamContents: [ :s |
 		  s nextPutAll: 'CogMethod at 16r' , header printStringHex , ', ' , cogMethod blockSize printString , ' bytes'; cr.
@@ -18,7 +19,7 @@ machineCodeTextOf: aMethodAddress
 		  self cogit mapFor: cogMethod do: [ :annotation :mcpc |
 			  s nextPutAll: '  16r' , mcpc printStringHex , '  ' , (self nameOfAnnotation: annotation).
 			  (self cogit isPCMappedAnnotation: annotation) ifTrue: [
-				  ([ self cogit bytecodePCFor: mcpc startBcpc: start in: cogMethod ] on: Error do: [ :e | 0 ])
+				  (ForeignCode askingVMMaker: [ theCogit bytecodePCFor: mcpc startBcpc: start in: cogMethod ] ifItFails: [ 0 ])
 					  ifNotNil: [ :bcpc | bcpc > 0 ifTrue: [ s nextPutAll: '  -> bytecode pc ' , (bcpc + 1) printString ] ] ].
 			  annotation >= (Cogit bindingOf: #IsSendCall) value ifTrue: [
 				  (self linkOfSendAt: mcpc) ifNotNil: [ :link | s nextPutAll: ', ' , link ] ].
