@@ -3,10 +3,11 @@ processStates
 
 	"Each process -> #active, #runnable, #waiting, #suspended or #unknown. A process whose list
 	does not read, or is no object, is #unknown rather than left out or said to wait; so is one
-	on a list when the scheduler's lists do not read, runnable not being told from waiting."
+	on a list when the scheduler's lists do not read. None where the processes cannot be listed."
 
 	| states active lists nilObject unreadable |
 	states := Dictionary new.
+	self whyItsProcessesDoNotRead ifNotNil: [ ^ states ].
 	active := self reifiedActiveProcess.
 	lists := [ self reifiedProcessLists asArray ] on: PolyphemusError do: [ :refusal | nil ].
 	nilObject := memory reifiedNilObject.

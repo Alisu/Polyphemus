@@ -1,0 +1,5 @@
+tests
+testNoDamageOfTheSchedulersAssociationMakesAQuestionFailWithAnErrorThatIsNotOurs
+
+	subject := reifiedMemory reifiedSpecialObjectArray reifiedSlotAt: reifiedMemory processes schedulerAssociationSlot.
+	self assertEveryQuestionIsAnsweredOrRefusedByNameWithSlotsDamaged: (1 to: 2)

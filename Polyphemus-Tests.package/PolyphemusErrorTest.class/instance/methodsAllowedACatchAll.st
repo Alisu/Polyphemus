@@ -48,7 +48,6 @@ methodsAllowedACatchAll
 		'ProcessMemory>>wasStoppedInItsOwnCode'
 		'ProcessMemory>>whyCollecting'
 		'ReifiedDebugSession>>evaluate:in:'
-		'ReifiedProcesses>>processInconsistencies'
 		'SnapshotProcessBrowser>>labelForProcess:'
 		'SpurDumpedMemory>>placeSpacesIn:freeLists:'
 		'SpurHeapWatch class>>problemsOf:'

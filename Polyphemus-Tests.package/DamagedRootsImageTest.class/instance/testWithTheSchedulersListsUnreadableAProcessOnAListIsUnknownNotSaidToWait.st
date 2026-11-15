@@ -11,4 +11,4 @@ testWithTheSchedulersListsUnreadableAProcessOnAListIsUnknownNotSaidToWait
 	self assert: reifiedMemory allReifiedProcesses size equals: 8.
 	self assert: (states values count: [ :each | each = #active ]) equals: 1.
 	self assert: (states values count: [ :each | each = #unknown ]) equals: 7.
-	self assert: reifiedMemory processInconsistencies notEmpty
+	self assert: (reifiedMemory processInconsistencies anySatisfy: [ :each | each value = #schedulerQueuesAreUnreadable ])

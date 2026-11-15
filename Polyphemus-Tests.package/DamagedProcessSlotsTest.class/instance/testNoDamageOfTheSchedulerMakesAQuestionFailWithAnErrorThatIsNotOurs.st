@@ -1,0 +1,5 @@
+tests
+testNoDamageOfTheSchedulerMakesAQuestionFailWithAnErrorThatIsNotOurs
+
+	subject := reifiedMemory processes reifiedScheduler.
+	self assertEveryQuestionIsAnsweredOrRefusedByNameWithSlotsDamaged: (1 to: subject oopNumberOfSlots)

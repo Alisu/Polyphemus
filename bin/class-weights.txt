@@ -20,6 +20,7 @@ DamagedContextSlotsTest 85
 DamagedCoreTest 60
 DamagedMethodSlotsTest 120
 DamagedPharoImageTest 63
+DamagedProcessSlotsTest 120
 DamagedRootsImageTest 63
 DamagedStackPageTest 212
 DebugSessionRepairTest 4

@@ -2,11 +2,13 @@ contexts
 contextInconsistencies
 
 	"What a snapshot's stacks cannot show if a working VM wrote it: offending context -> what is
-	wrong. The queues are #processInconsistencies' question."
+	wrong. The queues are #processInconsistencies' question, and so are processes that cannot
+	be listed: nothing is said of them here."
 
 	| problems nilObject |
 	problems := OrderedCollection new.
 	nilObject := memory reifiedNilObject.
+	memory processes whyItsProcessesDoNotRead ifNotNil: [ ^ problems ].
 
 	memory allReifiedProcesses do: [ :process |
 		| stack last sender |
