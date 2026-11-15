@@ -1,0 +1,4 @@
+tests
+testNoDamageOfAClassMakesAQuestionFailWithAnErrorThatIsNotOurs
+
+	self assertEveryQuestionIsAnsweredOrRefusedByNameWithSlotsDamaged: (1 to: subject oopNumberOfSlots)

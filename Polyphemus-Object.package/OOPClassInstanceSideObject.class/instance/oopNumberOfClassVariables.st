@@ -1,3 +1,4 @@
 classVariables
 oopNumberOfClassVariables
-	^ (self oopSlotNamed: memory mode classVariablesSlotName) tally asInteger
+
+	^ self oopClassPoolEntries size

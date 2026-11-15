@@ -2,7 +2,8 @@ variables
 bindingOf: aName
 
 	"The binding of aName in the image being read, as a GlobalVariable of this image (the
-	highlighter asks #isGlobalVariable), kept so one name is one object. nil when absent."
+	highlighter asks #isGlobalVariable), kept so one name is one object. nil when absent; a
+	value that does not read is an OOPUnreadableSlot saying why, as a class variable's is."
 
 	| binding |
 	binding := memory globalNamed: aName.
@@ -12,4 +13,6 @@ bindingOf: aName
 		  ifAbsentPut: [
 			  GlobalVariable
 				  key: aName asString asSymbol
-				  value: ([ binding reifiedSlotAt: 2 ] on: Error do: [ :e | binding ]) ]
+				  value: ([ binding reifiedSlotAt: 2 ]
+						   on: PolyphemusError
+						   do: [ :refusal | OOPUnreadableSlot named: aName asString because: refusal messageText asString on: memory ]) ]

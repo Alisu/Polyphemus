@@ -1,0 +1,1 @@
+A defect of our own while a class, its methods or a global are read comes through as itself: it is not a class without a name, a method passed over, a value that does not read or an instance shown by numbers (#118). The damage itself is read in DamagedPharoImageTest and DamagedClassSlotsTest.

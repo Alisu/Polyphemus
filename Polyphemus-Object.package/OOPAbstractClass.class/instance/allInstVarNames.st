@@ -1,4 +1,4 @@
 variables
 allInstVarNames
-	^ self allOopSlotNames collect: [ :each |
-		  [ each asString ] on: Error do: [ :e | '' ] ]
+
+	^ self allOopSlotNames collect: [ :each | each asString ]

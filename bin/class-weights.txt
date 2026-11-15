@@ -13,6 +13,7 @@ ClassVariableNamedTest 4
 CompactMemorySpaceTest 7
 CompilingAsTheImageDidTest 49
 DamagedCandleImageTest 15
+DamagedClassSlotsTest 120
 DamagedCogFramesTest 300
 DamagedContextSlotsTest 85
 DamagedCoreTest 60
@@ -21,6 +22,7 @@ DamagedStackPageTest 212
 DebugSessionRepairTest 4
 DebuggerOnAReadingTest 37
 DamagedVMLibraryTest 40
+DefectsReadingClassesTest 36
 DefectsReadingCogFramesTest 40
 DefectsReadingFramesTest 30
 DefectsReadingStacksTest 36
