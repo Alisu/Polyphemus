@@ -1,6 +1,6 @@
 inspection
 compiledCodeInspectionItems
-	^ { 
-		#hostMethod -> self hostMethodOop.
-		#methodHeader -> self methodHeader 
-		}
+
+	^ {
+		  (#hostMethod -> (self named: 'hostMethod' read: [ self hostMethodOop ])).
+		  (#methodHeader -> (self named: 'methodHeader' read: [ self methodHeader ])) }

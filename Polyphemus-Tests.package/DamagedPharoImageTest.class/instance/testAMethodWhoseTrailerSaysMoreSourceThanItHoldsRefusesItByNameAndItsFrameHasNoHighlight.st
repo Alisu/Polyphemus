@@ -6,6 +6,7 @@ testAMethodWhoseTrailerSaysMoreSourceThanItHoldsRefusesItByNameAndItsFrameHasNoH
 
 	self should: [ context homeMethod trailer ] raise: UnknownFormat.
 	self should: [ context homeMethod sourceCode ] raise: UnknownFormat.
+	self assert: context homeMethod argumentNames isEmpty.
 	"Where its code ends is then every byte it has: its trailer cannot be taken off."
 	self assert: context homeMethod endPC equals: context homeMethod numberOfBytecodes.
 	self assert: (reifiedMemory highlightRangeOf: context active: false) isEmpty.

@@ -1,4 +1,5 @@
 accessing
 literalAt: anIndex
 
-	^ self hostLiteral: (code literalAt: anIndex)
+	literals ifNil: [ self readLiterals ].
+	^ literals at: anIndex

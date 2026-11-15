@@ -1,0 +1,1 @@
+A defect of our own while a method, its header or its literals are read comes through as itself: it is not a method without a class or a selector, a property that is absent, a literal that does not read or code that does not disassemble (#118). The damage itself is read in DamagedPharoImageTest, DamagedCoreTest and DamagedMethodSlotsTest.

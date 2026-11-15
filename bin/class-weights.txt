@@ -17,6 +17,7 @@ DamagedClassSlotsTest 120
 DamagedCogFramesTest 300
 DamagedContextSlotsTest 85
 DamagedCoreTest 60
+DamagedMethodSlotsTest 120
 DamagedPharoImageTest 63
 DamagedStackPageTest 212
 DebugSessionRepairTest 4
@@ -25,6 +26,7 @@ DamagedVMLibraryTest 40
 DefectsReadingClassesTest 36
 DefectsReadingCogFramesTest 40
 DefectsReadingFramesTest 30
+DefectsReadingMethodsTest 36
 DefectsReadingStacksTest 36
 DirectoryChannelTest 15
 DumpImageCacheKeyTest 4

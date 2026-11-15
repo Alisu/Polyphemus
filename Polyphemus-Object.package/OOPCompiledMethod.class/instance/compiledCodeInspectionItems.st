@@ -1,6 +1,6 @@
 inspection
 compiledCodeInspectionItems
-	^ { 
-		#selector -> self oopSelector.
-		#methodClass -> self oopMethodClass
-		}
+
+	^ {
+		  (#selector -> (self named: 'selector' read: [ self oopSelector ])).
+		  (#methodClass -> (self named: 'methodClass' read: [ self oopMethodClass ])) }

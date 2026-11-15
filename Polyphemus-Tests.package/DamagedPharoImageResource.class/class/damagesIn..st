@@ -5,4 +5,4 @@ damagesIn: aCleanReading
 	distance between the reading's addresses and the file's. The class comment names them."
 
 	^ (self damagesOfObjectsIn: aCleanReading) , (self damagesOfContextsIn: aCleanReading)
-	  , (self damagesOfClassesIn: aCleanReading)
+	  , (self damagesOfClassesIn: aCleanReading) , (self damagesOfMethodsIn: aCleanReading)

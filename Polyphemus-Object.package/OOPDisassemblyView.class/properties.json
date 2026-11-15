@@ -5,7 +5,7 @@
 	"classinstvars" : [ ],
 	"pools" : [ ],
 	"classvars" : [ ],
-	"instvars" : [ "code" ],
+	"instvars" : [ "code", "literals" ],
 	"name" : "OOPDisassemblyView",
 	"type" : "normal"
 }

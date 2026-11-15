@@ -2,8 +2,8 @@ building
 damagesIn: aCleanReading
 
 	"What to overwrite in the copy, each as address -> word, found in a reading of the clean
-	core; which process each damage of a frame is in is kept for the tests. A stack too shallow
-	for its damage is left alone, and its test skips."
+	core, and what was damaged kept for the tests. A stack too shallow for its damage is left
+	alone, and its test skips. Last, the header of Interval>>first, pointing at Interval (#206)."
 
 	| variables active stacks damages |
 	variables := aCleanReading vmLayout raw vmVariables.
@@ -19,4 +19,7 @@ damagesIn: aCleanReading
 	(stacks size >= 2 and: [ (stacks at: 2) value size >= 3 ]) ifTrue: [
 		Damaged at: #savedFramePointer put: (stacks at: 2) key address.
 		damages add: ((stacks at: 2) value at: 2) framePointer -> (stacks at: 2) key address ].
+	((aCleanReading oopClassNamed: 'Interval') methodNamed: 'first' ifAbsent: [ nil ]) ifNotNil: [ :method |
+		Damaged at: #methodHeader put: method address.
+		damages add: method address + 8 -> (aCleanReading oopClassNamed: 'Interval') address ].
 	^ damages

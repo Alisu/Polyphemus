@@ -1,22 +1,16 @@
 inspection
 containedInspectionItems
-	| counter res |
-	"Possible others information we could add: numberOfArguments/temporaries, isPrimitive and frameSize
-	""	^  (numberOfArguments bitShift: 24)
-		+ (numberOfTemporaries bitShift: 18) 
-		+ (isSmall ifTrue: [ 0 ] ifFalse: [ 1 bitShift: 17 ])
-		+ literals size 
-		+ (isPrimitive asBit << 16)"""
-	
-	counter := 0.
-	res := OrderedCollection new: self oopNumberOfSlots + 1.
+
+	"What it says of itself, then its literals, one that does not read in its place; with a header
+	that does not read the literals cannot be counted, which is said where their number is (#206)."
+
+	| res literals |
+	res := OrderedCollection new.
 	res addAll: self compiledCodeInspectionItems.
-	res
-		add: #numLiterals -> self numberOfLiterals.
-	counter := 0.
-	self allLiterals collect: [ :literal | 
-		counter := counter + 1.
-		'literal ', counter printString -> literal.
-		] into: res.
-	
-	^res
+	literals := self named: 'numLiterals' read: [ self allReifiedSlots allButFirst ].
+	literals isArray ifFalse: [
+		res add: #numLiterals -> literals.
+		^ res ].
+	res add: #numLiterals -> literals size.
+	literals doWithIndex: [ :literal :index | res add: 'literal ' , index printString -> literal ].
+	^ res
