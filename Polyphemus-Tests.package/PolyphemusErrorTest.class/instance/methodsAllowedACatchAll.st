@@ -6,8 +6,6 @@ methodsAllowedACatchAll
 	method leaves this list when its handler is narrowed; none joins it."
 
 	^ #(
-		'AbstractReifiedMemory>>globalsByName'
-		'AbstractReifiedMemory>>methodTrailerClass'
 		'DirectoryChannel>>whyExpired'
 		'DirectoryChannel>>whyNotServing'
 		'FileAddressSpace>>close'
@@ -51,7 +49,6 @@ methodsAllowedACatchAll
 		'ProcessMemory>>whyCollecting'
 		'ReifiedDebugSession>>evaluate:in:'
 		'ReifiedProcesses>>processInconsistencies'
-		'ReifiedProcesses>>processStates'
 		'SnapshotProcessBrowser>>labelForProcess:'
 		'SourceReadability>>checkSource'
 		'SourceReadability>>readsAsItsOwnSource:'

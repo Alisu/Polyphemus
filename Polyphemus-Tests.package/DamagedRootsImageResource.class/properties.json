@@ -1,0 +1,11 @@
+{
+	"commentStamp" : "",
+	"super" : "DamagedPharoImageResource",
+	"category" : "Polyphemus-Tests-resources",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [ ],
+	"name" : "DamagedRootsImageResource",
+	"type" : "normal"
+}

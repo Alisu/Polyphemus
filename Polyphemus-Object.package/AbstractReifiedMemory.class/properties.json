@@ -21,7 +21,7 @@
 		"objectHandlers",
 		"traitedMetaclassIndex",
 		"metaclassForTraitIndex",
-		"globalsByName",
+		"globalsByName", "globalsPassedOver",
 		"instancesByClassTag",
 		"wrappedVariables",
 		"handlerCache",

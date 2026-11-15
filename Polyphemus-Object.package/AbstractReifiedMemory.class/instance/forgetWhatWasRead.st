@@ -6,4 +6,5 @@ forgetWhatWasRead
 
 	instancesByClassTag := nil.
 	globalsByName := nil.
+	globalsPassedOver := nil.
 	wrappedVariables := nil

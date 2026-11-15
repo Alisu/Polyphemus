@@ -1,0 +1,1 @@
+What a reading says of an image file whose scheduler no longer gives its process lists and whose globals no longer read (DamagedRootsImageResource): what it cannot tell it says it cannot tell, and does not answer as if the lists or the globals were empty (#118).

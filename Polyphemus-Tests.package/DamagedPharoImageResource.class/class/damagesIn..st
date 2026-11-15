@@ -7,3 +7,4 @@ damagesIn: aCleanReading
 	^ (self damagesOfObjectsIn: aCleanReading) , (self damagesOfContextsIn: aCleanReading)
 	  , (self damagesOfClassesIn: aCleanReading) , (self damagesOfMethodsIn: aCleanReading)
 	  , (self damagesOfBlocksIn: aCleanReading) , (self damagesOfTrailersIn: aCleanReading)
+	  , (self damagesOfGlobalsIn: aCleanReading)
