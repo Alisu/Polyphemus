@@ -20,4 +20,4 @@ decodeEmbedded
 	kind == #EmbeddedSourceWide ifTrue: [ ^ data := self decoded: [ payload utf8Decoded ] ].
 	kind == #EmbeddedSourceZip ifTrue: [
 		^ data := self decoded: [ (ZipReadStream on: payload) contents utf8Decoded ] ].
-	kind == #EmbeddedSourceQCompress ifTrue: [ ^ data := self decoded: [ self qDecompress: payload ] ]
+	kind == #EmbeddedSourceQCompress ifTrue: [ ^ data := self qDecompress: payload ]

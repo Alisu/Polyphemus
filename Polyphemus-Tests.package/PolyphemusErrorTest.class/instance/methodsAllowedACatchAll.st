@@ -35,7 +35,6 @@ methodsAllowedACatchAll
 		'OOPAbnormalEntity>>recoverCouldBeObj'
 		'OOPAbnormalEntity>>reverseDecoding'
 		'OOPAbstractEntity>>storeTyped:inItemKeyed:telling:'
-		'OOPVariableMethodTrailer>>decoded:'
 		'Polyphemus class>>deepestProcessIn:'
 		'Polyphemus class>>nameOfProcess:'
 		'PolyphemusMCPServer>>answer:'
