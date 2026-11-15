@@ -1,0 +1,4 @@
+tests
+testNoDamageOfABlockMakesAQuestionFailWithAnErrorThatIsNotOurs
+
+	self assertEveryQuestionIsAnsweredOrRefusedByNameWithSlotsDamaged: (1 to: subject numberOfLiterals + 1)

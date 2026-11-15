@@ -11,8 +11,7 @@ allCompiledBlocks
 	walk := [ :code |
 	        | literals |
 	        literals := [ code allLiterals ] on: PolyphemusError do: [ :e | #(  ) ].
-	        code isCompiledBlockOop ifTrue: [
-		        literals := literals allButLast ].
+	        (code isCompiledBlockOop and: [ literals notEmpty ]) ifTrue: [ literals := literals allButLast ].
 	        literals do: [ :each |
 		        (each isCompiledBlockOop and: [
 			         (seen includes: each) not ]) ifTrue: [

@@ -12,6 +12,7 @@ CachingProcessMemoryTest 4
 ClassVariableNamedTest 4
 CompactMemorySpaceTest 7
 CompilingAsTheImageDidTest 49
+DamagedBlockSlotsTest 120
 DamagedCandleImageTest 15
 DamagedClassSlotsTest 120
 DamagedCogFramesTest 300
