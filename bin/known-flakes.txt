@@ -7,17 +7,14 @@ LiveDebuggingTest>>testItOpensOnWhatTheImageWasBusyWith | TestFailure Got 'false
 LiveDebuggingTest>>testItOpensOnWhatTheImageWasBusyWith | NotInTheReading the image no longer holds that process | #147
 MacProcessMemoryTest>>testAVirtualMachineCaughtInMachineCodeShowsItsRunningProcess | MessageNotUnderstood receiver of "-" is nil | #136
 MacProcessMemoryTest>>testAVirtualMachineCaughtInMachineCodeShowsItsRunningProcess | TestFailure no machine code frame under the newest | #136
-HeldImageRingTest>>testATrapFiringAsItsDeadlinePassesIsHeldOnce | PolyphemusChannelError Error: 2 processes have that hash | #137
+HeldImageRingTest>>testATrapFiringAsItsDeadlinePassesIsHeldOnce | PolyphemusChannelError Error: 2 processes have that hash | #172
 HeldImageDebuggerCommandsTest>>testAPingPongIsDebuggedLiveFromTheMethodItWasRunTo | MessageNotUnderstood receiver of "numSlotsOf:" is nil | #31
-HeldImageRingTest>>testATrapFiringAsItsDeadlinePassesIsHeldOnce | TestFailure a heap it read or wrote breaks an invariant: #freeSpace | #165
-HeldImageEditingTest>>testACounterHeldTwiceSteppedAndEditedEachTimeCountsOn | TestFailure a heap it read or wrote breaks an invariant: #freeSpace | #165
 HeldImageRingTest>>testATrapFiringAsItsDeadlinePassesIsHeldOnce | PolyphemusChannelError Error: method can only be set to aCompiledMethod | #164
 LinuxRootObserverTest>>testAStockVirtualMachineIsHeldAsRoot | TestFailure the target never started as runner | #31
-HeldImageEditingTest>>testACounterSteppedFromItsLoopsFrameThenEditedCountsOn | TestFailure a heap it read or wrote breaks an invariant: #freeSpace | #165
-HeldImageRingTest>>testATrapFiringAsItsDeadlinePassesIsHeldOnce | PolyphemusChannelError the image did not answer within | #137
-HeldImageRingTest>>testATrapFiringAsItsDeadlinePassesIsHeldOnce | PolyphemusChannelError Error: 0 processes have that hash | #137
+HeldImageRingTest>>testATrapFiringAsItsDeadlinePassesIsHeldOnce | PolyphemusChannelError the image did not answer within | #31
+HeldImageRingTest>>testATrapFiringAsItsDeadlinePassesIsHeldOnce | PolyphemusChannelError Error: 0 processes have that hash | #31
 HeldImageSteppingTest | BROKEN no result | #31
-HeldImageSteppingTest>>testAScriptsLoopIsSteppedLive | PolyphemusChannelError the image did not answer within | #137
+HeldImageSteppingTest>>testAScriptsLoopIsSteppedLive | PolyphemusChannelError the image did not answer within | #31
 LiveReadingBackTest>>testAReReadTakesTheHeapFromTheLastWithoutWalkingIt | SpurCannotRead cannot read heap: piecesTooFarApartForOneCopy | #144
 StuckReportTest>>testAnImageStuckInACCallNamesTheSmalltalkAboveIt | TestFailure the target never started; the end of its log: | #202
 DebuggerOnAReadingTest>>testADebuggerOpensOnAProcessStuckInC | TestFailure the target never started; the end of its log: | #202
