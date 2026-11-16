@@ -182,6 +182,54 @@ GH_LOG_GONE=1 PATH="$dir/bin:$PATH" "$VERDICT" 41574774098 > "$dir/out" 2>&1; rc
 check "a job log gh cannot give is unread, not a suite that never ran" \
   "[ $rc -eq 2 ] && grep -q 'Pharo 10: unread' $dir/out && ! grep -q 'no suite ran' $dir/out"
 
+# The root step's check (bin/check-root.sh) says "!! Class ..." for a class that failed: known when
+# every failure it counts is a listed flake, new otherwise.
+log <<'LOG'
+== totals: 965 run, 0 failures, 0 errors, 0 broken, 0 flaky ==
+    ERROR SlowTest>>testWait -- TestTookTooMuchTime
+!! SlowTest 4 run 0 failures 1 errors (12s)
+##[error]Process completed with exit code 1.
+LOG
+check "a class of the root step red from a listed flake alone is known" "[ \$(verdict) -eq 0 ] && grep -q 'KNOWN #31 SlowTest>>testWait' $dir/out && ! grep -q '^NEW' $dir/out && grep -q '^VERDICT known' $dir/out"
+
+log <<'LOG'
+== totals: 965 run, 0 failures, 0 errors, 0 broken, 0 flaky ==
+    ERROR SlowTest>>testWait -- TestTookTooMuchTime
+!! SlowTest 4 run 1 failures 1 errors (12s)
+LOG
+check "a class of the root step counting more failures than the listed ones named is new" "[ \$(verdict) -eq 1 ] && grep -q 'NEW !! SlowTest 4 run 1 failures 1 errors' $dir/out"
+
+log <<'LOG'
+== totals: 965 run, 0 failures, 0 errors, 0 broken, 0 flaky ==
+    ERROR SlowTest>>testWait -- TestTookTooMuchTime
+    FAIL  SlowTest>>testOther -- TestFailure Assertion failed
+!! SlowTest 4 run 1 failures 1 errors (12s)
+LOG
+check "a class of the root step with a failure not on the list is new" "[ \$(verdict) -eq 1 ] && grep -q 'NEW SlowTest>>testOther' $dir/out && grep -q 'NEW !! SlowTest' $dir/out"
+
+log <<'LOG'
+== totals: 965 run, 0 failures, 0 errors, 0 broken, 0 flaky ==
+    ERROR SlowTest>>testWait -- TestTookTooMuchTime
+!! SlowTest 4 run 0 failures 1 errors (12s)
+!! 2 of 3 classes answered
+LOG
+check "a second line of the root step's check is read too" "[ \$(verdict) -eq 1 ] && grep -q 'NEW !! 2 of 3 classes answered' $dir/out && ! grep -q 'NEW !! SlowTest' $dir/out"
+
+printf '%s\n' 'StuckTest | BROKEN no result | #31' >> "$dir/known"
+log <<'LOG'
+== totals: 965 run, 0 failures, 0 errors, 0 broken, 0 flaky ==
+RES StuckTest BROKEN no result
+!! StuckTest BROKEN no result
+LOG
+check "a class of the root step that broke as listed is known" "[ \$(verdict) -eq 0 ] && grep -q 'KNOWN #31 StuckTest' $dir/out && ! grep -q '^NEW' $dir/out"
+
+log <<'LOG'
+== totals: 965 run, 0 failures, 0 errors, 0 broken, 0 flaky ==
+RES StuckTest BROKEN Error it broke another way
+!! StuckTest BROKEN Error it broke another way
+LOG
+check "a class of the root step that broke another way is new" "[ \$(verdict) -eq 1 ] && grep -q 'NEW !! StuckTest BROKEN' $dir/out"
+
 rm -rf "$dir"
 echo "== ci-verdict-test: $failures failing"
 exit $(( failures > 0 ))

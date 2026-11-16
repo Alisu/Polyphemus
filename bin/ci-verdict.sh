@@ -23,7 +23,7 @@ judge() {  # one job's log on stdin: what failed, then VERDICT green|known|infra
     /== totals/ { totals = 1; if ($0 ~ /== totals: 0 run/) nothing = 1
       counted = $0; sub(/.* run, /, "", counted); split(counted, c, ", ")
       tfail = c[1] + 0; terr = c[2] + 0; tbroken = c[3] + 0 }
-    /^!! / { if (!bang) bang = $0 }
+    /^!! / { bang[++bangs] = $0 }
     /WARM ERR|Could not|##\[error\]|prepare BROKEN/ { if (!evidence) evidence = $0 }
     /^    FLAKY / {
       rest = substr($0, 11); at = index(rest, " -- "); t = trim(at ? substr(rest, 1, at - 1) : rest); flaky[t] = 1
@@ -44,13 +44,21 @@ judge() {  # one job's log on stdin: what failed, then VERDICT green|known|infra
         t = order[i]; again = (t in flaky) ? " (failed, then passed alone)" : ""
         issue = ""
         for (j = 1; j <= k; j++) if (ktest[j] == t && index(msg[t], kmsg[j]) == 1) issue = kissue[j]
-        if (issue != "") { print "KNOWN " issue " " t again; if (verdict == "green") verdict = "known" }
-        else { print "NEW " t again (msg[t] ~ /^(BROKEN|TIMEOUT)/ ? " " : " -- ") msg[t]; verdict = "new" }
+        class = t; sub(/>>.*/, "", class)
+        if (issue != "") { print "KNOWN " issue " " t again; if (verdict == "green") verdict = "known"; listed[class]++ }
+        else { print "NEW " t again (msg[t] ~ /^(BROKEN|TIMEOUT)/ ? " " : " -- ") msg[t]; verdict = "new"; unlisted[class]++ }
         if (!(t in flaky)) named++ }
       # Counted but named by no line: a red run would read green on what it does not say (#177).
       if (tfail + terr + tbroken > 0 && !named) {
         print "NEW the totals count " tfail " failures, " terr " errors, " tbroken " broken"; verdict = "new" }
-      if (bang) { print "NEW " bang; verdict = "new" }
+      # A line of a check (bin/check-root.sh, check-totals.sh) is new, but for a class red from listed flakes
+      # alone: every failure it counts named and listed, or broken as listed.
+      for (i = 1; i <= bangs; i++) {
+        split(bang[i], w, " "); class = w[2]; counted = -1
+        if (bang[i] ~ /^!! [A-Za-z0-9_]+ (BROKEN|TIMEOUT)/) counted = 1
+        else if (bang[i] ~ /^!! [A-Za-z0-9_]+ [0-9]+ run [0-9]+ failures [0-9]+ errors/) counted = w[5] + w[7]
+        if (counted > 0 && !(class in unlisted) && listed[class] >= counted) continue
+        print "NEW " bang[i]; verdict = "new" }
       print "VERDICT " verdict
       exit (verdict == "new") }'
 }
