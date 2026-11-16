@@ -8,4 +8,4 @@ canBeRead
 	  | opened |
 	  opened := (self pathFor: 'mem') asFileReference binaryReadStream.
 	  opened close.
-	  true ] on: Error do: [ :e | false ]
+	  true ] on: FileException do: [ :refused | false ]

@@ -14,7 +14,7 @@ whyTheInterruptWasNotTaken
 			               fetchPointer: slot
 			               ofObject: (writable fetchPointer: 38 ofObject: (variables at: 'specialObjectsOop')).
 		  first := writable fetchPointer: 0 ofObject: semaphore.
-		  nilOop := [ variables at: 'nilObj' ] on: Error do: [ :error | nil ].
+		  nilOop := VMVariables whereTheVMSays: [ variables at: 'nilObj' ].
 		  request := (variables at: 'signalRequests') + (slot * 8).
 		  ' (its semaphore counts ' , ((writable fetchPointer: 2 ofObject: semaphore) bitShift: -3) printString , ' signals, '
 		  , (first = nilOop ifTrue: [ 'no process waits on it' ] ifFalse: [ 'a process waits on it' ]) , '; the VM has '
