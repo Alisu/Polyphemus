@@ -1,0 +1,11 @@
+{
+	"commentStamp" : "",
+	"super" : "DefectsOnThePinnedImageTest",
+	"category" : "Polyphemus-Tests-mcp",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [ ],
+	"name" : "DefectsShowingMCPRowsTest",
+	"type" : "normal"
+}

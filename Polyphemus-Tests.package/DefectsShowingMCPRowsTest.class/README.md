@@ -1,0 +1,1 @@
+A defect of our own while the MCP server builds a row (a process, a frame, a slot, an inspected object) comes through as itself: it is not a part shown unreadable, a stack that ends or an address with no object (#118). The damage itself is read in PolyphemusMCPDamagedImageTest.

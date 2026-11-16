@@ -3,13 +3,13 @@ rowOfProcess: aProcess numbered: aNumber in: aReifiedMemory
 
 	| activations ends |
 	activations := [ aReifiedMemory activationsOfProcess: aProcess ]
-		               on: Error
+		               on: PolyphemusError
 		               do: [ :e |
 			               ends := e messageText asString.
 			               #(  ) ].
 	ends ifNil: [
 		ends := [ aReifiedMemory stacks whyTheStack: activations endsForProcess: aProcess ]
-			        on: Error
+			        on: PolyphemusError
 			        do: [ :e | e messageText asString ] ].
 	^ Dictionary new
 		  at: 'process' put: aNumber;
