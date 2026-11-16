@@ -1,14 +1,11 @@
 writing
 aContextOfThisMemory
 
-	"A context already in this memory, whose header says what a context's looks like here."
+	"A context already in this memory, whose header says what a context's looks like here.
+	Refused by name in a memory that has none."
 
 	^ contextLikeness ifNil: [
-		  contextLikeness := (self reified allReifiedProcesses
-			                      inject: OrderedCollection new
-			                      into: [ :all :process |
-			                      all
-				                      addAll: ([ self reified contextsOfProcess: process ]
-						                       on: Error
-						                       do: [ :e | #(  ) ]);
-				                      yourself ]) first address ]
+		  | contexts |
+		  contexts := self reified allReifiedProcesses flatCollect: [ :process | self reified contextsOfProcess: process ].
+		  contexts ifEmpty: [ ^ NotInTheReading signal: 'no process of this memory has a context to make one like' ].
+		  contextLikeness := contexts first address ]
