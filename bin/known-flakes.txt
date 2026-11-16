@@ -16,6 +16,4 @@ HeldImageRingTest>>testATrapFiringAsItsDeadlinePassesIsHeldOnce | PolyphemusChan
 HeldImageSteppingTest | BROKEN no result | #31
 HeldImageSteppingTest>>testAScriptsLoopIsSteppedLive | PolyphemusChannelError the image did not answer within | #31
 LiveReadingBackTest>>testAReReadTakesTheHeapFromTheLastWithoutWalkingIt | SpurCannotRead cannot read heap: piecesTooFarApartForOneCopy | #144
-StuckReportTest>>testAnImageStuckInACCallNamesTheSmalltalkAboveIt | TestFailure the target never started; the end of its log: | #202
-DebuggerOnAReadingTest>>testADebuggerOpensOnAProcessStuckInC | TestFailure the target never started; the end of its log: | #202
 MacStuckReportTest>>testItsOwnHeartbeatIsSaidToWaitInASystemCall | TestFailure Assertion failed | #200

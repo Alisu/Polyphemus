@@ -5,10 +5,7 @@ testAnImageStuckInACCallNamesTheSmalltalkAboveIt
 	and the native debugger's command that goes on from there."
 
 	| pid report |
-	pid := self launchTargetRunning: '| dir | dir := ' , self spikeDirectory fullName printString , ' asFileReference.
-[ LibC system: ''sleep 600'' ] forkNamed: ''stuck''.
-(dir / ''started'') ensureCreateFile.
-(Delay forSeconds: 600) wait'.
+	pid := self launchTargetRunning: self scriptOfAProcessStuckInC.
 	[
 	self assert: (self waitFor: [ (Polyphemus whereIsStuck: pid) mainThread systemCallName = 'wait4' ]).
 	report := Polyphemus whereIsStuck: pid reading: (Polyphemus readProcess: pid).

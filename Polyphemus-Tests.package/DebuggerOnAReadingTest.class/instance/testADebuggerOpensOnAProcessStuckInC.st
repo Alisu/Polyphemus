@@ -5,10 +5,7 @@ testADebuggerOpensOnAProcessStuckInC
 	the stack pages, and it is the one to look at."
 
 	| pid |
-	pid := self launchTargetRunning: '| dir | dir := ' , self spikeDirectory fullName printString , ' asFileReference.
-[ LibC system: ''sleep 600'' ] forkNamed: ''stuck''.
-(dir / ''started'') ensureCreateFile.
-(Delay forSeconds: 600) wait'.
+	pid := self launchTargetRunning: self scriptOfAProcessStuckInC.
 	[
 	self assert: (self waitFor: [ (Polyphemus whereIsStuck: pid) mainThread systemCallName = 'wait4' ]).
 	self

@@ -5,10 +5,7 @@ testADebuggerOnAVMInCSaysWhichCallInItsTitle
 	it is in, and on what it waits."
 
 	| pid debugger |
-	pid := self launchTargetRunning: '| dir | dir := ' , self spikeDirectory fullName printString , ' asFileReference.
-[ LibC system: ''sleep 600'' ] forkNamed: ''stuck''.
-(dir / ''started'') ensureCreateFile.
-(Delay forSeconds: 600) wait'.
+	pid := self launchTargetRunning: self scriptOfAProcessStuckInC.
 	[
 	self assert: (self waitFor: [ (Polyphemus whereIsStuck: pid) mainThread systemCallName = 'wait4' ]).
 	debugger := PolyphemusTestCase inUIProcess: [ Polyphemus debugInC: pid ].
