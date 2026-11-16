@@ -3,8 +3,8 @@ processes: someArguments
 
 	| image reified rows |
 	image := self imageAt: someArguments.
-	reified := self reifiedOf: image.
-	rows := (self processesOf: image) withIndexCollect: [ :each :i | self rowOfProcess: each numbered: i in: reified ].
+	reified := image reified.
+	rows := image processes withIndexCollect: [ :each :i | self rowOfProcess: each numbered: i in: reified ].
 	^ self
 		  text: (String lf join: (rows collect: [ :each |
 					    (each at: 'process') printString , '  ' , (each at: 'state') , '  priority '

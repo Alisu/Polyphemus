@@ -1,19 +1,12 @@
 tools
 openImage: someArguments
 
-	| path memory census handle |
+	| path reading census handle |
 	path := someArguments at: 'path' ifAbsent: [ ToolCallFailed signal: 'open_image needs a path' ].
 	path asFileReference isFile ifFalse: [ ToolCallFailed signal: 'No image file at ' , path ].
-	memory := (Polyphemus interpreterOnImageFile: path) objectMemory.
-	census := HeapCensus of: memory.
-	opened := (opened ifNil: [ 0 ]) + 1.
-	handle := 'image' , opened printString.
-	self images at: handle put: (Dictionary new
-			 at: #path put: path;
-			 at: #memory put: memory;
-			 at: #census put: census;
-			 at: #reified put: nil;
-			 yourself).
+	reading := PolyphemusMCPReading imageFile: path.
+	census := reading census.
+	handle := self open: reading as: 'image'.
 	^ self
 		  text: 'Opened ' , path , ' as ' , handle , ': ' , census objectCount printString , ' objects, '
 			  , census bytes printString , ' bytes of old space. Read from the file; nothing ran in it.'

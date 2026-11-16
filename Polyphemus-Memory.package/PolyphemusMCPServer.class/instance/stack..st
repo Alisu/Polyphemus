@@ -3,9 +3,9 @@ stack: someArguments
 
 	| image reified process number activations rows ends |
 	image := self imageAt: someArguments.
-	reified := self reifiedOf: image.
+	reified := image reified.
 	number := someArguments at: 'process' ifAbsent: [ ToolCallFailed signal: 'stack needs the number of a process, as processes answers it' ].
-	process := (self processesOf: image) at: number ifAbsent: [
+	process := image processes at: number ifAbsent: [
 		           ToolCallFailed signal: 'No process ' , number printString , ' in ' , (someArguments at: 'handle') , '; processes lists them' ].
 	activations := reified activationsOfProcess: process.
 	ends := reified stacks whyTheStack: activations endsForProcess: process.

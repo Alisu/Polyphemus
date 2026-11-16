@@ -14,10 +14,5 @@ hold: someArguments
 	           Polyphemus holdProcess: pid watchedIn: directory ]
 		           on: Error
 		           do: [ :e | ToolCallFailed signal: 'Cannot hold process ' , pid printString , ': ' , e messageText asString ].
-	opened := (opened ifNil: [ 0 ]) + 1.
-	handle := 'held' , opened printString.
-	self images at: handle put: (Dictionary new
-			 at: #pid put: pid;
-			 at: #session put: session;
-			 yourself).
+	handle := self open: (PolyphemusMCPReading held: pid session: session) as: 'held'.
 	^ self held: handle saying: 'Held process ' , pid printString , ' as ' , handle , ', on what it was busy with. It stays held until let_go.'

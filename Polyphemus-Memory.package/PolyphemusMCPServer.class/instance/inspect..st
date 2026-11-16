@@ -2,7 +2,7 @@ tools
 inspect: someArguments
 
 	| reified address object names slots indexable limit structured |
-	reified := self reifiedOf: (self imageAt: someArguments).
+	reified := (self imageAt: someArguments) reified.
 	address := someArguments at: 'address' ifAbsent: [ ToolCallFailed signal: 'inspect needs an address' ].
 	object := [ reified reifyOop: address ] on: Error do: [ :e | nil ].
 	(object notNil and: [ [ object isObjectOop and: [ object isReadable ] ] on: Error do: [ :e | false ] ]) ifFalse: [

@@ -1,0 +1,22 @@
+{
+	"commentStamp" : "",
+	"super" : "Object",
+	"category" : "Polyphemus-Memory-MCP",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [
+		"handle",
+		"kind",
+		"path",
+		"pid",
+		"memory",
+		"census",
+		"footprint",
+		"reified",
+		"processes",
+		"session"
+	],
+	"name" : "PolyphemusMCPReading",
+	"type" : "normal"
+}

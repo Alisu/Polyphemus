@@ -28,7 +28,7 @@ claude mcp add polyphemus -- ssh worker-box '~/polyphemus/Polyphemus/bin/polyphe
 
 | Tool | Answers |
 |---|---|
-| `open_image(path)` | A handle, and how many objects and bytes the image's old space holds. Reads the file; nothing runs in it |
+| `open_image(path)` | A handle, and how many objects and bytes the image's old space holds. Reads the file; nothing runs in it. Refused, with the level, the reason and where, for a file `Polyphemus readImageFile:` refuses: it climbs the same rungs first |
 | `census(handle, top)` | Instances and bytes of each class, the heaviest first (`HeapCensus`) |
 | `packages(handle, top)` | What each package owns, the heaviest first (`PackageFootprint`) |
 | `open_core(path)` | A handle on a core dump of a VM (up to a minute to read), for `processes` and `stack` |
