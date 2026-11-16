@@ -9,11 +9,11 @@ testItStoresAnObjectOfTheReadingWhereTheFileKeepsIt
 	edit := SpurEdit on: (SpurWritableImageFile on: PharoImageAccessor pathToCandle64Bit) reading: reading.
 	specials := reading reifiedSpecialObjectArray.
 
-	edit store: reading reifiedTrueObject inSlot: 1 ofObjectShown: specials.
+	edit store: reading reifiedTrueObject inSlot: 5 ofObjectShown: specials.
 	edit memory writeTo: written.
 
 	file := SpurImageFile on: written.
-	word := file unsignedAt: file specialObjectsOop + 8 size: 8.
+	word := file unsignedAt: file specialObjectsOop + 40 size: 8.
 	file close.
 	self assert: word equals: (edit addressOf: reading reifiedTrueObject).
 	self assert: (Polyphemus readabilityOfImageFile: written) isFullyReadable

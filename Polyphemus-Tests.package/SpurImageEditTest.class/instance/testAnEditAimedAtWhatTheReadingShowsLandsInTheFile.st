@@ -11,11 +11,11 @@ testAnEditAimedAtWhatTheReadingShowsLandsInTheFile
 	specials := reading reifiedSpecialObjectArray.
 	self assert: specials address ~= (edit addressOf: specials).
 
-	edit store: 42 inSlot: 1 ofObjectShown: specials.
+	edit store: 42 inSlot: 5 ofObjectShown: specials.
 	edit memory writeTo: written.
 
 	file := SpurImageFile on: written.
-	word := file unsignedAt: file specialObjectsOop + 8 size: 8.
+	word := file unsignedAt: file specialObjectsOop + 40 size: 8.
 	file close.
 	self assert: word equals: 42 * 8 + 1.
 	self assert: (Polyphemus readabilityOfImageFile: written) isFullyReadable

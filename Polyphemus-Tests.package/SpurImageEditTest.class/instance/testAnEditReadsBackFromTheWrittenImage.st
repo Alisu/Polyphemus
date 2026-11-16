@@ -7,10 +7,10 @@ testAnEditReadsBackFromTheWrittenImage
 	| memory specials file |
 	memory := SpurWritableImageFile on: PharoImageAccessor pathToCandle64Bit.
 	specials := memory raw specialObjectsOop.
-	memory storePointer: 0 ofObject: specials withValue: (memory smallIntegerOop: 42).
+	memory storePointer: 4 ofObject: specials withValue: (memory smallIntegerOop: 42).
 	memory writeTo: written.
 
 	file := SpurImageFile on: written.
-	self assert: (file unsignedAt: specials + 8 size: 8) equals: 42 * 8 + 1.
+	self assert: (file unsignedAt: specials + 40 size: 8) equals: 42 * 8 + 1.
 	file close.
 	self assert: (Polyphemus readabilityOfImageFile: written) isFullyReadable

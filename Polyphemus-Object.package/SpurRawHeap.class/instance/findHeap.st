@@ -14,4 +14,6 @@ findHeap
 	(liveEnd notNil and: [ specialObjectsOop notNil ]) ifTrue: [ ^ self ].
 	walk := self walkTheHeap.
 	liveEnd ifNil: [ liveEnd := walk lastLiveEnd ifNil: [ heapStart ] ].
-	specialObjectsOop ifNil: [ specialObjectsOop := walk specialObjectsArray ]
+	"A stated array that has not the shape is damage to say, not a reason to take another."
+	(specialObjectsOop isNil and: [ self statedArrayWithoutItsShape isNil ]) ifTrue: [
+		specialObjectsOop := walk specialObjectsArray ]

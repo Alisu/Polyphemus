@@ -10,10 +10,10 @@ testTheInspectorSetsASlotThroughTheReadingsEditor
 	reading editor: edit.
 	specials := reading reifiedSpecialObjectArray.
 
-	specials store: 'true' inItemKeyed: 'slot 1'.
+	specials store: 'true' inItemKeyed: 'slot 5'.
 	edit memory writeTo: written.
 
 	file := SpurImageFile on: written.
-	word := file unsignedAt: file specialObjectsOop + 8 size: 8.
+	word := file unsignedAt: file specialObjectsOop + 40 size: 8.
 	file close.
 	self assert: word equals: (edit addressOf: reading reifiedTrueObject)

@@ -265,6 +265,15 @@ they just have no names.
 
 | `source` | methods that read as their own source | `SourceReadability` on the reified memory | no source shown: the `.sources` found is not this image's |
 
+**A stated array that lost its shape is said, not replaced** (#207). The header of an image file,
+or the VM's variable in a dump, states where the special objects array is, and it is believed when
+it starts with nil, false and true. When it is in the heap and does not, another array of that
+shape used to be taken in its place by the search, and the rung read: on candle with nil's special
+object zeroed the ladder reported on the wrong array. The rung now fails with
+`#theStatedArrayDoesNotStartWithNilFalseAndTrue` and the stated address
+(`SpurRawHeap>>statedArrayWithoutItsShape`). The search by shape is kept for what states nothing.
+
+
 **An image file climbs the same ladder.** `SpurImageFile` reads an image file as the address
 space it was saved from: the header's `oldBaseAddress`, then each segment where the bridge before
 it says, as `SpurImageReader>>readSegmentsFromImageFile:header:` does. Its heap start is stated,

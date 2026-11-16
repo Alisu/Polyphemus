@@ -6,8 +6,7 @@ statedSpecialObjectsOop
 	can pick another array of that shape: on candle it did (#43)."
 
 	| stated |
-	stated := space specialObjectsOop ifNil: [
-		          self stated: 'specialObjectsOop' ].
+	stated := self statedSpecialObjectsWord.
 	^ ((stated isInteger and: [ stated between: mappingStart and: mappingLimit - 1 ]) and: [
 		   self scanner looksLikeTheSpecialObjectsArrayAt: stated from: heapStart ])
 		  ifTrue: [ stated ]
