@@ -173,3 +173,4 @@ WhyCollectingTest 10
 WindowsMinidumpTest 4
 WindowsProcessMemoryTest 61
 WorkingCopyLayoutTest 4
+TrailerKindByShapeTest 40
