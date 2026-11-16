@@ -1,0 +1,3 @@
+What stops an image file from opening, and that each such file is refused by name (#207).
+
+One word is overwritten in a copy of the Candle image, which is then read through `Polyphemus readImageFile:`: it reads, or it is refused with a level, a reason and where. A matrix of 590 such copies was measured first -- each slot of the special objects array, the header and the first word of one object of each format, the first slots of the scheduler, the running process and its context, five kinds of word each -- and the cells kept here are one for each way the matrix was seen to end.

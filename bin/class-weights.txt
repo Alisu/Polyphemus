@@ -174,3 +174,4 @@ WindowsMinidumpTest 4
 WindowsProcessMemoryTest 61
 WorkingCopyLayoutTest 4
 TrailerKindByShapeTest 40
+DamagedImageFileLoadTest 25

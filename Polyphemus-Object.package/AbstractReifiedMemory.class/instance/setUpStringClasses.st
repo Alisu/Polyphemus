@@ -3,7 +3,7 @@ setUpStringClasses
 	" This is mostly guess work."
 	|  stringClassAddress stringClasses |
 	stringClasses := Set new.
-	stringClasses add: memory classString.
+	stringClasses add: (self specialClassAt: 7 thatShouldBe: 'the class of strings').
 	self isSimulator ifTrue: [ ^ self "There most likely is no string classes instanciated" ].
 	stringClassAddress := mode stringClassAddressFor: memory.
 	

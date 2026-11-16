@@ -8,4 +8,4 @@ setUpCompiledMethodClass
 	compiledMethodClass := memory fetchPointer: 16 ofObject: memory specialObjectsOop.
 	compiledMethodClass = memory nilObject ifTrue: [
 		^ compiledMethodClassIndex := (self preFindClassNamed: 'CompiledMethod') - 1 ].
-	compiledMethodClassIndex := memory rawHashBitsOf: compiledMethodClass
+	compiledMethodClassIndex := memory rawHashBitsOf: (self specialClassAt: 17 thatShouldBe: 'the class of methods')

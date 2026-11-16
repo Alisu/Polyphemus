@@ -285,6 +285,27 @@ a dump, where a jitted method's header slot holds its CogMethod. On every pinned
 refuses nothing, and the walk takes the same 0.3 to 0.4 s with it as without. Reading on past
 such a method is the next step of #207, not done.
 
+**What the ladder passes and the simulator still stops on is refused where it stops** (#207). A
+matrix of 590 copies of candle, one word overwritten in each (every slot of the special objects
+array; the header and first word of one object of each format; the first slots of the scheduler,
+the running process and its context; five kinds of word), left 65 that failed with an error of
+VMMaker's. They are named at three places rather than by a check before loading, because
+VMMaker's loader asserts in many places and we would be keeping a copy of it per edition:
+
+| Refusal | Raised where | What it is |
+|---|---|---|
+| `cannot read image: theSimulatorDidNotLoadIt (VMMaker's initializeObjectMemory: ...)` | `Polyphemus class>>interpreterOnImageFile:` | whatever VMMaker's loader raises: nil, false and true not the heap's first objects, a class the VM assumes compact not at its index, the free lists, the hidden roots. The detail is VMMaker's steps, not an address |
+| `cannot read specialObjects: aSpecialObjectIsNoClass (special object 7, the class of strings, holds 16r...)` | `AbstractReifiedMemory>>specialClassAt:thatShouldBe:` | special objects 7 and 17, read for a class index before anything is reified |
+| `cannot read objects: theSimulatorsWalkStopped (after the object at 16r..., VMMaker's ... isEnumerableObject: ...)` | `FullyReifiedMemory>>reifyAllOops` | VMMaker's walk asserts on a class index past the class table |
+
+After that: 395 of the 590 load, 195 are refused by name, none fails otherwise.
+`DamagedImageFileLoadTest` keeps one cell for each of the 24 ways the matrix ended. The five
+pinned VMMakers assert in the same methods (read in their sources, v10.0.0 to v12.0.5-beta).
+
+**Our walk is laxer than VMMaker's**, which is why the ladder passed some of these: it takes a
+header of all ones for an overflow word and steps on, and bounds a class index by 100,000, not by
+the class table. A stricter `objects` rung (every class index names a class) is not written.
+
 **`source` is a rung of its own**, above the heap, because it needs reified methods. It fails
 - with `#noSourcesFile`, or
 - with `#itsMethodsDoNotReadAsTheirSource`, when none of the methods on the processes' stacks

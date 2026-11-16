@@ -13,7 +13,7 @@ preFindClassNamed: aString ifAbsent: aBlock
 			| class name |
 			class := OOPClassInstanceSideObject on: aClassTableAddress memory: self.
 			name := class slotAt: class slotIndexForClassName.
-			(self readAt: name through: [ (OOPString on: name memory: memory) asString ]) = aString ifTrue: [
+			(self nameBeforeReificationAt: name) = aString ifTrue: [
 				^ anIndex + 1 ] ] ]
 			on: NotInTheReading
 			do: [ :unreadable |  ] ].
