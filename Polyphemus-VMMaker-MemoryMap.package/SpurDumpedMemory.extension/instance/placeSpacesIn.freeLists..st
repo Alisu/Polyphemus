@@ -16,7 +16,7 @@ placeSpacesIn: aMemory freeLists: aFreeListsObject
 	map instVarNamed: 'oldSpaceEnd' put: raw liveEnd.
 	"The VM's own masks where it states them; bytes with no VM behind keep VMMaker's."
 	#( 'oldSpaceMask' 'newSpaceMask' 'permSpaceMask' 'spaceMaskToUse' ) do: [ :each |
-		[ map instVarNamed: each put: (raw vmVariables at: each) ] on: Error do: [ :e | ] ].
+		(VMVariables whereTheVMSays: [ raw vmVariables at: each ]) ifNotNil: [ :mask | map instVarNamed: each put: mask ] ].
 	self setWhatVMMakerHasNoSetterFor: aMemory freeLists: aFreeListsObject.
 	aMemory initializeFromMemoryMap.
 	aMemory segmentManager

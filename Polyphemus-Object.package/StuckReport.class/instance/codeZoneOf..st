@@ -6,6 +6,5 @@ codeZoneOf: aProcess
 
 	| variables |
 	variables := VMVariables on: aProcess.
-	^ [ (variables at: 'codeZoneStart') -> (variables at: 'codeZoneEnd') ]
-		  on: Error
-		  do: [ [ (variables at: 'codeBase') -> (variables at: 'limitAddress') ] on: Error do: [ nil ] ]
+	^ (VMVariables whereTheVMSays: [ (variables at: 'codeZoneStart') -> (variables at: 'codeZoneEnd') ]) ifNil: [
+		  VMVariables whereTheVMSays: [ (variables at: 'codeBase') -> (variables at: 'limitAddress') ] ]
