@@ -1,0 +1,13 @@
+{
+	"commentStamp" : "",
+	"super" : "TestCase",
+	"category" : "Polyphemus-Tests-reifiedMemory",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [
+		"Reading"
+	],
+	"instvars" : [ ],
+	"name" : "DefectsOnThePinnedImageTest",
+	"type" : "normal"
+}

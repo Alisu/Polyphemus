@@ -1,10 +1,8 @@
 {
 	"commentStamp": "",
-	"super": "TestCase",
+	"super": "DefectsOnThePinnedImageTest",
 	"category": "Polyphemus-Tests-reifiedMemory",
-	"classinstvars": [
-	 "Memory"
-	],
+	"classinstvars": [],
 	"pools": [],
 	"classvars": [],
 	"instvars": [],

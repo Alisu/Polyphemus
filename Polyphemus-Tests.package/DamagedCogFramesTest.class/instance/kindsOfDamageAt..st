@@ -1,7 +1,8 @@
 running
 kindsOfDamageAt: aFramePointer
 
-	"What a word of a stack page can hold after damage, each named."
+	"What a word of a stack page can hold after damage, each named. A low address is not among
+	them: measured, every question answers to it as to the address of nothing."
 
 	| raw |
 	raw := memory vmLayout raw.
@@ -13,6 +14,5 @@ kindsOfDamageAt: aFramePointer
 		  ('zero' -> 0).
 		  ('the frame''s own address' -> aFramePointer).
 		  ('an address below the frame' -> (aFramePointer - 64)).
-		  ('a low address' -> 16r1000).
 		  ('an address in the code zone' -> (raw codeZone == false ifTrue: [ 16r2000 ] ifFalse: [ raw codeZone key + 64 ])).
 		  ('a word with its top bit set' -> 16rFFFFFFFFFFFFFFF9) }
