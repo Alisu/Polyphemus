@@ -19,10 +19,11 @@ retrieveSourceFiles
 		               in: rootPath.
 
 	sourceFiles := SourceFileArray new.
+	"A sources file that does not open, a link leading nowhere, is no sources file."
 	sourcePath ifNotNil: [
-		sourceFiles sourcesFileStream:
-			((self sourceFileNamed: sourcePath fullName locations: { rootPath fullName })
-				 tryOpenReadOnly: true) ].
+		| sources |
+		sources := (self sourceFileNamed: sourcePath fullName locations: { rootPath fullName }) tryOpenReadOnly: true.
+		sources isOpen ifTrue: [ sourceFiles sourcesFileStream: sources ] ].
 	"Pharo reads through both files or neither: with no .changes, a stand-in (#16). Not empty:
 	Pharo 14 refuses to open an empty one. Nothing in such an image points into it."
 	changesPath ifNil: [

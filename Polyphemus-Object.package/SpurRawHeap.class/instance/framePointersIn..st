@@ -8,7 +8,7 @@ framePointersIn: aReifiedMemory
 	found := OrderedCollection new.
 	simulator := aReifiedMemory simulator.
 	aReifiedMemory do: [ :each |
-		([ simulator isContext: each address ] on: Error do: [ :e | false ]) ifTrue: [
+		(simulator isContext: each address) ifTrue: [
 			| sender fp |
 			sender := simulator fetchPointer: 0 ofObject: each address.
 			((simulator isIntegerObject: sender) and: [
