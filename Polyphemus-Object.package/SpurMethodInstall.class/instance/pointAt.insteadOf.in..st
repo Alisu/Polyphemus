@@ -6,12 +6,9 @@ pointAt: anOop insteadOf: aReifiedMethod in: aReifiedClass
 
 	| methods index |
 	methods := (aReifiedClass reifiedSlotAt: 2) reifiedSlotAt: 2.
-	index := (1 to: methods oopNumberOfSlots)
-		         detect: [ :each |
-			         [ (methods reifiedSlotAt: each) address = aReifiedMethod address ]
-				         on: Error
-				         do: [ :e | false ] ]
-		         ifNone: [ ^ CannotWriteThere signal: 'that class does not hold that method' ].
+	index := (methods allReifiedSlots collect: [ :each | each address ])
+		         indexOf: aReifiedMethod address
+		         ifAbsent: [ ^ CannotWriteThere signal: 'that class does not hold that method' ].
 	memory remember: methods address.
 	memory storePointer: index - 1 ofObject: methods address withValue: anOop.
 	^ index

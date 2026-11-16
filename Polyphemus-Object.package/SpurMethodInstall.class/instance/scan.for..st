@@ -13,6 +13,6 @@ scan: aWeakSet for: aString
 	| element |
 	element := array reifiedSlotAt: index.
 	element address = flag address ifTrue: [ ^ nil -> index ].
-	([ element asString ] on: Error do: [ :e | '' ]) = aString ifTrue: [ ^ element -> index ].
+	(element isStringOop and: [ element asString = aString ]) ifTrue: [ ^ element -> index ].
 	(index := index \\ size + 1) = start ] whileFalse.
 	^ StaleReading signal: 'this image''s symbol set has no room left'
