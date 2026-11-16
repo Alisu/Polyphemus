@@ -6,7 +6,7 @@ testASourcesFileThatDoesNotOpenIsNoSourcesFile
 	that is nil. It is no sources file: said so, and a method's source is empty."
 
 	| memory link |
-	Smalltalk os isWindows ifTrue: [ ^ self skip: 'no dangling link is made on Windows' ].
+	OSPlatform current isWindows ifTrue: [ ^ self skip: 'no dangling link is made on Windows' ].
 	link := (self class directory / 'gone.sources') fullName.
 	LibC runCommand: 'ln -s /nowhere/at/all.sources "' , link , '"'.
 	memory := self class memory.
