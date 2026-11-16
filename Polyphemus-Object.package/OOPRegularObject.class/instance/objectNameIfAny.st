@@ -7,5 +7,4 @@ objectNameIfAny
 	memory specialObjectsOop = address ifTrue: [ ^ #specialObjectArray ].
 
 	className := self oopClass oopName.
-	className = 'Bad class' ifFalse: [ ^ 'Instance of ', className ].
-	^ address printString
+	^ 'Instance of ' , className
