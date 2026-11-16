@@ -1,0 +1,1 @@
+A frame with another below it on its stack page, its caller: the newest frame of a page and those in the middle, not the oldest, whose caller is a context. Abstract; it holds what `OOPTopFrame` and `OOPMiddleFrame` each had a copy of (#118).
