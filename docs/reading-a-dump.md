@@ -296,15 +296,25 @@ VMMaker's loader asserts in many places and we would be keeping a copy of it per
 |---|---|---|
 | `cannot read image: theSimulatorDidNotLoadIt (VMMaker's initializeObjectMemory: ...)` | `Polyphemus class>>interpreterOnImageFile:` | whatever VMMaker's loader raises: nil, false and true not the heap's first objects, a class the VM assumes compact not at its index, the free lists, the hidden roots. The detail is VMMaker's steps, not an address |
 | `cannot read specialObjects: aSpecialObjectIsNoClass (special object 7, the class of strings, holds 16r...)` | `AbstractReifiedMemory>>specialClassAt:thatShouldBe:` | special objects 7 and 17, read for a class index before anything is reified |
-| `cannot read objects: theSimulatorsWalkStopped (after the object at 16r..., VMMaker's ... isEnumerableObject: ...)` | `FullyReifiedMemory>>reifyAllOops` | VMMaker's walk asserts on a class index past the class table |
+| `cannot read objects: theSimulatorsWalkStopped (after the object at 16r..., VMMaker's ... isEnumerableObject: ...)` | `FullyReifiedMemory>>reifyAllOops` | VMMaker's walk asserts on a class index past the class table; since the ladder bounds class indexes (below), only for a file opened without it |
 
 After that: 395 of the 590 load, 195 are refused by name, none fails otherwise.
 `DamagedImageFileLoadTest` keeps one cell for each of the 24 ways the matrix ended. The five
 pinned VMMakers assert in the same methods (read in their sources, v10.0.0 to v12.0.5-beta).
 
-**Our walk is laxer than VMMaker's**, which is why the ladder passed some of these: it takes a
-header of all ones for an overflow word and steps on, and bounds a class index by 100,000, not by
-the class table. A stricter `objects` rung (every class index names a class) is not written.
+**The ladder bounds class indexes as VMMaker does**, for an image file. Our walk steps as
+VMMaker's does -- a header of all ones is taken for an overflow word, and the walk goes on into
+the object's slots -- but it bounded a class index by 100,000 where VMMaker asserts it is inside
+the class table, so the ladder said "everything reads" of files the simulator's walk then stopped
+on. Told `expectingClassIndexesInTheClassTable`, the walk notes the first object whose class
+index is at or past `SpurHeapScanner>>classIndexLimitFrom:` (a page's 1024 by the count of
+pages, which stops at the first nil after the second, as `setHiddenRootsObj:` counts), and the
+file is refused as `cannot read objects: aClassIndexIsPastTheClassTable (the object at 16r... in
+the file)`. Measured on the ten image files here: it refuses none (the largest class index is
+under the bound in each: 30,759 under 31,744 on Pharo 10, 23,534 under 23,552 on Pharo 14), the
+bound is the simulator's own on the Pharo 12 image, and the walk takes the same 0.3 to 0.4 s.
+Not asked of a dump. `reifyAllOops` keeps its own refusal for a file opened without the ladder,
+as the MCP's `open_image` and the inspector open one.
 
 **`source` is a rung of its own**, above the heap, because it needs reified methods. It fails
 - with `#noSourcesFile`, or

@@ -6,4 +6,4 @@ readabilityOfImageFile: aPath
 
 	| file |
 	file := SpurImageFile on: aPath asFileReference.
-	^ [ (SpurRawHeap on: file) expectingIntegerMethodHeaders readability refusals; yourself ] ensure: [ file close ]
+	^ [ (SpurRawHeap on: file) expectingIntegerMethodHeaders expectingClassIndexesInTheClassTable readability refusals; yourself ] ensure: [ file close ]
