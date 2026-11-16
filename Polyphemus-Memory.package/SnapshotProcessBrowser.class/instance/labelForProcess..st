@@ -8,8 +8,7 @@ labelForProcess: aProcess
 	activations := reifiedMemory activationsOfProcess: aProcess.
 	^ (reifiedMemory processStates at: aProcess ifAbsent: [ #unknown ]) asString
 	  , ' priority '
-	  , ([ (aProcess reifiedSlotAt: reifiedMemory processPrioritySlot) asInteger printString ]
-			 on: Error do: [ :e | '?' ])
+	  , ((reifiedMemory processes priorityOf: aProcess) ifNil: [ '?' ] ifNotNil: [ :priority | priority printString ])
 	  , ' (' , activations size printString , ' frames'
 	  , ((reifiedMemory stacks whyTheStack: activations endsForProcess: aProcess)
 			   ifNil: [ '' ]

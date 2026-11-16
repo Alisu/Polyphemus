@@ -8,9 +8,9 @@ deepestProcessIn: aReifiedMemory
 	| stacks candidates |
 	stacks := Dictionary new.
 	aReifiedMemory allReifiedProcesses do: [ :each |
-		stacks at: each put: ([ aReifiedMemory contextsOfProcess: each ] on: Error do: [ :e | #(  ) ]) ].
+		stacks at: each put: (aReifiedMemory contextsOfProcess: each) ].
 	candidates := stacks keys reject: [ :each |
 		              (stacks at: each) anySatisfy: [ :context |
-			              #( #snapshot:andQuit: #doSnapshot ) includes: ([ context selector ] on: Error do: [ :e | nil ]) ] ].
+			              #( #snapshot:andQuit: #doSnapshot ) includes: context selector ] ].
 	candidates ifEmpty: [ candidates := stacks keys ].
 	^ candidates detectMax: [ :each | (stacks at: each) size ]

@@ -8,3 +8,4 @@ damagesIn: aCleanReading
 	  , (self damagesOfClassesIn: aCleanReading) , (self damagesOfMethodsIn: aCleanReading)
 	  , (self damagesOfBlocksIn: aCleanReading) , (self damagesOfTrailersIn: aCleanReading)
 	  , (self damagesOfGlobalsIn: aCleanReading) , (self damagesOfQueuesIn: aCleanReading)
+	  , (self damagesOfAProcessIn: aCleanReading)

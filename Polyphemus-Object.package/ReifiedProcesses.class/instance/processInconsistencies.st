@@ -44,14 +44,11 @@ processInconsistencies
 			(memory readSlot: self listLastLinkSlot of: list ifUnreadable: [ unreadable ])
 			= chain last ifFalse: [ problems add: list -> #queueEndsElsewhere ] ].
 		chain do: [ :process |
-			| itsPriority |
 			(memory readSlot: self processMyListSlot of: process ifUnreadable: [ unreadable ])
 			= list ifFalse: [ problems add: process -> #notInTheQueueItClaims ].
-			itsPriority := memory readSlot: self processPrioritySlot of: process ifUnreadable: [ unreadable ].
-			(itsPriority ~~ unreadable and: [ itsPriority isIntegerOop ])
-				ifFalse: [ problems add: process -> #priorityIsNotANumber ]
-				ifTrue: [
-					itsPriority asInteger = priority ifFalse: [ problems add: process -> #priorityDoesNotMatchItsQueue ] ] ] ].
+			(self priorityOf: process)
+				ifNil: [ problems add: process -> #priorityIsNotANumber ]
+				ifNotNil: [ :its | its = priority ifFalse: [ problems add: process -> #priorityDoesNotMatchItsQueue ] ] ] ].
 
 	self allReifiedProcesses do: [ :process |
 		| context |

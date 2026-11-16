@@ -14,5 +14,5 @@ nameOfProcess: aProcess
 			  (value isKindOf: OOPString)
 				  ifTrue: [ value asString ]
 				  ifFalse: [ nil ] ] ]
-		  on: Error
-		  do: [ :e | nil ]
+		  on: PolyphemusError
+		  do: [ :refusal | nil ]
