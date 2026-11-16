@@ -5,7 +5,7 @@ processInconsistencies
 	problem. Reports and never raises, so it covers the whole image: where the processes cannot
 	be listed, that is the one problem, of the special objects the scheduler is found through."
 
-	| problems lists nilObject active unreadable myList |
+	| problems lists nilObject active unreadable myList queued |
 	problems := OrderedCollection new.
 	self whyItsProcessesDoNotRead ifNotNil: [
 		^ problems
@@ -14,6 +14,7 @@ processInconsistencies
 	nilObject := memory reifiedNilObject.
 	active := self reifiedActiveProcess.
 	unreadable := Object new.
+	queued := OrderedCollection new.
 	lists := [ self reifiedProcessLists asArray ]
 		         on: PolyphemusError
 		         do: [ :e |
@@ -40,6 +41,7 @@ processInconsistencies
 			         do: [ :refusal |
 				         problems add: list -> #queueIsUnreadable.
 				         #(  ) ].
+		queued addAll: chain.
 		chain ifNotEmpty: [
 			(memory readSlot: self listLastLinkSlot of: list ifUnreadable: [ unreadable ])
 			= chain last ifFalse: [ problems add: list -> #queueEndsElsewhere ] ].
@@ -49,6 +51,10 @@ processInconsistencies
 			(self priorityOf: process)
 				ifNil: [ problems add: process -> #priorityIsNotANumber ]
 				ifNotNil: [ :its | its = priority ifFalse: [ problems add: process -> #priorityDoesNotMatchItsQueue ] ] ] ].
+
+	"the processes are found by the running one's class: the queues are the other way to them"
+	(self isProcess: active ofAnotherClassThanEvery: queued) ifTrue: [
+		problems add: active -> #theRunningProcessIsOfAnotherClassThanEveryQueuedOne ].
 
 	self allReifiedProcesses do: [ :process |
 		| context |
