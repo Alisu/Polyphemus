@@ -1,16 +1,11 @@
 {
-	"commentStamp": "",
-	"super": "Object",
-	"category": "Polyphemus-Object-dump",
-	"classinstvars": [],
-	"pools": [],
-	"classvars": [],
-	"instvars": [
-		"file",
-		"bytes",
-		"symbols",
-		"buildId"
-	],
-	"name": "MachOSharedObject",
-	"type": "normal"
+	"commentStamp" : "",
+	"super" : "SharedObjectFile",
+	"category" : "Polyphemus-Object-dump",
+	"classinstvars" : [ ],
+	"pools" : [ ],
+	"classvars" : [ ],
+	"instvars" : [ ],
+	"name" : "MachOSharedObject",
+	"type" : "normal"
 }
