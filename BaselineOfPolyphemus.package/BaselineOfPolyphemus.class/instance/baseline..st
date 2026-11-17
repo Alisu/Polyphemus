@@ -11,6 +11,7 @@ baseline: spec
 
 		spec package: 'Polyphemus-Helper' with: [ spec requires: #( 'VMMaker' ) ].
 		spec package: 'Polyphemus-Memory' with: [ spec requires: #( 'VMMaker' 'Polyphemus-Object' ) ].
+		spec package: 'Polyphemus-MCP' with: [ spec requires: #( 'Polyphemus-Object' 'Polyphemus-Memory' ) ].
 		spec package: 'Polyphemus-Object' with: [ spec requires: #( 'VMMaker' ) ].
 		spec package: 'Polyphemus-Builder' with: [ spec requires: #( 'VMMaker' 'Polyphemus-Object' ) ].
 		spec package: 'Polyphemus-Tests' with: [
@@ -20,7 +21,7 @@ baseline: spec
 		spec
 			group: 'core'
 			with: #( 'Polyphemus-Helper' 'Polyphemus-Memory' 'Polyphemus-Object'
-			         'Polyphemus-Builder' );
+			         'Polyphemus-Builder' 'Polyphemus-MCP' );
 			group: 'tests' with: #( 'Polyphemus-Tests' );
 			group: 'default' with: #( 'core' 'tests' ) ].
 

@@ -1,7 +1,7 @@
 {
 	"commentStamp": "",
 	"super": "PolyphemusError",
-	"category": "Polyphemus-Memory-MCP",
+	"category" : "Polyphemus-MCP",
 	"classinstvars": [],
 	"pools": [],
 	"classvars": [],
