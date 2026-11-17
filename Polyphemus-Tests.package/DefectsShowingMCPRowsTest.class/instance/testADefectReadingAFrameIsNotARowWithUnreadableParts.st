@@ -7,11 +7,22 @@ testADefectReadingAFrameIsNotARowWithUnreadableParts
 	| server frame |
 	server := PolyphemusMCPServer new.
 	frame := self frame.
-	#( #tempNames #tempAt: #receiver #sourceNodeExecuted ) do: [ :each |
+	#( #tempNames #receiver #sourceNodeExecuted ) do: [ :each |
 		self
 			should: [ server rowOfFrame: (self defective: frame in: each) numbered: 1 ]
 			raise: ZeroDivide
 			description: 'a defect in ' , each ].
+	"A temporary is read by its name where the frame has names, by its number where it has none."
+	{ #tempAt: -> #(  ). #tempNamed: -> #( 'one' ) } do: [ :each |
+		self
+			should: [
+				server
+					rowOfFrame: ((self defective: frame in: each key)
+							 when: #tempNames answer: [ each value ];
+							 yourself)
+					numbered: 1 ]
+			raise: ZeroDivide
+			description: 'a defect in ' , each key ].
 	self
 		should: [
 			server
