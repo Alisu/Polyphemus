@@ -70,4 +70,7 @@ processInconsistencies
 				(context = nilObject or: [ context isContextOop ]) ifFalse: [
 					problems add: process -> #suspendedContextIsNotAContext ] ] ].
 
+	"listed by a walk over the heap: where damage ended it, those past it are missing (#211)"
+	memory whereItsListingsStop ifNotNil: [ :walk |
+		problems add: active -> #processesPastWhereTheHeapWalkStoppedAreNotListed ].
 	^ problems

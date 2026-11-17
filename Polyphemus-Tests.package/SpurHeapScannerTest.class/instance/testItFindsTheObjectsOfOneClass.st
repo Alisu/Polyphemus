@@ -10,7 +10,8 @@ testItFindsTheObjectsOfOneClass
 	found := (SpurHeapScanner on: space)
 		         addressesOfClassIndex: 18
 		         from: self baseAddress
-		         upTo: self baseAddress + space size.
+		         upTo: self baseAddress + space size
+		         ifCutShort: [ :walk | self fail: 'the walk stopped at ' , walk stoppedAt printString ].
 
 	self
 		assert: found asArray
