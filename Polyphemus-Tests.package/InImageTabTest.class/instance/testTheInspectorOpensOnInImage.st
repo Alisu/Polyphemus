@@ -7,7 +7,8 @@ testTheInspectorOpensOnInImage
 	| inspector |
 	inspector := (Smalltalk globals at: #StInspectorPresenter ifAbsent: [ Smalltalk globals at: #StInspector ]) onObject: (self memory oopClassNamed: 'Object') reifiedMethodDictionary.
 	[
-	inspector open.
-	PolyphemusTestCase drawWindowOf: inspector.
+	PolyphemusTestCase inUIProcess: [
+		inspector open.
+		PolyphemusTestCase drawWindowOf: inspector ].
 	self assert: inspector firstPage selectedPageName equals: 'In image' ]
-		ensure: [ inspector withWindowDo: [ :window | window close ] ]
+		ensure: [ PolyphemusTestCase closeWindowOf: inspector ]

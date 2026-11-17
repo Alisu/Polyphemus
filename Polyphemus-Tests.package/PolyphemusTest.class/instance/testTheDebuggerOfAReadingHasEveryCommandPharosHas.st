@@ -7,9 +7,9 @@ testTheDebuggerOfAReadingHasEveryCommandPharosHas
 	| memory debugger |
 	memory := Polyphemus readImageFile: PharoImageAccessor pathToCandle64Bit.
 	[
-	debugger := StDebugger openOn: (Polyphemus sessionOnDeepestProcessIn: memory) withFullView: true.
-	PolyphemusTestCase drawWindowOf: debugger.
+	debugger := PolyphemusTestCase inUIProcess: [ StDebugger openOn: (Polyphemus sessionOnDeepestProcessIn: memory) withFullView: true ].
+	PolyphemusTestCase inUIProcess: [ PolyphemusTestCase drawWindowOf: debugger ].
 	self
 		assert: (debugger rootCommandsGroup allCommands collect: [ :each | each name ]) asSet
 		equals: ((StDebugger buildRootCommandsGroupFor: debugger) allCommands collect: [ :each | each name ]) asSet ] ensure: [
-		debugger ifNotNil: [ debugger window ifNotNil: [ :window | window close ] ] ]
+		debugger ifNotNil: [ PolyphemusTestCase closeWindowOf: debugger ] ]

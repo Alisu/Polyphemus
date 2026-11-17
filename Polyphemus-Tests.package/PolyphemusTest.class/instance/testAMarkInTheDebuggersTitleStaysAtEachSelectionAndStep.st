@@ -9,12 +9,12 @@ testAMarkInTheDebuggersTitleStaysAtEachSelectionAndStep
 	session := Polyphemus sessionOnDeepestProcessIn: memory.
 	session mark: 'Said by the test'.
 	[
-	debugger := StDebugger openOn: session withFullView: true.
-	PolyphemusTestCase drawWindowOf: debugger.
+	debugger := PolyphemusTestCase inUIProcess: [ StDebugger openOn: session withFullView: true ].
+	PolyphemusTestCase inUIProcess: [ PolyphemusTestCase drawWindowOf: debugger ].
 	self assert: (debugger window title beginsWith: '[Said by the test] ').
-	debugger stackTable selectIndex: 2.
+	PolyphemusTestCase inUIProcess: [ debugger stackTable selectIndex: 2 ].
 	self assert: (debugger window title beginsWith: '[Said by the test] ').
-	debugger updateWindowTitle.
+	PolyphemusTestCase inUIProcess: [ debugger updateWindowTitle ].
 	self assert: (debugger window title beginsWith: '[Said by the test] ').
 	self deny: ((debugger window title allButFirst: 19) includesSubstring: '[Said by the test]') ] ensure: [
-		debugger ifNotNil: [ debugger window ifNotNil: [ :window | window close ] ] ]
+		debugger ifNotNil: [ PolyphemusTestCase closeWindowOf: debugger ] ]

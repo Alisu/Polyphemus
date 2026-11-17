@@ -1,4 +1,4 @@
 running
 tearDown
-	widget owner close.
+	PolyphemusTestCase inUIProcess: [ widget owner close ].
 	super tearDown

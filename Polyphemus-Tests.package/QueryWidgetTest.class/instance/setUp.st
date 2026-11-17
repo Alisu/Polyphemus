@@ -1,4 +1,4 @@
 running
 setUp
 	super setUp.
-	widget := QueryWidget new open presenter
+	widget := PolyphemusTestCase inUIProcess: [ QueryWidget new open presenter ]
