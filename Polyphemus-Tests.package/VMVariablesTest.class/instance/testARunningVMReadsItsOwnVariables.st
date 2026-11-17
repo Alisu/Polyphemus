@@ -6,7 +6,7 @@ testARunningVMReadsItsOwnVariables
 	| own |
 	(OSPlatform current isUnix and: [ '/proc/self/maps' asFileReference exists ]) ifFalse: [
 		^ self skip: 'this reads /proc, which only Linux has' ].
-	own := VMVariables on: LinuxProcessMemory onSelf.
+	own := VMVariables on: PolyphemusMadeFor current processMemoryClass onSelf.
 
 	self assert: (own at: 'numStackPages') equals: (Smalltalk vm parameterAt: 42).
 	self

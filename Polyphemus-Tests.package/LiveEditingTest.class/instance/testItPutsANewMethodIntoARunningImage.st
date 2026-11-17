@@ -8,7 +8,7 @@ testItPutsANewMethodIntoARunningImage
 	| pid reader selector |
 	pid := self launchSpinningTarget.
 	[
-	reader := LinuxProcessMemory on: pid.
+	reader := self readerOf: pid.
 	self holdWithTheInterrupt: reader.
 	reader whileStoppedToRemember: [
 		| dumped reading integer |
@@ -31,7 +31,7 @@ testItPutsANewMethodIntoARunningImage
 		assert: (self waitFor: [ (self spikeDirectory / 'live-answer') exists ])
 		description: 'the image never answered with the new method'.
 	self assert: (self spikeDirectory / 'live-answer') contents trimBoth equals: '42'.
-	self assert: (LinuxProcessMemory unchecked: pid) exists description: 'it did not survive' ]
+	self assert: (self uncheckedReaderOf: pid) exists description: 'it did not survive' ]
 		ensure: [
 			LibC system: 'kill -9 ' , pid printString.
 			reader ifNotNil: [ reader close ] ]

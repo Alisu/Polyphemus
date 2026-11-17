@@ -8,7 +8,7 @@ testItPatchesAMethodOfAnImageItIsHolding
 	| pid reader |
 	pid := self launchSpinningTarget.
 	[
-	reader := LinuxProcessMemory on: pid.
+	reader := self readerOf: pid.
 	self holdWithTheInterrupt: reader.
 
 	reader whileStopped: [

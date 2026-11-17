@@ -5,7 +5,7 @@ testAVirtualMachineRunsTheWrittenImage
 	answers nothing, being where the dumped machine was -- a process waiting."
 
 	| copy pid |
-	PolyphemusHost current os = 'Windows' ifTrue: [
+	PolyphemusHost current os = 'Linux' ifFalse: [
 		^ self skip: 'it starts the machine through a POSIX shell and reads its command line from /proc' ].
 	copy := self runDirectory / 'from-dump.image'.
 	copy ensureDelete.
@@ -14,11 +14,11 @@ testAVirtualMachineRunsTheWrittenImage
 	pid := self launch: copy.
 	[
 	self
-		assert: (self waitUntil: [ self imageIsLoadedBy: (LinuxProcessMemory unchecked: pid) ])
+		assert: (self waitUntil: [ self imageIsLoadedBy: (PolyphemusMadeFor current processMemoryClass unchecked: pid) ])
 		description: 'the machine never loaded the image'.
 	(Delay forSeconds: 3) wait.
 	self
-		assert: ((LinuxProcessMemory unchecked: pid) commandLine includesSubstring: copy fullName)
+		assert: ((PolyphemusMadeFor current processMemoryClass unchecked: pid) commandLine includesSubstring: copy fullName)
 		description: 'the machine stopped running the image'.
 	self deny: (self runDirectory / 'crash.dmp') exists ] ensure: [
 		LibC system: 'kill ' , pid printString ]

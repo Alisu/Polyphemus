@@ -8,7 +8,7 @@ testAPatchTakesOnAJittedMethodOnceItsCodeIsDiscarded
 	| pid reader |
 	pid := self launchWarmedSpinningTarget.
 	[
-	reader := LinuxProcessMemory on: pid.
+	reader := self readerOf: pid.
 	self holdWithTheInterrupt: reader.
 
 	reader whileStopped: [

@@ -37,8 +37,8 @@ launchObservableTargetRestartsLeft: aCount
 	 sixty megabytes of it."
 	waited := 0.
 	[
-	(LinuxProcessMemory unchecked: pid) canBeRead and: [
-		((LinuxProcessMemory unchecked: pid) loadableSegments
+	(self uncheckedReaderOf: pid) canBeRead and: [
+		((self uncheckedReaderOf: pid) loadableSegments
 			 inject: 0
 			 into: [ :most :each | most max: each sizeInFile ]) > 40000000 ] ] whileFalse: [
 		(self class vm9CouldNotMapItsHeapIn: (self targetLogIn: log)) ifTrue: [
@@ -51,7 +51,7 @@ launchObservableTargetRestartsLeft: aCount
 		(Delay forMilliseconds: 100) wait ].
 
 	waited := 0.
-	[ (LinuxProcessMemory unchecked: pid) isQuiet ] whileFalse: [
+	[ (self uncheckedReaderOf: pid) isQuiet ] whileFalse: [
 		(waited := waited + 1) > 900 ifTrue: [
 			LibC system: 'kill ' , pid printString.
 			^ self fail: 'the target never went idle' ].

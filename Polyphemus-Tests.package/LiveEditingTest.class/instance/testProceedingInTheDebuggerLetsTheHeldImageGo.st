@@ -8,7 +8,7 @@ testProceedingInTheDebuggerLetsTheHeldImageGo
 	| pid reader session |
 	pid := self launchSpinningTarget.
 	[
-	reader := LinuxProcessMemory on: pid.
+	reader := self readerOf: pid.
 	self holdWithTheInterrupt: reader.
 	session := ReifiedDebugSession named: 'Polyphemus' on: nil startedAt: nil fixing: nil.
 	session releaseWith: [ reader whileStopped: [ self letGo: reader ] ].
@@ -18,6 +18,6 @@ testProceedingInTheDebuggerLetsTheHeldImageGo
 	self
 		assert: (self waitFor: [ (self spikeDirectory / 'released') exists ])
 		description: 'proceeding never let it go'.
-	self assert: (LinuxProcessMemory unchecked: pid) exists ] ensure: [
+	self assert: (self uncheckedReaderOf: pid) exists ] ensure: [
 		LibC system: 'kill -9 ' , pid printString.
 		reader ifNotNil: [ reader close ] ]

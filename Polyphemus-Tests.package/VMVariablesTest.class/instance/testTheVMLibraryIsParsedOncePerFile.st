@@ -6,5 +6,5 @@ testTheVMLibraryIsParsedOncePerFile
 
 	(OSPlatform current isUnix and: [ '/proc/self/maps' asFileReference exists ]) ifFalse: [
 		^ self skip: 'this reads /proc, which only Linux has' ].
-	self assert: (VMVariables on: LinuxProcessMemory onSelf) library
-		identicalTo: (VMVariables on: LinuxProcessMemory onSelf) library
+	self assert: (VMVariables on: PolyphemusMadeFor current processMemoryClass onSelf) library
+		identicalTo: (VMVariables on: PolyphemusMadeFor current processMemoryClass onSelf) library

@@ -9,7 +9,7 @@ whereTheReadingOf: aHeldProcess holds: anAddress in: aPid
 	  hex := [ :stretch | stretch key printStringHex , '-' , stretch value printStringHex ].
 	  raw := aHeldProcess dumped raw.
 	  piece := raw space pieceHolding: anAddress.
-	  reads := (SpurRawHeap on: (LinuxProcessMemory on: aPid)) stretchesAReadingReads.
+	  reads := (SpurRawHeap on: (self readerOf: aPid)) stretchesAReadingReads.
 	  near := (('/proc/' , aPid printString , '/maps') asFileReference contents lines select: [ :line |
 		           | range from to |
 		           range := (line substrings: ' ') first substrings: '-'.

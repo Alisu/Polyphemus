@@ -8,7 +8,7 @@ testAHeldImageMovesNothingWhileNobodyAsksIt
 	pid := self launchSpinningTarget.
 	[
 	Polyphemus holdProcess: pid watchedIn: self spikeDirectory.
-	reader := LinuxProcessMemory on: pid.
+	reader := self readerOf: pid.
 	scavenges := [ reader whileStopped: [ (VMVariables on: reader) at: 'statScavenges' ] ].
 	before := scavenges value.
 	(Delay forSeconds: 2) wait.

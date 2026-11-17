@@ -7,7 +7,7 @@ withAnAgentIn: aPid do: aBlock
 	| reader channel |
 	channel := DirectoryChannel on: self spikeDirectory / 'channel'.
 	[
-	reader := LinuxProcessMemory on: aPid.
+	reader := self readerOf: aPid.
 	self holdWithTheInterrupt: reader.
 	self askTheHeldImageTo: (PolyphemusAgent
 			 sourceServing: channel directory

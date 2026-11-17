@@ -8,8 +8,8 @@ testTheImageStopsRunningAwayOnceTheFixIsIn
 	| pid reader |
 	pid := self launchWarmedSpinningTarget.
 	[
-	reader := LinuxProcessMemory on: pid.
-	self deny: (LinuxProcessMemory unchecked: pid) isQuiet description: 'it was not running away'.
+	reader := self readerOf: pid.
+	self deny: (self uncheckedReaderOf: pid) isQuiet description: 'it was not running away'.
 	self holdWithTheInterrupt: reader.
 
 	reader whileStopped: [
@@ -25,9 +25,9 @@ testTheImageStopsRunningAwayOnceTheFixIsIn
 		assert: (self waitFor: [ (self spikeDirectory / 'released') exists ])
 		description: 'it never let go'.
 	self
-		assert: (self waitFor: [ (LinuxProcessMemory unchecked: pid) isQuiet ])
+		assert: (self waitFor: [ (self uncheckedReaderOf: pid) isQuiet ])
 		description: 'it went on running away'.
-	self assert: (LinuxProcessMemory unchecked: pid) exists description: 'it did not survive' ]
+	self assert: (self uncheckedReaderOf: pid) exists description: 'it did not survive' ]
 		ensure: [
 			LibC system: 'kill -9 ' , pid printString.
 			reader ifNotNil: [ reader close ] ]

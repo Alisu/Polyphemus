@@ -24,6 +24,6 @@ testTheDebuggerFixesAMethodOfTheRunningImage
 		description: 'it never let go'.
 	self assert: (self spikeDirectory / 'answer') contents trimBoth equals: 'false'.
 	self
-		assert: (self waitFor: [ (LinuxProcessMemory unchecked: pid) isQuiet ])
+		assert: (self waitFor: [ (self uncheckedReaderOf: pid) isQuiet ])
 		description: 'it went on running away' ] ensure: [
 		LibC system: 'kill -9 ' , pid printString ]
