@@ -58,12 +58,12 @@ names a class of a package its own does not rest on.
 |---|---|---|
 | `Polyphemus-Object` | the core: bytes, heaps, readings, frames, holding a process, the errors, VMMaker's set-up | VMMaker |
 | `Polyphemus-Edition-Pharo1x`, `Polyphemus-Host-<os>`, `Polyphemus-VMMaker-MemoryMap` | what one Pharo, one host or one VMMaker needs; loaded by the baseline for that one only | the core |
-| `Polyphemus-Facade` | `Polyphemus` (what code calls), the debug session, saving a method, the census; no window | the core |
-| `Polyphemus-MCP` | the MCP server | the facade |
-| `Polyphemus-Memory` | the windows: inspectors, the map, the debugger; the facade's six messages that open one, as extensions | the facade |
+| `Polyphemus-Headless` | what works with no window: `Polyphemus` (the ways in, for code), the debug session, saving a method, the census | the core |
+| `Polyphemus-MCP` | the MCP server | headless |
+| `Polyphemus-Memory` | the windows: inspectors, the map, the debugger; the six ways in that open one, as extensions of `Polyphemus` | headless |
 | `Polyphemus-Builder`, `Polyphemus-Helper`, `Polyphemus-Tests*`, `Polyphemus-Tests-Host-<os>` | the tests and what only they use | all of the above |
 
-Baseline groups: `reading` (core, facade, edition, host), `mcp` (reading and the server), `core`
+Baseline groups: `reading` (core, headless, edition, host), `mcp` (reading and the server), `core`
 (the whole tool), no group (the tool and its tests).
 
 **Moving a class to another package**: move its directory and change its `category`; the sync
