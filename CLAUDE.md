@@ -60,7 +60,7 @@ names a class of a package its own does not rest on.
 | `Polyphemus-Edition-Pharo1x`, `Polyphemus-Host-<os>`, `Polyphemus-VMMaker-MemoryMap` | what one Pharo, one host or one VMMaker needs; loaded by the baseline for that one only. A host's package holds its reader of a process and its stuck report (`LinuxProcessMemory` and `LinuxStuckReport`, `MacProcessMemory`...); the file formats (ELF, Mach-O, PE, minidump) stay in the core | the core |
 | `Polyphemus-Headless` | what works with no window: `Polyphemus` (the ways in, for code), the debug session, saving a method, the census | the core |
 | `Polyphemus-MCP` | the MCP server | headless |
-| `Polyphemus-Memory` | the windows: inspectors, the map, the debugger; the six ways in that open one, as extensions of `Polyphemus` | headless |
+| `Polyphemus-Memory` | the windows: inspectors, the map, the debugger; the seven ways in that open one, as extensions of `Polyphemus` | headless |
 | `Polyphemus-Builder`, `Polyphemus-Helper`, `Polyphemus-Tests*`, `Polyphemus-Tests-Host-<os>` | the tests and what only they use | all of the above |
 
 **`Polyphemus` is the ways in, and nothing more.** Each of its messages is one statement handing

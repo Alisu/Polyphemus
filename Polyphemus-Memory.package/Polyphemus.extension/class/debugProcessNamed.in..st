@@ -1,4 +1,4 @@
-tools
+*Polyphemus-Memory
 debugProcessNamed: aName in: aReifiedMemory
 
 	"The real Pharo debugger, post mortem, on the process of that name (#92)."
