@@ -7,7 +7,7 @@ readFrom: aFileReference
 	| header tableStart entrySize entryCount table |
 	file := aFileReference asFileReference.
 	stream := nil.
-	header := self bytesAtOffset: 0 count: 64.
+	header := self tableAtOffset: 0 count: 64.
 	self checkItIsACoreDump: header.
 
 	tableStart := self unsignedFrom: header at: 33 size: 8.

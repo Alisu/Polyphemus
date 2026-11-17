@@ -28,6 +28,8 @@ launchTargetRunning: aScript restartsLeft: aCount
 			 self class vm9CouldNotMapItsHeapIn: (self targetLogIn: self spikeDirectory / 'target.log') ]) ifTrue: [
 			self noteRestartOfTheTarget.
 			^ self launchTargetRunning: aScript restartsLeft: aCount - 1 ].
+		"Not left running beside the tests that follow: it may yet start (#164)."
+		pidFile exists ifTrue: [ LibC system: 'kill -9 ' , pidFile contents trimBoth , ' 2>/dev/null' ].
 		self fail: 'the target never started; the end of its log: '
 			, ([ | log | log := (self spikeDirectory / 'target.log') contents. log last: (400 min: log size) ]
 					 on: Error

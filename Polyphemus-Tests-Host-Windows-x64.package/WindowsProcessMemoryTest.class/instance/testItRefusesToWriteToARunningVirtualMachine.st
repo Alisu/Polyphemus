@@ -9,6 +9,6 @@ testItRefusesToWriteToARunningVirtualMachine
 	reader := WindowsProcessMemory on: pid.
 	address := (VMVariables on: reader) addressOf: 'statStackOverflow'.
 	self deny: reader isStopped.
-	self should: [ reader storeWord: 1 at: address ] raise: Error ] ensure: [
+	self should: [ reader storeWord: 1 at: address ] raise: CannotWriteThere ] ensure: [
 		reader ifNotNil: [ reader close ].
 		LibC system: 'taskkill /F /PID ' , pid printString ]
