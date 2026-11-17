@@ -9,6 +9,6 @@ testThisHostSaysWhereAProcessIsStuckWithItsOwnReport
 	self
 		assert: PolyphemusMadeFor current stuckReportClass name
 		equals: ({
-				 ('Linux' -> #StuckReport).
+				 ('Linux' -> #LinuxStuckReport).
 				 ('MacOS' -> #MacStuckReport).
 				 ('Windows' -> #WindowsStuckReport) } asDictionary at: PolyphemusHost current os)

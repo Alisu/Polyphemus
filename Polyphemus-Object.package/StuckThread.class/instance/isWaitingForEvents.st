@@ -1,4 +1,6 @@
 testing
 isWaitingForEvents
 
-	^ StuckReport eventWaits includes: self systemCallName
+	"Whether it waits where this host's VM waits for its events, idle."
+
+	^ self subclassResponsibility

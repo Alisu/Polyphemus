@@ -9,6 +9,6 @@ testALinkIsReadAsItIs
 	link := self spikeDirectory ensureCreateDirectory / 'a-link'.
 	link ensureDelete.
 	LibC system: 'ln -s "pipe:[12345]" ' , link fullName.
-	self assert: (StuckThread linkTargetOf: link fullName) equals: 'pipe:[12345]'.
-	self assert: (StuckThread linkTargetOf: (self spikeDirectory / 'no-such-link') fullName) isNil.
+	self assert: (LinuxStuckThread linkTargetOf: link fullName) equals: 'pipe:[12345]'.
+	self assert: (LinuxStuckThread linkTargetOf: (self spikeDirectory / 'no-such-link') fullName) isNil.
 	link ensureDelete

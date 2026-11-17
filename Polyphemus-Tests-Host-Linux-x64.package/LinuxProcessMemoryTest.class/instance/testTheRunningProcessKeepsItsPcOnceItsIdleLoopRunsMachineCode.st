@@ -9,7 +9,7 @@ testTheRunningProcessKeepsItsPcOnceItsIdleLoopRunsMachineCode
 	pid := self launchObservableTarget.
 	[
 	reader := LinuxProcessMemory on: pid.
-	zone := (StuckReport of: pid) codeZone ifNil: [ ^ self skip: 'the VM does not say where its code zone is' ].
+	zone := (LinuxStuckReport of: pid) codeZone ifNil: [ ^ self skip: 'the VM does not say where its code zone is' ].
 	variables := VMVariables on: reader.
 	((1 to: 120) anySatisfy: [ :each |
 		 (reader whileStoppedWhenQuiet: [

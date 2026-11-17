@@ -1,11 +1,11 @@
 {
 	"commentStamp": "",
-	"super": "Object",
-	"category": "Polyphemus-Object-process",
+	"super": "LiveImageTestCase",
+	"category": "Polyphemus-Tests-Host-Linux-x64",
 	"classinstvars": [],
 	"pools": [],
 	"classvars": [],
 	"instvars": [],
-	"name": "LinuxObservationPermission",
+	"name": "StuckReportTest",
 	"type": "normal"
 }

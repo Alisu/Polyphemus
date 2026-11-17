@@ -57,7 +57,7 @@ names a class of a package its own does not rest on.
 | Package | What it holds | Rests on |
 |---|---|---|
 | `Polyphemus-Object` | the core: bytes, heaps, readings, frames, holding a process, the errors, VMMaker's set-up | VMMaker |
-| `Polyphemus-Edition-Pharo1x`, `Polyphemus-Host-<os>`, `Polyphemus-VMMaker-MemoryMap` | what one Pharo, one host or one VMMaker needs; loaded by the baseline for that one only | the core |
+| `Polyphemus-Edition-Pharo1x`, `Polyphemus-Host-<os>`, `Polyphemus-VMMaker-MemoryMap` | what one Pharo, one host or one VMMaker needs; loaded by the baseline for that one only. A host's package holds its reader of a process and its stuck report (`LinuxProcessMemory` and `LinuxStuckReport`, `MacProcessMemory`...); the file formats (ELF, Mach-O, PE, minidump) stay in the core | the core |
 | `Polyphemus-Headless` | what works with no window: `Polyphemus` (the ways in, for code), the debug session, saving a method, the census | the core |
 | `Polyphemus-MCP` | the MCP server | headless |
 | `Polyphemus-Memory` | the windows: inspectors, the map, the debugger; the six ways in that open one, as extensions of `Polyphemus` | headless |
@@ -74,8 +74,15 @@ Baseline groups: `reading` (core, headless, edition, host), `mcp` (reading and t
 
 **Moving a class to another package**: move its directory and change its `category`; the sync
 (`bin/sync-from-working-copy.st`) defines it again there, with its pools and its trait, and makes
-a package a class of the image moved into. It never makes a host's or an edition's package. A new
-package also goes in the baseline, which makes CI build every setup afresh.
+a package a class of the image moved into. It never makes a host's or an edition's package, nor
+a host's tests' package where that host's own is not loaded: a class moved into one of those
+leaves the image, as after a fresh load. A new package also goes in the baseline, which makes CI
+build every setup afresh.
+
+**Code and tests ask for the host's reader, never name one**: `PolyphemusMadeFor current
+processMemoryClass` and `stuckReportClass` (in a live test, `self readerOf:` and
+`self uncheckedReaderOf:`). Only a host's own package and its tests' name `LinuxProcessMemory`,
+`MacProcessMemory` or `WindowsProcessMemory`.
 
 ## Headless Pharo rules (learned the hard way)
 

@@ -1,7 +1,7 @@
 {
 	"commentStamp": "",
 	"super": "ProcessMemory",
-	"category": "Polyphemus-Object-process",
+	"category": "Polyphemus-Host-Linux-x64",
 	"classinstvars": [],
 	"pools": [],
 	"classvars": [],

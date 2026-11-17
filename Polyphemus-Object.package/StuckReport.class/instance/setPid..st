@@ -1,16 +1,6 @@
 initialization
 setPid: aPid
 
-	"Read where each thread is; if one is running, read again with the process stopped, which
-	is always safe and is said."
+	"Read where each thread of that process is, as this host's system says it."
 
-	| process |
-	pid := aPid.
-	process := LinuxProcessMemory on: aPid.
-	codeZone := self codeZoneOf: process.
-	threads := self readThreadsOf: process.
-	stoppedToLook := false.
-	(threads anySatisfy: [ :each | each wasRunning ]) ifTrue: [
-		process whileStopped: [ threads := self readThreadsOf: process notingRunning: threads ].
-		stoppedToLook := true ].
-	caughtSignals := self class signalNamesIn: (self statusField: 'SigCgt' of: process)
+	^ self subclassResponsibility

@@ -1,1 +1,1 @@
-Where a process is stuck, from /proc alone (#36): each thread's system call, pc and the file it lies in, and the signals the process catches. A thread that is running gives no pc, so the process is then stopped for a moment to look, and the report says so.
+Where a process is stuck: each thread's system call, pc and the file it lies in, and the signals the process catches. What every host's report says and how it prints; reading it from the system is each host package's (LinuxStuckReport from /proc, MacStuckReport from the task port).

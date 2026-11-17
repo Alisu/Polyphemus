@@ -40,6 +40,6 @@ methodsAllowedACatchAll
 		'StatForPresenterPresenter>>updateForMemory:'
 		'StopHelper class>>directoryShared:else:'
 		'StopHelper class>>sourceFile'
-		'StuckThread>>setTask:files:codeZone:'
+		'LinuxStuckThread>>setTask:files:codeZone:'
 		'VMVariables>>startsWithAHeader:'
 	)

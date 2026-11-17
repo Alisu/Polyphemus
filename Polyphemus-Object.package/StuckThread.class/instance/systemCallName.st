@@ -1,6 +1,6 @@
 accessing
 systemCallName
 
-	"nil outside a system call (running, or stopped in user code)."
+	"The name of the system call it is in; nil outside one."
 
-	^ (number isNil or: [ number < 0 ]) ifTrue: [ nil ] ifFalse: [ StuckReport nameOfSystemCall: number ]
+	^ self subclassResponsibility

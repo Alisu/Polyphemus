@@ -181,15 +181,20 @@ syncSide := [ :target :dir :packageName |
 
 "A package this image does not have is one it was not built with -- another host's, another
  edition's -- and is skipped. But one a class of this image moved into is made here, or the class,
- gone from its old package's files, would be removed. Hosts' and editions' packages are never made."
+ gone from its old package's files, would be removed. Hosts' and editions' packages are never made,
+ nor the package of a host's tests where that host's own is not loaded."
 (root directories select: [ :d | d basename endsWith: '.package' ]) do: [ :pkgDir |
 	| packageName |
 	packageName := pkgDir basename copyReplaceAll: '.package' with: ''.
 	((organizer packageNamed: packageName ifAbsent: [ nil ]) isNil
 		and: [ ((packageName beginsWith: 'Polyphemus-Host-') or: [ packageName beginsWith: 'Polyphemus-Edition-' ]) not
+		and: [ ((packageName beginsWith: 'Polyphemus-Tests-Host-') and: [
+			(organizer
+				packageNamed: (packageName copyReplaceAll: 'Polyphemus-Tests-Host-' with: 'Polyphemus-Host-')
+				ifAbsent: [ nil ]) isNil ]) not
 		and: [ pkgDir directories anySatisfy: [ :d |
 			(d basename endsWith: '.class') and: [
-				Smalltalk includesKey: ((STONJSON fromString: (d / 'properties.json') contents) at: 'name') asSymbol ] ] ] ])
+				Smalltalk includesKey: ((STONJSON fromString: (d / 'properties.json') contents) at: 'name') asSymbol ] ] ] ] ])
 		ifTrue: [
 			(organizer respondsTo: #ensurePackage:)
 				ifTrue: [ organizer ensurePackage: packageName ]
