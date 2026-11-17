@@ -6,9 +6,4 @@ catchesAnyError: aMethod
 
 	^ aMethod ast sendNodes anySatisfy: [ :node |
 		  (#( #onErrorDo: #ifError: ) includes: node selector) or: [
-			  node selector = #on:do: and: [
-				  | caught |
-				  caught := node arguments first.
-				  (caught isVariable or: [ caught isMessage and: [ caught selector = #, ] ]) and: [
-					  (caught allChildren select: [ :each | each isVariable ]) anySatisfy: [ :each |
-						  #( 'Error' 'Exception' ) includes: each name asString ] ] ] ] ]
+			  node selector = #on:do: and: [ (self classesCaughtBy: node arguments first) includesAny: #( 'Error' 'Exception' ) ] ] ]
