@@ -9,8 +9,8 @@
  * keeps the pipe open after the observer closed it or died.
  *
  * One stop at a time per process, whichever user observes it: a lock beside the state file,
- * <pid>.lock, in a directory open to all, which the system
- * releases if this is killed. A mark, <pid>.mark, names the helper whose stop it is, so that the
+ * <pid>.lock, in a directory open to all and sticky, which the system releases if this is killed.
+ * No file is opened through a link, and none but its own is written or has its mode changed (#179). A mark, <pid>.mark, names the helper whose stop it is, so that the
  * next helper resumes a stop whose helper was killed. A process stopped with no mark was stopped
  * by someone else (a debugger, a hand): it is read as it is and left stopped.
  *
@@ -52,14 +52,35 @@ static void on_term(int signal_number)
 	told = 1;
 }
 
+/* A file of this helper's own under that name: whatever was there is taken away first, and the
+ * name is never followed if it is a link (#179). -1 when it cannot be made. */
+static int open_anew(const char *path)
+{
+	unlink(path);
+	return open(path, O_CREAT | O_EXCL | O_WRONLY | O_NOFOLLOW, 0644);
+}
+
+static void write_whole(int fd, const char *text)
+{
+	size_t length = strlen(text);
+	while (length > 0) {
+		ssize_t n = write(fd, text, length);
+		if (n < 0 && errno == EINTR) continue;
+		if (n <= 0) return;
+		text += n;
+		length -= (size_t)n;
+	}
+}
+
 static void say(const char *what)
 {
-	char tmp[PATH_MAX + 8];
+	char tmp[PATH_MAX + 8], text[96];
 	snprintf(tmp, sizeof tmp, "%s.tmp", state_path);
-	FILE *f = fopen(tmp, "w");
-	if (!f) return;
-	fprintf(f, "%s\n%d\n", what, (int)getpid());
-	fclose(f);
+	int fd = open_anew(tmp);
+	if (fd < 0) return;
+	snprintf(text, sizeof text, "%s\n%d\n", what, (int)getpid());
+	write_whole(fd, text);
+	close(fd);
 	rename(tmp, state_path);
 }
 
@@ -108,20 +129,64 @@ static int wait_until_stopped(pid_t pid)
 
 static void write_mark(const char *path, pid_t helper)
 {
-	FILE *f = fopen(path, "w");
-	if (!f) return;
-	fprintf(f, "%d\n", (int)helper);
-	fclose(f);
+	char text[32];
+	int fd = open_anew(path);
+	if (fd < 0) return;
+	snprintf(text, sizeof text, "%d\n", (int)helper);
+	write_whole(fd, text);
+	close(fd);
 }
 
+/* Read only from a regular file under that very name, never through a link (#179). */
 static pid_t read_mark(const char *path)
 {
-	FILE *f = fopen(path, "r");
-	if (!f) return 0;
-	int helper = 0;
-	if (fscanf(f, "%d", &helper) != 1) helper = 0;
-	fclose(f);
-	return (pid_t)helper;
+	char text[32];
+	struct stat st;
+	int fd = open(path, O_RDONLY | O_NOFOLLOW | O_NONBLOCK);
+	if (fd < 0) return 0;
+	if (fstat(fd, &st) != 0 || !S_ISREG(st.st_mode)) {
+		close(fd);
+		return 0;
+	}
+	ssize_t n = read(fd, text, sizeof text - 1);
+	close(fd);
+	if (n <= 0) return 0;
+	text[n] = '\0';
+	int helper = atoi(text);
+	return helper > 0 ? (pid_t)helper : 0;
+}
+
+/* The lock under that name: made open to every user's observers when it is this helper that
+ * makes it, opened as it is otherwise, to be locked and never written. Never through a link, and
+ * only a regular file (#179). -1 when there is none to be had. */
+static int open_lock(const char *path)
+{
+	struct stat st;
+	int lock = open(path, O_CREAT | O_EXCL | O_RDWR | O_NOFOLLOW, 0666);
+	if (lock >= 0) {
+		fchmod(lock, 0666);   /* past the umask: its own file, just made */
+		return lock;
+	}
+	if (errno != EEXIST && errno != EACCES) return -1;   /* EACCES: a sticky directory guarding another user's */
+	lock = open(path, O_RDWR | O_NOFOLLOW | O_NONBLOCK);
+	if (lock < 0 && errno == EACCES)
+		lock = open(path, O_RDONLY | O_NOFOLLOW | O_NONBLOCK);
+	if (lock < 0) return -1;
+	if (fstat(lock, &st) != 0 || !S_ISREG(st.st_mode)) {
+		close(lock);
+		return -1;
+	}
+	return lock;
+}
+
+/* The directory of the locks, shared as /tmp is: a directory and no link to one; made sticky by
+ * its owner, so that no user takes away or replaces another's files (#179). */
+static int directory_is_fit(const char *dir)
+{
+	struct stat st;
+	if (lstat(dir, &st) != 0 || !S_ISDIR(st.st_mode)) return 0;
+	if (st.st_uid == geteuid()) chmod(dir, 01777);
+	return 1;
 }
 
 /* The observer's end (told, gone, or its input closed), or the bound: whichever comes first.
@@ -165,13 +230,10 @@ int main(int argc, char **argv)
 	snprintf(lock_path, sizeof lock_path, "%s/%d.lock", dir, (int)pid);
 	snprintf(mark_path, sizeof mark_path, "%s/%d.mark", dir, (int)pid);
 
-	/* One directory for the observers of every user (#163): open to all, by its owner, and each
-	 * lock too, past the umask. Waiting for another observer's stop, it still leaves when its
-	 * own observer gives up. */
-	chmod(dir, 0777);
-	int lock = open(lock_path, O_CREAT | O_RDWR, 0666);
-	if (lock >= 0)
-		fchmod(lock, 0666);
+	/* One directory for the observers of every user (#163): open to all and sticky, by its owner,
+	 * and each lock open to all, past the umask. Waiting for another observer's stop, it still
+	 * leaves when its own observer gives up. */
+	int lock = directory_is_fit(dir) ? open_lock(lock_path) : -1;
 	if (lock < 0) {
 		say("not stopped");
 		return 1;
