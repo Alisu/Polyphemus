@@ -12,7 +12,8 @@ addTo: aReifiedClass selector: aSelectorOop method: anOop
 	tally := ((memory fetchPointer: 0 ofObject: dictionary) - 1) // 8.
 	tally + 1 > (size * 3 // 4) ifTrue: [
 		^ CannotWriteThere signal: 'that dictionary would have to grow, which is not done yet' ].
-	index := (memory hashBitsOf: aSelectorOop) \\ size + 1.
+	"A symbol whose hash was never asked is given one first, as the image would at its first send (#163)."
+	index := (HeldProcess identityHashOfObjectAt: aSelectorOop in: memory) \\ size + 1.
 	[ (memory fetchPointer: index + 1 ofObject: dictionary) = self nilOop ] whileFalse: [
 		index := index \\ size + 1 ].
 	memory remember: methods.
