@@ -1,0 +1,1 @@
+What a reading asks of VMMaker's memory, written out: each message here is passed on to it as it is, and the list is what Polyphemus uses of VMMaker through a reading. A message of VMMaker's that is not here is not understood, as of anyone (#118): add it here when a reading needs it.
