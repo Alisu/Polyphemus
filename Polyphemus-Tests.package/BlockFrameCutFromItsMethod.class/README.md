@@ -1,0 +1,1 @@
+A frame running a block, with no outer context and no activation of a method among its senders: a stack cut before the method the block is of (#149, #118).
