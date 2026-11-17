@@ -6,5 +6,7 @@ reifyEverything: aReifiedMemory
 
 	self memory allOldSpaceObjectsDo: [ :oop | aReifiedMemory reifyOop: oop ].
 	raw youngObjectsDo: [ :oop | aReifiedMemory reifyOop: oop ].
-	aReifiedMemory createCompressedVersion.
+	aReifiedMemory
+		everythingIsReified;
+		createCompressedVersion.
 	^ aReifiedMemory
