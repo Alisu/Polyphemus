@@ -1,0 +1,1 @@
+The variables of a VM whose count of stack pages is damaged: more than any VM has (#211).
