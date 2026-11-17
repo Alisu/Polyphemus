@@ -1,8 +1,8 @@
 tests
 testEmptyMemoryIsNotAHeap
 
-	"Zeros read as free chunk after free chunk, for as far as you care to walk. Counting those
-	as objects would make untouched memory the most convincing heap in the dump."
+	"Zeros have the class index of free space; they are neither objects nor free chunks, and a walk
+	stops at the first, saying so (#211). Untouched memory is not the most convincing heap in a dump."
 
 	| space walk |
 	space := ByteArrayAddressSpace
@@ -13,7 +13,8 @@ testEmptyMemoryIsNotAHeap
 		        upTo: self baseAddress + 65536.
 
 	self assert: walk objectCount equals: 0.
-	self assert: walk freeChunkCount > 100.
+	self assert: walk freeChunkCount equals: 0.
+	self assert: walk reason equals: #zeroedMemory.
 	self deny: ((SpurHeapScanner on: space)
 			 looksLikeAHeapFrom: self baseAddress
 			 upTo: self baseAddress + 65536)

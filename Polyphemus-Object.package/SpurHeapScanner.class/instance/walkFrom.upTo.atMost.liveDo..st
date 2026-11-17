@@ -22,6 +22,8 @@ walkFrom: anAddress upTo: aLimit atMost: aCount liveDo: aBlock
 	[ current < aLimit ] whileTrue: [
 		| slots wrong size |
 		header ifNil: [ ^ answer value: current value: #outsideTheRegion ].
+		"No free chunk has a header of zero: memory wiped, or never written, not free space (#211)."
+		header = 0 ifTrue: [ ^ answer value: current value: #zeroedMemory ].
 		slots := self slotsAt: current header: header.
 		wrong := self whyNotAnObjectAt: current header: header slots: slots.
 		wrong ifNotNil: [ ^ answer value: current value: wrong ].

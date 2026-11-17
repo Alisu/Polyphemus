@@ -13,4 +13,4 @@ testItFindsTheObjectsInNewSpaceByTheirShape
 	self assert: walk objectCount > 100.
 	self assert: walk stoppedAt < dumped raw heapStart.
 	self assert: walk stoppedAt >= (dumped raw vmVariables at: 'pastSpaceStart').
-	self assert: (#( #nothingButFreeSpace #classIndexTooLarge #unusedFormat ) includes: walk reason)
+	self assert: (#( #zeroedMemory #nothingButFreeSpace #classIndexTooLarge #unusedFormat ) includes: walk reason)
