@@ -6,8 +6,8 @@ stop: someArguments
 
 	| session |
 	session := self sessionAt: someArguments.
-	self images removeKey: (someArguments at: 'handle').
 	session stopTheHeldProcess.
+	self images removeKey: (someArguments at: 'handle').
 	^ self
 		  text: 'Stopped: the process held is ended, and the image runs on without it.'
 		  structured: (Dictionary new at: 'handle' put: (someArguments at: 'handle'); yourself)

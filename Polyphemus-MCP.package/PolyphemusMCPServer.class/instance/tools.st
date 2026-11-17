@@ -64,7 +64,7 @@ tools
 			   properties: (Dictionary new
 					    at: 'handle' put: (self schema: 'string' saying: 'As answered by hold.');
 					    at: 'method' put: (self schema: 'string' saying: 'The method, as Class >> #selector.');
-					    at: 'seconds' put: (self schema: 'integer' saying: 'How long to let it run, 60 if not given.');
+					    at: 'seconds' put: (self schema: 'integer' saying: 'How long to let it run: 60 if not given, 600 at most.');
 					    yourself)
 			   required: #( 'handle' 'method' ))).
 		  (self acting: (self tool: 'step'

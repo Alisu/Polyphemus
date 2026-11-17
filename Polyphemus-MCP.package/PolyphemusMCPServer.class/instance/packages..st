@@ -3,7 +3,8 @@ packages: someArguments
 
 	| image lines |
 	image := self imageAt: someArguments.
-	lines := image footprint lines first: (self top: someArguments).
+	lines := image footprint lines.
+	lines := lines first: ((self top: someArguments) min: lines size).
 	^ self
 		  text: (self table: lines) , String lf
 			  , 'Owned: classes, metaclasses, method dictionaries, methods, blocks and method state; extension methods count for the class''s package; what class variables keep alive is not counted.'
