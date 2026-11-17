@@ -1,4 +1,4 @@
-handling
+*Polyphemus-Memory
 tellAbout: aDebuggerOrNil with: aUIManager
 
 	"Ask, until answered, whether to close the debugger that was reading the gone image; kept, its
