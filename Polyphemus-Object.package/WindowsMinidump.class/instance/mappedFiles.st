@@ -7,7 +7,7 @@ mappedFiles
 	| at count entries |
 	at := (self streamOfType: 4 in: (self bytesAtOffset: 0 count: 32)) ifNil: [ ^ #(  ) ].
 	count := self unsignedFrom: (self bytesAtOffset: at count: 4) at: 1 size: 4.
-	entries := self bytesAtOffset: at + 4 count: 108 * count.
+	entries := self tableAtOffset: at + 4 count: 108 * count.
 	^ (0 to: count - 1) collect: [ :index |
 		  | entry base nameAt length |
 		  entry := index * 108 + 1.

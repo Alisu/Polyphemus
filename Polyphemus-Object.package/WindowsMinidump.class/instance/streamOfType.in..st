@@ -6,7 +6,7 @@ streamOfType: aType in: aHeader
 
 	| directory |
 	directory := self
-		             bytesAtOffset: (self unsignedFrom: aHeader at: 13 size: 4)
+		             tableAtOffset: (self unsignedFrom: aHeader at: 13 size: 4)
 		             count: 12 * (self unsignedFrom: aHeader at: 9 size: 4).
 	1 to: directory size by: 12 do: [ :at |
 		(self unsignedFrom: directory at: at size: 4) = aType ifTrue: [

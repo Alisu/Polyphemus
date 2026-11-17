@@ -14,7 +14,7 @@ readFrom: aFileReference
 	entrySize := self unsignedFrom: header at: 55 size: 2.
 	entryCount := self unsignedFrom: header at: 57 size: 2.
 
-	table := self bytesAtOffset: tableStart count: entrySize * entryCount.
+	table := self tableAtOffset: tableStart count: entrySize * entryCount.
 	segments := (1 to: entryCount) collect: [ :index |
 		            self segmentFrom: table at: (index - 1) * entrySize + 1 ].
 	self holdSegmentsToTheFile

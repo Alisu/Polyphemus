@@ -14,7 +14,7 @@ readFrom: aFileReference
 	list := self bytesAtOffset: listAt count: 16.
 	count := self unsignedFrom: list at: 1 size: 8.
 	rva := self unsignedFrom: list at: 9 size: 8.
-	list := self bytesAtOffset: listAt + 16 count: 16 * count.
+	list := self tableAtOffset: listAt + 16 count: 16 * count.
 	segments := (0 to: count - 1) collect: [ :index |
 		            | size segment |
 		            size := self unsignedFrom: list at: index * 16 + 9 size: 8.
