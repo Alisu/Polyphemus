@@ -8,9 +8,9 @@ import os, sys
 
 # Methods copied from elsewhere keep their authors' comments as they were.
 NOT_OURS = {
-    'Polyphemus-Memory.package/Spur32BitMemoryManager.extension/instance/defaultEdenBytes.st',
-    'Polyphemus-Memory.package/Spur64BitMemoryManager.extension/instance/defaultEdenBytes.st',
-    'Polyphemus-Memory.package/StackInterpreter.extension/instance/interpreterAllocationReserveBytes.st',
+    'Polyphemus-Object.package/Spur32BitMemoryManager.extension/instance/defaultEdenBytes.st',
+    'Polyphemus-Object.package/Spur64BitMemoryManager.extension/instance/defaultEdenBytes.st',
+    'Polyphemus-Object.package/StackInterpreter.extension/instance/interpreterAllocationReserveBytes.st',
     'Polyphemus-Memory.package/DebugSession.extension/instance/isContextPostMortem..st',
     # Code its first author left commented out, and a note of theirs, as they wrote them.
     'Polyphemus-Object.package/OOPAbstractEntity.class/instance/oopByteSize.st',

@@ -49,6 +49,28 @@ Miranda's `VMMaker.oscog`.
   load leaves that nil and *every* test errors. A `github://` load registers automatically.
 - **`Polyphemus-Builder` needs a second load pass** until the load bug below is fixed.
 
+## Packages, by role (since 2026-11-17, #118)
+
+Each rests only on those above it in this table; `WorkingCopyLayoutTest` fails when a method
+names a class of a package its own does not rest on.
+
+| Package | What it holds | Rests on |
+|---|---|---|
+| `Polyphemus-Object` | the core: bytes, heaps, readings, frames, holding a process, the errors, VMMaker's set-up | VMMaker |
+| `Polyphemus-Edition-Pharo1x`, `Polyphemus-Host-<os>`, `Polyphemus-VMMaker-MemoryMap` | what one Pharo, one host or one VMMaker needs; loaded by the baseline for that one only | the core |
+| `Polyphemus-Facade` | `Polyphemus` (what code calls), the debug session, saving a method, the census; no window | the core |
+| `Polyphemus-MCP` | the MCP server | the facade |
+| `Polyphemus-Memory` | the windows: inspectors, the map, the debugger; the facade's six messages that open one, as extensions | the facade |
+| `Polyphemus-Builder`, `Polyphemus-Helper`, `Polyphemus-Tests*`, `Polyphemus-Tests-Host-<os>` | the tests and what only they use | all of the above |
+
+Baseline groups: `reading` (core, facade, edition, host), `mcp` (reading and the server), `core`
+(the whole tool), no group (the tool and its tests).
+
+**Moving a class to another package**: move its directory and change its `category`; the sync
+(`bin/sync-from-working-copy.st`) defines it again there, with its pools and its trait, and makes
+a package a class of the image moved into. It never makes a host's or an edition's package. A new
+package also goes in the baseline, which makes CI build every setup afresh.
+
 ## Headless Pharo rules (learned the hard way)
 
 1. An unhandled error **hangs** the process — there is no debugger to open. Wrap every snippet in
