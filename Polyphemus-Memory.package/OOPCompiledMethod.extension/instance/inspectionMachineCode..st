@@ -1,4 +1,4 @@
-inspection
+*Polyphemus-Memory
 inspectionMachineCode: aBuilder
 	<inspectorPresentationOrder: 40 title: 'Machine code'>
 

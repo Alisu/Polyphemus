@@ -1,4 +1,4 @@
-inspection
+*Polyphemus-Memory
 inspectionInImage: aBuilder
 	<inspectorPresentationOrder: -1 title: 'In image'>
 

@@ -1,4 +1,4 @@
-inspecting
+*Polyphemus-Memory
 keyValueTableOf: someItems in: aBuilder
 
 	"The inspector's table of key -> value items that are only read, as a frame's and a stack

@@ -1,4 +1,4 @@
-telling
+*Polyphemus-Memory
 markTitleOf: aDebugger
 
 	"Puts this session's marks in front of that debugger's title, when they are not there."
