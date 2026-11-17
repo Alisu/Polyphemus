@@ -1,0 +1,1 @@
+A held image with no process behind it, whose hold fails while it is asked for (nothing watches) or is never taken: HoldLockTest checks what such a hold leaves behind (#181). It is its own reader, noting that it was closed.

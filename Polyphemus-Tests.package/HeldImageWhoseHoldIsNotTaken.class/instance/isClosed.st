@@ -1,0 +1,4 @@
+testing
+isClosed
+
+	^ closed == true

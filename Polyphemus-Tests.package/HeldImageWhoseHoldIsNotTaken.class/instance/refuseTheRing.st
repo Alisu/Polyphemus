@@ -1,0 +1,4 @@
+holding
+refuseTheRing
+
+	refusesTheRing := true

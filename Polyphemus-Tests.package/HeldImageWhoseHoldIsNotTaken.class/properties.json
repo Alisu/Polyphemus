@@ -1,0 +1,14 @@
+{
+	"commentStamp": "",
+	"super": "HeldImage",
+	"category": "Polyphemus-Tests",
+	"classinstvars": [],
+	"pools": [],
+	"classvars": [],
+	"instvars": [
+		"refusesTheRing",
+		"closed"
+	],
+	"name": "HeldImageWhoseHoldIsNotTaken",
+	"type": "normal"
+}

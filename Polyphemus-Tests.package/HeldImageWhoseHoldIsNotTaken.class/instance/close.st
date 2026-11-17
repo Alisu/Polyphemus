@@ -1,0 +1,4 @@
+reading
+close
+
+	closed := true
