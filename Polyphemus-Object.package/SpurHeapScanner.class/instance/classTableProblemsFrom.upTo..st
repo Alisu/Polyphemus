@@ -4,18 +4,19 @@ classTableProblemsFrom: anAddress upTo: aLimit
 	"Class table problems, as reason -> address when structural, or reason -> class index for
 	a bad entry. Only pages in use are checked."
 
-	| problems hiddenRoots header pages |
+	| problems hiddenRoots header slots pages |
 	problems := OrderedCollection new.
 	hiddenRoots := self hiddenRootsFrom: anAddress.
 	"Past the mapping when the free lists object claims more slots than it holds (#182)."
 	header := hiddenRoots ifNotNil: [ self headerAt: hiddenRoots ].
-	(header notNil and: [
-		 (self formatIn: header) = 2 and: [
-			 (self slotsAt: hiddenRoots) >= self classTableRootSlots ] ]) ifFalse: [
+	"A count that does not read is no count to compare (#195)."
+	slots := header ifNotNil: [ self slotsAt: hiddenRoots header: header ].
+	(slots notNil and: [
+		 (self formatIn: header) = 2 and: [ slots >= self classTableRootSlots ] ]) ifFalse: [
 		problems add: #hiddenRootsAreNotWhereTheHeapSaysTheyAre -> anAddress.
 		^ problems ].
 
-	pages := self classTableRootSlots min: (self slotsAt: hiddenRoots).
+	pages := self classTableRootSlots min: slots.
 	1 to: pages do: [ :index |
 		| page |
 		page := self slotOf: hiddenRoots at: index.
