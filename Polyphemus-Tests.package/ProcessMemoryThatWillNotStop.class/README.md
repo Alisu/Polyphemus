@@ -1,1 +1,1 @@
-A process reader whose process never stops (a signal refused, a process gone): ProcessMemoryTest checks that nothing is read from it as if held.
+A process reader whose process never stops (a signal refused, a process gone): ProcessMemoryTest checks that nothing is read from it as if held, and that what was sent to stop it is taken back (#181).

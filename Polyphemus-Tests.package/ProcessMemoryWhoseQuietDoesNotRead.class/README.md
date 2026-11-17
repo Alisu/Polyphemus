@@ -1,0 +1,1 @@
+A process reader whose process stops, and then cannot say whether it is quiet (its state does not read): ProcessMemoryTest checks that it is let go all the same (#181).

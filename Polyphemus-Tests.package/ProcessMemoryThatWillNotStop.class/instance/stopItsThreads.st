@@ -1,4 +1,4 @@
 holding it still
-stop
+stopItsThreads
 
 	^ false

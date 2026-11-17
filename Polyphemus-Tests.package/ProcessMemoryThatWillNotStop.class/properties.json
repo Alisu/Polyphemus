@@ -5,7 +5,9 @@
 	"classinstvars": [],
 	"pools": [],
 	"classvars": [],
-	"instvars": [],
+	"instvars": [
+		"tookBack"
+	],
 	"name": "ProcessMemoryThatWillNotStop",
 	"type": "normal"
 }

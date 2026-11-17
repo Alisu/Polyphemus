@@ -5,7 +5,7 @@ whileStoppedWhenQuiet: aBlock tries: aNumber
 
 	| tries answer |
 	tries := 0.
-	[ self stop ifFalse: [ ^ self wouldNotStop ]. self isQuiet ] whileFalse: [
+	[ self stop ifFalse: [ ^ self wouldNotStop ]. self isQuietOrLetGo ] whileFalse: [
 		self resume.
 		(tries := tries + 1) > aNumber ifTrue: [
 			^ (SpurCannotRead new level: #bytes reason: #itWasNeverQuietWhenStopped) signal ].

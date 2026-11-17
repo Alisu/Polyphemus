@@ -1,0 +1,4 @@
+testing
+isStopped
+
+	^ stopped == true
