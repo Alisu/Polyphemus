@@ -5,5 +5,5 @@ behavior
 	the nearest class of that image this one has by name, as Pharo's tools need a real class (#120)."
 
 	self context isReadActivation ifTrue: [
-		^ [ self context receiver oopClass nearestClassHere ] on: Error do: [ :e | Object ] ].
+		^ [ self context receiver oopClass nearestClassHere ] on: PolyphemusError do: [ :e | Object ] ].
 	^ self context receiver class

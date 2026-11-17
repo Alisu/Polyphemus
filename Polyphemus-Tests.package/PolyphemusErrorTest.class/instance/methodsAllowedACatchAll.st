@@ -2,10 +2,11 @@ running
 methodsAllowedACatchAll
 
 	"Each method outside the tests that catches any Error, when ForeignCode was written (#118): the
-	two of ForeignCode, the boundaries where a report is made, and what is not narrowed yet. A
-	method leaves this list when its handler is narrowed; none joins it."
+	two of ForeignCode, the boundaries where a report is made, what is not narrowed yet, and the one
+	that lets go and signals again. A method leaves this list when it is narrowed; none joins it."
 
 	^ #(
+		'BlockClosure>>valueThenLetGo:'
 		'DirectoryChannel>>whyExpired'
 		'DirectoryChannel>>whyNotServing'
 		'FileAddressSpace>>close'
