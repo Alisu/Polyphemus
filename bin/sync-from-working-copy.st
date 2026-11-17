@@ -83,7 +83,7 @@ ensureClass := [ :props :packageName |
 			 in the code."
 			| cls wantedSuper wantedIvars |
 			cls := Smalltalk at: name.
-			"A class whose definition changed -- a new superclass, instance variables it no longer
+			"A class whose definition changed -- another package, a new superclass, instance variables it no longer
 			 has, other class variables or other shared pools -- is defined again. Topping up the variables alone would leave it under
 			 the old superclass, with whatever it inherits shadowed, and nothing said so."
 			wantedSuper := (props at: 'super') asSymbol.
@@ -93,12 +93,12 @@ ensureClass := [ :props :packageName |
 			(Smalltalk includesKey: wantedSuper)
 				ifFalse: [ nil ]
 				ifTrue: [
-					(cls superclass name asSymbol = wantedSuper and: [
+					(cls package name asString = packageName and: [ cls superclass name asSymbol = wantedSuper and: [
 						 cls instVarNames asSet = wantedIvars asSet and: [
 							 (cls classVarNames collect: [ :each | each asString ]) asSet
 							 = ((props at: 'classvars') collect: [ :each | each asString ]) asSet and: [
 								 (cls sharedPools collect: [ :each | each name asString ]) asSet
-								 = ((props at: 'pools' ifAbsent: [ #() ]) collect: [ :each | each asString ]) asSet ] ] ]) ifFalse: [
+								 = ((props at: 'pools' ifAbsent: [ #() ]) collect: [ :each | each asString ]) asSet ] ] ] ]) ifFalse: [
 						define value: (Smalltalk at: wantedSuper) value: props value: packageName.
 						cls := Smalltalk at: name.
 						('REDEFINED ', name, ' under ', wantedSuper) traceCr ].
@@ -178,6 +178,23 @@ syncSide := [ :target :dir :packageName |
 				on: Error do: [ :e | false ] ])
 			ifTrue: [ drop value: target value: sel ] ] ]
 		on: Error do: [ :e | ] ].
+
+"A package this image does not have is one it was not built with -- another host's, another
+ edition's -- and is skipped. But one a class of this image moved into is made here, or the class,
+ gone from its old package's files, would be removed. Hosts' and editions' packages are never made."
+(root directories select: [ :d | d basename endsWith: '.package' ]) do: [ :pkgDir |
+	| packageName |
+	packageName := pkgDir basename copyReplaceAll: '.package' with: ''.
+	((organizer packageNamed: packageName ifAbsent: [ nil ]) isNil
+		and: [ ((packageName beginsWith: 'Polyphemus-Host-') or: [ packageName beginsWith: 'Polyphemus-Edition-' ]) not
+		and: [ pkgDir directories anySatisfy: [ :d |
+			(d basename endsWith: '.class') and: [
+				Smalltalk includesKey: ((STONJSON fromString: (d / 'properties.json') contents) at: 'name') asSymbol ] ] ] ])
+		ifTrue: [
+			(organizer respondsTo: #ensurePackage:)
+				ifTrue: [ organizer ensurePackage: packageName ]
+				ifFalse: [ organizer createPackageNamed: packageName ].
+			('CREATED PACKAGE ', packageName, ': a class of this image moved into it') traceCr ] ].
 
 packages := (root directories select: [ :d | d basename endsWith: '.package' ])
 	select: [ :pkgDir |

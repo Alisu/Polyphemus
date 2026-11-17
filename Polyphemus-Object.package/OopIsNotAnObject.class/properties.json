@@ -1,7 +1,7 @@
 {
 	"commentStamp" : "",
 	"super" : "PolyphemusError",
-	"category" : "Polyphemus-Memory-Errors",
+	"category" : "Polyphemus-Object",
 	"classinstvars" : [ ],
 	"pools" : [ ],
 	"classvars" : [ ],
