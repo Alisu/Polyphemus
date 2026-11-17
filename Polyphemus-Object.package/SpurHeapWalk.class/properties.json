@@ -13,7 +13,8 @@
   "stoppedAt",
   "reason",
   "specialObjectsArray",
-  "lastLiveEnd"
+  "lastLiveEnd",
+		"firstZeroedHeader"
  ],
  "name": "SpurHeapWalk",
  "type": "normal"

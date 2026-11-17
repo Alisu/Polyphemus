@@ -4,7 +4,7 @@ walkFrom: anAddress upTo: aLimit atMost: aCount liveDo: aBlock
 	"As walkFrom:upTo:atMost:, giving aBlock each live object's address and header, when there
 	is a block. Each header is read once (#152)."
 
-	| count free liveBytes freeBytes consecutiveFree current header soa answer lastLiveEnd |
+	| count free liveBytes freeBytes consecutiveFree current header soa answer lastLiveEnd firstZeroed |
 	count := 0. free := 0. liveBytes := 0. freeBytes := 0. consecutiveFree := 0.
 	current := anAddress.
 	header := self headerAt: current.
@@ -18,12 +18,14 @@ walkFrom: anAddress upTo: aLimit atMost: aCount liveDo: aBlock
 			          because: why;
 			          specialObjectsArray: soa;
 			          lastLiveEnd: lastLiveEnd;
+			          firstZeroedHeader: firstZeroed;
 			          yourself ].
 	[ current < aLimit ] whileTrue: [
 		| slots wrong size |
 		header ifNil: [ ^ answer value: current value: #outsideTheRegion ].
-		"No free chunk has a header of zero: memory wiped, or never written, not free space (#211)."
-		header = 0 ifTrue: [ ^ answer value: current value: #zeroedMemory ].
+		"No free chunk has a header of zero: memory wiped or never written. Stepped over as free
+		space is, so that what follows is still walked, and noted for the walk to say (#211)."
+		(header = 0 and: [ firstZeroed isNil ]) ifTrue: [ firstZeroed := current ].
 		slots := self slotsAt: current header: header.
 		wrong := self whyNotAnObjectAt: current header: header slots: slots.
 		wrong ifNotNil: [ ^ answer value: current value: wrong ].
