@@ -23,7 +23,7 @@ class=$(grep -ao "RES [A-Za-z0-9]* '" "$script" | head -1 | awk '{print $2}')
 # A class whose image dies says nothing, its log ending mid-line (#51).
 [ "$class" = "${STUB_SILENT:-}" ] && { printf 'a stack, then\033[0m'; exit 1; }
 # A class whose image dies after saying why, with a long stack under it (#118).
-[ "$class" = "${STUB_LONG_DEATH:-}" ] && { echo "MessageNotUnderstood: Foo>>bar"; for i in $(seq 1 40); do echo "frame $i"; done; exit 1; }
+[ "$class" = "${STUB_LONG_DEATH:-}" ] && { echo "MessageNotUnderstood: Foo>>bar"; for i in $(seq 1 20); do echo "source line $i"; done; echo "Raiser(Its Parent)>>raises:"; for i in $(seq 1 20); do echo "frame $i"; done; exit 1; }
 # The probe of #118, where the runner's script installs it, says what reached a handler.
 grep -q "probe-handlers-install.st" "$script" && echo "    NOTE ARRIVAL $class | 2 | AHandler>>m | KeyNotFound | key 1 | Dictionary>>at:"
 # A test that fails, then is skipped when run again alone: the retry runs one selector.
@@ -92,7 +92,8 @@ check "a class after one whose log ends mid-line still counts" "grep -q '^RES Fa
 # What a broken class's image said first is the error; the end of its stack alone never names it (#118).
 out=$(WORK="$dir" STUB_CLASSES="LongDeathTest" STUB_LONG_DEATH=LongDeathTest "$HERE/run-tests.sh" -c LongDeathTest -j 1 2>&1)
 check "a broken class shows how its image's last words began" "grep -q '^    | MessageNotUnderstood: Foo>>bar' <<<\"\$out\""
-check "and how they ended, the middle left out and said so" "grep -q '^    | frame 40' <<<\"\$out\" && ! grep -q '^    | frame 20' <<<\"\$out\" && grep -q '^    | \.\.\. [0-9]* lines left out' <<<\"\$out\""
+check "and how they ended, the middle left out and said so" "grep -q '^    | frame 20' <<<\"\$out\" && ! grep -q '^    | frame 10' <<<\"\$out\" && grep -q '^    | \.\.\. [0-9]* lines left out' <<<\"\$out\""
+check "but for the frames of its stack, which say who raised it" "grep -q '^    | Raiser(Its Parent)>>raises:' <<<\"\$out\""
 # Many classes that launch images run two at a time, in lanes of their own: twelve at once
 # overloaded the box (2026-11-01). A few run in the pool as before (#31).
 many="LaunchATest LaunchBTest LaunchCTest LaunchDTest LaunchETest"

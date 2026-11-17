@@ -166,11 +166,16 @@ INNER
     # The image died, or printed nothing: a class that did not report is broken, not absent.
     echo "RES $c BROKEN no result (exit $rc)"
     # Each line ended, the last too: a log cut mid-line glued the next class's result to it (#31).
-    # How it began names the error, how it ended says where it stopped: a long stack loses its middle.
+    # How it began names the error, how it ended says where it stopped; of a long middle, the
+    # first frames of its stack (Class>>selector lines), which say who raised it.
     sed -E "s/$(printf '\033')\[[0-9;]*[A-Za-z]//g" "$log" | tr -d '\033' | awk '
       { line[NR] = $0 }
       END { for (i = 1; i <= NR; i++) {
-              if (NR > 20 && i == 13) { print "    | ... " NR - 17 " lines left out ..."; i = NR - 4 }
+              if (NR > 20 && i == 13) {
+                shown = 0
+                for (j = 13; j <= NR - 5; j++)
+                  if (shown < 30 && line[j] ~ /^[A-Za-z][A-Za-z0-9 ]*(\([A-Za-z0-9 ]+\))?>>/) { print "    | " line[j]; shown++ }
+                print "    | ... " NR - 17 - shown " lines left out ..."; i = NR - 4 }
               print "    | " line[i] } }'
     kill_targets_of "$c" "$log"
   else
