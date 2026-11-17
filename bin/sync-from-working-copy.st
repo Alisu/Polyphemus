@@ -26,25 +26,48 @@ joined := [ :coll | String streamContents: [ :s |
  which has no such message any more."
 "Three arguments: Pharo 14 build 771 on VM 12.0.5-beta fails any value:value:value:value:value:."
 define := [ :superclass :props :packageName |
-	| name ivars classVars |
+	| name ivars classVars pools traitText trait |
 	name := (props at: 'name') asSymbol.
 	ivars := props at: 'instvars'.
 	classVars := props at: 'classvars'.
+	"Its shared pools and its trait go with it: defined again without them, a class loses the
+	 pool's variables and the trait's methods, and nothing that uses them runs any more."
+	pools := props at: 'pools' ifAbsent: [ #() ].
+	traitText := (props at: 'traitcomposition' ifAbsent: [ '{}' ]) trimBoth.
+	trait := traitText = '{}'
+		ifTrue: [ nil ]
+		ifFalse: [
+			Smalltalk globals at: traitText asSymbol ifAbsent: [
+				('COMPILE ERR ', name, ': its traits, ', traitText, ', are not one trait of this image; defined without') traceCr.
+				nil ] ].
 	(superclass respondsTo: #subclass:instanceVariableNames:classVariableNames:package:)
 		ifTrue: [
-			superclass
-				subclass: name
-				instanceVariableNames: (joined value: ivars)
-				classVariableNames: (joined value: classVars)
-				package: packageName ]
+			trait
+				ifNil: [
+					superclass
+						subclass: name
+						instanceVariableNames: (joined value: ivars)
+						classVariableNames: (joined value: classVars)
+						poolDictionaries: (joined value: pools)
+						package: packageName ]
+				ifNotNil: [
+					superclass
+						subclass: name
+						uses: trait
+						instanceVariableNames: (joined value: ivars)
+						classVariableNames: (joined value: classVars)
+						poolDictionaries: (joined value: pools)
+						package: packageName ] ]
 		ifFalse: [
 			| category builder |
 			category := (props at: 'category' ifAbsent: [ packageName ]) asString.
 			builder := (superclass << name)
 				slots: (ivars collect: [ :each | each asSymbol ]) asArray;
 				sharedVariables: (classVars collect: [ :each | each asSymbol ]) asArray;
+				sharedPools: (pools collect: [ :each | each asSymbol ]) asArray;
 				package: packageName;
 				yourself.
+			trait ifNotNil: [ builder traits: trait ].
 			"A category is a package and a tag there: Polyphemus-Object-dump is tag dump."
 			(category beginsWith: packageName , '-') ifTrue: [
 				builder tag: (category allButFirst: packageName size + 1) ].
@@ -61,7 +84,7 @@ ensureClass := [ :props :packageName |
 			| cls wantedSuper wantedIvars |
 			cls := Smalltalk at: name.
 			"A class whose definition changed -- a new superclass, instance variables it no longer
-			 has, or other class variables -- is defined again. Topping up the variables alone would leave it under
+			 has, other class variables or other shared pools -- is defined again. Topping up the variables alone would leave it under
 			 the old superclass, with whatever it inherits shadowed, and nothing said so."
 			wantedSuper := (props at: 'super') asSymbol.
 			wantedIvars := (props at: 'instvars') collect: [ :each | each asString ].
@@ -73,7 +96,9 @@ ensureClass := [ :props :packageName |
 					(cls superclass name asSymbol = wantedSuper and: [
 						 cls instVarNames asSet = wantedIvars asSet and: [
 							 (cls classVarNames collect: [ :each | each asString ]) asSet
-							 = ((props at: 'classvars') collect: [ :each | each asString ]) asSet ] ]) ifFalse: [
+							 = ((props at: 'classvars') collect: [ :each | each asString ]) asSet and: [
+								 (cls sharedPools collect: [ :each | each name asString ]) asSet
+								 = ((props at: 'pools' ifAbsent: [ #() ]) collect: [ :each | each asString ]) asSet ] ] ]) ifFalse: [
 						define value: (Smalltalk at: wantedSuper) value: props value: packageName.
 						cls := Smalltalk at: name.
 						('REDEFINED ', name, ' under ', wantedSuper) traceCr ].

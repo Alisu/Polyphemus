@@ -6,9 +6,7 @@
 	"pools" : [
 		"VMClassIndices"
 	],
-	"classvars" : [
-		"SubclassesToEvaluate"
-	],
+	"classvars" : [ ],
 	"instvars" : [
 		"address",
 		"memory"
