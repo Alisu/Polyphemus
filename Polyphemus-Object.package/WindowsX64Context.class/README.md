@@ -1,0 +1,1 @@
+Where Windows keeps a thread's registers on x64, its CONTEXT: read from a minidump's bytes and from a live thread's alike, so asked of the class with the bytes (#118).
