@@ -1,7 +1,7 @@
 {
 	"commentStamp": "",
 	"super": "MacProcessMemory",
-	"category": "Polyphemus-Host-MacOS-arm64",
+	"category": "Polyphemus-Tests-Host-MacOS-arm64",
 	"classinstvars": [],
 	"pools": [],
 	"classvars": [],

@@ -4,7 +4,8 @@ baseline: spec
 
 	"VMMaker is pinned where a load sees it: Polyphemus-Tests subclasses its test classes, and
 	v10.0.4 removed VMSpurMemoryManagerTest>>newInterpreter. The tool asks only for VMMaker's
-	'core' group; 'core' gets the tool, a load without a group the tests as well."
+	'core' group; 'core' gets the tool, a load without a group the tests as well, with what only
+	they use: the builder of made-up heaps, the pinned images, each host's own tests."
 
 	spec for: #common do: [
 		spec postLoadDoIt: #postLoad.
@@ -16,13 +17,13 @@ baseline: spec
 		spec package: 'Polyphemus-Builder' with: [ spec requires: #( 'VMMaker' 'Polyphemus-Object' ) ].
 		spec package: 'Polyphemus-Tests' with: [
 			spec requires:
-				#( 'VMMakerWithItsTests' 'Polyphemus-Object' 'Polyphemus-Builder' ) ].
+				#( 'VMMakerWithItsTests' 'Polyphemus-Object' 'Polyphemus-Memory' 'Polyphemus-MCP'
+				   'Polyphemus-Builder' 'Polyphemus-Helper' ) ].
 
 		spec
 			group: 'core'
-			with: #( 'Polyphemus-Helper' 'Polyphemus-Memory' 'Polyphemus-Object'
-			         'Polyphemus-Builder' 'Polyphemus-MCP' );
-			group: 'tests' with: #( 'Polyphemus-Tests' );
+			with: #( 'Polyphemus-Memory' 'Polyphemus-Object' 'Polyphemus-MCP' );
+			group: 'tests' with: #( 'Polyphemus-Helper' 'Polyphemus-Builder' 'Polyphemus-Tests' );
 			group: 'default' with: #( 'core' 'tests' ) ].
 
 	"The edition, chosen by the host's Pharo: one package each, defining forThisHost, and the
@@ -48,8 +49,12 @@ baseline: spec
 	{ #'linux-x64' -> 'Polyphemus-Host-Linux-x64'. #'macos-arm64' -> 'Polyphemus-Host-MacOS-arm64'.
 	  #'windows-x64' -> 'Polyphemus-Host-Windows-x64' } do: [ :each |
 		spec for: each key do: [
+			| itsTests |
+			itsTests := each value copyReplaceAll: 'Polyphemus-Host-' with: 'Polyphemus-Tests-Host-'.
 			spec package: each value with: [ spec requires: #( 'Polyphemus-Object' ) ].
-			spec group: 'core' with: { each value } ] ].
+			spec package: itsTests with: [ spec requires: { each value. 'Polyphemus-Tests' } ].
+			spec group: 'core' with: { each value }.
+			spec group: 'tests' with: { itsTests } ] ].
 
 	"What VMMaker v10.0.4 and later need -- the memory map, VM 10's split memory -- for the tool
 	and for its tests."
