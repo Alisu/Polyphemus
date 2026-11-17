@@ -1,0 +1,1 @@
+The listing of a CogMethod (#95) read from a core: what a method on a stack of the dumped VM shows when Cog had compiled it. The same listing of a live process is in MachineCodeTabTest.

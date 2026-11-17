@@ -1,0 +1,1 @@
+The CogMethod Cog compiled of a method, as text to read: its header, its map from machine code pcs to what Cog noted there (bytecode pcs, what each send is linked to), its bytes (#95). I read through a Cog layout and change nothing.

@@ -11,7 +11,7 @@ testADefectReadingWhereTheVMsCodeIsIsNotAVMThatDoesNotSay
 	layout := memory vmLayout.
 	linked := ((memory activationsOfProcess: process) select: [ :each | each isStackFrame ])
 		          collect: [ :each | each callerSavedIP ]
-		          thenSelect: [ :each | ((layout linkOfSendAt: each) ifNil: [ '' ]) beginsWith: 'linked to' ].
+		          thenSelect: [ :each | (((CogMethodListing on: layout) linkOfSendAt: each) ifNil: [ '' ]) beginsWith: 'linked to' ].
 	linked ifEmpty: [ ^ self skip: 'no frame of this stack returns to a linked send' ].
 	raw := layout raw.
 	variables := (DefectiveReadDouble of: raw vmVariables) when: #at: answer: [ :name |
@@ -20,6 +20,7 @@ testADefectReadingWhereTheVMsCodeIsIsNotAVMThatDoesNotSay
 			             ifFalse: [ raw vmVariables at: name ] ].
 	self
 		should: [
-			(OOPCogLayout on: memory raw: ((DefectiveReadDouble of: raw) when: #vmVariables answer: [ variables ]))
+			(CogMethodListing on:
+				 (OOPCogLayout on: memory raw: ((DefectiveReadDouble of: raw) when: #vmVariables answer: [ variables ])))
 				linkOfSendAt: linked first ]
 		raise: ZeroDivide

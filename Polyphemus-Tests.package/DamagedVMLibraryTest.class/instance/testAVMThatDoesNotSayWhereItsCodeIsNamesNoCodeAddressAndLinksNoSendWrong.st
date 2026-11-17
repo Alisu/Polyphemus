@@ -11,4 +11,4 @@ testAVMThatDoesNotSayWhereItsCodeIsNamesNoCodeAddressAndLinksNoSendWrong
 	self assert: (layout nameOfCodeAddress: frames first callerSavedIP) isNil.
 	self assert: (layout cogit instVarNamed: #cmEntryOffset) isNil.
 	frames do: [ :each |
-		(layout linkOfSendAt: each callerSavedIP) ifNotNil: [ :link | self deny: (link beginsWith: 'linked to') ] ]
+		((CogMethodListing on: layout) linkOfSendAt: each callerSavedIP) ifNotNil: [ :link | self deny: (link beginsWith: 'linked to') ] ]
