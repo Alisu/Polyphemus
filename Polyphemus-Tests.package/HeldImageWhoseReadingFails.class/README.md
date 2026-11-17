@@ -1,0 +1,1 @@
+A held image whose process cannot be read once it is held (its class table is damaged, its agent stopped answering): it notes whether it was let go (#181).
