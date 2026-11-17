@@ -1,16 +1,6 @@
 tools
 sessionOn: aProcess in: aReifiedMemory
 
-	"A post mortem session on that process's stack, from its newest activation: `on: nil`, there
-	being no process to resume. Frames answer as contexts, those on stack pages too (#150, #183)."
+	"A post mortem session on that process's stack (ReifiedDebugSession class>>onProcess:in:)."
 
-	| stack |
-	stack := aReifiedMemory activationsOfProcess: aProcess.
-	stack ifEmpty: [ ^ NotInTheReading signal: 'that process has no activation to debug' ].
-	^ (ReifiedDebugSession
-		   named: 'Polyphemus'
-		   on: nil
-		   startedAt: stack first
-		   fixing: nil)
-		  stoppedBy: PolyphemusStop readFromMemory;
-		  yourself
+	^ ReifiedDebugSession onProcess: aProcess in: aReifiedMemory

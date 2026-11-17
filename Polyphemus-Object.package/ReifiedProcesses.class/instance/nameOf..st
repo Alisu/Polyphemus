@@ -1,0 +1,18 @@
+accessing
+nameOf: aProcess
+
+	"A process's name, or nil: its name instance variable, found by name, as its slot moved
+	between Pharo versions."
+
+	^ [
+	  | index value |
+	  index := aProcess oopClass allInstVarNames indexOf: 'name'.
+	  index = 0
+		  ifTrue: [ nil ]
+		  ifFalse: [
+			  value := aProcess reifiedSlotAt: index.
+			  (value isKindOf: OOPString)
+				  ifTrue: [ value asString ]
+				  ifFalse: [ nil ] ] ]
+		  on: PolyphemusError
+		  do: [ :refusal | nil ]

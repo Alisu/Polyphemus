@@ -1,18 +1,6 @@
 tools
 nameOfProcess: aProcess
 
-	"A reified process's name, or nil: its name instance variable, found by name, as its slot
-	moved between Pharo versions."
+	"A reified process's name, or nil (ReifiedProcesses>>nameOf:)."
 
-	^ [
-	  | index value |
-	  index := aProcess oopClass allInstVarNames indexOf: 'name'.
-	  index = 0
-		  ifTrue: [ nil ]
-		  ifFalse: [
-			  value := aProcess reifiedSlotAt: index.
-			  (value isKindOf: OOPString)
-				  ifTrue: [ value asString ]
-				  ifFalse: [ nil ] ] ]
-		  on: PolyphemusError
-		  do: [ :refusal | nil ]
+	^ aProcess memory processes nameOf: aProcess

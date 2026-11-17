@@ -63,6 +63,12 @@ names a class of a package its own does not rest on.
 | `Polyphemus-Memory` | the windows: inspectors, the map, the debugger; the six ways in that open one, as extensions of `Polyphemus` | headless |
 | `Polyphemus-Builder`, `Polyphemus-Helper`, `Polyphemus-Tests*`, `Polyphemus-Tests-Host-<os>` | the tests and what only they use | all of the above |
 
+**`Polyphemus` is the ways in, and nothing more.** Each of its messages is one statement handing
+on to the object that knows (`ReifiedProcesses`, `SimulatorSetUp`, `SpurDumpedMemory`,
+`ReifiedDebugSession`...); `PolyphemusTest>>testEveryWayInOnlyHandsOnToWhatKnows` fails on one
+that works something out. A new ability goes to the class that owns the knowledge, then gets its
+one line there.
+
 Baseline groups: `reading` (core, headless, edition, host), `mcp` (reading and the server), `core`
 (the whole tool), no group (the tool and its tests).
 

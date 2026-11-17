@@ -5,13 +5,4 @@ holdProcess: aPid watchedIn: aDirectory within: aDuration
 	must run our watcher on aDirectory (PolyphemusAgent watcherSourceWatching:afterwards:).
 	Steps are taken there, runUntil: lets it run to a method; proceeding lets it go."
 
-	| image |
-	image := HeldImage holding: aPid watchedIn: aDirectory within: aDuration.
-	^ (ReifiedDebugSession
-		   named: 'Polyphemus'
-		   on: nil
-		   startedAt: image process context
-		   fixing: nil)
-		  stoppedBy: PolyphemusStop heldWhileRunning;
-		  holding: image;
-		  yourself
+	^ ReifiedDebugSession holding: (HeldImage holding: aPid watchedIn: aDirectory within: aDuration)
