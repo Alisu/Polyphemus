@@ -7,3 +7,5 @@ reifiedMemorySharingClassesOf: aReading
 	reified := aReading sharingClassesOn: self memory.
 	reified vmLayout: (OOPCogLayout on: reified raw: raw).
 	^ reified
+		  completeFrom: self;
+		  yourself

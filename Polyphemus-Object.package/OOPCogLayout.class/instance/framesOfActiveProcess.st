@@ -17,6 +17,8 @@ framesOfActiveProcess
 			  strictly: false ].
 	registers := variables registersOfTheThreadInMachineCode ifNil: [
 		             ^ self refuse: #itWasRunningMachineCodeWhoseFramesAreInRegisters ].
+	"Where the system gives a running thread no frame pointer (/proc), there is no frame to start from."
+	(registers at: #framePointer) ifNil: [ ^ self refuse: #itsThreadInMachineCodeGivesNoFramePointer ].
 	^ self
 		  framesFrom: (registers at: #framePointer)
 		  stackPointer: (registers at: #stackPointer)
