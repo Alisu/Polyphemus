@@ -6,7 +6,8 @@
 	"pools" : [ ],
 	"classvars" : [ ],
 	"instvars" : [
-		"directory"
+		"directory",
+		"guardAge"
 	],
 	"name" : "HoldLock",
 	"type" : "normal"

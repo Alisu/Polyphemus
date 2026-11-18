@@ -1,0 +1,13 @@
+{
+	"commentStamp": "",
+	"super": "HoldLock",
+	"category": "Polyphemus-Tests",
+	"classinstvars": [],
+	"pools": [],
+	"classvars": [],
+	"instvars": [
+		"readOnce"
+	],
+	"name": "HoldLockReadBeforeAnotherTookIt",
+	"type": "normal"
+}

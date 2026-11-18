@@ -16,7 +16,6 @@ methodsAllowedACatchAll
 		'HeldImage>>whyTheInterruptWasNotTaken'
 		'HeldProcess>>fix:to:restartingAt:'
 		'HeldReading>>heldIn:'
-		'HoldLock>>take'
 		'LinuxProcessMemory class>>virtualMachineChildOf:'
 		'LinuxProcessMemory>>bytesAt:count:'
 		'LinuxProcessMemory>>commandLine'

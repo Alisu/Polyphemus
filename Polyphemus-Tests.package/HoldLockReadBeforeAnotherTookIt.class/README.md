@@ -1,0 +1,1 @@
+A hold lock whose owner was read a moment before another observer took the lock: the first reading says nobody has it, the next say what is there (#181).
