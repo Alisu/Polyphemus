@@ -30,7 +30,6 @@ methodsAllowedACatchAll
 		'OOPAbnormalEntity>>reverseDecoding'
 		'OOPAbstractEntity>>storeTyped:inItemKeyed:telling:'
 		'PolyphemusMCPServer>>answer:'
-		'PolyphemusMCPServer>>call:'
 		'PolyphemusMCPServer>>hold:'
 		'PolyphemusMCPServer>>openProcess:'
 		'PolyphemusMCPServer>>whereStuck:'

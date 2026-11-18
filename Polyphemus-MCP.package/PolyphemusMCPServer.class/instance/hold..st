@@ -7,7 +7,7 @@ hold: someArguments
 	| pid directory session handle |
 	pid := someArguments at: 'pid' ifAbsent: [ ToolCallFailed signal: 'hold needs a pid' ].
 	directory := (someArguments at: 'directory' ifAbsent: [ nil ])
-		             ifNil: [ FileLocator temp / 'polyphemus-hold' / pid printString ]
+		             ifNil: [ self defaultHoldDirectoryFor: pid ]
 		             ifNotNil: [ :path | path asFileReference ].
 	session := [
 	           Polyphemus putAWatcherInto: pid watchedIn: directory.

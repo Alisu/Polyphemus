@@ -1,7 +1,8 @@
 protocol
 call: someParams
 
-	"An unknown tool is the client's error; a tool that fails says so in its result."
+	"An unknown tool is the client's error; a tool that refuses says so in its result. Any other
+	error is a bug of ours, and the server's to say (answer:), not the tool's refusal (#180)."
 
 	| name arguments selector |
 	name := someParams at: 'name' ifAbsent: [ nil ].
@@ -11,5 +12,5 @@ call: someParams
 	selector := (self selectorOfTool: name) ifNil: [
 		            ^ PolyphemusMCPError signal: 'Unknown tool: ' , name printString code: -32602 ].
 	^ [ self perform: selector with: arguments ]
-		  on: Error
-		  do: [ :e | self failure: e messageText asString ]
+		  on: PolyphemusError , FileSystemError
+		  do: [ :refusal | self failure: refusal messageText asString ]

@@ -90,4 +90,8 @@ tools
 		  (self acting: (self tool: 'let_go'
 			   description: 'Let a held Pharo VM run on, the process held with it, and forget its handle.'
 			   properties: (Dictionary new at: 'handle' put: (self schema: 'string' saying: 'As answered by hold.'); yourself)
-			   required: #( 'handle' ))) }
+			   required: #( 'handle' ))).
+		  (self tool: 'close'
+			   description: 'Forget a handle of an image file, a core or a process read, and let go of its file and its memory. Not for a held VM: let_go or stop.'
+			   properties: (Dictionary new at: 'handle' put: (self schema: 'string' saying: 'As answered by open_image, open_core or open_process.'); yourself)
+			   required: #( 'handle' )) }
