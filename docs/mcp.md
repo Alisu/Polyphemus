@@ -36,12 +36,13 @@ claude mcp add polyphemus -- ssh worker-box '~/polyphemus/Polyphemus/bin/polyphe
 | `stack(handle, process, depth)` | Its frames: method, the statement it was in, receiver, temporaries and values; `ends` as in `processes`, said after the frames |
 | `inspect(handle, address, limit)` | An object: class, format, named slots and the first indexable ones, a string's characters |
 | `where_stuck(pid)` | Where a running VM is, from `/proc` (on macOS its task port, as root): each thread's system call or pc, what a blocked call waits on (#159), the signals it catches |
-| `hold(pid, directory)` | Holds a running VM on what it is busy with, in its own debugger, our watcher put in first if none waits on `directory` (by default a folder of ours under the temporary folder). A handle, and the held process's frames, top first. It stays held until `let_go`, or an hour without requests |
+| `hold(pid, directory)` | Holds a running VM on what it is busy with, in its own debugger, our watcher put in first if none waits on `directory` (by default `polyphemus-hold-<uid>/<pid>` under the temporary folder: made for the user the VM runs as and closed to others, since the held VM evaluates what it finds there; one that is another's or open to others is refused, #180). A handle, and the held process's frames, top first. It stays held until `let_go`, or an hour without requests |
 | `run_until(handle, method, seconds)` | Lets the held VM run until some process reaches `Class >> #selector`, and holds it there; if not in time (60 s by default), where it got to. Whether it was reached, and the frames |
 | `step(handle, how, frame)` | Steps the held process `into`, `over` (the default) or `through`, at the top frame or the one below (`frame` 1 or 2), as the debugger's buttons do. Its frames afterwards |
 | `save(handle, source, frame)` | Saves a method's new source into the held VM where the frame's method is (the top one by default), and restarts that frame in it, as the debugger does on accept; the image keeps the source in its changes. Not saved (a source that does not parse or compile), the answer is a failure saying why, and the VM stays held |
 | `stop(handle)` | Ends the held process, its ensure blocks run, as the debugger's Stop does, and lets the VM run on without it; the handle is forgotten |
 | `let_go(handle)` | The held VM runs on, the process held with it, and the handle is forgotten |
+| `close(handle)` | Forgets a handle from `open_image`, `open_core` or `open_process`, and lets go of its file and its memory; each handle is kept until then. Refused for a held VM: `let_go` or `stop` (#180) |
 | `open_process(pid)` | A handle on a running VM's memory, copied while it was held still at a safe moment (quiet, else outside a collection, #113), then let go, for `processes`, `stack` and `inspect`. On macOS through the VM's task port, which needs the server run as root (`docs/handover-macos.md`) |
 
 `processes` and `stack` give the address of each process, receiver and temporary value, and
@@ -56,9 +57,11 @@ values come by number, with a note saying why, and the edition made for that ima
 
 Every tool but `hold`, `run_until`, `step`, `save`, `stop` and `let_go` is annotated read-only;
 those are annotated as changing a VM, so a client may ask before it runs them, and `save` and
-`stop` as destructive: letting go does not undo them. A tool that fails says so in its result (`isError`, with the reason),
+`stop` as destructive: letting go does not undo them. A tool that refuses says so in its result (`isError`, with the reason),
 for the agent to read; JSON-RPC errors are kept for the protocol's own (unknown method, unknown
-tool, unreadable JSON).
+tool, unreadable JSON) and for a defect of the server's: an error that is no refusal is answered
+as `-32603`, `Internal error:` and the error's class, never as a tool's result, and the server
+serves the next request (#180).
 
 ## Standard output is the protocol's
 
