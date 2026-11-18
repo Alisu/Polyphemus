@@ -7,4 +7,4 @@ letGoOfWhatIsHeld
 	| held |
 	held := self images values select: [ :each | each isHeld ].
 	images := nil.
-	held do: [ :each | [ each session letTheImageGo ] on: PolyphemusError do: [ :refusal | nil ] ]
+	self letGoEachOf: held
