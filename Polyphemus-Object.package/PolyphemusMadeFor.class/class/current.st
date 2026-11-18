@@ -1,10 +1,7 @@
 accessing
 current
 
-	"The one host package loaded. None means the baseline has none for this host."
+	"The one host package loaded. None means the baseline has none for this host; two, that an
+	image holds another host's package too, and none is taken for this one's (#118)."
 
-	^ self subclasses
-		  ifEmpty: [
-			  NotSetUp signal: 'No Polyphemus-Host package is loaded: the baseline has none for '
-				  , PolyphemusHost current metacelloAttribute ]
-		  ifNotEmpty: [ :all | all first ]
+	^ self oneOf: self subclasses
