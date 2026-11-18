@@ -1,24 +1,24 @@
 tests
 testAnObjectPastWhereTheHeapWalkStoppedIsRefusedSayingSo
 
-	"#211: bytes in hand say nothing of where the heap ends, so it ends where the walk stops, at a
-	damaged header here. An object past it is refused saying where the walk stopped and why: asked
-	of a reading that opened (damage near the end), and when the reading cannot be set up at all."
+	"#211: bytes in hand say nothing of where the heap ends, so the walk that looks for its end stops
+	at a damaged header. The raw heap says where and why for an address past it; a reading that
+	refuses such an address, or cannot be set up (not every edition cuts the heap there), says it too."
 
 	<readsAnUnsoundHeap>
+	| says |
+	says := [ :text | (text includesSubstring: 'unusedFormat') and: [ text includesSubstring: 'the walk over the heap stopped' ] ].
 	self withAHeaderDamagedAt: 1 do: [ :broken :victim :last |
 		| reified |
+		broken raw liveEnd.
+		self assert: (says value: (broken raw whyPastItsWalk: last)).
+		self assert: ((broken raw whyPastItsWalk: last) includesSubstring: victim printStringHex).
+		self assert: (broken raw whyPastItsWalk: broken raw heapStart) isNil.
 		reified := broken reifiedMemory.
-		self
-			should: [ reified reifyOop: last ]
-			raise: NotInTheReading
-			withExceptionDo: [ :refusal |
-				self assert: (refusal messageText includesSubstring: victim printStringHex).
-				self assert: (refusal messageText includesSubstring: 'unusedFormat') ] ].
+		[ reified reifyOop: last ]
+			on: NotInTheReading
+			do: [ :refusal | self assert: (says value: refusal messageText) ] ].
 	self withAHeaderDamagedAt: 2 / 3 do: [ :broken :victim :last |
-		self
-			should: [ broken reifiedMemory ]
-			raise: NotInTheReading
-			withExceptionDo: [ :refusal |
-				self assert: (refusal messageText includesSubstring: victim printStringHex).
-				self assert: (refusal messageText includesSubstring: 'unusedFormat') ] ]
+		[ broken reifiedMemory ]
+			on: NotInTheReading
+			do: [ :refusal | self assert: (says value: refusal messageText) ] ]
