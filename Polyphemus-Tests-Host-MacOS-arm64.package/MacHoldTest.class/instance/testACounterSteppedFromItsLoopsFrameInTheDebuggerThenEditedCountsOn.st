@@ -2,7 +2,7 @@ tests
 testACounterSteppedFromItsLoopsFrameInTheDebuggerThenEditedCountsOn
 
 	"The Mac trial through the debugger, on macOS: stepped from the loop's frame round the loop into
-	tick:, tick: edited in the code pane, Proceed; nothing lost (#103). Linux loses nothing so."
+	tick:, tick: edited in the code pane, Proceed; nothing lost (#103). Each by the UI process (#31)."
 
 	| pid dir session read beat later processes debugger model |
 	MacProcessMemory isRoot ifFalse: [ ^ self skip: 'reading another process on macOS needs the observer run as root (sudo)' ].
@@ -39,27 +39,28 @@ Smalltalk exitSuccess'.
 	Polyphemus putAWatcherInto: pid watchedIn: dir.
 	session := Polyphemus holdProcess: pid watchedIn: dir.
 	self assert: (session runUntil: 'Counter >> #tick:').
-	debugger := StDebugger openOn: session withFullView: true.
+	debugger := PolyphemusTestCase inUIProcess: [ StDebugger openOn: session withFullView: true ].
 	[
 	model := PolyphemusTestCase actionModelOf: debugger.
-	model stepOver: debugger session interruptedContext.
-	PolyphemusTestCase drawWindowOf: debugger.
+	PolyphemusTestCase inUIProcess: [ model stepOver: debugger session interruptedContext ].
+	PolyphemusTestCase inUIProcess: [ PolyphemusTestCase drawWindowOf: debugger ].
 	400 timesRepeat: [
 		| loop |
 		debugger session interruptedContext selector = #tick: ifFalse: [
 			"The loop's frame as the stack list shows it, the one the user selects."
 			loop := debugger stackTable items detect: [ :each | each selector = #DoIt ] ifNone: [ nil ].
-			model stepInto: (loop ifNil: [ debugger session interruptedContext ]).
-			PolyphemusTestCase drawWindowOf: debugger.
+			PolyphemusTestCase inUIProcess: [ model stepInto: (loop ifNil: [ debugger session interruptedContext ]) ].
+			PolyphemusTestCase inUIProcess: [ PolyphemusTestCase drawWindowOf: debugger ].
 			"Spec's tab bar breaks when steps come with no pause (index out of range on P13), as P10's did."
 			(Delay forMilliseconds: 50) wait ] ].
 	self assert: debugger session interruptedContext selector = #tick: description: 'stepping never came round to tick: again'.
-	debugger
-		acceptCodeChanges: 'tick: n
+	PolyphemusTestCase inUIProcess: [
+		debugger
+			acceptCodeChanges: 'tick: n
 	^ n > 1000 ifTrue: [ 0 ] ifFalse: [ n + 10 ]'
-		forContext: debugger session interruptedContext.
-	PolyphemusTestCase drawWindowOf: debugger.
-	model proceedDebugSession ] ensure: [ debugger window ifNotNil: [ :window | window close ] ].
+			forContext: debugger session interruptedContext ].
+	PolyphemusTestCase inUIProcess: [ PolyphemusTestCase drawWindowOf: debugger ].
+	PolyphemusTestCase inUIProcess: [ model proceedDebugSession ] ] ensure: [ PolyphemusTestCase closeWindowOf: debugger ].
 	self assert: (self waitForFile: 'released' in: dir) description: 'it was never let go'.
 	(Delay forSeconds: 2) wait.
 	beat := read value: 'beat'.
