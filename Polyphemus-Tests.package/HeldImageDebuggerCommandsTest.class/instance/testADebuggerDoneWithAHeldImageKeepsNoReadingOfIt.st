@@ -26,7 +26,9 @@ testADebuggerDoneWithAHeldImageKeepsNoReadingOfIt
 		Smalltalk garbageCollect.
 		self
 			assert: (readings allSatisfy: [ :each | each isNil ])
-			description: [ how , ', the session still holds ' , readings asArray printString ].
+			description: [
+				how , ', the session still holds ' , readings asArray printString
+				, (PolyphemusTestCase whoHolds: (readings detect: [ :each | each notNil ])) ].
 		(ASTCache default respondsTo: #keys) ifTrue: [
 			self
 				deny: (ASTCache default keys anySatisfy: [ :each | each methodClass isKindOf: OOPAbstractClass ])
