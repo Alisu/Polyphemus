@@ -1,9 +1,9 @@
 reifying
 reifiedMemory
 
-	"A LazyReifiedMemory, reading frames the way Cog lays them out, which lists by class through
-	this memory's walk until every object is reified. Refused when the class table cannot be
-	navigated or the special objects array is not found: a reading is set up from both (#211)."
+	"A LazyReifiedMemory, reading frames the way Cog lays them out; it lists by class among what
+	it reified until told where to complete itself from (readingOn:). Refused when the class table
+	cannot be navigated or the special objects array is not found: it is set up from both (#211)."
 
 	| reified |
 	raw readability
@@ -18,5 +18,3 @@ reifiedMemory
 				           ifNotNil: [ :why | NotInTheReading signal: refusal messageText , why ] ].
 	reified vmLayout: (OOPCogLayout on: reified raw: raw).
 	^ reified
-		  completeFrom: self;
-		  yourself

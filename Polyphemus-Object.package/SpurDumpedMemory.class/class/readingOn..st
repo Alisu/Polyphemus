@@ -2,6 +2,10 @@ instance creation
 readingOn: anAddressSpace
 
 	"The reading of a dump or of a copy of a process: its objects reified as they are looked at
-	(#129), and listed by class through the dumped memory's walk."
+	(#129), completed with what only the dump tells."
 
-	^ (self on: anAddressSpace) reifiedMemory
+	| dumped |
+	dumped := self on: anAddressSpace.
+	^ dumped reifiedMemory
+		  completeFrom: dumped;
+		  yourself
