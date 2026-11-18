@@ -14,7 +14,7 @@ ask: aSource within: aDuration
 			  , directory fullName , self whyNotServing ].
 	count := count + 1.
 	self write: aSource as: 'request.' , count printString.
-	self ring.
+	self ringOrTakeBackTheRequest.
 	answer := directory / ('answer.' , count printString).
 	checked := Time millisecondClockValue.
 	[ answer exists ] whileFalse: [
