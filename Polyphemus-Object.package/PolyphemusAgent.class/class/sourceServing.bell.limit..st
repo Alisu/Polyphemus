@@ -30,7 +30,7 @@ wait := [
 		now := Time millisecondClockValue.
 		now - last > silence and: [ (now - beat) abs > 1000 and: [
 			beat := now.
-			silent := (dir / ''alive'') exists and: [
+			silent := (dir / ''alive'') exists not or: [
 				(DateAndTime now - (dir / ''alive'') modificationTime) asMilliSeconds > silence ] ] ] ] ] ] whileFalse: [ ] ].
 [ going ] whileFalse: [
 	| request |
