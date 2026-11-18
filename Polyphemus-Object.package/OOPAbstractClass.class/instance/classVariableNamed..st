@@ -15,9 +15,13 @@ classVariableNamed: aName
 			^ memory
 				  wrappedVariableAt: 'classVar.' , current address printString , '.' , wanted
 				  ifAbsentPut: [
-					  (Smalltalk at: #ClassVariable ifAbsent: [ GlobalVariable ])
-						  key: wanted asSymbol
-						  value: ([ current oopClassVariableNamed: wanted ]
-								   on: PolyphemusError
-								   do: [ :e | OOPUnreadableSlot named: wanted because: e messageText asString on: memory ]) ] ] ].
+					  | variable |
+					  variable := (Smalltalk at: #ClassVariable ifAbsent: [ GlobalVariable ])
+						              key: wanted asSymbol
+						              value: ([ current oopClassVariableNamed: wanted ]
+								               on: PolyphemusError
+								               do: [ :e | OOPUnreadableSlot named: wanted because: e messageText asString on: memory ]).
+					  "Pharo's tools ask a class variable of the class that defines it (isPoolVariable)."
+					  (variable respondsTo: #owningClass:) ifTrue: [ variable owningClass: current ].
+					  variable ] ] ].
 	^ nil
