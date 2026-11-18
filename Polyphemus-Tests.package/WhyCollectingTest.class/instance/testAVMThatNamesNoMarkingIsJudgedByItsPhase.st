@@ -1,5 +1,5 @@
 tests
 testAVMThatNamesNoMarkingIsJudgedByItsPhase
 
-	self assert: (ProcessMemory whyCollectingIn: (CollectorStateDouble phase: 0)) isNil.
-	self assert: (ProcessMemory whyCollectingIn: (CollectorStateDouble phase: 1)) notNil
+	self assert: (SafeMoment whyCollectingIn: (CollectorStateDouble phase: 0)) isNil.
+	self assert: (SafeMoment whyCollectingIn: (CollectorStateDouble phase: 1)) notNil

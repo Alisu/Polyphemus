@@ -1,4 +1,4 @@
-holding it still
+the collector
 whyNotToAllocateIn: someVMVariables
 
 	"Why an object made now, or an old one remembered, could be lost: a collection, or the VM in its

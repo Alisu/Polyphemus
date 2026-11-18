@@ -1,12 +1,12 @@
-holding it still
-whileStoppedIf: aCondition do: aBlock
+looking
+stoppedIf: aCondition do: aBlock
 
 	"Stopped through a reader of its own (a reader keeps what it read): { aBlock's value } if aCondition
 	says nothing against it and what writing needs reads whole, else why not, as a string."
 
 	| fresh answer |
-	fresh := self class on: pid.
-	fresh stopBound: self stopBound.
+	fresh := reader class on: reader pid.
+	fresh stopBound: reader stopBound.
 	fresh stop ifFalse: [
 		fresh close.
 		^ 'it would not stop' ].
@@ -23,6 +23,6 @@ whileStoppedIf: aCondition do: aBlock
 	          why ifNil: [ { (aBlock cull: dumped cull: fresh) } ] ifNotNil: [ why ] ] valueThenLetGo: [
 		          fresh resume.
 		          fresh close ].
-	fresh lastStopLasted ifFalse: [ ^ self ranWhileRead ].
+	fresh lastStopLasted ifFalse: [ ^ reader ranWhileRead ].
 	answer isArray ifFalse: [ (Delay forMilliseconds: 50) wait ].
 	^ answer

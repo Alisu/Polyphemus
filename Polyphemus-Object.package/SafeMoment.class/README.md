@@ -1,0 +1,1 @@
+A moment a stopped virtual machine may be read or written at, looked for through a reader of its process: what the collector allows (objects moving, being marked, being remembered), and the stops tried until the reader's safeMomentWait has passed. The reader of bytes hands its questions on to it and knows neither the collector nor a reading (#118).

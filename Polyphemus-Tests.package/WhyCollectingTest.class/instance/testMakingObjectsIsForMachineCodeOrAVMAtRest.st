@@ -7,13 +7,13 @@ testMakingObjectsIsForMachineCodeOrAVMAtRest
 
 	| state collecting |
 	state := CollectorStateDouble phase: 0 marking: 0.
-	self assert: ((ProcessMemory whyNotToAllocateIn: state) includesSubstring: 'its own code').
+	self assert: ((SafeMoment whyNotToAllocateIn: state) includesSubstring: 'its own code').
 	state machineCode: false.
-	self assert: ((ProcessMemory whyNotToAllocateIn: state) includesSubstring: 'its own code').
+	self assert: ((SafeMoment whyNotToAllocateIn: state) includesSubstring: 'its own code').
 	state atRest: true.
-	self assert: (ProcessMemory whyNotToAllocateIn: state) isNil.
+	self assert: (SafeMoment whyNotToAllocateIn: state) isNil.
 	state atRest: false; machineCode: true.
-	self assert: (ProcessMemory whyNotToAllocateIn: state) isNil.
+	self assert: (SafeMoment whyNotToAllocateIn: state) isNil.
 	collecting := CollectorStateDouble phase: 1 marking: 0.
 	collecting machineCode: true.
-	self assert: ((ProcessMemory whyNotToAllocateIn: collecting) includesSubstring: 'gcPhaseInProgress')
+	self assert: ((SafeMoment whyNotToAllocateIn: collecting) includesSubstring: 'gcPhaseInProgress')
