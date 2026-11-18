@@ -2,18 +2,12 @@ holding
 runUntil: aMethodSource within: aDuration
 
 	"Let the image run until some process reaches that method, and hold it there, its debugger
-	at the method's own context. Answers whether it was; if not, it is held where it got to."
+	at the method's own context. Answers whether it was; if not, it is held where it got to. However
+	it ends, no trap is wanted after it: one left in the image takes itself out (#181)."
 
-	self forget: #( 'trap' 'interrupted' 'released' 'hold' ).
-	process ask: (PolyphemusAgent
-			 trapSourceFor: aMethodSource
-			 in: directory
-			 signalling: self semaphoreIndex).
-	process letGo.
-	(self waitFor: 'trap' within: aDuration) ifFalse: [
-		(self holdWithin: 1 minute unless: [ (directory / 'trap') exists ]) ifTrue: [
-			(self takeOutTheTrapRunningUntil: aMethodSource) ifNotNil: [ :reached | ^ reached ] ] ].
-	(self waitFor: 'interrupted' within: 1 minute) ifFalse: [
-		^ HoldFailed signal: 'the trap fired and the watcher never held the image' ].
-	self serveAndHold: self trapsProcessHash startingAt: aMethodSource.
-	^ true
+	| reached |
+	[
+	self armTheTrapUntil: aMethodSource.
+	reached := self runToTheTrapOf: aMethodSource within: aDuration ] valueThenLetGo: [
+		reached ifNil: [ self giveUpTheTrap ] ifNotNil: [ self forget: #( 'trap-wanted' ) ] ].
+	^ reached
