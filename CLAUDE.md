@@ -232,7 +232,9 @@ What it is made of:
   and processes found went from 11 to 17, one of them `#active`. `docs/reading-a-dump.md`.
 - **Live processes.** `#writeDumpTo:` writes an ELF core our own reader reads back, so a dump can
   be taken from Pharo with no debugger; `#whileStopped:` holds the target with SIGSTOP and lets it
-  go with SIGCONT, which needs no permission beyond signalling. Being *allowed* to read was the
+  go with SIGCONT, which needs no permission beyond signalling. When to stop is `SafeMoment`'s:
+  what the collector allows for a reading, a write, an allocation, tried until a deadline; the
+  reader of bytes only hands on to it. Being *allowed* to read was the
   real work: on Linux `bin/pharo-debuggable` and `LinuxObservationPermission` let an image consent,
   so one image reads another with `ptrace_scope` left at 1 (`docs/reading-a-live-process.md`); on
   macOS the observer runs as root (`docs/handover-macos.md`).

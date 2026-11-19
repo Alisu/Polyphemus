@@ -350,6 +350,24 @@ says FLAKY where it passes there: not counted as a failure, so red means a failu
 FLAKY covers order too (a test that needs what another left). In CI each one is an annotation,
 and `bin/flakes.sh` counts them over the last runs: a test that keeps coming back is a bug.
 
+**A FLAKY line on the test of what was just changed.** A round of seventeen green jobs said, on
+two editions, that a debugger done with a held image still held its simulator: failed, then
+passed alone (2026-11-18). The branch had changed what a held reading keeps; the rule "a flake
+waits for a second sighting" would have landed it. It was a leak, there before and made frequent
+by the change: the reading's layout kept a Cogit over the simulator's memory whenever a machine
+code pc had been mapped, one hold in eight.
+→ A new FLAKY on a test of the thing the branch changed is the branch's until shown otherwise.
+Make the failure say who (`PolyphemusTestCase class>>whoHolds:` names what points to an object
+that should be gone), run it alone ten or twenty times on the box, then fix and count again.
+
+**Telling every reading where to complete itself from, before knowing why some were not told.**
+A reading of a core that nobody told its dumped memory listed no process; telling every reading
+broke 22 tests of held images on every edition, and was taken back (2026-11-17). Two things had
+leaned on the old behaviour: frames asked of a nil frame pointer, and a reading that kept the
+dumped memory of the hold before.
+→ When one caller does a step the others skip, find out what the others would do with it before
+making it the default: grep who builds the object, and run the heavy classes of each kind.
+
 **Committing on a green-looking pipe.** The commit after it was chained on the test command
 *running*, not on it being green, so a red suite went in anyway. Gate on the result.
 
@@ -396,6 +414,12 @@ lived in `/tmp`, and a reboot cleared it. Nothing was lost that could not be rem
 recipe for remaking it existed only in a doc, as prose.
 -> `bin/take-dump.sh`, and it writes to `~/polyphemus`. A thing you cannot rebuild with one
 command is a thing you will rebuild by hand at the worst moment.
+
+**A tar from the Mac unpacked on the box.** macOS tar adds a `._name` file beside each file it
+packs; the sync compiled them as methods and every one failed (`Illegal leading byte for utf-8
+encoding`, 2026-11-18), on a working copy another instance uses.
+→ Send a patch (`git diff`), applied with `git apply`; a new file that is not in the diff goes
+by `scp` alone. Before leaving, `git status` on the box says what is still there.
 
 **Two `Host worker-box` blocks in an ssh config.** ssh takes the *first* value it sees for each
 keyword, so a stale pinned IP in the first block silently overrode the `.local` name in the

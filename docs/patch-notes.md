@@ -11,6 +11,34 @@ its release on GitHub; what is on stage2 since the last tag comes first.
 
 ## Since v0.1.0 (stage2)
 
+- **The MCP server closes a handle, holds in a directory of the process's owner, and owns its
+  defects (#180)**: `close(handle)` forgets a reading of an image file, a core or a process and
+  lets go of its file and its memory; each was kept for the server's life. `hold` with no directory
+  used a folder made without looking at who owned it, and the held image evaluates what it finds
+  there: the default is now `polyphemus-hold-<uid>/<pid>`, of the user the VM runs as and closed
+  to others, and one that is another's or open to others is refused. An error that is no refusal
+  was answered as a tool's result; it is the server's internal error (`-32603`, with the error's
+  class), and the next request is served (`docs/mcp.md`).
+- **A hold that fails leaves nothing behind (#181)**: the hold file, the reader and the lock go
+  when the stop raises or the interrupt is not taken in time; a `runUntil:` that fails takes its
+  trap back, and a trap nobody waits for takes itself out, where the next process to reach the
+  method held the image with nobody there. Two observers can no longer both take the lock (it is
+  read and taken under a guard), and a ring that fails takes its request back, so the next
+  request reads its own answer.
+- **A reading says where it stops, and refuses as ours (#211)**: a listing by class cut short by
+  damage says so and where; zeroed memory in a heap is named on the free-space rung, not walked as
+  free chunks; a dump whose special objects array is not found is refused by name, not by an
+  error of VMMaker's; counts read from a file are checked against its size before anything is
+  sized by them; an address past where the walk stopped is refused saying where and why. A
+  reading asked of a dumped memory lists every process by the walk from the start, without being
+  told to; the frames of a process caught running where the system gives no frame pointer are
+  refused by name.
+- **A debugger done with a held image keeps nothing of it (#110)**: a reading that is let go kept
+  its frame layout, and through it the bytes read and, once a machine code pc was mapped, the
+  simulator's memory. Seen as the test of it failing about one run in eight.
+- **`#isPool was sent to nil` is gone (#118)**: it was printed at each debugger opened on a
+  reading: Pharo's styler asks a class variable for the class that defines it, and ours named
+  none.
 - **A damaged image reads on, the damage in its place (#118)**: a slot, a class variable or an
   instance variable name that does not read stands as unreadable where it is, keeping its index
   and the reading's reason, where the inspector showed nil or stopped. A class pool that is no
@@ -67,7 +95,7 @@ its release on GitHub; what is on stage2 since the last tag comes first.
   image quit.
 - **Safer holds (#163, #168)**: one observer at a time holds an image (`hold.lock` in its
   directory; a dead observer's is taken over). An image whose observer falls silent for 30 s while
-  held is let go, where it waited the hour. A watcher is taken for ours only when it is. Writes into
+  held, or never says it is there, is let go, where it waited the hour. A watcher is taken for ours only when it is. Writes into
   a running image are ordered so that a stop cut short leaves garbage, not a broken heap. An edit
   through a reading the image ran a request after is refused.
 - **CI on two runners per Linux edition**: the same ten suites (five Linux editions, four on
