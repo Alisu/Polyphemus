@@ -12,7 +12,7 @@ hold: someArguments
 	session := [
 	           Polyphemus putAWatcherInto: pid watchedIn: directory.
 	           Polyphemus holdProcess: pid watchedIn: directory ]
-		           on: Error
+		           on: PolyphemusError , FileSystemError
 		           do: [ :e | ToolCallFailed signal: 'Cannot hold process ' , pid printString , ': ' , e messageText asString ].
 	handle := self open: (PolyphemusMCPReading held: pid session: session) as: 'held'.
 	^ self held: handle saying: 'Held process ' , pid printString , ' as ' , handle , ', on what it was busy with. It stays held until let_go.'

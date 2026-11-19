@@ -4,7 +4,7 @@ whereStuck: someArguments
 	| pid report |
 	pid := someArguments at: 'pid' ifAbsent: [ ToolCallFailed signal: 'where_stuck needs a pid' ].
 	report := [ Polyphemus whereIsStuck: pid ]
-		          on: Error
+		          on: PolyphemusError , FileSystemError
 		          do: [ :e | ToolCallFailed signal: 'Cannot look at process ' , pid printString , ': ' , e messageText asString ].
 	^ self
 		  text: report printString

@@ -5,7 +5,7 @@ serveAndHold: aHash startingAt: aMethodSourceOrNil
 	process in the image's own debugger, read on from the last hold's reading when there was one.
 	A failure there lets the image go."
 
-	| channel previous |
+	| channel previous held |
 	channel := DirectoryChannel on: directory / 'channel'.
 	channel directory ensureDeleteAll.
 	(directory / 'do.st.tmp')
@@ -19,6 +19,7 @@ serveAndHold: aHash startingAt: aMethodSourceOrNil
 	self ring.
 	channel beatWhileServed.
 	previous := process.
+	held := false.
 	[
 	process := HeldProcess
 		           on: channel
@@ -26,8 +27,5 @@ serveAndHold: aHash startingAt: aMethodSourceOrNil
 		           identityHash: aHash
 		           startingAt: aMethodSourceOrNil.
 	"What the last hold read stays good for this one when nothing moved: as a step, not whole (#114)."
-	previous ifNotNil: [ process takeTheReadingOf: previous ] ]
-		on: Error
-		do: [ :error |
-			self abandon: channel.
-			error pass ]
+	previous ifNotNil: [ process takeTheReadingOf: previous ].
+	held := true ] valueThenLetGo: [ held ifFalse: [ self abandon: channel ] ]

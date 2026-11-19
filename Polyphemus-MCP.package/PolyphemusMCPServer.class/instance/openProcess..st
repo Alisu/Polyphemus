@@ -4,7 +4,7 @@ openProcess: someArguments
 	| pid reading handle |
 	pid := someArguments at: 'pid' ifAbsent: [ ToolCallFailed signal: 'open_process needs a pid' ].
 	reading := [ PolyphemusMCPReading process: pid ]
-		           on: Error
+		           on: PolyphemusError , FileSystemError
 		           do: [ :e | ToolCallFailed signal: 'Cannot read process ' , pid printString , ': ' , e messageText asString ].
 	handle := self open: reading as: 'process'.
 	^ self
