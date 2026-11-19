@@ -8,8 +8,7 @@ threadRegisters
 	^ (self pathFor: 'task') asFileReference directories collect: [ :task |
 		  | fields registers |
 		  registers := Dictionary new.
-		  fields := ([ (task / 'syscall') contents trimBoth ] on: Error do: [ :e | 'running' ])
-			            substrings: ' '.
+		  fields := self class syscallFieldsIn: task.
 		  fields size >= 3 ifTrue: [
 			  registers
 				  at: #rsp put: (self hexValueOf: (fields at: fields size - 1));

@@ -8,7 +8,7 @@ setTask: aTaskDirectory files: someMappedFiles codeZone: anAssociationOrNil
 	id := aTaskDirectory basename asNumber.
 	stat := [ (aTaskDirectory / 'stat') contents ] on: Error do: [ :e | '' ].
 	state := (stat copyAfterLast: $)) trimBoth ifEmpty: [ '?' ] ifNotEmpty: [ :rest | rest first asString ].
-	fields := ([ (aTaskDirectory / 'syscall') contents trimBoth ] on: Error do: [ :e | 'running' ]) substrings: ' '.
+	fields := LinuxProcessMemory syscallFieldsIn: aTaskDirectory.
 	wasRunning := fields first = 'running'.
 	fields size >= 3 ifTrue: [
 		number := fields first asNumber.
