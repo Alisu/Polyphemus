@@ -5,8 +5,9 @@ depthOfTheDebuggersContext
 	its debugger is not at a context of the process yet, as just after a hold (#168)."
 
 	| answer |
-	10 timesRepeat: [
-		answer := self request: '| context wanted depth |
+	(Poll
+		 until: [
+			 answer := self request: '| context wanted depth |
 context := (self at: #process) suspendedContext.
 wanted := (self at: #session) interruptedContext.
 depth := 0.
@@ -16,6 +17,7 @@ depth := 0.
 context
 	ifNil: [ ''not on the process: '' , wanted printString , '' / '' , (self at: #process) suspendedContext printString ]
 	ifNotNil: [ depth ]'.
-		(answer notNil and: [ answer isAllDigits ]) ifTrue: [ ^ answer asNumber ].
-		(Delay forMilliseconds: 100) wait ].
+			 answer notNil and: [ answer isAllDigits ] ]
+		 every: 100 milliSeconds
+		 atMost: 10) ifTrue: [ ^ answer asNumber ].
 	^ NotInTheReading signal: 'the image''s debugger is not at a context of the held process: ' , answer asString

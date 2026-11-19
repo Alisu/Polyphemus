@@ -1,0 +1,1 @@
+A condition asked again every so often, a number of times at most: how the readers wait for a process to stop, to start, or to show its virtual machine, and a held process for its debugger (#212). Counted in waits and not against a clock, so that a loaded machine is given the same number of looks.

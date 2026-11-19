@@ -1,0 +1,1 @@
+Asking a condition again every so often, a number of times at most: the one place the readers wait for a process to stop, to start or to show its virtual machine.

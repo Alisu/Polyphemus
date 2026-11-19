@@ -6,5 +6,4 @@ stopItsThreads
 
 	^ self stopThroughTheHelperOr: [
 		  LibC system: 'kill -STOP ' , pid printString.
-		  20 timesRepeat: [ self isStopped ifTrue: [ ^ true ]. (Delay forMilliseconds: 100) wait ].
-		  self isStopped ]
+		  Poll until: [ self isStopped ] every: 100 milliSeconds atMost: 20 ]
