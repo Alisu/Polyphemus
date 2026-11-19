@@ -6,13 +6,13 @@ heldIn: aReading
 	heap -- suspended while held, it is in no queue (#103)."
 
 	| found |
-	address ifNotNil: [
-		found := [ aReading reifyOop: address ] on: Error do: [ :e | nil ].
+	(address notNil and: [ self hasTheHeldProcessesHeaderAt: address in: aReading ]) ifTrue: [
+		found := aReading reifyOop: address.
 		(self isTheHeldProcess: found) ifTrue: [ ^ found ] ].
 	slot ifNotNil: [
 		found := [ (aReading reifiedSpecialObjectArray reifiedSlotAt: 39) reifiedSlotAt: slot ]
-			         on: Error
-			         do: [ :e | nil ].
+			         on: PolyphemusError
+			         do: [ :refusal | nil ].
 		(self isTheHeldProcess: found) ifTrue: [
 			address := found address.
 			^ found ] ].

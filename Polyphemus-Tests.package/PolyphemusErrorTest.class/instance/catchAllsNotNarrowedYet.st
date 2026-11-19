@@ -3,4 +3,4 @@ catchAllsNotNarrowedYet
 
 	"Around our own code, where a defect reads as an answer: to narrow, each with a look (#212)."
 
-	^ #( 'HeldReading>>heldIn:' 'OOPAbnormalEntity>>recoverCouldBeObj' 'OOPAbnormalEntity>>reverseDecoding' )
+	^ #( 'OOPAbnormalEntity>>recoverCouldBeObj' 'OOPAbnormalEntity>>reverseDecoding' )
