@@ -1,18 +1,15 @@
 {
 	"commentStamp": "",
-	"super": "Object",
+	"super": "HeapTally",
 	"category": "Polyphemus-Headless-Census",
 	"classinstvars": [],
 	"pools": [],
 	"classvars": [],
 	"instvars": [
-		"objectMemory",
 		"census",
 		"packageNames",
 		"packageOfClass",
 		"owned",
-		"counts",
-		"sizes",
 		"methodCount"
 	],
 	"name": "PackageFootprint",

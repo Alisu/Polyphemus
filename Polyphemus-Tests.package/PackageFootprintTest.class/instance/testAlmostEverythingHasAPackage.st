@@ -5,5 +5,5 @@ testAlmostEverythingHasAPackage
 
 	| footprint |
 	footprint := self footprint.
-	self assert: (footprint bytesOf: '(no package)') < (footprint ownedBytes / 100).
+	self assert: (footprint bytesOf: '(no package)') < (footprint bytes / 100).
 	self assert: footprint lines first bytes >= footprint lines last bytes

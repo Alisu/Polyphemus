@@ -10,6 +10,5 @@ take
 		(scanner isFreeChunkAt: address) ifFalse: [
 			| index |
 			index := scanner classIndexIn: (scanner headerAt: address).
-			counts at: index put: (counts at: index ifAbsent: [ 0 ]) + 1.
-			sizes at: index put: (sizes at: index ifAbsent: [ 0 ]) + (scanner bytesOfObjectAt: address) ].
+			self count: index bytes: (scanner bytesOfObjectAt: address) ].
 		address := scanner objectAfter: address ]

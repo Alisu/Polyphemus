@@ -1,0 +1,1 @@
+Objects of a memory counted under keys, with the bytes they take: what a census by class and a footprint by package both are (#212). A subclass says what it counts and under which key; the lines, heaviest first, and the total are here.

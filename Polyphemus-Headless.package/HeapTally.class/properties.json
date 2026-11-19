@@ -1,0 +1,15 @@
+{
+	"commentStamp": "",
+	"super": "Object",
+	"category": "Polyphemus-Headless-Census",
+	"classinstvars": [],
+	"pools": [],
+	"classvars": [],
+	"instvars": [
+		"objectMemory",
+		"counts",
+		"sizes"
+	],
+	"name": "HeapTally",
+	"type": "normal"
+}
