@@ -7,9 +7,9 @@ in: aByteArray do: aBlock
 	index := 1.
 	[ index + 11 <= aByteArray size ] whileTrue: [
 		| nameSize descriptionSize type name description |
-		nameSize := (ElfNote unsignedFrom: aByteArray at: index size: 4).
-		descriptionSize := (ElfNote unsignedFrom: aByteArray at: index + 4 size: 4).
-		type := (ElfNote unsignedFrom: aByteArray at: index + 8 size: 4).
+		nameSize := (LittleEndian unsignedIn: aByteArray from: index size: 4).
+		descriptionSize := (LittleEndian unsignedIn: aByteArray from: index + 4 size: 4).
+		type := (LittleEndian unsignedIn: aByteArray from: index + 8 size: 4).
 		index := index + 12.
 		name := (aByteArray copyFrom: index to: index + nameSize - 1) asString
 			        copyWithout: Character null.

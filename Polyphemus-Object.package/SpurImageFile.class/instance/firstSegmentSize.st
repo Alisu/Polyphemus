@@ -1,4 +1,4 @@
 header
 firstSegmentSize
 
-	^ self unsignedFrom: header at: 73 size: 8
+	^ LittleEndian unsignedIn: header from: 73 size: 8

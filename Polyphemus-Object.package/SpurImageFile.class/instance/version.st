@@ -1,4 +1,4 @@
 header
 version
 
-	^ self unsignedFrom: header at: 1 size: 4
+	^ LittleEndian unsignedIn: header from: 1 size: 4

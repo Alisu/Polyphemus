@@ -1,0 +1,1 @@
+What the code may not grow back: each test holds the short list of methods allowed one way of doing a thing that has a single place (#212). A method that leaves a list makes it shorter; none joins one without a reason said in the list.

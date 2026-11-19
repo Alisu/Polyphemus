@@ -1,4 +1,4 @@
 header
 dataSize
 
-	^ self unsignedFrom: header at: 9 size: 8
+	^ LittleEndian unsignedIn: header from: 9 size: 8

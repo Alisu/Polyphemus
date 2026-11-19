@@ -7,7 +7,7 @@ testACatchAllIsOnlyWhereOneIsListed
 
 	| found allowed |
 	found := OrderedCollection new.
-	self methodsOfPolyphemusDo: [ :method |
+	PolyphemusTestCase methodsOfPolyphemusDo: [ :method |
 		(self catchesAnyError: method) ifTrue: [ found add: method methodClass name , '>>' , method selector ] ].
 	allowed := self methodsAllowedACatchAll.
 

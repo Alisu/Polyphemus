@@ -9,10 +9,10 @@ readSymbols: aTable strings: aStringTable
 	(aTable at: 2) to: (aTable at: 2) + (aTable at: 3) - 24 by: 24 do: [ :offset |
 		| at nameOffset name |
 		at := offset + 1.
-		nameOffset := ElfNote unsignedFrom: self bytes at: at size: 4.
-		(nameOffset > 0 and: [ (ElfNote unsignedFrom: self bytes at: at + 6 size: 2) ~= 0 ])
+		nameOffset := LittleEndian unsignedIn: self bytes from: at size: 4.
+		(nameOffset > 0 and: [ (LittleEndian unsignedIn: self bytes from: at + 6 size: 2) ~= 0 ])
 			ifTrue: [
 				name := self stringAt: strings + nameOffset + 1.
-				symbols at: name put: (ElfNote unsignedFrom: self bytes at: at + 8 size: 8).
-				sizes at: name put: (ElfNote unsignedFrom: self bytes at: at + 16 size: 8).
+				symbols at: name put: (LittleEndian unsignedIn: self bytes from: at + 8 size: 8).
+				sizes at: name put: (LittleEndian unsignedIn: self bytes from: at + 16 size: 8).
 				((self bytes at: at + 4) bitAnd: 15) = 1 ifTrue: [ variableNames add: name ] ] ]

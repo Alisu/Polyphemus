@@ -19,8 +19,6 @@ threadRegisters
 			do: [ :type :name :description |
 				type = 1 ifTrue: [
 					threads add: (Dictionary newFrom: (names withIndexCollect: [ :each :index |
-							  each -> (ElfNote
-								   unsignedFrom: description
-								   at: 112 + (index - 1 * 8) + 1
+							  each -> (LittleEndian unsignedIn: description from: 112 + (index - 1 * 8) + 1
 								   size: 8) ])) ] ] ].
 	^ threads

@@ -1,0 +1,1 @@
+Reading and writing integers lowest byte first, as the machines this runs on keep them.

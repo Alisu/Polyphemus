@@ -9,5 +9,5 @@ checkItIsACoreDump: aHeader
 		^ UnknownFormat signal: 'not an ELF file' ].
 	(aHeader at: 5) = 2 ifFalse: [ ^ UnknownFormat signal: 'not a 64 bit ELF file' ].
 	(aHeader at: 6) = 1 ifFalse: [ ^ UnknownFormat signal: 'not a little endian ELF file' ].
-	(self unsignedFrom: aHeader at: 17 size: 2) = 4 ifFalse: [
+	(LittleEndian unsignedIn: aHeader from: 17 size: 2) = 4 ifFalse: [
 		^ UnknownFormat signal: 'an ELF file, but not a core dump' ]

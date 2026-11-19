@@ -5,8 +5,8 @@ segmentFrom: aTable at: anIndex
 	address, physical address, size in the file, size in memory, alignment."
 
 	^ ElfCoreSegment new
-		  kind: (self unsignedFrom: aTable at: anIndex size: 4)
-		  address: (self unsignedFrom: aTable at: anIndex + 16 size: 8)
-		  offset: (self unsignedFrom: aTable at: anIndex + 8 size: 8)
-		  inFile: (self unsignedFrom: aTable at: anIndex + 32 size: 8)
-		  inMemory: (self unsignedFrom: aTable at: anIndex + 40 size: 8)
+		  kind: (LittleEndian unsignedIn: aTable from: anIndex size: 4)
+		  address: (LittleEndian unsignedIn: aTable from: anIndex + 16 size: 8)
+		  offset: (LittleEndian unsignedIn: aTable from: anIndex + 8 size: 8)
+		  inFile: (LittleEndian unsignedIn: aTable from: anIndex + 32 size: 8)
+		  inMemory: (LittleEndian unsignedIn: aTable from: anIndex + 40 size: 8)

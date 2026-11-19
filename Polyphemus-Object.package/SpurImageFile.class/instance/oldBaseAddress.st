@@ -1,4 +1,4 @@
 header
 oldBaseAddress
 
-	^ self unsignedFrom: header at: 17 size: 8
+	^ LittleEndian unsignedIn: header from: 17 size: 8

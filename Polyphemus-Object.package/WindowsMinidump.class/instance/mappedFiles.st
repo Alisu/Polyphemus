@@ -6,16 +6,16 @@ mappedFiles
 
 	| at count entries |
 	at := (self streamOfType: 4 in: (self bytesAtOffset: 0 count: 32)) ifNil: [ ^ #(  ) ].
-	count := self unsignedFrom: (self bytesAtOffset: at count: 4) at: 1 size: 4.
+	count := LittleEndian unsignedIn: (self bytesAtOffset: at count: 4) from: 1 size: 4.
 	entries := self tableAtOffset: at + 4 count: 108 * count.
 	^ (0 to: count - 1) collect: [ :index |
 		  | entry base nameAt length |
 		  entry := index * 108 + 1.
-		  base := self unsignedFrom: entries at: entry size: 8.
-		  nameAt := self unsignedFrom: entries at: entry + 20 size: 4.
-		  length := self unsignedFrom: (self bytesAtOffset: nameAt count: 4) at: 1 size: 4.
+		  base := LittleEndian unsignedIn: entries from: entry size: 8.
+		  nameAt := LittleEndian unsignedIn: entries from: entry + 20 size: 4.
+		  length := LittleEndian unsignedIn: (self bytesAtOffset: nameAt count: 4) from: 1 size: 4.
 		  ElfMappedFile
 			  start: base
-			  stop: base + (self unsignedFrom: entries at: entry + 8 size: 4)
+			  stop: base + (LittleEndian unsignedIn: entries from: entry + 8 size: 4)
 			  fileOffset: 0
 			  path: ((ZnCharacterEncoder newForEncoding: 'utf-16le') decodeBytes: (self bytesAtOffset: nameAt + 4 count: length)) ]

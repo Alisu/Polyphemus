@@ -3,6 +3,4 @@ storeWord: aWord at: anAddress
 
 	"Eight bytes, little endian, as #unsignedAt:size: reads them back."
 
-	^ self
-		  storeBytes: ((1 to: 8) collect: [ :each | (aWord bitShift: each - 1 * -8) \\ 256 ]) asByteArray
-		  at: anAddress
+	^ self storeBytes: (LittleEndian bytesOf: aWord size: 8) at: anAddress

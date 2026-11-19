@@ -10,9 +10,9 @@ readFrom: aFileReference
 	header := self tableAtOffset: 0 count: 64.
 	self checkItIsACoreDump: header.
 
-	tableStart := self unsignedFrom: header at: 33 size: 8.
-	entrySize := self unsignedFrom: header at: 55 size: 2.
-	entryCount := self unsignedFrom: header at: 57 size: 2.
+	tableStart := LittleEndian unsignedIn: header from: 33 size: 8.
+	entrySize := LittleEndian unsignedIn: header from: 55 size: 2.
+	entryCount := LittleEndian unsignedIn: header from: 57 size: 2.
 
 	table := self tableAtOffset: tableStart count: entrySize * entryCount.
 	segments := (1 to: entryCount) collect: [ :index |

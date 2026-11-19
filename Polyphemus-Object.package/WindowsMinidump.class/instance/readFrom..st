@@ -12,15 +12,15 @@ readFrom: aFileReference
 	listAt := self streamOfType: 9 in: header.
 	listAt ifNil: [ ^ UnknownFormat signal: 'a minidump without its memory: take it with MiniDumpWithFullMemory' ].
 	list := self bytesAtOffset: listAt count: 16.
-	count := self unsignedFrom: list at: 1 size: 8.
-	rva := self unsignedFrom: list at: 9 size: 8.
+	count := LittleEndian unsignedIn: list from: 1 size: 8.
+	rva := LittleEndian unsignedIn: list from: 9 size: 8.
 	list := self tableAtOffset: listAt + 16 count: 16 * count.
 	segments := (0 to: count - 1) collect: [ :index |
 		            | size segment |
-		            size := self unsignedFrom: list at: index * 16 + 9 size: 8.
+		            size := LittleEndian unsignedIn: list from: index * 16 + 9 size: 8.
 		            segment := ElfCoreSegment new
 			                       kind: 1
-			                       address: (self unsignedFrom: list at: index * 16 + 1 size: 8)
+			                       address: (LittleEndian unsignedIn: list from: index * 16 + 1 size: 8)
 			                       offset: rva
 			                       inFile: size
 			                       inMemory: size.

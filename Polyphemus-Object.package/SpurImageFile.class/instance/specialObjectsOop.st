@@ -1,4 +1,4 @@
 header
 specialObjectsOop
 
-	^ self unsignedFrom: header at: 25 size: 8
+	^ LittleEndian unsignedIn: header from: 25 size: 8

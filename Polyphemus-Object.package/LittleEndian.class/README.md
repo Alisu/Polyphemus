@@ -1,0 +1,1 @@
+An integer and its bytes, lowest byte first, as the machines Polyphemus reads keep them: the one place an integer is put together from bytes, or taken apart into them (#212). Whoever reads a file, a core or a process asks here.

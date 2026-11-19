@@ -6,7 +6,7 @@ testPolyphemusRaisesItsErrorsByName
 
 	| raw |
 	raw := OrderedCollection new.
-	self methodsOfPolyphemusDo: [ :method |
+	PolyphemusTestCase methodsOfPolyphemusDo: [ :method |
 		(method ast sendNodes anySatisfy: [ :node |
 			 node selector = #error: and: [ node receiver isSelfVariable ] ]) ifTrue: [
 			raw add: method methodClass name , '>>' , method selector ] ].

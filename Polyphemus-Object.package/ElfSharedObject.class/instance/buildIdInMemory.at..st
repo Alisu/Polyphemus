@@ -7,12 +7,12 @@ buildIdInMemory: aMemory at: aBase
 	| header table |
 	header := (aMemory bytesAt: aBase count: 64) ifNil: [ ^ nil ].
 	table := (aMemory
-		          bytesAt: aBase + ((ElfNote unsignedFrom: header at: 16r20 + 1 size: 8))
-		          count: ((ElfNote unsignedFrom: header at: 16r38 + 1 size: 2)) * 56) ifNil: [ ^ nil ].
+		          bytesAt: aBase + ((LittleEndian unsignedIn: header from: 16r20 + 1 size: 8))
+		          count: ((LittleEndian unsignedIn: header from: 16r38 + 1 size: 2)) * 56) ifNil: [ ^ nil ].
 	1 to: table size by: 56 do: [ :at |
-		((ElfNote unsignedFrom: table at: at size: 4)) = 4 ifTrue: [
+		((LittleEndian unsignedIn: table from: at size: 4)) = 4 ifTrue: [
 			(aMemory
-				 bytesAt: aBase + ((ElfNote unsignedFrom: table at: at + 16 size: 8))
-				 count: ((ElfNote unsignedFrom: table at: at + 32 size: 8))) ifNotNil: [ :notes |
+				 bytesAt: aBase + ((LittleEndian unsignedIn: table from: at + 16 size: 8))
+				 count: ((LittleEndian unsignedIn: table from: at + 32 size: 8))) ifNotNil: [ :notes |
 				(ElfNote buildIdIn: notes) ifNotNil: [ :id | ^ id ] ] ] ].
 	^ nil

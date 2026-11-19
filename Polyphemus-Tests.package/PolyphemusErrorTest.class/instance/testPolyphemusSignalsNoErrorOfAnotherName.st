@@ -7,7 +7,7 @@ testPolyphemusSignalsNoErrorOfAnotherName
 	| root others |
 	root := Smalltalk globals at: #PolyphemusError.
 	others := OrderedCollection new.
-	self methodsOfPolyphemusDo: [ :method |
+	PolyphemusTestCase methodsOfPolyphemusDo: [ :method |
 		(method ast sendNodes anySatisfy: [ :node |
 			 (#( #signal #signal: #signalFor: #signalFor:in: #new ) includes: node selector) and: [
 				 node receiver isVariable and: [

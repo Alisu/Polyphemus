@@ -19,7 +19,7 @@ readSegments
 				 inFile: held
 				 inMemory: size).
 		held < size ifTrue: [ ^ self ].
-		bridge := self unsignedFrom: (self bytesAtOffset: offset + size - 16 count: 16) at: 1 size: 8.
+		bridge := LittleEndian unsignedIn: (self bytesAtOffset: offset + size - 16 count: 16) from: 1 size: 8.
 		address := address + size + (SpurHeader bridgeSpanFrom: bridge).
 		offset := offset + size.
-		size := self unsignedFrom: (self bytesAtOffset: offset - 8 count: 8) at: 1 size: 8 ]
+		size := LittleEndian unsignedIn: (self bytesAtOffset: offset - 8 count: 8) from: 1 size: 8 ]
