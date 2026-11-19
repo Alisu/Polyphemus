@@ -3,7 +3,4 @@ allocateBytesOfSymbolClass: aCount
 
 	"Room for so many characters, of the class the image's own symbols have."
 
-	^ memory
-		  allocateSlots: aCount + 7 // 8
-		  format: 16 + (8 - (aCount \\ 8) \\ 8)
-		  classIndex: self classIndexOfSymbols
+	^ self allocateBytes: aCount format: 16 classIndex: self classIndexOfSymbols

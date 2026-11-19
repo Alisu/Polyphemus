@@ -1,13 +1,9 @@
 installing
-allocate: aCompilation classIndex: anIndex
+allocate: aCompiledCode classIndex: anIndex
 
-	"Room for the header word, the literals, and the code with its trailer. The format says
-	how many bytes of the last word are unused."
+	"Room for its header word, its literals, and the code after them with its trailer."
 
-	| total |
-	total := 8 + (aCompilation numLiterals * 8)
-	         + (aCompilation size - aCompilation initialPC + 1).
-	^ memory
-		  allocateSlots: total + 7 // 8
-		  format: 24 + (8 - (total \\ 8) \\ 8)
+	^ self
+		  allocateBytes: 8 + (aCompiledCode numLiterals * 8) + (aCompiledCode size - aCompiledCode initialPC + 1)
+		  format: 24
 		  classIndex: anIndex

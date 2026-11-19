@@ -4,11 +4,4 @@ hostMethodFor: anActivation
 	"The activation's method recompiled here from its source, answered only when the
 	bytecodes equal the file's; nil otherwise. Cached per method."
 
-	| home |
-	home := [ anActivation homeMethod ] on: PolyphemusError do: [ :e | nil ].
-	home ifNil: [ ^ nil ].
-
-	^ (memory
-		   rememberedAt: 'hostMethod.' , home address printString
-		   ifAbsentPut: [ (self compileHostMethodFor: anActivation) ifNil: [ false ] ])
-		  ifNotNil: [ :cached | cached == false ifTrue: [ nil ] ifFalse: [ cached ] ]
+	^ self onceForTheMethodOf: anActivation as: 'hostMethod' do: [ self compileHostMethodFor: anActivation ]
