@@ -1,1 +1,3 @@
 Memory read at addresses: bytes in hand, a file, a process, a copy of one, a dump. Subclasses read; what only some of them can tell (segments, threads, a pid, a file, where the image says its heap starts) answers nil here, rather than being looked for with respondsTo: (#118).
+
+Reading answers nil for bytes that are not all there (bytesAt:count:, unsignedAt:size:), and whoever asks checks: decided on 2026-11-19 (#212), a walk over a heap asking millions of times and a probe being no failure. Writing signals, since a write that did not happen may not pass for one that did. One reading refuses by name: a copy of a process asked for bytes the process had and the copy left out, which are not bytes that are not there.
