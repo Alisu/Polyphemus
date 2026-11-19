@@ -18,5 +18,6 @@ testRunUntilWaitsTenMinutesAtMost
 		each value
 			ifNil: [
 				self assert: (result at: 'isError').
+				self assert: (((result at: 'content') first at: 'text') includesSubstring: 'seconds').
 				self assert: asked isEmpty ]
 			ifNotNil: [ :seconds | self assert: asked first value equals: seconds seconds ] ]

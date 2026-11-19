@@ -11,6 +11,10 @@ call: someParams
 		^ PolyphemusMCPError signal: 'Invalid params: the arguments of ' , name printString , ' are not an object' code: -32602 ].
 	selector := (self selectorOfTool: name) ifNil: [
 		            ^ PolyphemusMCPError signal: 'Unknown tool: ' , name printString code: -32602 ].
-	^ [ self perform: selector with: arguments ]
+	"An argument given as null is one not given."
+	arguments := arguments reject: [ :each | each isNil ].
+	^ [
+	  self refuseArgumentsOfAnotherTypeIn: arguments ofTool: name.
+	  self perform: selector with: arguments ]
 		  on: PolyphemusError , FileSystemError
 		  do: [ :refusal | self failure: refusal messageText asString ]

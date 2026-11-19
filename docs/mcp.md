@@ -58,7 +58,8 @@ values come by number, with a note saying why, and the edition made for that ima
 Every tool but `hold`, `run_until`, `step`, `save`, `stop` and `let_go` is annotated read-only;
 those are annotated as changing a VM, so a client may ask before it runs them, and `save` and
 `stop` as destructive: letting go does not undo them. A tool that refuses says so in its result (`isError`, with the reason),
-for the agent to read; JSON-RPC errors are kept for the protocol's own (unknown method, unknown
+for the agent to read, an argument of another type than the tool declares included (it is named,
+with what it has to be; one given as `null` is one not given); JSON-RPC errors are kept for the protocol's own (unknown method, unknown
 tool, unreadable JSON) and for a defect of the server's: an error that is no refusal is answered
 as `-32603`, `Internal error:` and the error's class, never as a tool's result, and the server
 serves the next request (#180).

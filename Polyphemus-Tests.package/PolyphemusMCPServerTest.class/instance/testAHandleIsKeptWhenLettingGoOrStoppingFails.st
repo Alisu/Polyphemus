@@ -13,4 +13,5 @@ testAHandleIsKeptWhenLettingGoOrStoppingFails
 		handle := self heldBy: failing.
 		result := self resultOf: tool with: (Dictionary new at: 'handle' put: handle; yourself).
 		self assert: (result at: 'isError').
+		self assert: (((result at: 'content') first at: 'text') includesSubstring: 'the image did not answer').
 		self assert: (self server images includesKey: handle) description: tool ]
