@@ -165,6 +165,10 @@ Not tried yet, so unknown rather than broken:
 
 - **A method of an image shipped without sources shows as bytecodes**, not decompiled. A script's
   own code (a `DoIt` frame) shows its source, but which statement runs is not highlighted yet.
+- **A running VM caught in machine code** is read from the thread's registers. Caught in a method
+  without a frame of its own, the active process's stack is refused
+  (`itsInstructionPointerIsOutsideItsNewestFrame`): read again. Its newest frame may show a wrong
+  receiver when the VM was caught building it (seen once on macOS, #17).
 - **A frame in machine code** shows its bytecodes. Its method's Machine code tab shows what Cog
   compiled (the CogMethod, its map, what each send is linked to, its bytes), not a disassembly
   (#95, #19). No C frames under a primitive or an FFI call: the stuck report prints the gdb

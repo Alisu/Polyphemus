@@ -542,3 +542,10 @@ the simulated collection run twice, the first on a clone of the whole simulation
 check). Off, the write went from **107 s to 203-222 s**; off with a host `Smalltalk
 garbageCollect` first, 172 s. Why the clone makes it faster is not understood (2026-09-26).
 → Leave it as VMMaker has it. Profile the host's own collections before trying again.
+
+**Drift: each change fine, the whole worse.** Between the upstream of 2023 and 2026-11-10, the
+handlers of every `Error` went from 4 to 225 and nil checks from 8.5 to 50 per thousand lines; an
+integer was read from its bytes in eight places, and a thread's system call file parsed in three
+that disagreed. No commit looked wrong: it showed only counted over months (#212, six dates).
+-> Look for the way already there before writing one; a rule that matters is held by a test
+(`DriftTest`, `PolyphemusErrorTest`'s lists); `bin/drift.py` before each tag.

@@ -18,7 +18,15 @@ its release on GitHub; what is on stage2 since the last tag comes first.
   there: the default is now `polyphemus-hold-<uid>/<pid>`, of the user the VM runs as and closed
   to others, and one that is another's or open to others is refused. An error that is no refusal
   was answered as a tool's result; it is the server's internal error (`-32603`, with the error's
-  class), and the next request is served (`docs/mcp.md`).
+  class), and the next request is served (`docs/mcp.md`). An argument of another type than the
+  tool declares (a pid given as text, a handle as a number) is the tool's refusal, naming it and
+  what it has to be.
+- **One way per problem (#212)**: an integer is read from its bytes and written back in one
+  place, a thread's system call file is read in one place, five waits that asked again every so
+  often are one; what a user sees of it: the memory map paints a defect of ours as a defect, not
+  as a place that does not read; a short read of a file or a process answers nil, where two of
+  three readers raised an index error; on Linux a thread whose system call file does not read is
+  said to run, as all three readers concluded.
 - **A hold that fails leaves nothing behind (#181)**: the hold file, the reader and the lock go
   when the stop raises or the interrupt is not taken in time; a `runUntil:` that fails takes its
   trap back, and a trap nobody waits for takes itself out, where the next process to reach the

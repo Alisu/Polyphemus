@@ -346,6 +346,16 @@ worth its cost; #23 holds what that would take.
   - A gate compiles the working copy into its editions first, then says `working copy free`:
     edit on, but leave `bin/` alone until it ends, and run `bin/tdd.sh` only on setups the gate
     is not using.
+- **One way per problem** (#212). Before writing a loop, a guard or a handler, find the one
+  already there: an integer from bytes is `LittleEndian`'s, a wait that asks again is `Poll`'s
+  (`HeldImage>>waitFor:within:` for the held image), bytes that do not all read answer nil on the
+  reading side and signal on the writing side (`AddressSpace`'s contract), and a handler catches
+  `PolyphemusError` unless its method is on one of `PolyphemusErrorTest`'s lists, with its reason.
+  `DriftTest` holds some of these; the rest is counted by `bin/drift.py`.
+- **Before a tag**: the drift pass (`bin/drift.py`, its counts compared with the last tag's, in
+  #212 for v0.1.0 to v0.2.0, and each count that rose explained or fixed), the local gate on two
+  editions (`bin/gate.sh 13 10`), the patch notes' "Since" section headed by the tag, and
+  `docs/START-HERE.md` loading the tag.
 - **Prefer a check to a claim.** Where two images have to agree — bytecodes, block order, a
   name — compare them and answer nothing when they disagree, rather than answering something
   plausible. Wrong information in a debugger costs more than missing information.
