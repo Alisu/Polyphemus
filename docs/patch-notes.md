@@ -9,7 +9,19 @@ in answer, and what the edition still does not do.
 From v0.1.0 on, each version has a section of its own, headed by its tag, with the same text as
 its release on GitHub; what is on stage2 since the last tag comes first.
 
-## Since v0.1.0 (stage2)
+## v0.2.0 (2026-11-21, all editions)
+
+### Before the tag (2026-11-21)
+
+A trial on a Mac (Pharo 13, M1 Pro, the observer as root), each scene of the demo: a live counter
+held, stepped, changed and fixed in the debugger (#171 and #121 rechecked); a frozen image revived
+without a restart; an image stuck in C read from both sides; a core read after its VM was gone; the
+observer killed during a hold, the counter going on by itself after the hold limit (#96
+rechecked). The hold and the step are slower than on 2026-11-03 (#213). The drift pass: the counts
+of #212 unchanged since 2026-11-19 (25 handlers of every `Error`, 90 that answer nil, false or
+empty, 57.4 nil checks per 1000 lines, 10 wait loops, 7 groups written twice, 3 pairs 80% alike).
+
+### Since v0.1.0
 
 - **The MCP server closes a handle, holds in a directory of the process's owner, and owns its
   defects (#180)**: `close(handle)` forgets a reading of an image file, a core or a process and
