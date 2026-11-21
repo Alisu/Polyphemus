@@ -41,11 +41,11 @@ In that image, in a Playground:
 ```smalltalk
 Metacello new
 	baseline: 'Polyphemus';
-	repository: 'github://Alisu/Polyphemus:v0.1.0';
+	repository: 'github://Alisu/Polyphemus:v0.2.0';
 	load.
 ```
 
-`v0.1.0` is the version released; `stage2` instead loads the latest work, which may not be finished.
+`v0.2.0` is the version released; `stage2` instead loads the latest work, which may not be finished.
 It takes several minutes: most of it is VMMaker. Then check which edition you have:
 
 ```smalltalk
