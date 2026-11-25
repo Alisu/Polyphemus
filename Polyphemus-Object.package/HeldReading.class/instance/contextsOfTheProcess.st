@@ -1,8 +1,8 @@
 reading
 contextsOfTheProcess
 
-	"The held process's stack from a new copy taken in one stop. The image must have moved its frames
-	into contexts first: they live on stack pages, out of the heap copied."
+	"The held process's stack from a new copy taken in one stop: its frames on the stack pages,
+	which the copy holds, then its contexts in the heap (#215)."
 
 	self readAgain.
-	^ reading contextsOfProcess: (self heldIn: reading)
+	^ reading activationsOfProcess: (self heldIn: reading)
