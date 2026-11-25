@@ -5,13 +5,9 @@ boundsOfThePageHolding: aFramePointer
 	records it on. Where the VM does not say, or records it on none, a megabyte from it, more
 	than any page: a chain that leaves its page is then cut before it wanders the memory (#198)."
 
-	| variables span |
 	^ [
-	  variables := raw vmVariables.
-	  span := variables at: 'bytesPerPage'.
-	  variables stackPages
-		  detect: [ :each | each baseFP ~= 0 and: [ aFramePointer between: each baseAddress - span and: each baseFP ] ]
-		  ifFound: [ :page | OOPStackPageBounds endingAt: page baseFP ]
-		  ifNone: [ OOPStackPageBounds within: 16r100000 of: aFramePointer ] ]
+	  (raw vmVariables pageHolding: aFramePointer)
+		  ifNil: [ OOPStackPageBounds within: 16r100000 of: aFramePointer ]
+		  ifNotNil: [ :page | OOPStackPageBounds endingAt: page baseFP ] ]
 		  on: SpurCannotRead
 		  do: [ :unsaid | OOPStackPageBounds within: 16r100000 of: aFramePointer ]
