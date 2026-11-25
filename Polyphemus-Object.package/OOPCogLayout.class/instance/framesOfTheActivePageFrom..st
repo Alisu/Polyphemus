@@ -6,7 +6,7 @@ framesOfTheActivePageFrom: aFramePointer
 
 	| variables page frames index |
 	variables := raw vmVariables.
-	page := [ variables pageHolding: aFramePointer ] on: SpurCannotRead do: [ :unsaid | ^ nil ].
+	page := [ self pageHolding: aFramePointer ] on: SpurCannotRead do: [ :unsaid | ^ nil ].
 	(page notNil and: [ page address = (variables at: 'stackPage') ]) ifFalse: [ ^ nil ].
 	frames := [ self framesOfActiveProcess ] on: SpurCannotRead do: [ :refusal | ^ nil ].
 	index := frames findFirst: [ :each | each framePointer = aFramePointer ].

@@ -6,8 +6,8 @@ framesFromContext: aContext
 
 	| fp page frames |
 	fp := (self framePointerOf: aContext) ifNil: [ ^ #(  ) ].
-	(self framesOfTheActivePageFrom: fp) ifNotNil: [ :active | ^ active ].
 	page := [ raw vmVariables pageWithHeadFP: fp ] on: SpurCannotRead do: [ :unsaid | nil ].
+	(self framesOfTheActivePageFrom: fp) ifNotNil: [ :active | ^ active ].
 	frames := self framesFrom: fp stackTop: (page ifNotNil: [ page headSP ]).
 	page ifNotNil: [
 		frames first setSavedIP: (self wordAt: page headSP).

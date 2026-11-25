@@ -6,7 +6,7 @@ boundsOfThePageHolding: aFramePointer
 	than any page: a chain that leaves its page is then cut before it wanders the memory (#198)."
 
 	^ [
-	  (raw vmVariables pageHolding: aFramePointer)
+	  (self pageHolding: aFramePointer)
 		  ifNil: [ OOPStackPageBounds within: 16r100000 of: aFramePointer ]
 		  ifNotNil: [ :page | OOPStackPageBounds endingAt: page baseFP ] ]
 		  on: SpurCannotRead

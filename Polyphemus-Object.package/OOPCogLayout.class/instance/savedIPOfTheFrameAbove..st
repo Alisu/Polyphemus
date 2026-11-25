@@ -5,7 +5,7 @@ savedIPOfTheFrameAbove: aFramePointer
 	from the head down (StackInterpreter>>findFrameAbove:inPage:); nil where none on its page calls it."
 
 	| page above caller |
-	page := [ raw vmVariables pageHolding: aFramePointer ] on: SpurCannotRead do: [ :unsaid | nil ].
+	page := [ self pageHolding: aFramePointer ] on: SpurCannotRead do: [ :unsaid | nil ].
 	page ifNil: [ ^ nil ].
 	above := page headFP.
 	[ above < aFramePointer ] whileTrue: [
